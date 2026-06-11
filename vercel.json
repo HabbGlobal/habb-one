@@ -1,0 +1,25 @@
+{
+  "$schema": "https://openapi.vercel.sh/vercel.json",
+  "framework": "nextjs",
+  "regions": ["fra1"],
+  "functions": {
+    "app/api/admin/invoices/[id]/qr-bill.pdf/route.ts": { "maxDuration": 60 },
+    "app/api/admin/quotes/[id]/offer.pdf/route.ts": { "maxDuration": 60 },
+    "app/api/admin/orders/[id]/traveler.pdf/route.ts": { "maxDuration": 60 },
+    "app/api/admin/reports/erp/calculation.xlsx/route.ts": { "maxDuration": 60 },
+    "app/api/admin/reports/erp/machine-utilization.xlsx/route.ts": { "maxDuration": 60 },
+    "app/api/admin/reports/erp/employee-productivity.xlsx/route.ts": { "maxDuration": 60 },
+    "app/api/admin/reports/payroll.xlsx/route.ts": { "maxDuration": 60 },
+    "app/api/admin/reports/payroll.pdf/route.ts": { "maxDuration": 60 }
+  },
+  "crons": [
+    {
+      "path": "/api/cron/holidays",
+      "schedule": "0 3 * * *"
+    },
+    {
+      "path": "/api/cron/diagnostics",
+      "schedule": "0 2 * * *"
+    }
+  ]
+}

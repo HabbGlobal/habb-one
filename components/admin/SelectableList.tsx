@@ -1,0 +1,255 @@
+"use client";
+
+// Reusable selectable list + bulk-action bar for admin views.
+//
+// Caller provides:
+//   - rows: data items with stable string IDs
+//   - columns: how to render each cell
+//   - editHref: produces a per-row pencil-icon link
+//   - bulk: server actions to call when the user clicks Archive/Delete/Restore
+//   - view: which lifecycle bucket we are showing (governs which actions show)
+//
+// The list owns its own selection state. Bulk actions are server actions
+// imported from the page's actions.ts so the call goes through Next.js's
+// RPC pipeline directly.
+
+import { useMemo, useState, useTransition } from "react";
+import { useRouter } from "next/navigation";
+import Link from "next/link";
+import { Pencil, Trash2, Archive, RotateCcw, Check } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { cn } from "@/lib/utils";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
+import type { LifecycleView } from "@/lib/lifecycle";
+
+export interface ColumnDef<T> {
+  header: string;
+  cell: (row: T) => React.ReactNode;
+  className?: string;
+}
+
+export interface BulkHandlers {
+  archive?: (ids: string[]) => Promise<void>;
+  delete?: (ids: string[]) => Promise<void>;
+  restore?: (ids: string[]) => Promise<void>;
+  hardDelete?: (ids: string[]) => Promise<void>;
+}
+
+export interface SelectableListProps<T> {
+  rows: T[];
+  columns: ColumnDef<T>[];
+  getId: (row: T) => string;
+  editHref?: (row: T) => string;
+  view: LifecycleView;
+  bulk?: BulkHandlers;
+  emptyText?: string;
+}
+
+export function SelectableList<T>({
+  rows,
+  columns,
+  getId,
+  editHref,
+  view,
+  bulk,
+  emptyText = "Keine Einträge.",
+}: SelectableListProps<T>) {
+  const [selected, setSelected] = useState<Set<string>>(new Set());
+  const [isPending, start] = useTransition();
+  const [feedback, setFeedback] = useState<string | null>(null);
+  const router = useRouter();
+
+  const allIds = useMemo(() => rows.map(getId), [rows, getId]);
+  const allSelected = selected.size > 0 && selected.size === allIds.length;
+  const partiallySelected = selected.size > 0 && !allSelected;
+
+  const toggleAll = () => {
+    setSelected(allSelected ? new Set() : new Set(allIds));
+  };
+  const toggleOne = (id: string) => {
+    setSelected((s) => {
+      const next = new Set(s);
+      if (next.has(id)) next.delete(id);
+      else next.add(id);
+      return next;
+    });
+  };
+
+  const runBulk = (
+    label: string,
+    fn: ((ids: string[]) => Promise<void>) | undefined,
+    confirmText?: string
+  ) => {
+    if (!fn || selected.size === 0) return;
+    if (confirmText && !confirm(confirmText)) return;
+    const ids = Array.from(selected);
+    start(async () => {
+      try {
+        await fn(ids);
+        setSelected(new Set());
+        setFeedback(`${label}: ${ids.length} Eintrag${ids.length === 1 ? "" : "e"}`);
+        router.refresh();
+        setTimeout(() => setFeedback(null), 3000);
+      } catch (err) {
+        const msg = err instanceof Error ? err.message : "Fehler";
+        alert(msg);
+      }
+    });
+  };
+
+  return (
+    <div className="space-y-3">
+      {selected.size > 0 && bulk && (
+        <div className="sticky top-0 z-10 flex items-center gap-2 rounded-lg border bg-card px-4 py-2 shadow-sm">
+          <span className="text-sm font-medium">
+            {selected.size} ausgewählt
+          </span>
+          <span className="flex-1" />
+          {view === "active" && bulk.archive && (
+            <Button
+              variant="outline"
+              size="sm"
+              disabled={isPending}
+              onClick={() => runBulk("Archiviert", bulk.archive)}
+            >
+              <Archive className="mr-2 h-4 w-4" /> Archivieren
+            </Button>
+          )}
+          {view !== "deleted" && bulk.delete && (
+            <Button
+              variant="destructive"
+              size="sm"
+              disabled={isPending}
+              onClick={() =>
+                runBulk(
+                  "In Papierkorb verschoben",
+                  bulk.delete,
+                  `${selected.size} Eintrag/Einträge in den Papierkorb verschieben?`
+                )
+              }
+            >
+              <Trash2 className="mr-2 h-4 w-4" /> Löschen
+            </Button>
+          )}
+          {view !== "active" && bulk.restore && (
+            <Button
+              variant="outline"
+              size="sm"
+              disabled={isPending}
+              onClick={() => runBulk("Wiederhergestellt", bulk.restore)}
+            >
+              <RotateCcw className="mr-2 h-4 w-4" /> Wiederherstellen
+            </Button>
+          )}
+          {view === "deleted" && bulk.hardDelete && (
+            <Button
+              variant="destructive"
+              size="sm"
+              disabled={isPending}
+              onClick={() =>
+                runBulk(
+                  "Endgültig gelöscht",
+                  bulk.hardDelete,
+                  `${selected.size} Eintrag/Einträge ENDGÜLTIG löschen? Diese Aktion kann nicht rückgängig gemacht werden.`
+                )
+              }
+            >
+              <Trash2 className="mr-2 h-4 w-4" /> Endgültig löschen
+            </Button>
+          )}
+        </div>
+      )}
+
+      {feedback && (
+        <div className="rounded-lg border border-green-200 bg-green-50 px-4 py-2 text-sm text-green-800 flex items-center gap-2">
+          <Check className="h-4 w-4" /> {feedback}
+        </div>
+      )}
+
+      <Table>
+        <TableHeader>
+          <TableRow>
+            {bulk && (
+              <TableHead className="w-10">
+                <input
+                  type="checkbox"
+                  className="h-4 w-4 cursor-pointer"
+                  checked={allSelected}
+                  ref={(el) => {
+                    if (el) el.indeterminate = partiallySelected;
+                  }}
+                  onChange={toggleAll}
+                  aria-label="Alle auswählen"
+                />
+              </TableHead>
+            )}
+            {columns.map((c, i) => (
+              <TableHead key={i} className={c.className}>
+                {c.header}
+              </TableHead>
+            ))}
+            {editHref && <TableHead className="w-12"></TableHead>}
+          </TableRow>
+        </TableHeader>
+        <TableBody>
+          {rows.length === 0 && (
+            <TableRow>
+              <TableCell
+                colSpan={columns.length + (bulk ? 1 : 0) + (editHref ? 1 : 0)}
+                className="text-center text-muted-foreground py-10"
+              >
+                {emptyText}
+              </TableCell>
+            </TableRow>
+          )}
+          {rows.map((row) => {
+            const id = getId(row);
+            const isSelected = selected.has(id);
+            return (
+              <TableRow
+                key={id}
+                className={cn(isSelected && "bg-accent/40")}
+              >
+                {bulk && (
+                  <TableCell>
+                    <input
+                      type="checkbox"
+                      className="h-4 w-4 cursor-pointer"
+                      checked={isSelected}
+                      onChange={() => toggleOne(id)}
+                      aria-label="Auswählen"
+                    />
+                  </TableCell>
+                )}
+                {columns.map((c, i) => (
+                  <TableCell key={i} className={c.className}>
+                    {c.cell(row)}
+                  </TableCell>
+                ))}
+                {editHref && (
+                  <TableCell>
+                    <Link
+                      href={editHref(row)}
+                      className="inline-flex items-center justify-center h-8 w-8 rounded hover:bg-accent transition"
+                      aria-label="Bearbeiten"
+                      title="Bearbeiten"
+                    >
+                      <Pencil className="h-4 w-4" />
+                    </Link>
+                  </TableCell>
+                )}
+              </TableRow>
+            );
+          })}
+        </TableBody>
+      </Table>
+    </div>
+  );
+}

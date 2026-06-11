@@ -1,0 +1,163 @@
+"use client";
+
+import { useEffect, useState, useTransition } from "react";
+import { useRouter } from "next/navigation";
+import { LogIn, LogOut, Coffee, Play, CheckCircle2, AlertTriangle } from "lucide-react";
+
+type Status = "IN" | "OUT" | "BREAK";
+type Action = "CLOCK_IN" | "CLOCK_OUT" | "BREAK_START" | "BREAK_END";
+
+interface Labels {
+  clockIn: string;
+  clockOut: string;
+  breakStart: string;
+  breakEnd: string;
+  doneClockIn: string;
+  doneClockOut: string;
+  doneBreakStart: string;
+  doneBreakEnd: string;
+}
+
+export function ActionsPanel({ status, labels }: { status: Status; labels: Labels }) {
+  const [error, setError] = useState<string | null>(null);
+  const [confirmation, setConfirmation] = useState<string | null>(null);
+  const [isPending, start] = useTransition();
+  const router = useRouter();
+
+  // Periodic background refresh (every 30 s) so the server-side state stays
+  // in sync even if the user does nothing — covers cases like a colleague
+  // pausing on another device, or a long pause.
+  useEffect(() => {
+    const id = setInterval(() => router.refresh(), 30_000);
+    return () => clearInterval(id);
+  }, [router]);
+
+  // Hide the confirmation toast after a few seconds.
+  useEffect(() => {
+    if (!confirmation) return;
+    const id = setTimeout(() => setConfirmation(null), 4_000);
+    return () => clearTimeout(id);
+  }, [confirmation]);
+
+  const submit = (action: Action) => {
+    start(async () => {
+      setError(null);
+      const res = await fetch("/api/kiosk/punch", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ action }),
+      });
+      if (res.ok) {
+        const body = (await res.json().catch(() => null)) as
+          | { ok: boolean; action: Action; at: string }
+          | null;
+        const at = body?.at ? new Date(body.at) : new Date();
+        const time = at.toLocaleTimeString("de-CH", { hour: "2-digit", minute: "2-digit" });
+        const tmpl =
+          action === "CLOCK_IN"
+            ? labels.doneClockIn
+            : action === "CLOCK_OUT"
+            ? labels.doneClockOut
+            : action === "BREAK_START"
+            ? labels.doneBreakStart
+            : labels.doneBreakEnd;
+        setConfirmation(tmpl.replace("{time}", time));
+        router.refresh();
+      } else {
+        const body = await res.json().catch(() => null);
+        const code = body?.error ?? "ERROR";
+        setError(translateError(code));
+        if (code === "UNAUTH") {
+          // Session expired — bounce back to PIN screen.
+          setTimeout(() => router.push(window.location.pathname.replace(/\/actions$/, "")), 1500);
+        }
+      }
+    });
+  };
+
+  // Show only the actions that make sense for the current state.
+  // Farbtokens: habb-success=Einstempeln, habb-warning=Pause-Start,
+  // habb-red=Ausstempeln, habb-black=Pause-Ende (Neutralton).
+  const buttons: { action: Action; label: string; icon: React.ReactNode; color: string }[] = [];
+  if (status === "OUT") {
+    buttons.push({
+      action: "CLOCK_IN",
+      label: labels.clockIn,
+      icon: <LogIn className="w-7 h-7" />,
+      color: "bg-habb-success text-white hover:bg-habb-success/90",
+    });
+  } else if (status === "IN") {
+    buttons.push({
+      action: "CLOCK_OUT",
+      label: labels.clockOut,
+      icon: <LogOut className="w-7 h-7" />,
+      color: "bg-habb-red text-white hover:bg-habb-red-dark",
+    });
+    buttons.push({
+      action: "BREAK_START",
+      label: labels.breakStart,
+      icon: <Coffee className="w-7 h-7" />,
+      color: "bg-habb-warning text-white hover:bg-habb-warning/90",
+    });
+  } else if (status === "BREAK") {
+    buttons.push({
+      action: "BREAK_END",
+      label: labels.breakEnd,
+      icon: <Play className="w-7 h-7" />,
+      color: "bg-habb-black text-white hover:bg-habb-ink",
+    });
+    buttons.push({
+      action: "CLOCK_OUT",
+      label: labels.clockOut,
+      icon: <LogOut className="w-7 h-7" />,
+      color: "bg-habb-red text-white hover:bg-habb-red-dark",
+    });
+  }
+
+  return (
+    <div className="space-y-3">
+      <div className={`grid gap-3 ${buttons.length === 1 ? "grid-cols-1" : "grid-cols-2"}`}>
+        {buttons.map((b) => (
+          <button
+            key={b.action}
+            onClick={() => submit(b.action)}
+            disabled={isPending}
+            className={`kiosk-button gap-3 ${b.color}`}
+          >
+            {b.icon}
+            <span>{b.label}</span>
+          </button>
+        ))}
+      </div>
+      {confirmation && (
+        <div className="rounded-lg bg-habb-success/10 border border-habb-success/30 px-4 py-3 flex items-center gap-2 animate-in fade-in slide-in-from-top-2">
+          <CheckCircle2 className="w-5 h-5 text-habb-success" />
+          <span className="text-habb-success">{confirmation}</span>
+        </div>
+      )}
+      {error && (
+        <div className="rounded-lg bg-habb-red/10 border border-habb-red/30 px-4 py-3 flex items-center gap-2">
+          <AlertTriangle className="w-5 h-5 text-habb-red" />
+          <span className="text-habb-red">{error}</span>
+        </div>
+      )}
+    </div>
+  );
+}
+
+function translateError(code: string): string {
+  switch (code) {
+    case "ALREADY_CLOCKED_IN":
+      return "Du bist bereits eingestempelt.";
+    case "NOT_CLOCKED_IN":
+      return "Du bist nicht eingestempelt.";
+    case "ALREADY_ON_BREAK":
+      return "Pause läuft bereits.";
+    case "NOT_ON_BREAK":
+      return "Es läuft keine Pause.";
+    case "UNAUTH":
+      return "Sitzung abgelaufen. Bitte erneut PIN eingeben.";
+    default:
+      return "Aktion fehlgeschlagen. Bitte erneut versuchen.";
+  }
+}

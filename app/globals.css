@@ -1,0 +1,74 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    /* HABB-aligned shadcn tokens. Map the generic shadcn HSL variables to
+       the same hex palette that the login page + Owner Portal use, so the
+       entire admin app inherits the HABB look without per-component edits.
+       Hex → HSL conversions:
+         #FFFFFF → 0 0% 100%
+         #1A1A1A → 0 0% 10%   (habb-ink)
+         #0A0A0A → 0 0% 4%    (habb-black)
+         #FAFAF9 → 60 11% 98% (habb-paper)
+         #6B6B6B → 0 0% 42%   (habb-muted)
+         #E7E5E4 → 30 9% 91%  (habb-line)
+         #DA0E15 → 358 88% 46% (habb-red)              */
+    --background: 0 0% 100%;
+    --foreground: 0 0% 10%;
+    --card: 0 0% 100%;
+    --card-foreground: 0 0% 10%;
+    --popover: 0 0% 100%;
+    --popover-foreground: 0 0% 10%;
+    --primary: 0 0% 4%;
+    --primary-foreground: 0 0% 100%;
+    --secondary: 60 11% 98%;
+    --secondary-foreground: 0 0% 10%;
+    --muted: 60 11% 98%;
+    --muted-foreground: 0 0% 42%;
+    --accent: 60 11% 98%;
+    --accent-foreground: 0 0% 10%;
+    --destructive: 358 88% 46%;
+    --destructive-foreground: 0 0% 100%;
+    --border: 30 9% 91%;
+    --input: 30 9% 91%;
+    --ring: 358 88% 46%;
+    --radius: 0.5rem;
+
+    /* HABB brand tokens (raw hex, not HSL — used directly via Tailwind arbitrary
+       values e.g. text-[var(--habb-red)] as well as via the `habb` color scale). */
+    --habb-black: #0A0A0A;
+    --habb-ink: #1A1A1A;
+    --habb-red: #DA0E15;
+    --habb-red-dark: #B00B11;
+    --habb-white: #FFFFFF;
+    --habb-paper: #FAFAF9;
+    --habb-line: #E7E5E4;
+    --habb-muted: #6B6B6B;
+    --habb-success: #0F7B3F;
+    --habb-warning: #B45309;
+  }
+
+  /* Login route is intentionally light-only — we don't ship a dark theme for it. */
+  html[data-auth-light="true"] {
+    color-scheme: light;
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+  body {
+    @apply bg-background text-foreground;
+    font-feature-settings: "cv02", "cv03", "cv04", "cv11";
+  }
+}
+
+/* Kiosk-specific helpers */
+.kiosk-button {
+  @apply inline-flex items-center justify-center rounded-xl text-2xl font-semibold transition-all
+         active:scale-95 disabled:opacity-50 disabled:pointer-events-none
+         min-h-[5rem] px-8 shadow-sm;
+}

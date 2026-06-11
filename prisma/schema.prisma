@@ -1,0 +1,2116 @@
+// Tschannen Spritzwerk AG — Zeiterfassung
+// Prisma schema. Design notes:
+//   - One TimeEntry per employee per local date. TimePunches store raw events,
+//     BreakEntries store break ranges. Calculated balances are NEVER stored
+//     blindly; aggregates are computed from raw data on read.
+//   - All times are stored as UTC DateTime; the application layer interprets
+//     them in Europe/Zurich for display and aggregation.
+//   - PIN is only stored as a bcrypt hash (`pinHash`).
+//   - All mutating actions on time-relevant entities create AuditLog rows.
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
+}
+
+// ─────────────────────────────────────────
+// ENUMS
+// ─────────────────────────────────────────
+
+enum UserRole {
+  // Höchste Stufe — system administrator. Hat IMMER alle Rechte und ist
+  // der einzige Account, der die RolePermission-Matrix bearbeiten darf.
+  // Existiert genau 1× pro Firma (per Konvention; kein DB-constraint).
+  SUPERADMIN
+  // CEO / Geschäftsleitung. Vom SUPERADMIN per Matrix konfigurierbar.
+  ADMIN
+  // "Sekretärin" — Backoffice (Aufträge, Offerten, Rechnungen, Planung).
+  // Intern weiterhin PLANNER (umbenannt nur das UI-Label).
+  PLANNER
+  // "Produktionsmitarbeiter" — Werkstatt, scant Aufträge, sieht eigene
+  // Zeiten/Schichten. Kein Backoffice-Zugriff per Default.
+  EMPLOYEE
+  // Reserviert für späteres Kundenportal (Phase 7).
+  CUSTOMER_PORTAL
+  // Werkstatt-Tablet-Konto. Keine Backoffice-Rechte; loggt sich am Tablet
+  // ein und landet automatisch im Stempel-Kiosk seiner Firma. Ersetzt das
+  // anonyme Kiosk-Lock-Passwort durch einen echten Account.
+  KIOSK_OPERATOR
+  // Legacy-Werte — Daten in Migration auf PLANNER aktualisiert.
+  // Werden vom Code nicht mehr benutzt, der enum-Wert bleibt aus
+  // Postgres-Kompatibilitätsgründen erhalten.
+  SECRETARY
+  TEAM_LEAD
+}
+
+enum EmploymentType {
+  MONTHLY_SALARY
+  HOURLY_WAGE
+}
+
+enum PunchType {
+  CLOCK_IN
+  CLOCK_OUT
+  BREAK_START
+  BREAK_END
+}
+
+enum PunchSource {
+  KIOSK
+  ADMIN_CORRECTION
+  IMPORT
+}
+
+enum TimeEntryStatus {
+  OPEN          // employee currently clocked in
+  ON_BREAK      // employee is on break
+  CLOSED        // worked, then clocked out
+  EMPTY         // day exists but no punches (e.g. absent)
+}
+
+enum AbsenceCategory {
+  VACATION
+  SICKNESS
+  ACCIDENT
+  MILITARY
+  DOCTOR
+  UNPAID
+  COMPENSATION
+  OTHER
+}
+
+enum AbsenceStatus {
+  REQUESTED
+  APPROVED
+  REJECTED
+  CANCELLED
+}
+
+enum ScheduleStatus {
+  DRAFT
+  PUBLISHED
+  CHANGED_AFTER_PUBLISHING
+  ARCHIVED
+}
+
+enum ScheduleEntryType {
+  WORK
+  FREE
+  VACATION
+  SICKNESS
+  ABSENCE
+  HOLIDAY
+  COMPENSATION
+  OTHER
+}
+
+/// Wie ein ScheduleEntry entstanden ist. Wichtig für die Bulk-Delete-Funktion:
+/// "Alle automatisch geplanten dieser Woche/Monats löschen" filtert auf AUTO,
+/// damit manuell angepasste Schichten nicht weggewischt werden.
+enum ScheduleEntrySource {
+  MANUAL    // Direkt vom User im CellEditor / BulkRangeEditor angelegt
+  AUTO      // Vom Auto-Planner (autoPlanMonth) erzeugt
+  COPIED    // Aus Vormonat per copyFromPreviousMonth übernommen
+}
+
+enum AuditAction {
+  CREATE
+  UPDATE
+  DELETE
+  PIN_RESET
+  LOGIN
+  LOGIN_FAILED
+  PUBLISH_SCHEDULE
+  STATUS_CHANGE
+  PARAMETER_UPDATE
+  INVOICE_PAID
+  ORDER_CONFIRMED
+  ORDER_CANCELLED
+}
+
+enum WeekDay {
+  MON
+  TUE
+  WED
+  THU
+  FRI
+  SAT
+  SUN
+}
+
+// ─────────────────────────────────────────
+// ENUMS — ERP-Erweiterung (Phase 1)
+// ─────────────────────────────────────────
+
+enum Locale {
+  DE
+  FR
+  IT
+  EN
+}
+
+enum CustomerType {
+  PRIVATE
+  BUSINESS
+}
+
+enum AddressType {
+  BILLING
+  SHIPPING
+  BOTH
+}
+
+enum OrderStatus {
+  DRAFT
+  CONFIRMED
+  IN_PROGRESS
+  ON_HOLD
+  COMPLETED
+  DELIVERED
+  CANCELLED
+  INVOICED
+}
+
+enum Priority {
+  LOW
+  NORMAL
+  HIGH
+  EXPRESS
+}
+
+enum StepStatus {
+  PENDING
+  SCHEDULED
+  IN_PROGRESS
+  DONE
+  BLOCKED
+  CANCELLED
+}
+
+/// Standardprozesse aus Sektion 2.1 des ERP-Briefings.
+/// Codes sind ABKÜRZUNGEN, NIEMALS Standardzeiten — die liegen in
+/// SystemParameter unter `process.<CODE>.minutesPerM2`.
+enum ProcessCode {
+  // Vorbereitung
+  DISASSEMBLY
+  DEGREASE_MANUAL
+  CHEM_PRETREAT
+  MASKING
+  MOUNTING
+  // Sandstrahlen
+  BLAST_SA1
+  BLAST_SA2
+  BLAST_SA25
+  BLAST_SA3
+  BLAST_GLASS
+  // Nasslackieren
+  WP_PRIMER
+  WP_SANDING
+  WP_TOP_1K
+  WP_TOP_2K
+  WP_CLEAR
+  // Pulverbeschichtung
+  PC_APPLICATION
+  PC_CURING
+  PC_DOUBLE
+  // Nachbereitung
+  UNMASKING
+  QUALITY_CHECK
+  TOUCHUP
+  PACKAGING
+}
+
+enum MachineType {
+  BLAST_CABIN
+  CHEM_BATH
+  PAINT_CABIN
+  POWDER_CABIN
+  CURING_OVEN
+  DRYING_OVEN
+}
+
+enum SkillCode {
+  PREP
+  BLASTER
+  PAINTER
+  POWDER_COATER
+  QC
+  TEAM_LEAD_SKILL
+}
+
+enum SkillLevel {
+  BASIC
+  EXPERIENCED
+  EXPERT
+}
+
+enum Material {
+  STEEL_S235
+  STEEL_HIGH_C
+  STAINLESS
+  ALUMINIUM
+  GALVANIZED
+  CAST_IRON
+  OTHER
+}
+
+enum Complexity {
+  SIMPLE
+  NORMAL
+  COMPLEX
+  VERY_COMPLEX
+}
+
+enum ColorSystem {
+  RAL
+  NCS
+  PANTONE
+  CUSTOM
+}
+
+enum GlossLevel {
+  MATT
+  SEMI_GLOSS
+  GLOSSY
+  HIGH_GLOSS
+}
+
+/// Anwendungsbereich des fertigen Werkstücks. Kritische Eingabe für den
+/// Prozess-Recommender:
+///   - INDOOR:  weniger UV/Wetter-Belastung → 1K-Lacke / Pulver Standard genügen
+///   - OUTDOOR: UV-/Wetter-/Korrosionsschutz Pflicht → 2K-Lacke,
+///              Doppelpulver, höhere Strahlgrade (SA2.5+), ggf. chemische
+///              Vorbehandlung.
+///   - BOTH:    Gemischt — Recommender wählt die robustere OUTDOOR-Variante.
+enum ApplicationArea {
+  INDOOR
+  OUTDOOR
+  BOTH
+}
+
+enum ConflictType {
+  RESOURCE_DOUBLE_BOOK
+  DEADLINE_MISS
+  SKILL_MISSING
+  MACHINE_OVERSIZE
+  DEPENDENCY_VIOLATED
+  CAPACITY_EXCEEDED
+}
+
+enum Severity {
+  INFO
+  WARN
+  ERROR
+}
+
+enum QuoteStatus {
+  DRAFT
+  SENT
+  ACCEPTED
+  REJECTED
+  EXPIRED
+}
+
+enum InvoiceStatus {
+  DRAFT
+  SENT
+  PAID
+  OVERDUE
+  CANCELLED
+}
+
+enum ParamCategory {
+  PROCESS_TIME
+  CURING
+  DRYING
+  MATERIAL
+  COMPLEXITY
+  PRICING_RATE
+  PRICING_SURCHARGE
+  SCHEDULER
+  TAX
+  WORKING_HOURS
+  OTHER
+}
+
+enum ParamValueType {
+  NUMBER
+  INTEGER
+  DURATION_MIN
+  TEMPERATURE_C
+  PERCENTAGE
+  CURRENCY_CHF
+  DECIMAL
+  BOOLEAN
+}
+
+/// Abo-Stufe pro Mandant. Vom Owner-Portal verwaltet, vom Customer-Code
+/// noch nicht verwendet — Billing-Integration ist Phase v2.
+enum TenantPlan {
+  TRIAL
+  TIME_ONLY
+  STARTER
+  PRO
+  ENTERPRISE
+}
+
+/// Lebenszyklus eines neu registrierten Mandanten:
+///   - PENDING_EMAIL_VERIFICATION: User hat sich registriert, hat aber den
+///     Bestätigungs-Link in der Mail noch nicht angeklickt. Login blockiert.
+///   - PENDING_APPROVAL: E-Mail verifiziert, wartet auf Owner-Freigabe.
+///     User kann sich einloggen, sieht aber NUR `/admin/onboarding`.
+///   - ACTIVE: vom Owner freigegeben (oder vom Owner manuell angelegt).
+///   - REJECTED: vom Owner abgelehnt. Login blockiert.
+enum TenantRegistrationStatus {
+  ACTIVE
+  PENDING_EMAIL_VERIFICATION
+  PENDING_APPROVAL
+  REJECTED
+}
+
+// ─────────────────────────────────────────
+// CORE
+// ─────────────────────────────────────────
+
+model Company {
+  id        String   @id @default(cuid())
+  name      String
+  address   String?
+  city      String?
+  country   String   @default("CH")
+  timezone  String   @default("Europe/Zurich")
+  // Default values that newly-created employees inherit.
+  defaultWeeklyHours      Float   @default(42.0)
+  defaultVacationDaysYear Int     @default(20)
+  defaultBreakMinutes     Int     @default(30)
+  // Rounding rule in minutes (0 = no rounding, 5, 15, ...).
+  roundingMinutes         Int     @default(0)
+  // Warning thresholds (admin-configurable).
+  maxDailyHours           Float   @default(10.0)
+  maxWeeklyHours          Float   @default(50.0)
+  highOvertimeHours       Float   @default(40.0)
+  defaultLanguage         String  @default("de")
+  // Banking-Daten für Schweizer QR-Rechnung
+  /// QR-IBAN (für QR-Rechnung — IID 30000-31999) ODER normale IBAN.
+  /// Format ohne Spaces, z. B. "CH4431999123000889012".
+  qrIban         String?
+  /// Anzeige-Name für QR-Rechnung (oft = name, kann abweichen).
+  invoiceCreditorName String?
+  /// MwSt-Nr. der Firma im UID-Format CHE-123.456.789 MWST.
+  vatNumber           String?
+  /// Standard-Zahlungsfrist in Tagen für neue Rechnungen.
+  invoicePaymentTerms Int     @default(30)
+  /// Standard-MwSt-Satz in % für neue Rechnungen.
+  invoiceDefaultVatRate Decimal @default(8.1) @db.Decimal(4,2)
+  /// Firmen-Logo (PNG oder JPG). Wird in der App-Sidebar und allen
+  /// generierten PDFs eingebettet (Offerten, Rechnungen, Lieferscheine, …).
+  logoMimeType String?
+  logoData     Bytes?
+  /// Bcrypt-Hash für das Kiosk-Passwort. NULL = Kiosk ist OHNE Passwort
+  /// zugänglich (alte Default für Single-Tenant). Sobald gesetzt, muss
+  /// das iPad mit diesem Passwort entsperrt werden, bevor Mitarbeiter-
+  /// Liste + PIN-Pad sichtbar werden.
+  kioskPasswordHash String?
+  /// Lebensdauer des Kiosk-Lock-Cookies in Minuten (sliding window pro
+  /// erfolgreicher Stempel-Aktion). `0` = niemals automatisch ausloggen
+  /// (Default für Werkstatt-Tablets, die fest im Betrieb hängen). Wert
+  /// > 0 = nach so vielen Minuten Inaktivität fällt das Tablet zurück
+  /// auf den Passwort-Screen. Standard ist 0 (nie); Mandant kann in
+  /// `/admin/settings` umstellen, falls eine Schicht-Abmeldung gewünscht
+  /// ist. Cookie-Browserlimit (~400 Tage) gilt weiterhin.
+  kioskLockTimeoutMinutes Int @default(0)
+
+  // ── Owner-Portal-Felder (PR 2) ─────────────────────────────────
+  /// Abo-Stufe. Default STARTER, wird vom Owner gesetzt.
+  plan              TenantPlan @default(STARTER)
+  /// Wenn gesetzt: Mandant ist suspendiert. Kunden-Login blockt; Owner kann
+  /// reaktivieren. Audit-Trail in OwnerAuditLog.
+  suspendedAt       DateTime?
+  /// Begründung der Suspension (Pflichtfeld in der UI).
+  suspendedReason   String?
+  /// Owner-only Notizen (Markdown-Plain-Text). Tenants sehen das nie.
+  internalNotes     String?
+
+  // ── Tenant-Registrierungs-Lifecycle (PR 5) ────────────────────
+  /// Telefonnummer der Firma. Pflicht bei Self-Registration; nullable für
+  /// Bestands-Mandanten (Backfill optional via Owner-Stammdaten-Edit).
+  phone                                   String?
+  registrationStatus                      TenantRegistrationStatus @default(ACTIVE)
+  registrationSubmittedAt                 DateTime?
+  registrationEmailVerifiedAt             DateTime?
+  registrationApprovedAt                  DateTime?
+  registrationApprovedByOwnerAccountId    String?
+  registrationRejectedAt                  DateTime?
+  registrationRejectedByOwnerAccountId    String?
+  registrationRejectionReason             String?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  users        User[]
+  employees    Employee[]
+  absenceTypes AbsenceType[]
+  holidays     Holiday[]
+  schedules    ScheduleMonth[]
+  templates    ScheduleTemplate[]
+  workAreas    WorkArea[]
+  customers    Customer[]
+  orders       Order[]
+  quotes       Quote[]
+  invoices     Invoice[]
+  machines     Machine[]
+  processTemplates ProcessTemplate[]
+  rolePermissions  RolePermission[]
+  userPermissions  UserPermission[]
+  systemParameters SystemParameter[]
+  timeAdjustments  TimeAdjustment[]
+
+  // Owner-portal back-references (Phase 0 foundation).
+  ownerAuditEntries     OwnerAuditLog[]
+  entitlements          TenantEntitlement[]
+  consentTokens         ImpersonationConsentToken[]
+  impersonationSessions ImpersonationSession[]
+  healthSnapshot        TenantHealthSnapshot?
+  diagnosticRuns        DiagnosticRun[]
+  diagnosticFindings    DiagnosticFinding[]
+  securityEvents        SecurityEvent[]
+  diagnosticEmails      DiagnosticEmailNotification[]
+}
+
+// ─────────────────────────────────────────────────────────────
+// Owner-Diagnostics / Security-Monitoring (Phase 1)
+//
+// Owner-only Betriebs-Telemetrie pro Mandant. Kein Supabase-RLS
+// (Projekt nutzt App-Layer-Autorisierung): Zugriff ausschließlich
+// über requireOwner(); companyId-Relation onDelete:Cascade, damit
+// der bestehende Tenant-Hard-Delete diese Zeilen automatisch
+// mitnimmt. IP/User-Agent NUR gehasht (ipHash/userAgentHash).
+// ─────────────────────────────────────────────────────────────
+
+model TenantHealthSnapshot {
+  id                     String   @id @default(cuid())
+  companyId              String   @unique
+  company                Company  @relation(fields: [companyId], references: [id], onDelete: Cascade)
+  status                 String   @default("unknown") // healthy|warning|critical|unknown
+  score                  Int      @default(100)
+  lastCheckedAt          DateTime?
+  openFindingsCount      Int      @default(0)
+  criticalFindingsCount  Int      @default(0)
+  warningFindingsCount   Int      @default(0)
+  securityEventsCount    Int      @default(0)
+  avgResponseMs          Int?
+  metadata               Json     @default("{}")
+  createdAt              DateTime @default(now())
+  updatedAt              DateTime @updatedAt
+}
+
+model DiagnosticRun {
+  id            String    @id @default(cuid())
+  companyId     String
+  company       Company   @relation(fields: [companyId], references: [id], onDelete: Cascade)
+  triggeredBy   String    // cron|manual|system
+  startedAt     DateTime  @default(now())
+  finishedAt    DateTime?
+  status        String    @default("running") // running|success|partial_failure|failed
+  durationMs    Int?
+  checksTotal   Int       @default(0)
+  checksPassed  Int       @default(0)
+  checksWarning Int       @default(0)
+  checksFailed  Int       @default(0)
+  summary       String?
+  metadata      Json      @default("{}")
+  createdAt     DateTime  @default(now())
+  findings      DiagnosticFinding[]
+  emails        DiagnosticEmailNotification[]
+
+  @@index([companyId, startedAt])
+}
+
+model DiagnosticFinding {
+  id               String    @id @default(cuid())
+  companyId        String
+  company          Company   @relation(fields: [companyId], references: [id], onDelete: Cascade)
+  runId            String?
+  run              DiagnosticRun? @relation(fields: [runId], references: [id], onDelete: SetNull)
+  category         String    // availability|database|auth|storage|api|integration|performance|security|data_quality|configuration|email
+  severity         String    // info|low|medium|high|critical
+  title            String
+  message          String
+  technicalDetails Json      @default("{}")
+  recommendation   String?
+  status           String    @default("open") // open|acknowledged|resolved|ignored
+  dedupeKey        String
+  firstSeenAt      DateTime  @default(now())
+  lastSeenAt       DateTime  @default(now())
+  resolvedAt       DateTime?
+  createdAt        DateTime  @default(now())
+  emails           DiagnosticEmailNotification[]
+
+  @@unique([companyId, dedupeKey])
+  @@index([companyId, status, severity])
+}
+
+model SecurityEvent {
+  id           String   @id @default(cuid())
+  companyId    String?
+  company      Company? @relation(fields: [companyId], references: [id], onDelete: Cascade)
+  /// Opaker User-Id-Verweis (KEIN FK — bewusst, um den Tenant-Hard-
+  /// Delete-Pfad nicht mit neuen Restrict/SetNull-FKs zu belasten).
+  actorUserId  String?
+  eventType    String
+  severity     String   // info|low|medium|high|critical
+  source       String   // auth|api|database|storage|edge_function|cron|system
+  ipHash       String?
+  userAgentHash String?
+  riskScore    Int      @default(0)
+  message      String
+  evidence     Json     @default("{}")
+  detectedAt   DateTime @default(now())
+  createdAt    DateTime @default(now())
+  emails       DiagnosticEmailNotification[]
+
+  @@index([companyId, detectedAt])
+  @@index([severity, detectedAt])
+}
+
+model DiagnosticEmailNotification {
+  id                String   @id @default(cuid())
+  companyId         String?
+  company           Company? @relation(fields: [companyId], references: [id], onDelete: Cascade)
+  runId             String?
+  run               DiagnosticRun? @relation(fields: [runId], references: [id], onDelete: SetNull)
+  findingId         String?
+  finding           DiagnosticFinding? @relation(fields: [findingId], references: [id], onDelete: SetNull)
+  securityEventId   String?
+  securityEvent     SecurityEvent? @relation(fields: [securityEventId], references: [id], onDelete: SetNull)
+  recipientEmail    String
+  subject           String
+  severity          String
+  notificationType  String   // hourly_digest|finding_created|finding_updated|security_event|manual_test
+  dedupeKey         String?
+  status            String   @default("pending") // pending|sent|failed|skipped
+  providerMessageId String?
+  errorMessage      String?
+  sentAt            DateTime?
+  createdAt         DateTime @default(now())
+
+  @@index([dedupeKey, createdAt])
+  @@index([status, createdAt])
+}
+
+/// Runtime-Override der statischen Default-Permission-Matrix.
+///
+/// Die statischen Defaults leben in `lib/permissions.ts` (`STATIC_DEFAULTS`).
+/// Per (companyId, role, permission) kann der SUPERADMIN ein Recht
+/// EXPLIZIT erlauben (allowed=true) oder verbieten (allowed=false).
+///
+/// Wenn keine Zeile existiert → static default greift.
+/// SUPERADMIN ist NICHT in der Matrix konfigurierbar (immer alle Rechte).
+/// CUSTOMER_PORTAL ist auch nicht hier konfigurierbar (separate Datentrennung).
+model RolePermission {
+  id         String   @id @default(cuid())
+  companyId  String
+  role       UserRole
+  /// Permission-Key wie in `Permission` Type, z. B. "orders.write".
+  /// Free-Text damit neue Permissions ohne Schema-Migration eingeführt
+  /// werden können — Validierung erfolgt im Server-Action gegen den
+  /// Code-seitigen Registry.
+  permission String
+  allowed    Boolean
+  /// Optional: wer hat es zuletzt geändert.
+  updatedById String?
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  company    Company  @relation(fields: [companyId], references: [id], onDelete: Cascade)
+
+  @@unique([companyId, role, permission])
+  @@index([companyId])
+}
+
+/// Per-User Permission-Override. Layer ÜBER der RolePermission-Matrix:
+/// `allowed=true`  → zusätzliches Recht beyond role (additiv)
+/// `allowed=false` → explizit entzogenes Recht (subtraktiv, gewinnt)
+/// Reihenfolge bei der Auflösung:
+///   1. SUPERADMIN bypasst alles
+///   2. Statische Defaults pro Rolle
+///   3. RolePermission-Override pro Mandant (gewinnt über Default)
+///   4. UserPermission pro User (gewinnt über alles in 2+3 — DENY winS)
+model UserPermission {
+  id          String   @id @default(cuid())
+  companyId   String
+  userId      String
+  /// Permission-Key wie in `Permission` Type, z. B. "orders.write".
+  permission  String
+  allowed     Boolean
+  /// Optional: wer hat es zuletzt geändert. Tenant-SUPERADMIN-Änderungen
+  /// landen in `User.id`, Owner-Änderungen in `OwnerAccount.id` (über
+  /// separates `updatedByOwnerAccountId`-Feld).
+  updatedById             String?
+  updatedByOwnerAccountId String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  company Company @relation(fields: [companyId], references: [id], onDelete: Cascade)
+  user    User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, permission])
+  @@index([companyId])
+  @@index([userId])
+}
+
+// User = login account (admin / planner / employee / customer-portal).
+// Not every employee has a User row; pure kiosk staff log in only via PIN
+// on the Employee record.
+model User {
+  id               String   @id @default(cuid())
+  companyId        String
+  email            String   @unique
+  name             String
+  passwordHash     String
+  role             UserRole @default(ADMIN)
+  isActive         Boolean  @default(true)
+  preferredLanguage String  @default("de")
+  /// Hourly rate for cost-rollup calculations (Quotes, Reports). NULL = use
+  /// pricing.rate.labor.standard parameter.
+  hourlyRate       Decimal? @db.Decimal(8,2)
+  // Optional link: a User can also be a tracked Employee (e.g. CEO who clocks in).
+  employeeId       String?  @unique
+  /// When role=CUSTOMER_PORTAL, the customer this user logs in for.
+  /// (Customer portal not built yet — schema-ready for Phase 7.)
+  customerId       String?  @unique
+  lastLoginAt      DateTime?
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
+
+  company   Company   @relation(fields: [companyId], references: [id])
+  employee  Employee? @relation("EmployeeUser", fields: [employeeId], references: [id])
+  customer  Customer? @relation("CustomerPortalUser", fields: [customerId], references: [id])
+  auditLogs AuditLog[]
+  skills    UserSkill[]
+  orderScheduleEntries OrderScheduleEntry[]
+  paramUpdates  SystemParameter[]      @relation("ParamUpdater")
+  paramChanges  ParameterChangeLog[]   @relation("ParamChanger")
+  userPermissions UserPermission[]
+
+  // ── Owner-portal user lifecycle (PR 3) ────────────────────────
+  /// Gesetzt, wenn ein Owner diesen Account gesperrt hat. `isActive` wird
+  /// gleichzeitig auf false geflippt. Unlock räumt beides auf.
+  lockedAt            DateTime?
+  lockedReason        String?
+  /// Beim nächsten erfolgreichen Login MUSS der User ein neues Passwort
+  /// setzen. Wird vom Owner via "Temporäres Passwort setzen" aktiviert.
+  mustChangePassword  Boolean   @default(false)
+  /// Sessions-Epoche. Bumpen invalidiert alle aktuell ausgestellten JWTs:
+  /// der Session-Callback liest den Wert aus dem Token und vergleicht ihn
+  /// mit dieser Spalte. Mismatch → logged out.
+  sessionEpoch        Int       @default(0)
+  /// Soft-Delete. Owner setzt das Feld; ein Cron räumt nach 30 Tagen
+  /// auf (kommt in v2).
+  deletedAt           DateTime?
+  /// Pflicht bei Self-Registration: erst nach Klick auf den Verify-Link
+  /// in der Bestätigungsmail. Login wird in `authorize()` abgewiesen,
+  /// solange dieses Feld null ist.
+  emailVerifiedAt     DateTime?
+
+  // Owner-portal back-references (Phase 0 foundation).
+  ownerAuditTargets     OwnerAuditLog[]              @relation("OwnerAuditTargetUser")
+  consentTokensTargeted ImpersonationConsentToken[]  @relation("ConsentTargetUser")
+  impersonationsTargeted ImpersonationSession[]      @relation("ImpersonationTargetUser")
+  passwordResetTokens   PasswordResetToken[]
+  emailVerificationTokens EmailVerificationToken[]
+  loginOtpTokens        LoginOtpToken[]
+
+  @@index([companyId])
+}
+
+/// 6-stelliger Einmal-Code für Login-2FA per E-Mail. Klartext wird NIE
+/// gespeichert — nur bcrypt-Hash. Klartext lebt einzig in der Mail an
+/// den User. 10 Min Gültigkeit, max. 5 Falscheingaben bevor der Token
+/// gesperrt wird. KIOSK_OPERATOR ist von dieser Logik ausgenommen
+/// (Werkstatt-Tablet kommt nicht an E-Mail).
+model LoginOtpToken {
+  id          String    @id @default(cuid())
+  userId      String
+  user        User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  codeHash    String
+  attempts    Int       @default(0)
+  createdAt   DateTime  @default(now())
+  expiresAt   DateTime
+  consumedAt  DateTime?
+  ipAddress   String?
+  userAgent   String?
+
+  @@index([userId, expiresAt])
+}
+
+/// Single-Use-Token zur Bestätigung der Mail-Adresse. Klartext-Token nur
+/// in der Mail; in der DB liegt bcrypt-Hash. 24h Gültigkeit.
+model EmailVerificationToken {
+  id          String   @id @default(cuid())
+  userId      String
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  tokenHash   String   @unique
+  createdAt   DateTime @default(now())
+  expiresAt   DateTime
+  consumedAt  DateTime?
+
+  @@index([userId, expiresAt])
+  @@index([expiresAt])
+}
+
+/// Magic-Link für Owner-initiierten Passwort-Reset eines Tenant-Users.
+/// Klartext-Token nur in der Mail; in der DB nur der bcrypt-Hash.
+model PasswordResetToken {
+  id                        String   @id @default(cuid())
+  userId                    String
+  user                      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  tokenHash                 String   @unique
+  createdAt                 DateTime @default(now())
+  expiresAt                 DateTime
+  consumedAt                DateTime?
+  /// Wer hat den Reset ausgelöst (Owner-Action). NULL = Self-Service (v2).
+  initiatedByOwnerAccountId String?
+
+  @@index([userId, expiresAt])
+  @@index([expiresAt])
+}
+
+model Employee {
+  id              String   @id @default(cuid())
+  companyId       String
+  // Short display ID (e.g. "001"), unique per company.
+  employeeNumber  String
+  firstName       String
+  lastName        String
+  email           String?
+  phone           String?
+  preferredLanguage String  @default("de")
+  isActive        Boolean  @default(true)
+  startDate       DateTime
+  endDate         DateTime?
+  notes           String?
+
+  // ── Personalstammdaten (PR 6) ─────────────────────────────────
+  /// Geburtsdatum (für HR / AHV-Bezug). Optional.
+  dateOfBirth     DateTime?
+  /// Wohn-Adresse (Strasse + Hausnummer + ggf. PLZ Ort als Freitext).
+  address         String?
+  /// Schweizer AHV-Nummer (756.XXXX.XXXX.XX). Soft-Validation in der UI.
+  ahvNumber       String?
+
+  // Lifecycle: ACTIVE = both null. ARCHIVED = archivedAt set, deletedAt null.
+  // DELETED = deletedAt set (kept for audit/recovery). Default queries should
+  // filter `archivedAt: null, deletedAt: null` to show only active records.
+  archivedAt      DateTime?
+  deletedAt       DateTime?
+
+  // Employment configuration
+  employmentType  EmploymentType @default(MONTHLY_SALARY)
+  // Workload percentage (100 = full time, 80 = part time, etc.). Optional for hourly.
+  workloadPercent Float?
+  // Weekly target hours. Null for hourly without fixed target.
+  weeklyTargetHours Float?
+  // Per-weekday target hours stored on related WorkScheduleDay rows.
+  defaultBreakMinutes Int @default(30)
+
+  // Vacation
+  annualVacationDays Float @default(20.0)
+
+  // Carry-over starting balances (set at hiring or year roll-over)
+  initialOvertimeHours Float @default(0)
+  initialVacationDays  Float @default(0)
+
+  // 4-digit PIN, bcrypt-hashed. Never stored in clear.
+  pinHash         String
+  // Rate-limiting state
+  pinFailedAttempts Int     @default(0)
+  pinLockedUntil   DateTime?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  company         Company           @relation(fields: [companyId], references: [id])
+  scheduleDays    WorkScheduleDay[]
+  timeEntries     TimeEntry[]
+  absences        Absence[]
+  scheduleEntries ScheduleEntry[]
+  user            User?             @relation("EmployeeUser")
+  templates       ScheduleTemplate[]
+  workAreas       EmployeeWorkArea[]
+  skills          EmployeeSkill[]
+  /// Auftrags-Schritt-Scans (QR-Code-Erfassung in der Werkstatt).
+  stepTimeEvents  ProcessStepTimeEvent[]
+  timeAdjustments TimeAdjustment[]
+
+  @@unique([companyId, employeeNumber])
+  @@index([companyId])
+  @@index([isActive])
+}
+
+/// Manuelle Zeit-Korrektur (Gleitzeit-Anpassung) durch CEO/Sekretariat.
+/// Signierte Minuten: positiv = dazurechnen, negativ = abziehen/auszahlen.
+/// Fließt in den kumulierten Saldo der Personalabrechnung ein (zusätzlich
+/// zu den gestempelten Zeiten + Anfangsbestand). Auditierbar über AuditLog.
+model TimeAdjustment {
+  id            String   @id @default(cuid())
+  companyId     String
+  employeeId    String
+  /// Wirksamkeitsdatum — bestimmt, in welchen Monat die Korrektur zählt.
+  effectiveDate DateTime @db.Date
+  /// Signierte Minuten (+ dazurechnen / − abziehen).
+  minutes       Int
+  /// Pflicht-Grund (Audit).
+  reason        String
+  /// Wer hat die Korrektur erfasst (User.id). Nullable für System/Import.
+  createdById   String?
+  createdAt     DateTime @default(now())
+
+  company  Company  @relation(fields: [companyId], references: [id], onDelete: Cascade)
+  employee Employee @relation(fields: [employeeId], references: [id], onDelete: Cascade)
+
+  @@index([employeeId, effectiveDate])
+  @@index([companyId])
+}
+
+/// Kompetenzen pro Mitarbeiter — für die automatische Schicht-/Auftrags-
+/// Planung. Parallel zu `UserSkill`, das den Skill an einen User bindet.
+/// Diese Tabelle ist die für Werkstatt-Mitarbeiter ohne User-Account
+/// relevante Quelle.
+model EmployeeSkill {
+  employeeId     String
+  employee       Employee   @relation(fields: [employeeId], references: [id], onDelete: Cascade)
+  skillCode      SkillCode
+  level          SkillLevel
+  certifiedUntil DateTime?
+
+  @@id([employeeId, skillCode])
+  @@index([skillCode])
+}
+
+// Configurable production / function areas (Sandstrahlen, Pulvern, …).
+// An employee can be assigned to multiple areas via the join table.
+model WorkArea {
+  id          String   @id @default(cuid())
+  companyId   String
+  name        String
+  description String?
+  colorHex    String   @default("#6366f1")
+  sortOrder   Int      @default(0)
+  // Minimum employees that must be planned in this area on a single day.
+  // NULL or 0 = no lower bound. The auto-planner satisfies all minimums
+  // first before it greedily fills any remaining capacity.
+  minEmployeesPerDay Int?
+  // Maximum employees that can be planned in this area on a single day.
+  // NULL = unlimited. Used by capacity validation and the auto-planner —
+  // areas with a tight cap are filled before unlimited ones.
+  maxEmployeesPerDay Int?
+  archivedAt  DateTime?
+  deletedAt   DateTime?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  company         Company            @relation(fields: [companyId], references: [id])
+  members         EmployeeWorkArea[]
+  scheduleEntries ScheduleEntry[]
+  machines        Machine[]
+
+  @@unique([companyId, name])
+  @@index([companyId])
+}
+
+model EmployeeWorkArea {
+  employeeId String
+  workAreaId String
+  isPrimary  Boolean  @default(false)
+  assignedAt DateTime @default(now())
+
+  employee Employee @relation(fields: [employeeId], references: [id], onDelete: Cascade)
+  workArea WorkArea @relation(fields: [workAreaId], references: [id], onDelete: Cascade)
+
+  @@id([employeeId, workAreaId])
+  @@index([workAreaId])
+}
+
+// One row per weekday giving the contractual target hours and (optionally)
+// expected start/end times for that weekday.
+model WorkScheduleDay {
+  id          String  @id @default(cuid())
+  employeeId  String
+  weekday     WeekDay
+  // 0 = day off
+  targetHours Float
+  // Optional planned start/end as "HH:mm" strings (local time)
+  defaultStart String?
+  defaultEnd   String?
+
+  employee Employee @relation(fields: [employeeId], references: [id], onDelete: Cascade)
+
+  @@unique([employeeId, weekday])
+}
+
+// ─────────────────────────────────────────
+// TIME TRACKING
+// ─────────────────────────────────────────
+
+// Aggregator row for one employee on one local date.
+model TimeEntry {
+  id         String   @id @default(cuid())
+  employeeId String
+  // Local date (Europe/Zurich) stored as UTC midnight of that day.
+  workDate   DateTime @db.Date
+  status     TimeEntryStatus @default(EMPTY)
+  // First clock-in / last clock-out for quick lookup.
+  firstIn    DateTime?
+  lastOut    DateTime?
+  // Cached aggregates — recomputed whenever punches/breaks change.
+  workedMinutes  Int @default(0)
+  breakMinutes   Int @default(0)
+  notes          String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  employee Employee     @relation(fields: [employeeId], references: [id], onDelete: Cascade)
+  punches  TimePunch[]
+  breaks   BreakEntry[]
+
+  @@unique([employeeId, workDate])
+  @@index([workDate])
+}
+
+model TimePunch {
+  id          String      @id @default(cuid())
+  timeEntryId String
+  employeeId  String
+  type        PunchType
+  occurredAt  DateTime
+  source      PunchSource @default(KIOSK)
+  /// Home-Office-Markierung der Arbeits-Spanne. Wird auf CLOCK_IN/CLOCK_OUT
+  /// gesetzt, wenn die Spanne als Home Office erfasst wurde. Rechnerisch
+  /// IDENTISCH zu normaler Arbeit (zählt als Arbeitszeit) — dient nur der
+  /// Unterscheidung in Ansicht/Auswertung. Default false (Kiosk + normale
+  /// Vor-Ort-Arbeit).
+  isHomeOffice Boolean    @default(false)
+  // For corrections only:
+  correctedById String?
+  reason        String?
+  createdAt   DateTime    @default(now())
+
+  timeEntry TimeEntry @relation(fields: [timeEntryId], references: [id], onDelete: Cascade)
+
+  @@index([employeeId, occurredAt])
+}
+
+model BreakEntry {
+  id          String   @id @default(cuid())
+  timeEntryId String
+  startedAt   DateTime
+  endedAt     DateTime?
+  // Cached duration in minutes; null while break is open.
+  minutes     Int?
+  source      PunchSource @default(KIOSK)
+  createdAt   DateTime @default(now())
+
+  timeEntry TimeEntry @relation(fields: [timeEntryId], references: [id], onDelete: Cascade)
+
+  @@index([timeEntryId])
+}
+
+// ─────────────────────────────────────────
+// ABSENCES & VACATION
+// ─────────────────────────────────────────
+
+model AbsenceType {
+  id              String  @id @default(cuid())
+  companyId       String
+  // Stable key for i18n / business logic: "vacation", "sickness", ...
+  key             String
+  labelDe         String
+  labelEn         String
+  category        AbsenceCategory
+  isPaid          Boolean @default(true)
+  reducesTarget   Boolean @default(true)
+  countsAsWorked  Boolean @default(false)
+  requiresApproval Boolean @default(false)
+  colorHex        String  @default("#2563eb")
+  isActive        Boolean @default(true)
+  archivedAt      DateTime?
+  deletedAt       DateTime?
+
+  company  Company   @relation(fields: [companyId], references: [id])
+  absences Absence[]
+
+  @@unique([companyId, key])
+}
+
+model Absence {
+  id           String        @id @default(cuid())
+  employeeId   String
+  absenceTypeId String
+  startDate    DateTime      @db.Date
+  endDate      DateTime      @db.Date
+  // For half-day support
+  startHalfDay Boolean       @default(false)
+  endHalfDay   Boolean       @default(false)
+  // Optional fixed hours (for hour-based vacation / compensation)
+  hours        Float?
+  status       AbsenceStatus @default(APPROVED)
+  reason       String?
+  decidedById  String?
+  decidedAt    DateTime?
+  archivedAt   DateTime?
+  deletedAt    DateTime?
+  createdAt    DateTime      @default(now())
+  updatedAt    DateTime      @updatedAt
+
+  employee     Employee     @relation(fields: [employeeId], references: [id], onDelete: Cascade)
+  absenceType  AbsenceType  @relation(fields: [absenceTypeId], references: [id])
+
+  @@index([employeeId, startDate])
+}
+
+// ─────────────────────────────────────────
+// HOLIDAYS
+// ─────────────────────────────────────────
+
+model Holiday {
+  id        String   @id @default(cuid())
+  companyId String
+  date      DateTime @db.Date
+  nameDe    String
+  nameEn    String
+  // Half-day holidays (e.g. some cantonal holidays) — fraction of a regular workday
+  fraction  Float    @default(1.0)
+  archivedAt DateTime?
+  deletedAt  DateTime?
+
+  company Company @relation(fields: [companyId], references: [id])
+
+  @@unique([companyId, date])
+  @@index([companyId, date])
+}
+
+// ─────────────────────────────────────────
+// SCHEDULING (secretary planning)
+// ─────────────────────────────────────────
+
+model ScheduleMonth {
+  id          String         @id @default(cuid())
+  companyId   String
+  year        Int
+  month       Int            // 1..12
+  status      ScheduleStatus @default(DRAFT)
+  createdById String?
+  publishedById String?
+  publishedAt DateTime?
+  createdAt   DateTime       @default(now())
+  updatedAt   DateTime       @updatedAt
+
+  company Company         @relation(fields: [companyId], references: [id])
+  entries ScheduleEntry[]
+
+  @@unique([companyId, year, month])
+}
+
+model ScheduleEntry {
+  id              String            @id @default(cuid())
+  scheduleMonthId String
+  employeeId      String
+  date            DateTime          @db.Date
+  type            ScheduleEntryType @default(WORK)
+  // "HH:mm" strings, optional for non-WORK types
+  plannedStart    String?
+  plannedEnd      String?
+  plannedBreakMinutes Int?
+  // Cached planned duration in minutes.
+  plannedMinutes  Int?
+  // Optional: which production area this shift is planned for
+  // (Sandstrahlen, Pulvern, …). NULL when not applicable.
+  workAreaId      String?
+  note            String?
+  /// Markiert die Quelle des Eintrags — siehe `ScheduleEntrySource`. Wird
+  /// für Bulk-Delete benötigt ("nur Auto-Planung löschen").
+  source          ScheduleEntrySource @default(MANUAL)
+  createdById     String?
+  updatedById     String?
+  createdAt       DateTime          @default(now())
+  updatedAt       DateTime          @updatedAt
+
+  scheduleMonth ScheduleMonth        @relation(fields: [scheduleMonthId], references: [id], onDelete: Cascade)
+  employee      Employee             @relation(fields: [employeeId], references: [id], onDelete: Cascade)
+  workArea      WorkArea?            @relation(fields: [workAreaId], references: [id], onDelete: SetNull)
+  changes       ScheduleChangeLog[]
+
+  @@unique([scheduleMonthId, employeeId, date])
+  @@index([employeeId, date])
+  @@index([workAreaId])
+  @@index([scheduleMonthId, source])
+}
+
+model ScheduleTemplate {
+  id           String   @id @default(cuid())
+  companyId    String
+  employeeId   String?  // null = global template
+  name         String
+  // "WEEKLY" or "MONTHLY"
+  templateType String
+  // Free-form JSON describing the pattern
+  data         Json
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  company  Company   @relation(fields: [companyId], references: [id])
+  employee Employee? @relation(fields: [employeeId], references: [id], onDelete: Cascade)
+}
+
+model ScheduleChangeLog {
+  id              String   @id @default(cuid())
+  scheduleEntryId String
+  changedById     String?
+  changedAt       DateTime @default(now())
+  oldValue        Json?
+  newValue        Json?
+  reason          String?
+
+  scheduleEntry ScheduleEntry @relation(fields: [scheduleEntryId], references: [id], onDelete: Cascade)
+
+  @@index([scheduleEntryId])
+}
+
+// ─────────────────────────────────────────
+// AUDIT LOG
+// ─────────────────────────────────────────
+
+model AuditLog {
+  id         String      @id @default(cuid())
+  companyId  String
+  userId     String?
+  // Kiosk actions are not tied to a User row; record employee separately.
+  employeeId String?
+  action     AuditAction
+  entityType String      // "TimePunch", "Absence", ...
+  entityId   String?
+  oldValue   Json?
+  newValue   Json?
+  reason     String?
+  ipAddress  String?
+  userAgent  String?
+  createdAt  DateTime    @default(now())
+
+  user User? @relation(fields: [userId], references: [id])
+
+  @@index([companyId, createdAt])
+  @@index([entityType, entityId])
+}
+
+// ─────────────────────────────────────────
+// ERP — CRM
+// ─────────────────────────────────────────
+
+/// Customer (B2C oder B2B). Nummern werden pro Geschäftsjahr automatisch
+/// vergeben (z. B. KD-2026-0042). Soft-Delete via `deletedAt` für revDSG.
+model Customer {
+  id               String        @id @default(cuid())
+  companyId        String
+  customerNumber   String        @unique          // KD-2026-0042
+  type             CustomerType
+  companyName      String?                        // bei BUSINESS Pflicht
+  vatNumber        String?                        // CHE-123.456.789 MWST
+  language         Locale        @default(DE)
+  paymentTerms     Int           @default(30)     // Tage
+  defaultDiscount  Decimal?      @db.Decimal(5,2) // %
+  creditLimit      Decimal?      @db.Decimal(12,2)
+  notes            String?
+  isActive         Boolean       @default(true)
+  bexioContactId   String?       @unique          // optional Push-Anker (Phase 6)
+  abacusCustomerId String?       @unique
+  portalEnabled    Boolean       @default(false)
+  portalSlug       String?       @unique
+  archivedAt       DateTime?
+  deletedAt        DateTime?
+  createdAt        DateTime      @default(now())
+  updatedAt        DateTime      @updatedAt
+
+  company   Company    @relation(fields: [companyId], references: [id])
+  addresses Address[]
+  contacts  Contact[]
+  orders    Order[]
+  quotes    Quote[]
+  invoices  Invoice[]
+  portalUsers User[]   @relation("CustomerPortalUser")
+
+  @@index([companyId, customerNumber])
+  @@index([companyName])
+  @@index([deletedAt])
+}
+
+model Address {
+  id          String      @id @default(cuid())
+  customerId  String
+  customer    Customer    @relation(fields: [customerId], references: [id], onDelete: Cascade)
+  type        AddressType
+  street      String
+  zip         String
+  city        String
+  canton      String?                              // BE, ZH, …
+  country     String      @default("CH")
+  isDefault   Boolean     @default(false)
+
+  billingForOrders   Order[] @relation("OrderBillingAddress")
+  shippingForOrders  Order[] @relation("OrderShippingAddress")
+
+  @@index([customerId])
+}
+
+model Contact {
+  id              String   @id @default(cuid())
+  customerId      String
+  customer        Customer @relation(fields: [customerId], references: [id], onDelete: Cascade)
+  salutation      String?
+  firstName       String
+  lastName        String
+  position        String?
+  email           String?
+  phone           String?
+  mobile          String?
+  isPrimary       Boolean  @default(false)
+  hasPortalAccess Boolean  @default(false)
+
+  ordersAsContact Order[]
+
+  @@index([customerId])
+}
+
+// ─────────────────────────────────────────
+// ERP — Machines
+// ─────────────────────────────────────────
+
+/// Konkrete Anlage in einem Bereich. Jede `WorkArea` (z. B. "Sandstrahlen")
+/// kann mehrere Maschinen haben (z. B. 2 Strahlkabinen). Werte aus Briefing
+/// sind Defaults — Werkstattleiter passt L/B/H/Gewicht im UI an.
+model Machine {
+  id               String       @id @default(cuid())
+  companyId        String
+  workAreaId       String?
+  name             String       @unique
+  type             MachineType
+  /// Maximale Werkstückmasse — manuell editierbar.
+  maxLengthMm      Int?
+  maxWidthMm       Int?
+  maxHeightMm      Int?
+  maxWeightKg      Int?
+  /// Wenn die Maschine eine Charge ablassen kann (Ofen, Becken):
+  /// max. Quadratmeter pro Charge.
+  chargeCapacityM2 Decimal?     @db.Decimal(8,2)
+  isActive         Boolean      @default(true)
+  /// Wochenkalender: { mon: [{from:"07:30", to:"12:00"},{from:"13:00",to:"17:00"}], ... }
+  workingHours     Json
+  archivedAt       DateTime?
+  deletedAt        DateTime?
+  createdAt        DateTime     @default(now())
+  updatedAt        DateTime     @updatedAt
+
+  company            Company              @relation(fields: [companyId], references: [id])
+  // SetNull: WorkArea-Löschung soll Maschine nicht blocken. Maschine wird
+  // bereichslos und löst dann keinen Personal-Bedarf mehr aus — sicherer
+  // Default als Cascade (würde Maschinen mitlöschen).
+  workArea           WorkArea?            @relation(fields: [workAreaId], references: [id], onDelete: SetNull)
+  maintenanceWindows MachineMaintenance[]
+  scheduleEntries    OrderScheduleEntry[]
+
+  @@index([companyId, type])
+  @@index([workAreaId])
+}
+
+model MachineMaintenance {
+  id        String   @id @default(cuid())
+  machineId String
+  machine   Machine  @relation(fields: [machineId], references: [id], onDelete: Cascade)
+  startsAt  DateTime
+  endsAt    DateTime
+  reason    String
+
+  @@index([machineId, startsAt])
+}
+
+// ─────────────────────────────────────────
+// ERP — Skills (User-Erweiterung)
+// ─────────────────────────────────────────
+
+/// Mitarbeiter-Skills mit Level. Auto-Scheduler bevorzugt höheres Level
+/// bei kritischen Aufträgen.
+model UserSkill {
+  userId         String
+  user           User       @relation(fields: [userId], references: [id], onDelete: Cascade)
+  skillCode      SkillCode
+  level          SkillLevel
+  certifiedUntil DateTime?
+
+  @@id([userId, skillCode])
+  @@index([skillCode])
+}
+
+// ─────────────────────────────────────────
+// ERP — Aufträge
+// ─────────────────────────────────────────
+
+model Order {
+  id                String       @id @default(cuid())
+  companyId         String
+  orderNumber       String       @unique          // AUF-2026-00123
+  customerId        String
+  status            OrderStatus  @default(DRAFT)
+  priority          Priority     @default(NORMAL)
+  receivedAt        DateTime
+  promisedAt        DateTime
+  internalDeadline  DateTime?
+  startedAt         DateTime?
+  completedAt       DateTime?
+  deliveredAt       DateTime?
+  contactPersonId   String?
+  shippingAddressId String?
+  billingAddressId  String?
+  notes             String?
+  customerNotes     String?
+  trackingId        String       @unique @default(cuid())
+  /// Öffentliches Tracking-Token (UUID v4, kryptografisch zufällig).
+  /// Global eindeutig pro Auftrag → Mandanten können strukturell nie
+  /// kollidieren oder vertauscht werden. Wird für die /track-URL und
+  /// das gedruckte Etikett genutzt; der Mandant ergibt sich IMMER aus
+  /// dem aufgelösten Auftrag, niemals aus der URL.
+  trackingToken     String       @unique @default(uuid())
+  qrCodePdfPath     String?
+  totalNetCHF       Decimal?     @db.Decimal(12,2)
+  bexioOrderId      String?      @unique
+  abacusOrderId     String?      @unique
+  /// Eingefrorene Berechnungs-Parameter ab Status `CONFIRMED`. Siehe
+  /// docs/parameters.md "Snapshot-Regeln".
+  parameterSnapshot Json?
+  /// True wenn der Auftrag aus einem Kundenportal-Request entstanden ist.
+  customerInitiated Boolean      @default(false)
+  createdById       String
+  archivedAt        DateTime?
+  deletedAt         DateTime?
+  createdAt         DateTime     @default(now())
+  updatedAt         DateTime     @updatedAt
+
+  company         Company              @relation(fields: [companyId], references: [id])
+  customer        Customer             @relation(fields: [customerId], references: [id])
+  contactPerson   Contact?             @relation(fields: [contactPersonId], references: [id])
+  shippingAddress Address?             @relation("OrderShippingAddress", fields: [shippingAddressId], references: [id])
+  billingAddress  Address?             @relation("OrderBillingAddress", fields: [billingAddressId], references: [id])
+  items           OrderItem[]
+  scheduleEntries OrderScheduleEntry[]
+  attachments     OrderAttachment[]
+  statusHistory   OrderStatusHistory[]
+  invoices        Invoice[]
+
+  @@index([companyId, status, promisedAt])
+  @@index([customerId, status])
+  @@index([trackingId])
+}
+
+model OrderItem {
+  id           String      @id @default(cuid())
+  orderId      String
+  order        Order       @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  position     Int                                  // 10, 20, 30 (Reihenfolge)
+  description  String
+  quantity     Int         @default(1)
+  surfaceM2    Decimal     @db.Decimal(10,3)
+  weightKg     Decimal?    @db.Decimal(10,2)
+  thicknessMm  Decimal?    @db.Decimal(6,2)        // für Aufheiz-Berechnung
+  material     Material
+  complexity   Complexity  @default(NORMAL)
+  colorCode    String?                              // RAL 9005, NCS S 0500-N
+  colorSystem  ColorSystem?
+  glossLevel   GlossLevel?
+  /// Bestimmt den nötigen Korrosions- und UV-Schutz-Level → Recommender
+  /// nutzt das, um geeignete Vorbehandlung + Beschichtung vorzuschlagen.
+  applicationArea ApplicationArea?
+  unitPriceCHF Decimal?    @db.Decimal(10,2)
+  notes        String?
+
+  processSteps ProcessStep[]
+}
+
+/// Ein einzelner Bearbeitungsschritt eines Auftragsteils. Reihenfolge via
+/// `sequence` (10, 20, 30 …) plus optional expliziter Vorgänger.
+model ProcessStep {
+  id                  String       @id @default(cuid())
+  orderItemId         String
+  orderItem           OrderItem    @relation(fields: [orderItemId], references: [id], onDelete: Cascade)
+  sequence            Int                              // 10, 20, 30, …
+  processCode         ProcessCode
+  machineTypeRequired MachineType?
+  skillRequired       SkillCode
+  /// Berechnet aus Standardzeit × m² × Material × Komplexität.
+  estimatedMinutes    Int
+  /// Berechnet aus QR-Scan-Events (Start/Pause/Resume/End). NULL solange
+  /// noch kein End-Event eingetroffen ist.
+  actualMinutes       Int?
+  /// Manueller Override durch ADMIN — wird nur verwendet wenn
+  /// `billingTimeSource = MANUAL`. In Minuten.
+  billedMinutes       Int?
+  /// Welche Zeit für die Abrechnung herangezogen wird:
+  ///   ACTUAL    → actualMinutes (Default)
+  ///   ESTIMATED → estimatedMinutes (Schätzung aus dem Snapshot)
+  ///   MANUAL    → billedMinutes (CEO-Override)
+  billingTimeSource   BillingTimeSource @default(ACTUAL)
+  /// Trocknung/Aushärtung NACH diesem Schritt — blockiert KEINE Ressource,
+  /// aber den nachfolgenden Schritt.
+  waitMinutesAfter    Int          @default(0)
+  status              StepStatus   @default(PENDING)
+  predecessorId       String?      @unique
+  // SetNull: wenn der Vorgänger-Step gelöscht wird, soll der Successor
+  // nicht orphaned blocken. Daten-Integrität bleibt — Successor wird
+  // einfach zum neuen Anfang seiner Kette.
+  predecessor         ProcessStep? @relation("StepFlow", fields: [predecessorId], references: [id], onDelete: SetNull)
+  successor           ProcessStep? @relation("StepFlow")
+  notes               String?
+  scheduleEntry       OrderScheduleEntry?
+  /// QR-Scan-Events der Mitarbeitenden (Start/Pause/Resume/End).
+  timeEvents          ProcessStepTimeEvent[]
+
+  @@index([status])
+  @@index([orderItemId, sequence])
+}
+
+/// Pro QR-Scan ein Event. `actualMinutes` von ProcessStep ergibt sich aus
+/// dem Event-Stream:
+///
+///   running       = wir sind in einem START..END/PAUSE-Intervall
+///   actualMinutes = Σ (END/PAUSE − START/RESUME) über alle Intervalle
+///
+/// Siehe `lib/order/step-time.ts` für die reine Berechnungs-Funktion.
+model ProcessStepTimeEvent {
+  id            String               @id @default(cuid())
+  processStepId String
+  processStep   ProcessStep          @relation(fields: [processStepId], references: [id], onDelete: Cascade)
+  /// Welcher Mitarbeitende den Scan gemacht hat (PIN-validiert).
+  employeeId    String
+  employee      Employee             @relation(fields: [employeeId], references: [id])
+  eventType     ProcessStepEventType
+  occurredAt    DateTime             @default(now())
+  /// Optionale Bemerkung („Maschine fiel aus", "Pulver gewechselt").
+  note          String?
+
+  @@index([processStepId, occurredAt])
+  @@index([employeeId, occurredAt])
+}
+
+enum ProcessStepEventType {
+  START
+  PAUSE
+  RESUME
+  END
+}
+
+enum BillingTimeSource {
+  ACTUAL
+  ESTIMATED
+  MANUAL
+}
+
+/// Schedule-Eintrag der ERP-Auftragsplanung (eindeutig 1:1 zu ProcessStep).
+/// Komplett unabhängig vom Personal-Planungs-`ScheduleEntry`.
+model OrderScheduleEntry {
+  id              String      @id @default(cuid())
+  processStepId   String      @unique
+  processStep     ProcessStep @relation(fields: [processStepId], references: [id], onDelete: Cascade)
+  orderId         String
+  order           Order       @relation(fields: [orderId], references: [id])
+  assignedUserId  String?
+  assignedUser    User?       @relation(fields: [assignedUserId], references: [id])
+  machineId       String?
+  machine         Machine?    @relation(fields: [machineId], references: [id])
+  plannedStart    DateTime
+  plannedEnd      DateTime
+  actualStart     DateTime?
+  actualEnd       DateTime?
+  /// Manuell fixiert → Auto-Scheduler darf nicht verschieben.
+  isLocked        Boolean     @default(false)
+  isAutoPlanned   Boolean     @default(true)
+  conflicts       ScheduleConflict[]
+
+  @@index([plannedStart, plannedEnd])
+  @@index([assignedUserId, plannedStart])
+  @@index([machineId, plannedStart])
+}
+
+model ScheduleConflict {
+  id              String             @id @default(cuid())
+  scheduleEntryId String
+  entry           OrderScheduleEntry @relation(fields: [scheduleEntryId], references: [id], onDelete: Cascade)
+  type            ConflictType
+  severity        Severity
+  message         String
+  detectedAt      DateTime           @default(now())
+  resolvedAt      DateTime?
+
+  @@index([severity, resolvedAt])
+}
+
+model OrderStatusHistory {
+  id          String       @id @default(cuid())
+  orderId     String
+  order       Order        @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  fromStatus  OrderStatus?
+  toStatus    OrderStatus
+  changedById String
+  changedAt   DateTime     @default(now())
+  comment     String?
+
+  @@index([orderId, changedAt])
+}
+
+model OrderAttachment {
+  id                String   @id @default(cuid())
+  orderId           String
+  order             Order    @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  filename          String
+  mimeType          String
+  sizeBytes         Int
+  storagePath       String
+  uploadedById      String
+  uploadedAt        DateTime @default(now())
+  visibleToCustomer Boolean  @default(false)
+
+  @@index([orderId])
+}
+
+// ─────────────────────────────────────────
+// ERP — Offerten & Rechnungen
+// ─────────────────────────────────────────
+
+model Quote {
+  id                 String      @id @default(cuid())
+  companyId          String
+  quoteNumber        String      @unique           // OFF-2026-00045
+  customerId         String
+  status             QuoteStatus @default(DRAFT)
+  validUntil         DateTime
+  totalNetCHF        Decimal     @db.Decimal(12,2)
+  vatRate            Decimal     @db.Decimal(4,2)
+  pdfPath            String?
+  bexioQuoteId       String?     @unique
+  convertedToOrderId String?     @unique
+  parameterSnapshot  Json?       // bei Status SENT eingefroren
+  notes              String?
+  createdById        String
+  createdAt          DateTime    @default(now())
+  updatedAt          DateTime    @updatedAt
+
+  company  Company     @relation(fields: [companyId], references: [id])
+  customer Customer    @relation(fields: [customerId], references: [id])
+  items    QuoteItem[]
+
+  @@index([companyId, status])
+  @@index([customerId])
+}
+
+model QuoteItem {
+  id            String       @id @default(cuid())
+  quoteId       String
+  quote         Quote        @relation(fields: [quoteId], references: [id], onDelete: Cascade)
+  position      Int
+  description   String
+  quantity      Int          @default(1)
+  surfaceM2     Decimal?     @db.Decimal(10,3)
+  weightKg      Decimal?     @db.Decimal(10,2)
+  thicknessMm   Decimal?     @db.Decimal(6,2)
+  material      Material?
+  complexity    Complexity?
+  colorCode     String?
+  colorSystem   ColorSystem?
+  glossLevel    GlossLevel?
+  /// Bestimmt den nötigen Korrosions- und UV-Schutz-Level — siehe OrderItem.
+  applicationArea ApplicationArea?
+  unitPriceCHF  Decimal      @db.Decimal(10,2)
+  totalPriceCHF Decimal      @db.Decimal(12,2)
+  notes         String?
+  /// ID einer Process-Vorlage (siehe Model `ProcessTemplate`). Optional —
+  /// die Steps werden direkt in `processSteps` gespeichert; das Template
+  /// dient nur als Referenz / Schnellauswahl im Wizard.
+  templateId    String?
+  /// Vorab-berechneter Aufwand (Σ Schritt-Min × Quantity).
+  estimatedMinutes Int?
+
+  processSteps  QuoteProcessStep[]
+}
+
+/// Process-Schritt einer Quote-Position. Spiegel von `ProcessStep` aus den
+/// Aufträgen — beim Convert-to-Order werden diese Steps 1:1 in `ProcessStep`
+/// kopiert. Daher gleiche Felder, aber ohne Status/actualMinutes.
+model QuoteProcessStep {
+  id                  String       @id @default(cuid())
+  quoteItemId         String
+  quoteItem           QuoteItem    @relation(fields: [quoteItemId], references: [id], onDelete: Cascade)
+  sequence            Int
+  processCode         ProcessCode
+  machineTypeRequired MachineType?
+  skillRequired       SkillCode
+  estimatedMinutes    Int
+  waitMinutesAfter    Int          @default(0)
+  notes               String?
+
+  @@index([quoteItemId, sequence])
+}
+
+// ─────────────────────────────────────────
+// Process-Templates (DB-basiert, editierbar)
+// ─────────────────────────────────────────
+
+/// Standardisierte Prozessabläufe (z. B. „Standard-Pulverbeschichtung",
+/// „Nasslackieren 2K"). Bisher hardcoded in `lib/order/process-templates.ts`,
+/// jetzt in der DB damit Admin sie ergänzen/anpassen kann.
+model ProcessTemplate {
+  id          String   @id @default(cuid())
+  companyId   String
+  /// Stable Schlüssel — beim Seed gesetzt, vom Admin nicht änderbar
+  /// (sodass Code-Referenzen wie "powder-standard" stabil bleiben).
+  key         String?
+  label       String
+  description String?
+  sortOrder   Int      @default(0)
+  /// Lifecycle wie bei anderen Listen
+  archivedAt  DateTime?
+  deletedAt   DateTime?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  company Company               @relation(fields: [companyId], references: [id])
+  steps   ProcessTemplateStep[]
+
+  @@unique([companyId, key])
+  @@index([companyId, sortOrder])
+}
+
+model ProcessTemplateStep {
+  id                  String          @id @default(cuid())
+  templateId          String
+  template            ProcessTemplate @relation(fields: [templateId], references: [id], onDelete: Cascade)
+  sequence            Int
+  processCode         ProcessCode
+  machineTypeRequired MachineType?
+  skillRequired       SkillCode
+  defaultWaitMinutes  Int             @default(0)
+  notes               String?
+
+  @@index([templateId, sequence])
+}
+
+model Invoice {
+  id              String        @id @default(cuid())
+  companyId       String
+  invoiceNumber   String        @unique           // RG-2026-00789
+  orderId         String?
+  customerId      String
+  status          InvoiceStatus @default(DRAFT)
+  issuedAt        DateTime
+  dueAt           DateTime
+  /// Wann an Kunden gesendet (Status SENT).
+  sentAt          DateTime?
+  paidAt          DateTime?
+  paidAmountCHF   Decimal?      @db.Decimal(12,2)
+  /// Mahnstufe: 0 = keine, 1..3 = Mahnung 1/2/3.
+  reminderLevel   Int           @default(0)
+  /// Wann zuletzt eine Mahnung gesendet wurde.
+  lastReminderAt  DateTime?
+  totalNetCHF     Decimal       @db.Decimal(12,2)
+  vatRate         Decimal       @db.Decimal(4,2)
+  /// Cache-Felder — bei Statuswechsel zu SENT eingefroren.
+  vatCHF          Decimal       @db.Decimal(12,2) @default(0)
+  totalGrossCHF   Decimal       @db.Decimal(12,2) @default(0)
+  /// Snapshot der Rechnungsadresse zur Sende-Zeit (immutable).
+  /// Format: { name, street, zip, city, country, vatNumber? }
+  billingAddressSnapshot Json?
+  pdfPath         String?
+  bexioInvoiceId  String?       @unique
+  abacusInvoiceId String?       @unique
+  /// Schweizer QR-Rechnungs-Referenz (modulo-10-rekursiv) für Zahlungs-Zuordnung.
+  qrBillReference String?       @unique
+  notes           String?
+  /// Lifecycle (für Soft-Delete archivierter Rechnungen — Storno bleibt im AuditLog).
+  archivedAt      DateTime?
+  deletedAt       DateTime?
+  createdById     String
+  createdAt       DateTime      @default(now())
+  updatedAt       DateTime      @updatedAt
+
+  company  Company       @relation(fields: [companyId], references: [id])
+  customer Customer      @relation(fields: [customerId], references: [id])
+  order    Order?        @relation(fields: [orderId], references: [id])
+  items    InvoiceItem[]
+
+  @@index([companyId, status])
+  @@index([customerId])
+  @@index([orderId])
+  @@index([dueAt, status])
+}
+
+/// Eine Rechnungs-Position. Wird beim Erstellen aus Auftrags-Positionen
+/// kopiert (Snapshot) — Auftrag-Änderungen wirken nicht zurück.
+model InvoiceItem {
+  id            String  @id @default(cuid())
+  invoiceId     String
+  invoice       Invoice @relation(fields: [invoiceId], references: [id], onDelete: Cascade)
+  position      Int
+  description   String
+  quantity      Decimal @db.Decimal(10,3) @default(1)
+  /// Einheit (Stk, h, m², kg, …) — Anzeige auf der Rechnung.
+  unit          String  @default("Stk")
+  unitPriceCHF  Decimal @db.Decimal(10,2)
+  /// Optionaler Discount in % auf diese Position (Range 0..100).
+  discountPct   Decimal @db.Decimal(5,2) @default(0)
+  totalCHF      Decimal @db.Decimal(12,2)
+
+  @@index([invoiceId, position])
+}
+
+// ─────────────────────────────────────────
+// ERP — System-Parameter (CEO-editierbar)
+// ─────────────────────────────────────────
+
+/// CEO-editierbare Werte. ALLE Standardzeiten/Temperaturen/Faktoren/Sätze
+/// aus Sektion 2 des ERP-Briefings liegen hier — KEINE Hardcoded-Konstanten
+/// im Code. Berechnungs-Funktionen lesen ausschliesslich aus diesem Store.
+///
+/// Snapshot-Regeln (kritisch für Datenintegrität):
+///   - DRAFT-Aufträge rechnen LIVE.
+///   - CONFIRMED+ Aufträge nutzen `Order.parameterSnapshot` (eingefroren).
+///   Siehe docs/parameters.md.
+model SystemParameter {
+  /// Pro-Tenant-Parameter: jeder Mandant hat seine eigene Kalibrierung
+  /// von Prozess-Zeiten, Stundensätzen, MwSt usw. Vor dem Refactor war
+  /// die Tabelle global; siehe docs/parameters.md für Migrations-Notiz.
+  companyId      String
+  company        Company        @relation(fields: [companyId], references: [id], onDelete: Cascade)
+  key            String                       // z.B. "process.BLAST_SA25.minutesPerM2"
+  category       ParamCategory
+  subCategory    String?
+  label          String
+  description    String?
+  valueType      ParamValueType
+  /// Aktueller Wert, JSON-serialisiert (number, boolean, string).
+  currentValue   String
+  /// Ursprungs-Default für Reset-Funktion.
+  defaultValue   String
+  unit           String?
+  minValue       Decimal?       @db.Decimal(12,4)
+  maxValue       Decimal?       @db.Decimal(12,4)
+  step           Decimal?       @db.Decimal(12,4)
+  affectsFormula String?
+  updatedById    String
+  updatedAt      DateTime       @updatedAt
+
+  updatedBy  User                 @relation("ParamUpdater", fields: [updatedById], references: [id])
+  changeLogs ParameterChangeLog[]
+
+  @@id([companyId, key])
+  @@index([companyId, category])
+  @@index([companyId, subCategory])
+}
+
+model ParameterChangeLog {
+  id                 String          @id @default(cuid())
+  parameterCompanyId String
+  parameterKey       String
+  parameter          SystemParameter @relation(fields: [parameterCompanyId, parameterKey], references: [companyId, key], onDelete: Cascade)
+  oldValue     String
+  newValue     String
+  changedById  String
+  changedBy    User            @relation("ParamChanger", fields: [changedById], references: [id])
+  /// Pflichtfeld — UI erzwingt Eingabe.
+  reason       String
+  effectiveAt  DateTime        @default(now())
+
+  @@index([parameterCompanyId, parameterKey, effectiveAt])
+}
+
+// ═══════════════════════════════════════════════════════════════════════
+// OWNER PORTAL — habb.ch Support / Operator Console
+// ═══════════════════════════════════════════════════════════════════════
+//
+// Strikt getrennter Account-Pool für SaaS-Betreiber (habb.ch). Kein
+// Tenant-User kann durch Datenmanipulation Owner-Rechte erlangen, weil
+// die ganze Auth-Infrastruktur (Tabelle, JWT-Issuer, Login-Route, API-
+// Prefix /api/owner/*) eigen ist. Siehe docs/owner-portal/architecture.md.
+
+enum OwnerRole {
+  /// Vollzugriff inkl. Owner-Accounts verwalten und Mandanten hart löschen.
+  /// Existiert per Konvention 1× — über Vier-Augen-Prinzip später erweiterbar.
+  OWNER_ROOT
+  /// Day-to-day Support-Admin: Mandanten verwalten, Module togglen,
+  /// Impersonation (mit Consent-OTP), Passwort-Reset.
+  OWNER_ADMIN
+  /// Read-only-Support: Tickets, Passwort-Reset-Mail auslösen,
+  /// Read-only-Impersonation (mit Consent-OTP).
+  OWNER_SUPPORT
+}
+
+model OwnerAccount {
+  id                  String       @id @default(cuid())
+  email               String       @unique
+  name                String
+  /// bcrypt-Hash. Owner-Passwörter sind nur eines der beiden Faktoren —
+  /// WebAuthn (Passkey) ist Pflicht für jeden Login (siehe webauthnEnrolledAt).
+  passwordHash        String
+  role                OwnerRole    @default(OWNER_SUPPORT)
+  isActive            Boolean      @default(true)
+  /// Sobald gesetzt, hat der Owner mindestens einen Passkey hinterlegt.
+  /// Bei erster Anmeldung wird Enrollment erzwungen → diese Spalte gefüllt.
+  webauthnEnrolledAt  DateTime?
+  /// NUR Notfall-Recovery: AES-256-GCM-verschlüsseltes TOTP-Secret.
+  /// Ein gültiger TOTP-Code gewährt KEINEN Portalzugang — er schaltet
+  /// nur den Passkey-Enroll frei. Passkey bleibt strukturell Pflicht.
+  totpSecretEnc       String?
+  /// Gesetzt sobald TOTP per Code bestätigt (aktiv als Recovery).
+  totpEnrolledAt      DateTime?
+  totpFailedAttempts  Int          @default(0)
+  totpLockedUntil     DateTime?
+  lastLoginAt         DateTime?
+  createdAt           DateTime     @default(now())
+  updatedAt           DateTime     @updatedAt
+
+  webauthnCredentials OwnerWebAuthnCredential[]
+  sessions            OwnerSession[]
+  auditLogs           OwnerAuditLog[]
+  consentTokens       ImpersonationConsentToken[]
+  impersonationSessions ImpersonationSession[]
+}
+
+model OwnerWebAuthnCredential {
+  id                 String       @id @default(cuid())
+  ownerAccountId     String
+  ownerAccount       OwnerAccount @relation(fields: [ownerAccountId], references: [id], onDelete: Cascade)
+  /// Vom Authenticator stammende Credential-ID (Bytes, hier hex-encoded).
+  credentialId       String       @unique
+  publicKey          Bytes
+  counter            BigInt       @default(0)
+  /// "usb" | "nfc" | "ble" | "internal" — JSON-Array als String gespeichert.
+  transports         String?
+  /// Optionales Nicknaming, damit Owner mehrere Keys unterscheiden kann
+  /// ("YubiKey privat", "iCloud Passkey").
+  label              String?
+  createdAt          DateTime     @default(now())
+  lastUsedAt         DateTime?
+
+  @@index([ownerAccountId])
+}
+
+model OwnerSession {
+  id              String       @id @default(cuid())
+  ownerAccountId  String
+  ownerAccount    OwnerAccount @relation(fields: [ownerAccountId], references: [id], onDelete: Cascade)
+  /// Hash des Session-Tokens (das Token selbst liegt nur im Cookie).
+  tokenHash       String       @unique
+  ipAddress       String?
+  userAgent       String?
+  createdAt       DateTime     @default(now())
+  /// 8h-Hardlimit. Soft-Limit (30 Min Idle) per Cookie max-age, harter
+  /// Schnitt hier per now() > expiresAt.
+  expiresAt       DateTime
+  /// Step-up "Sudo"-Modus: nach erneuter WebAuthn-Bestätigung 5 Min lang
+  /// gültig für destruktive Aktionen + Impersonations-Anfragen.
+  sudoUntil       DateTime?
+  revokedAt       DateTime?
+
+  @@index([ownerAccountId, expiresAt])
+}
+
+enum OwnerAuditAction {
+  // Auth
+  OWNER_LOGIN_OK
+  OWNER_LOGIN_FAILED
+  OWNER_LOGOUT
+  OWNER_2FA_ENROLLED
+  OWNER_2FA_RESET
+  OWNER_2FA_TOTP_ENROLLED
+  OWNER_2FA_TOTP_DISABLED
+  OWNER_2FA_RECOVERY_USED
+  OWNER_SUDO_GRANTED
+  DIAGNOSTICS_RUN_MANUAL
+  DIAGNOSTICS_FINDING_UPDATED
+  DIAGNOSTICS_TEST_EMAIL
+  // Read
+  TENANT_VIEWED
+  TENANT_USER_LIST_VIEWED
+  TENANT_AUDIT_VIEWED
+  // Tenant-Verwaltung
+  TENANT_CREATED
+  TENANT_REGISTRATION_APPROVED
+  TENANT_REGISTRATION_REJECTED
+  TENANT_SUSPENDED
+  TENANT_REACTIVATED
+  TENANT_NOTES_UPDATED
+  TENANT_STAMMDATEN_UPDATED
+  TENANT_DATA_EXPORTED
+  TENANT_SOFT_DELETED
+  TENANT_HARD_DELETED
+  // Entitlements
+  ENTITLEMENT_TOGGLED
+  ENTITLEMENT_LIMIT_CHANGED
+  // User-Verwaltung
+  USER_CREATED
+  USER_PASSWORD_RESET_LINK_SENT
+  USER_TEMP_PASSWORD_SET
+  USER_SESSIONS_INVALIDATED
+  USER_2FA_RESET
+  USER_ROLE_CHANGED
+  USER_LOCKED
+  USER_UNLOCKED
+  USER_SOFT_DELETED
+  USER_RESTORED
+  USER_PERMISSIONS_UPDATED
+  TENANT_ROLE_MATRIX_UPDATED
+  // Impersonation
+  IMPERSONATION_REQUESTED
+  IMPERSONATION_OTP_VERIFIED
+  IMPERSONATION_OTP_FAILED
+  IMPERSONATION_OTP_EXPIRED
+  IMPERSONATION_CANCELLED
+  IMPERSONATION_STARTED
+  IMPERSONATION_ENDED
+  // Owner-Team-Verwaltung (nur owner_root)
+  OWNER_ACCOUNT_CREATED
+  OWNER_ACCOUNT_ROLE_CHANGED
+  OWNER_ACCOUNT_DISABLED
+}
+
+/// Append-only Audit-Log für alle Owner-Aktionen. App-Code legt nur an,
+/// niemals UPDATE/DELETE. Postgres-seitig wird der App-Rolle REVOKE
+/// UPDATE/DELETE auf dieser Tabelle gegeben (siehe Doku Runbook).
+model OwnerAuditLog {
+  id                String           @id @default(cuid())
+  timestamp         DateTime         @default(now())
+  ownerAccountId    String
+  ownerAccount      OwnerAccount     @relation(fields: [ownerAccountId], references: [id], onDelete: Restrict)
+  /// Denormalisiert: damit die Spur überlebt, wenn der Owner-Account
+  /// jemals gelöscht/umbenannt werden würde.
+  ownerEmail        String
+  action            OwnerAuditAction
+  targetCompanyId   String?
+  targetCompany     Company?         @relation(fields: [targetCompanyId], references: [id], onDelete: SetNull)
+  targetUserId      String?
+  targetUser        User?            @relation("OwnerAuditTargetUser", fields: [targetUserId], references: [id], onDelete: SetNull)
+  reason            String?
+  ticketRef         String?
+  ipAddress         String?
+  userAgent         String?
+  requestId         String?
+  payloadBefore     Json?
+  payloadAfter      Json?
+  consentTokenId    String?
+
+  @@index([ownerAccountId, timestamp])
+  @@index([targetCompanyId, timestamp])
+  @@index([action, timestamp])
+}
+
+enum TenantModule {
+  CRM
+  ORDERS_QUOTES
+  INVOICES_QR
+  WORKSHOP_PLAN
+  STAFF_PLAN
+  TIME_KIOSK
+  API_ACCESS
+  WHITELABEL
+}
+
+/// Modul-Aktivierung + Limits pro Mandant. Eine Row pro (Company, Modul).
+/// Fehlende Row = Default (Modul aktiv ja/nein laut Code-Default).
+model TenantEntitlement {
+  id                       String       @id @default(cuid())
+  companyId                String
+  company                  Company      @relation(fields: [companyId], references: [id], onDelete: Cascade)
+  module                   TenantModule
+  enabled                  Boolean      @default(true)
+  /// NULL = unlimited. Sinnvoll z.B. für Rechnungen/Monat oder Anzahl User.
+  monthlyLimit             Int?
+  /// Letzter Owner, der diese Zeile geändert hat (Audit-Hilfe; full audit in OwnerAuditLog).
+  updatedByOwnerAccountId  String?
+  updatedAt                DateTime     @updatedAt
+  createdAt                DateTime     @default(now())
+
+  @@unique([companyId, module])
+  @@index([companyId])
+}
+
+enum ImpersonationScope {
+  READONLY
+  FULL
+}
+
+enum ImpersonationEmailStatus {
+  PENDING
+  SENT
+  BOUNCED
+  FAILED
+}
+
+/// 6-stelliger Consent-OTP für Owner-Impersonation. Der Code selbst
+/// wird NIE im Klartext gespeichert — nur bcrypt-Hash. Klartext lebt
+/// ausschliesslich in der einmaligen E-Mail an den Kunden.
+model ImpersonationConsentToken {
+  id                          String                    @id @default(cuid())
+  ownerAccountId              String
+  ownerAccount                OwnerAccount              @relation(fields: [ownerAccountId], references: [id], onDelete: Restrict)
+  targetUserId                String
+  targetUser                  User                      @relation("ConsentTargetUser", fields: [targetUserId], references: [id], onDelete: Cascade)
+  targetCompanyId             String
+  targetCompany               Company                   @relation(fields: [targetCompanyId], references: [id], onDelete: Cascade)
+  codeHash                    String
+  attempts                    Int                       @default(0)
+  reason                      String
+  ticketRef                   String?
+  scope                       ImpersonationScope
+  requestedDurationMinutes    Int
+  createdAt                   DateTime                  @default(now())
+  expiresAt                   DateTime
+  consumedAt                  DateTime?
+  cancelledAt                 DateTime?
+  emailSentAt                 DateTime?
+  emailDeliveryStatus         ImpersonationEmailStatus  @default(PENDING)
+  ipRequestedFrom             String?
+  userAgentRequestedFrom      String?
+
+  impersonationSession        ImpersonationSession?
+
+  @@index([ownerAccountId, expiresAt])
+  @@index([targetUserId, expiresAt])
+}
+
+enum ImpersonationEndReason {
+  EXIT_BY_OWNER
+  EXPIRED
+  FORCED_END
+}
+
+/// Konkrete Impersonation-Session nach erfolgter OTP-Verifizierung.
+model ImpersonationSession {
+  id                  String                    @id @default(cuid())
+  consentTokenId      String                    @unique
+  consentToken        ImpersonationConsentToken @relation(fields: [consentTokenId], references: [id], onDelete: Cascade)
+  ownerAccountId      String
+  ownerAccount        OwnerAccount              @relation(fields: [ownerAccountId], references: [id], onDelete: Restrict)
+  targetUserId        String
+  targetUser          User                      @relation("ImpersonationTargetUser", fields: [targetUserId], references: [id], onDelete: Cascade)
+  targetCompanyId     String
+  targetCompany       Company                   @relation(fields: [targetCompanyId], references: [id], onDelete: Cascade)
+  scope               ImpersonationScope
+  startedAt           DateTime                  @default(now())
+  expiresAt           DateTime
+  endedAt             DateTime?
+  endedReason         ImpersonationEndReason?
+  mutationsCount      Int                       @default(0)
+
+  @@index([ownerAccountId, startedAt])
+  @@index([targetCompanyId, startedAt])
+}

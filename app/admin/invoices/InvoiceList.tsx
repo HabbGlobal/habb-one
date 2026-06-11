@@ -1,0 +1,115 @@
+"use client";
+
+import Link from "next/link";
+import { Pencil, AlertTriangle } from "lucide-react";
+import { Badge } from "@/components/ui/badge";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
+import { invoiceStatusLabel, type InvoiceListItemDTO } from "@/lib/dto/invoice";
+
+const STATUS_VARIANT: Record<
+  InvoiceListItemDTO["status"],
+  "default" | "secondary" | "outline" | "success" | "warning" | "destructive" | "info"
+> = {
+  DRAFT: "outline",
+  SENT: "info",
+  PAID: "success",
+  OVERDUE: "destructive",
+  CANCELLED: "secondary",
+};
+
+function fmtDate(d: Date): string {
+  return new Intl.DateTimeFormat("de-CH", {
+    day: "2-digit",
+    month: "2-digit",
+    year: "numeric",
+    timeZone: "Europe/Zurich",
+  }).format(typeof d === "string" ? new Date(d) : d);
+}
+
+function fmtCHF(n: number): string {
+  return new Intl.NumberFormat("de-CH", {
+    style: "currency",
+    currency: "CHF",
+  }).format(n);
+}
+
+export function InvoiceList({ rows }: { rows: InvoiceListItemDTO[] }) {
+  if (rows.length === 0) {
+    return (
+      <div className="text-center text-muted-foreground py-10 text-sm">
+        Keine Rechnungen in dieser Ansicht.
+      </div>
+    );
+  }
+  return (
+    <Table>
+      <TableHeader>
+        <TableRow>
+          <TableHead className="w-32">Nr.</TableHead>
+          <TableHead>Kunde</TableHead>
+          <TableHead className="w-28">Status</TableHead>
+          <TableHead className="w-24">Datum</TableHead>
+          <TableHead className="w-24">Fällig</TableHead>
+          <TableHead className="w-16">Mahn.</TableHead>
+          <TableHead className="w-32 text-right">Betrag (Brutto)</TableHead>
+          <TableHead className="w-12"></TableHead>
+        </TableRow>
+      </TableHeader>
+      <TableBody>
+        {rows.map((i) => (
+          <TableRow key={i.id}>
+            <TableCell>
+              <span className="font-mono tabular-nums text-sm">{i.invoiceNumber}</span>
+            </TableCell>
+            <TableCell className="font-medium">{i.customerDisplayName}</TableCell>
+            <TableCell>
+              <div className="flex flex-col gap-0.5">
+                <Badge variant={STATUS_VARIANT[i.status]}>
+                  {invoiceStatusLabel(i.status)}
+                </Badge>
+                {i.isOverdue && i.status !== "OVERDUE" && (
+                  <span className="text-[10px] text-destructive flex items-center gap-1">
+                    <AlertTriangle className="h-3 w-3" />
+                    überfällig
+                  </span>
+                )}
+                {i.orderId && (
+                  <span className="text-[10px] text-muted-foreground">aus Auftrag</span>
+                )}
+              </div>
+            </TableCell>
+            <TableCell className="text-xs tabular-nums">{fmtDate(i.issuedAt)}</TableCell>
+            <TableCell className="text-xs tabular-nums">{fmtDate(i.dueAt)}</TableCell>
+            <TableCell className="text-center">
+              {i.reminderLevel > 0 ? (
+                <Badge variant="warning" className="text-[10px]">
+                  {i.reminderLevel}
+                </Badge>
+              ) : (
+                <span className="text-xs text-muted-foreground">—</span>
+              )}
+            </TableCell>
+            <TableCell className="text-right tabular-nums">{fmtCHF(i.totalGrossCHF)}</TableCell>
+            <TableCell>
+              <Link
+                href={`/admin/invoices/${i.id}`}
+                className="inline-flex items-center justify-center h-8 w-8 rounded hover:bg-accent transition"
+                aria-label="Bearbeiten"
+                title="Bearbeiten"
+              >
+                <Pencil className="h-4 w-4" />
+              </Link>
+            </TableCell>
+          </TableRow>
+        ))}
+      </TableBody>
+    </Table>
+  );
+}
