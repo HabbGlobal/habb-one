@@ -9,13 +9,13 @@ import { OWNER_ASSIGNABLE_ROLES } from "@/lib/owner/users";
 
 const ROLE_LABEL: Record<UserRole, string> = {
   SUPERADMIN: "Super-Admin",
-  ADMIN: "CEO / Geschäftsleitung",
-  PLANNER: "Sekretariat",
-  EMPLOYEE: "Produktion",
-  CUSTOMER_PORTAL: "Kundenportal",
-  KIOSK_OPERATOR: "Werkstatt-Tablet",
-  SECRETARY: "Sekretariat (Legacy)",
-  TEAM_LEAD: "Team-Lead (Legacy)",
+  ADMIN: "CEO / Management",
+  PLANNER: "Secretary",
+  EMPLOYEE: "Production",
+  CUSTOMER_PORTAL: "Customer Portal",
+  KIOSK_OPERATOR: "Workshop Tablet",
+  SECRETARY: "Secretary (Legacy)",
+  TEAM_LEAD: "Team Lead (Legacy)",
 };
 
 type SendMode = "MAGIC_LINK" | "TEMP_PASSWORD";
@@ -56,11 +56,11 @@ export function CreateUserButton({ tenantId, tenantName }: Props) {
 
   const submit = () => {
     if (!email.trim() || !name.trim()) {
-      setError("Email und Name sind Pflicht.");
+      setError("Email and name are required.");
       return;
     }
     if (reason.trim().length < 10) {
-      setError("Begründung muss mindestens 10 Zeichen lang sein.");
+      setError("Reason must be at least 10 characters long.");
       return;
     }
     setError(null);
@@ -104,8 +104,8 @@ export function CreateUserButton({ tenantId, tenantName }: Props) {
       setError(
         json?.message ||
           (json?.error === "EMAIL_TAKEN"
-            ? "Diese Email ist bereits vergeben."
-            : "User konnte nicht angelegt werden."),
+            ? "This email is already taken."
+            : "User could not be created."),
       );
     });
   };
@@ -118,7 +118,7 @@ export function CreateUserButton({ tenantId, tenantName }: Props) {
         className="inline-flex items-center gap-2 rounded-md bg-habb-black px-3.5 py-2 text-sm font-medium text-white hover:bg-habb-ink"
       >
         <UserPlus className="h-3.5 w-3.5" />
-        Neuer User
+        New User
       </button>
 
       {open && (
@@ -131,8 +131,8 @@ export function CreateUserButton({ tenantId, tenantName }: Props) {
           <div className="w-full max-w-lg rounded-xl border border-habb-line bg-white shadow-xl">
             <header className="flex items-center justify-between border-b border-habb-line px-5 py-4">
               <div>
-                <h2 className="text-sm font-semibold text-habb-ink">Neuer User</h2>
-                <p className="text-xs text-habb-muted">für {tenantName}</p>
+                <h2 className="text-sm font-semibold text-habb-ink">New User</h2>
+                <p className="text-xs text-habb-muted">for {tenantName}</p>
               </div>
               <button
                 onClick={() => setOpen(false)}
@@ -159,7 +159,7 @@ export function CreateUserButton({ tenantId, tenantName }: Props) {
                   autoComplete="off"
                   required
                   className={inputCls}
-                  placeholder="vorname.nachname@firma.ch"
+                  placeholder="firstname.lastname@company.ch"
                 />
               </Field>
 
@@ -170,7 +170,7 @@ export function CreateUserButton({ tenantId, tenantName }: Props) {
                   required
                   minLength={2}
                   className={inputCls}
-                  placeholder="Vorname Nachname"
+                  placeholder="First Last"
                 />
               </Field>
 
@@ -189,7 +189,7 @@ export function CreateUserButton({ tenantId, tenantName }: Props) {
                   </select>
                 </Field>
 
-                <Field label="Sprache">
+                <Field label="Language">
                   <select
                     value={preferredLanguage}
                     onChange={(e) => setPreferredLanguage(e.target.value)}
@@ -239,12 +239,12 @@ export function CreateUserButton({ tenantId, tenantName }: Props) {
                 </label>
               </fieldset>
 
-              <Field label="Begründung (Pflicht, ≥ 10 Zeichen)">
+              <Field label="Reason (required, ≥ 10 characters)">
                 <textarea
                   value={reason}
                   onChange={(e) => setReason(e.target.value)}
                   rows={2}
-                  placeholder="z.B. Onboarding neue Sekretärin — Ticket #1234"
+                  placeholder="e.g. Onboarding new secretary — Ticket #1234"
                   className={inputCls}
                 />
               </Field>
@@ -273,7 +273,7 @@ export function CreateUserButton({ tenantId, tenantName }: Props) {
                   className="inline-flex items-center gap-2 rounded-md bg-habb-black px-4 py-2 text-sm font-medium text-white hover:bg-habb-ink disabled:opacity-60"
                 >
                   {pending && <Loader2 className="h-3.5 w-3.5 animate-spin" />}
-                  Anlegen
+                  Create
                 </button>
               </div>
             </form>
@@ -297,7 +297,7 @@ export function CreateUserButton({ tenantId, tenantName }: Props) {
           setShowSudo(false);
           submit();
         }}
-        actionLabel="User anlegen"
+        actionLabel="Create user"
       />
     </>
   );
@@ -361,7 +361,7 @@ function TempPasswordModal({
                 ) : (
                   <Copy className="h-3.5 w-3.5" />
                 )}
-                {copied ? "Kopiert" : "Kopieren"}
+                {copied ? "Copied" : "Copy"}
               </button>
             </div>
           </div>
@@ -374,7 +374,7 @@ function TempPasswordModal({
               onClick={onClose}
               className="rounded-md bg-habb-black px-4 py-2 text-sm font-medium text-white hover:bg-habb-ink"
             >
-              Verstanden, schliessen
+              Understood, close
             </button>
           </div>
         </div>
@@ -402,14 +402,13 @@ function MailResultModal({
       <div className="w-full max-w-md rounded-xl border border-habb-line bg-white shadow-xl">
         <header className="border-b border-habb-line px-5 py-4">
           <h2 className="text-sm font-semibold text-habb-ink">
-            User angelegt — Magic-Link {delivered ? "versendet" : "fehlgeschlagen"}
+            User created — Magic link {delivered ? "sent" : "failed"}
           </h2>
         </header>
         <div className="space-y-3 px-5 py-5 text-sm">
           {delivered ? (
             <p className="text-habb-ink">
-              Mail to <span className="font-medium">{email}</span> ist raus. Der Link ist 1 Stunde
-              gültig.
+              Mail to <span className="font-medium">{email}</span> has been sent. The link is valid for 1 hour.
             </p>
           ) : (
             <>
@@ -417,8 +416,8 @@ function MailResultModal({
                 Mail delivery to <span className="font-medium">{email}</span> failed.
               </p>
               <p className="text-habb-muted">
-                Der User wurde trotzdem angelegt. Du kannst aus der User-Liste &quot;Passwort-Reset-Mail
-                senden&quot; erneut auslösen.
+                The user was created anyway. You can trigger &quot;Send password reset mail&quot;
+                again from the user list.
               </p>
             </>
           )}

@@ -15,10 +15,10 @@ import { CheckCircle2 } from "lucide-react";
 export const dynamic = "force-dynamic";
 
 /**
- * System-Health-Dashboard für den Owner. Liefert Live-Counts und
- * Indikatoren, wie es der Platform geht. Bewusst keine externen
- * Pings (uptime check, etc.) — wenn diese Seite überhaupt rendert,
- * läuft der App-Server. DB-Health kommt indirekt aus den Queries.
+ * System health dashboard for the owner. Provides live counts and
+ * indicators for the platform's health. Intentionally no external
+ * pings (uptime check, etc.) — if this page renders at all,
+ * the app server is running. DB health comes indirectly from the queries.
  */
 export default async function SystemPage() {
   const now = new Date();
@@ -63,8 +63,8 @@ export default async function SystemPage() {
     prisma.loginOtpToken.count({
       where: { createdAt: { gte: since24h }, attempts: { gte: 1 }, consumedAt: null },
     }),
-    // Heuristik: hat irgendein Tenant CH-Basis-Feiertage für nächstes Jahr?
-    // Wenn ja, ist der Cron-Job mindestens einmal sinnvoll gelaufen.
+    // Heuristic: does any tenant have CH base holidays for next year?
+    // If yes, the cron job has run at least once meaningfully.
     prisma.holiday.count({
       where: {
         date: { gte: new Date(`${now.getUTCFullYear() + 1}-01-01T00:00:00Z`) },
@@ -74,8 +74,8 @@ export default async function SystemPage() {
     prisma.ownerAuditLog.count(),
   ]);
 
-  const cronOk = cronTokensRecent === 0 || cronTokensRecent > 0; // läuft entweder, oder ist heute schon durch — beides ok
-  const dbOk = true; // Wenn wir hier sind, lief Prisma
+  const cronOk = cronTokensRecent === 0 || cronTokensRecent > 0; // either running, or already done today — both ok
+  const dbOk = true; // If we're here, Prisma ran
 
   return (
     <div className="space-y-6">
@@ -83,7 +83,7 @@ export default async function SystemPage() {
         <p className="text-xs uppercase tracking-[0.18em] text-habb-muted">Platform</p>
         <h1 className="mt-1 text-2xl font-semibold tracking-tight text-habb-black">System</h1>
         <p className="mt-1 text-sm text-habb-muted">
-          Live-Status der HABB One-Platform. Letzte Aktualisierung:{" "}
+          Live status of the HABB One platform. Last updated:{" "}
           {now.toLocaleString("de-CH")}
         </p>
       </header>
@@ -91,25 +91,25 @@ export default async function SystemPage() {
       {/* Health-Indikatoren */}
       <section className="grid grid-cols-1 gap-4 sm:grid-cols-3">
         <HealthCard
-          label="Datenbank"
+          label="Database"
           ok={dbOk}
           icon={Database}
-          subline="Zürich · eu-central-2 · Prisma-Pool"
+          subline="Zurich · eu-central-2 · Prisma Pool"
         />
         <HealthCard
-          label="Cron-Jobs"
+          label="Cron Jobs"
           ok={cronOk}
           icon={Activity}
-          subline="Feiertage-Backfill täglich 03:00 UTC"
+          subline="Holiday backfill daily 03:00 UTC"
         />
         <HealthCard
-          label="Mail-Versand"
+          label="Mail delivery"
           ok={mailFails7d === 0}
           icon={Mail}
           subline={
             mailFails7d === 0
-              ? "Keine Zustellfehler in 7 Tagen"
-              : `${mailFails7d} fehlgeschlagene Consent-Mails (7d)`
+              ? "No delivery errors in 7 days"
+              : `${mailFails7d} failed consent mails (7d)`
           }
         />
       </section>
@@ -117,32 +117,32 @@ export default async function SystemPage() {
       {/* Platform-Zahlen */}
       <section>
         <h2 className="text-xs uppercase tracking-[0.18em] text-habb-muted mb-3">
-          Reichweite
+          Reach
         </h2>
         <div className="grid grid-cols-2 gap-4 lg:grid-cols-4">
-          <Metric label="Aktive Tenanten" value={tenantsActive} icon={Building2} />
+          <Metric label="Active Tenants" value={tenantsActive} icon={Building2} />
           <Metric
             label="Pending / Suspended"
             value={tenantsPending + tenantsSuspended}
             icon={ShieldAlert}
             subline={`${tenantsPending} pending · ${tenantsSuspended} suspended`}
           />
-          <Metric label="Aktive Tenant-User" value={usersActive} icon={Users2} subline={usersLocked > 0 ? `${usersLocked} gesperrt` : undefined} />
-          <Metric label="Aktive Mitarbeiter" value={employeesActive} icon={HardHat} />
+          <Metric label="Active tenant users" value={usersActive} icon={Users2} subline={usersLocked > 0 ? `${usersLocked} suspended` : undefined} />
+          <Metric label="Active employees" value={employeesActive} icon={HardHat} />
         </div>
       </section>
 
       {/* Operations */}
       <section>
         <h2 className="text-xs uppercase tracking-[0.18em] text-habb-muted mb-3">
-          Operations (Monat)
+          Operations (Month)
         </h2>
         <div className="grid grid-cols-2 gap-4 lg:grid-cols-4">
-          <Metric label="Aufträge dieser Monat" value={ordersThisMonth} icon={ClipboardList} />
-          <Metric label="Offene Rechnungen" value={invoicesOpenCount} icon={ClipboardList} />
+          <Metric label="Orders this month" value={ordersThisMonth} icon={ClipboardList} />
+          <Metric label="Open invoices" value={invoicesOpenCount} icon={ClipboardList} />
           <Metric label="Audit-entries total" value={auditCount} icon={Activity} />
           <Metric
-            label="Aktive Impersonations"
+            label="Active impersonations"
             value={impersonationActive}
             icon={ShieldAlert}
           />
@@ -152,23 +152,22 @@ export default async function SystemPage() {
       {/* Login-Stats */}
       <section>
         <h2 className="text-xs uppercase tracking-[0.18em] text-habb-muted mb-3">
-          Authentifizierung (24h)
+          Authentication (24h)
         </h2>
         <div className="grid grid-cols-2 gap-4 lg:grid-cols-4">
-          <Metric label="OTP angefragt" value={otpRequests24h} icon={KeyRound} />
+          <Metric label="OTP requested" value={otpRequests24h} icon={KeyRound} />
           <Metric
-            label="OTP mit Fehlversuchen"
+            label="OTP with failed attempts"
             value={otpFailed24h}
             icon={KeyRound}
-            subline={otpFailed24h > 0 ? "Möglicher Brute-Force?" : "Alles im grünen Bereich"}
+            subline={otpFailed24h > 0 ? "Possible brute-force?" : "All good"}
           />
         </div>
       </section>
 
       <p className="text-xs text-habb-muted">
-        Werte sind serverseitig zur Render-Zeit gezogen. Bei Anomalien (z.B.
-        viele OTP-Fehlversuche oder fehlgeschlagene Mails) den Audit Log
-        prüfen.
+        Values are pulled server-side at render time. For anomalies (e.g.
+        many OTP failed attempts or failed mails) check the Audit Log.
       </p>
     </div>
   );
@@ -198,7 +197,7 @@ function HealthCard({
           </span>
         ) : (
           <span className="inline-flex items-center gap-1 rounded-full bg-habb-warning/10 text-habb-warning px-2 py-0.5 text-[10px] uppercase tracking-wide">
-            <ShieldAlert className="h-3 w-3" /> Achtung
+            <ShieldAlert className="h-3 w-3" /> Warning
           </span>
         )}
       </div>

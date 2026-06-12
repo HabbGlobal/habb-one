@@ -6,7 +6,7 @@ import { cn } from "@/lib/utils";
 import { CellEditor } from "./CellEditor";
 import { BulkRangeEditor } from "./BulkRangeEditor";
 
-const WEEKDAY_SHORT_DE = ["Mo", "Di", "Mi", "Do", "Fr", "Sa", "So"];
+const WEEKDAY_SHORT_DE = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
 
 export interface MatrixDay {
   date: string;
@@ -129,7 +129,7 @@ export function ScheduleMatrix({
                 colSpan={days.length + 1}
                 className="text-center text-muted-foreground py-8"
               >
-                Keine aktiven Mitarbeitenden.
+                No active employees.
               </td>
             </tr>
           )}
@@ -145,7 +145,7 @@ export function ScheduleMatrix({
                         employeeName: row.employee.name,
                       })
                     }
-                    title="Bereich planen — mehrere Tage gleichzeitig setzen"
+                    title="Plan area — set multiple days at once"
                     className="p-1 rounded hover:bg-accent text-muted-foreground hover:text-foreground"
                   >
                     <CalendarRange className="h-4 w-4" />
@@ -241,7 +241,7 @@ function CellLabel({
   if (isHoliday && !cell.entry) {
     return (
       <div className="text-[10px] text-amber-700 px-1 py-2 truncate" title={cell.holidayName ?? ""}>
-        {cell.holidayName?.slice(0, 8) ?? "Feiertag"}
+        {cell.holidayName?.slice(0, 8) ?? "Holiday"}
       </div>
     );
   }
@@ -297,13 +297,13 @@ function CellLabel({
     );
   }
   const labelMap: Record<string, string> = {
-    WORK: "Arbeit",
-    FREE: "Frei",
-    VACATION: "Ferien",
-    SICKNESS: "Krank",
-    ABSENCE: "Abw.",
-    COMPENSATION: "Komp.",
-    OTHER: "Sonst.",
+    WORK: "Work",
+    FREE: "Off",
+    VACATION: "Vacation",
+    SICKNESS: "Sick",
+    ABSENCE: "Absent",
+    COMPENSATION: "Comp.",
+    OTHER: "Other",
   };
   return (
     <div className={cn("px-1 py-1.5 rounded m-0.5", color)}>

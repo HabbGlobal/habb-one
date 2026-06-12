@@ -1,7 +1,7 @@
 "use client";
 
-// Quote-Wizard — analog zum OrderWizard, mit echten ProcessSteps pro Position.
-// Beim Convert-to-Order werden die Steps 1:1 übernommen.
+// Quote wizard — analogous to OrderWizard, with actual ProcessSteps per position.
+// On convert-to-order the steps are transferred 1:1.
 
 import { useMemo, useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
@@ -171,7 +171,7 @@ export function QuoteWizard({ mode, customers, templates, processResources, init
 
   const removeItem = (idx: number) => {
     if (items.length <= 1) {
-      alert("Mindestens eine Position erforderlich.");
+      alert("At least one position required.");
       return;
     }
     setItems((prev) => prev.filter((_, i) => i !== idx));
@@ -306,14 +306,14 @@ export function QuoteWizard({ mode, customers, templates, processResources, init
           ),
         );
       } catch (err) {
-        setError(err instanceof Error ? err.message : "Fehler beim Anwenden der Vorlage.");
+        setError(err instanceof Error ? err.message : "Error applying the template.");
       }
     });
   };
 
-  // Recommender-Vorschlag anzeigen — pro Position. Der User sieht eine
-  // Vorschau (welche Schritte mit Begründung), kann dann ÜBERNEHMEN oder
-  // verwerfen. Dadurch geht keine bestehende manuelle Anpassung verloren.
+  // Show recommender suggestion — per position. User sees a
+  // preview (which steps with rationale), can then ACCEPT or
+  // discard. No existing manual adjustments are lost.
   const [suggestion, setSuggestion] = useState<{
     itemIdx: number;
     steps: {
@@ -331,7 +331,7 @@ export function QuoteWizard({ mode, customers, templates, processResources, init
     const it = items[itemIdx];
     if (!it.applicationArea) {
       setError(
-        "Anwendungsbereich (Innen/Aussen) muss gesetzt sein, um eine Empfehlung zu erhalten.",
+        "Application area (Indoor/Outdoor) must be set to get a recommendation.",
       );
       return;
     }
@@ -348,7 +348,7 @@ export function QuoteWizard({ mode, customers, templates, processResources, init
         });
         setSuggestion({ itemIdx, steps: r.steps, warnings: r.warnings });
       } catch (err) {
-        setError(err instanceof Error ? err.message : "Fehler beim Vorschlag.");
+        setError(err instanceof Error ? err.message : "Error getting suggestion.");
       }
     });
   };
@@ -367,7 +367,7 @@ export function QuoteWizard({ mode, customers, templates, processResources, init
                 machineTypeRequired: s.machineTypeRequired,
                 skillRequired: s.skillRequired,
                 waitMinutesAfter: s.waitMinutesAfter,
-                notes: s.rationale, // Begründung als Notiz übernehmen
+                notes: s.rationale, // Take rationale as note
               })),
             }
           : it,
@@ -380,7 +380,7 @@ export function QuoteWizard({ mode, customers, templates, processResources, init
   const submit = () => {
     setError(null);
     if (items.some((it) => it.steps.length === 0)) {
-      setError("Jede Position braucht mindestens einen Prozessschritt.");
+      setError("Each position needs at least one process step.");
       return;
     }
     const payload = {
@@ -473,7 +473,7 @@ export function QuoteWizard({ mode, customers, templates, processResources, init
             />
           </div>
           <div className="space-y-1 md:col-span-3">
-            <Label>Notizen / Hinweise (auf Offerte sichtbar)</Label>
+            <Label>Notes / remarks (visible on quote)</Label>
             <Textarea
               rows={2}
               value={notes}
@@ -709,8 +709,8 @@ export function QuoteWizard({ mode, customers, templates, processResources, init
                 <div className="flex items-center justify-between flex-wrap gap-2">
                   <div className="flex items-center gap-2">
                     <Sparkles className="h-4 w-4 text-habb-ink" />
-                    <span className="text-sm font-medium">Prozessablauf</span>
-                    <Badge variant="secondary">{it.steps.length} Schritt(e)</Badge>
+                    <span className="text-sm font-medium">Process flow</span>
+                    <Badge variant="secondary">{it.steps.length} step(s)</Badge>
                   </div>
                   <div className="flex items-center gap-2 flex-wrap">
                     <Select
@@ -720,7 +720,7 @@ export function QuoteWizard({ mode, customers, templates, processResources, init
                       }}
                       className="w-44"
                     >
-                      <option value="">— Vorlage —</option>
+                      <option value="">— Template —</option>
                       {templates.map((t) => (
                         <option key={t.id} value={t.id}>
                           {t.label}
@@ -735,11 +735,11 @@ export function QuoteWizard({ mode, customers, templates, processResources, init
                       onClick={() => requestSuggestion(idx, "WET_PAINT")}
                       title={
                         it.applicationArea
-                          ? "Spritzwerk-Empfehlung für Nasslack"
-                          : "Anwendung (Innen/Aussen) zuerst wählen"
+                          ? "Paint shop recommendation for wet paint"
+                          : "Select application (Indoor/Outdoor) first"
                       }
                     >
-                      <Sparkles className="h-4 w-4 mr-1" /> Lack-Empfehlung
+                      <Sparkles className="h-4 w-4 mr-1" /> Paint recommendation
                     </Button>
                     <Button
                       type="button"
@@ -749,14 +749,14 @@ export function QuoteWizard({ mode, customers, templates, processResources, init
                       onClick={() => requestSuggestion(idx, "POWDER")}
                       title={
                         it.applicationArea
-                          ? "Spritzwerk-Empfehlung für Pulverbeschichtung"
-                          : "Anwendung (Innen/Aussen) zuerst wählen"
+                          ? "Paint shop recommendation for powder coating"
+                          : "Select application (Indoor/Outdoor) first"
                       }
                     >
-                      <Sparkles className="h-4 w-4 mr-1" /> Pulver-Empfehlung
+                      <Sparkles className="h-4 w-4 mr-1" /> Powder recommendation
                     </Button>
                     <Button type="button" variant="outline" size="sm" onClick={() => addStep(idx)}>
-                      <Plus className="h-4 w-4 mr-1" /> Schritt
+                      <Plus className="h-4 w-4 mr-1" /> Step
                     </Button>
                   </div>
                 </div>
@@ -773,7 +773,7 @@ export function QuoteWizard({ mode, customers, templates, processResources, init
 
                 {it.steps.length === 0 ? (
                   <p className="text-sm text-muted-foreground text-center py-4">
-                    Keine Schritte. Vorlage anwenden oder manuell hinzufügen.
+                    No steps. Apply a template or add manually.
                   </p>
                 ) : (
                   <div className="space-y-2">
@@ -788,7 +788,7 @@ export function QuoteWizard({ mode, customers, templates, processResources, init
                             onClick={() => moveStep(idx, sIdx, -1)}
                             disabled={sIdx === 0}
                             className="p-0.5 rounded hover:bg-accent disabled:opacity-30"
-                            aria-label="Hoch"
+                            aria-label="Move up"
                           >
                             <ArrowUp className="h-3 w-3" />
                           </button>
@@ -798,13 +798,13 @@ export function QuoteWizard({ mode, customers, templates, processResources, init
                             onClick={() => moveStep(idx, sIdx, 1)}
                             disabled={sIdx === it.steps.length - 1}
                             className="p-0.5 rounded hover:bg-accent disabled:opacity-30"
-                            aria-label="Runter"
+                            aria-label="Move down"
                           >
                             <ArrowDown className="h-3 w-3" />
                           </button>
                         </div>
                         <div className="col-span-3">
-                          <Label className="text-xs">Prozessschritt</Label>
+                          <Label className="text-xs">Process step</Label>
                           <Select
                             value={s.processCode}
                             onChange={(e) =>
@@ -812,7 +812,7 @@ export function QuoteWizard({ mode, customers, templates, processResources, init
                             }
                             className="text-xs"
                           >
-                            {(["Vorbereitung", "Sandstrahlen", "Nasslackieren", "Pulverbeschichtung", "Nachbereitung"] as const).map((group) => (
+                            {(["Preparation", "Sandblasting", "Wet Painting", "Powder Coating", "Post-processing"] as const).map((group) => (
                               <optgroup key={group} label={group}>
                                 {PROCESS_CODES.filter((c) => PROCESS_GROUP[c] === group).map((c) => (
                                   <option key={c} value={c}>
@@ -824,7 +824,7 @@ export function QuoteWizard({ mode, customers, templates, processResources, init
                           </Select>
                         </div>
                         <div className="col-span-2">
-                          <Label className="text-xs">Mitarbeiter:in</Label>
+                          <Label className="text-xs">Worker</Label>
                           <Select
                             value={s.skillRequired}
                             onChange={(e) =>
@@ -861,7 +861,7 @@ export function QuoteWizard({ mode, customers, templates, processResources, init
                           </Select>
                         </div>
                         <div className="col-span-2">
-                          <Label className="text-xs">Wartezeit (Min)</Label>
+                          <Label className="text-xs">Wait time (min)</Label>
                           <Input
                             type="number"
                             min={0}
@@ -877,8 +877,8 @@ export function QuoteWizard({ mode, customers, templates, processResources, init
                             type="button"
                             onClick={() => insertStepAfter(idx, sIdx)}
                             className="p-1 rounded hover:bg-habb-paper text-habb-ink"
-                            aria-label="Schritt darunter einfügen"
-                            title="Schritt darunter einfügen"
+                            aria-label="Insert step below"
+                            title="Insert step below"
                           >
                             <CornerDownRight className="h-3 w-3" />
                           </button>
@@ -886,7 +886,7 @@ export function QuoteWizard({ mode, customers, templates, processResources, init
                             type="button"
                             onClick={() => removeStep(idx, sIdx)}
                             className="p-1 rounded hover:bg-destructive/10 text-destructive"
-                            aria-label="Schritt entfernen"
+                            aria-label="Remove step"
                             title="Schritt entfernen"
                           >
                             <Trash2 className="h-3 w-3" />
@@ -903,7 +903,7 @@ export function QuoteWizard({ mode, customers, templates, processResources, init
                       className="w-full rounded border-2 border-dashed border-habb-line px-3 py-2 text-sm text-muted-foreground hover:border-habb-red hover:bg-habb-paper hover:text-habb-red transition-colors flex items-center justify-center gap-2"
                     >
                       <Plus className="h-4 w-4" />
-                      Manuellen Schritt am Ende einfügen
+                      Add manual step at end
                     </button>
                   </div>
                 )}
@@ -949,12 +949,12 @@ export function QuoteWizard({ mode, customers, templates, processResources, init
         <div className="flex gap-2">
           <Button variant="ghost" onClick={() => router.back()} disabled={pending}>Cancel</Button>
           <Button onClick={submit} disabled={pending || !customerId}>
-            {pending ? "Saving..." : mode === "create" ? "Offerte anlegen" : "Save"}
+            {pending ? "Saving..." : mode === "create" ? "Create quote" : "Save"}
           </Button>
         </div>
       </div>
 
-      {/* Spritzwerk-Empfehlung — Vorschau-Modal vor dem Übernehmen */}
+      {/* Paint shop recommendation — Preview modal before accepting */}
       {suggestion && (
         <div
           className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4"
@@ -970,7 +970,7 @@ export function QuoteWizard({ mode, customers, templates, processResources, init
               <div>
                 <h2 className="text-lg font-semibold flex items-center gap-2">
                   <Sparkles className="h-5 w-5 text-habb-ink" />
-                  Spritzwerk-Empfehlung
+                  Paint shop recommendation
                 </h2>
                 <p className="text-xs text-muted-foreground mt-0.5">
                   Vorschlag basierend auf Material + Anwendung + Glanz.
@@ -982,7 +982,7 @@ export function QuoteWizard({ mode, customers, templates, processResources, init
                 type="button"
                 onClick={() => setSuggestion(null)}
                 className="p-1 rounded hover:bg-habb-paper text-muted-foreground"
-                aria-label="Schliessen"
+                aria-label="Close"
               >
                 ✕
               </button>
@@ -998,7 +998,7 @@ export function QuoteWizard({ mode, customers, templates, processResources, init
               )}
 
               <div className="text-xs uppercase tracking-wider text-muted-foreground font-medium">
-                Vorgeschlagene Schritte ({suggestion.steps.length})
+                Suggested steps ({suggestion.steps.length})
               </div>
 
               <ol className="space-y-2">
@@ -1009,7 +1009,7 @@ export function QuoteWizard({ mode, customers, templates, processResources, init
                   >
                     <div className="flex items-baseline justify-between gap-2">
                       <span className="font-mono text-xs text-muted-foreground">
-                        Schritt {s.sequence}
+                        Step {s.sequence}
                       </span>
                       <span className="font-medium">
                         {PROCESS_LABEL[s.processCode]}
@@ -1034,10 +1034,10 @@ export function QuoteWizard({ mode, customers, templates, processResources, init
 
             <div className="flex justify-end gap-2 p-5 border-t bg-habb-paper rounded-b-xl">
               <Button variant="ghost" onClick={() => setSuggestion(null)}>
-                Verwerfen
+                Discard
               </Button>
               <Button onClick={acceptSuggestion}>
-                {suggestion.steps.length} Schritte übernehmen
+                {suggestion.steps.length} steps accept
               </Button>
             </div>
           </div>

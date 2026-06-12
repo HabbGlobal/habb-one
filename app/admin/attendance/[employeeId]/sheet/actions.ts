@@ -39,7 +39,7 @@ import {
 import { computeWorkedTime } from "@/lib/time/calc";
 import { validateDayBlocks } from "@/lib/time/day-blocks";
 
-/** Mandanten-Zeitzone (Default Europe/Zurich). */
+/** Tenant timezone (default Europe/Zurich). */
 async function resolveCompanyZone(companyId: string): Promise<string> {
   try {
     const c = await prisma.company.findUnique({
@@ -71,10 +71,10 @@ class SheetError extends Error {}
 
 async function requireCorrector() {
   const session = await auth();
-  if (!session?.user) throw new SheetError("Nicht angemeldet.");
+  if (!session?.user) throw new SheetError("Not logged in.");
   if (!hasPermission(session.user.role, "timeEntries.correct")) {
     throw new SheetError(
-      "Keine Berechtigung — die Rolle CEO oder Sekretariat ist erforderlich (timeEntries.correct).",
+      "No permission — the CEO or Secretary role is required (timeEntries.correct).",
     );
   }
   return session.user;
@@ -85,9 +85,9 @@ async function loadEmployeeOrThrow(employeeId: string, companyId: string) {
     where: { id: employeeId },
     select: { id: true, companyId: true, firstName: true, lastName: true },
   });
-  if (!emp) throw new SheetError("Mitarbeiter nicht gefunden.");
+  if (!emp) throw new SheetError("Employee not found.");
   if (emp.companyId !== companyId) {
-    throw new SheetError("Mitarbeiter gehört nicht zu deiner Firma.");
+    throw new SheetError("Employee does not belong to your company.");
   }
   return emp;
 }
@@ -100,7 +100,7 @@ const forceClockOutSchema = z.object({
   employeeId: z.string().min(1),
   reason: z
     .string()
-    .min(5, "Bitte einen Grund (mind. 5 Zeichen) angeben.")
+    .min(5, "Please provide a reason (at least 5 characters).")
     .max(500),
 });
 
@@ -117,11 +117,11 @@ export async function forceClockOut(
       expectedCompanyId: user.companyId,
     });
     if (state.status === "OUT" || state.status === "EMPTY" || state.status === "CLOSED") {
-      throw new SheetError("Mitarbeiter ist nicht eingestempelt.");
+      throw new SheetError("Employee is not clocked in.");
     }
 
-    // Pause beenden (falls aktiv), dann ausstempeln. Beides als
-    // ADMIN_CORRECTION mit correctedById + reason markieren.
+    // End pause (if active), then clock out. Both marked as
+    // ADMIN_CORRECTION with correctedById + reason.
     const reasonPrefix = `Admin-Override durch ${user.name || user.email}: `;
     const reason = reasonPrefix + data.reason;
     try {
@@ -163,14 +163,14 @@ export async function forceClockOut(
   } catch (e) {
     if (e instanceof SheetError) return { ok: false, error: e.message };
     if (e instanceof z.ZodError) {
-      return { ok: false, error: e.issues[0]?.message ?? "Ungültige Eingabe." };
+      return { ok: false, error: e.issues[0]?.message ?? "Invalid input." };
     }
-    throw e; // unerwartet → maskiert (echter Bug)
+    throw e; // unexpected → masked (real bug)
   }
 }
 
 // ─────────────────────────────────────────
-// 2) Voll-Bearbeitung eines Tages
+// 2) Full editing of a day
 // ─────────────────────────────────────────
 
 const HHMM_RE = /^([01]\d|2[0-3]):[0-5]\d$/;
@@ -183,11 +183,11 @@ const blockSchema = z
     note: z.string().max(200).optional(),
   })
   .refine((b) => b.start < b.end, {
-    message: "Ende muss nach Beginn liegen.",
+    message: "End must be after start.",
   });
 
-// Optionale Einzeltag-Abwesenheit, die im Day-Editor gewählt wurde.
-// `absenceTypeId === null` (bzw. weggelassen) = keine Absence für den Tag.
+// Optional single-day absence selected in the day editor.
+// `absenceTypeId === null` (or omitted) = no absence for the day.
 const dayAbsenceSchema = z
   .object({
     absenceTypeId: z.string().min(1),
@@ -202,10 +202,10 @@ const replaceDaySchema = z.object({
   workDate: z.string().regex(/^\d{4}-\d{2}-\d{2}$/),
   reason: z
     .string()
-    .min(5, "Bitte einen Grund (mind. 5 Zeichen) angeben.")
+    .min(5, "Please provide a reason (at least 5 characters).")
     .max(500),
   blocks: z.array(blockSchema).max(20),
-  /** Einzeltag-Absence für diesen Tag (oder null = entfernen). */
+  /** Single-day absence for this day (or null = remove). */
   absence: dayAbsenceSchema,
 });
 
@@ -219,9 +219,9 @@ export async function replaceTimeEntryDay(
   } catch (e) {
     if (e instanceof SheetError) return { ok: false, error: e.message };
     if (e instanceof z.ZodError) {
-      return { ok: false, error: e.issues[0]?.message ?? "Ungültige Eingabe." };
+      return { ok: false, error: e.issues[0]?.message ?? "Invalid input." };
     }
-    throw e; // unerwartet → maskiert (echter Bug)
+    throw e; // unexpected → masked (real bug)
   }
 }
 
@@ -230,23 +230,23 @@ async function replaceTimeEntryDayImpl(
 ): Promise<SheetActionResult> {
   const user = await requireCorrector();
   const data = replaceDaySchema.parse(input);
-  // Pausen DÜRFEN innerhalb der Arbeitszeit liegen (werden abgezogen).
-  // Verboten: Arbeit∩Arbeit, Pause∩Pause, Pause ausserhalb jeder Arbeit.
+  // Breaks MAY lie within working time (are deducted).
+  // Forbidden: Work∩Work, Break∩Break, Break outside any work.
   const blockError = validateDayBlocks(data.blocks);
   if (blockError) throw new SheetError(blockError);
 
   const emp = await loadEmployeeOrThrow(data.employeeId, user.companyId);
 
-  // Mandanten-Zeitzone — bestimmt, welcher Kalendertag "heute" ist und
-  // wie "HH:MM"-Eingaben in UTC umgerechnet werden (z. B. Asia/Colombo).
+  // Tenant timezone — determines which calendar day "today" is and
+  // how "HH:MM" inputs are converted to UTC (e.g. Asia/Colombo).
   const zone = await resolveCompanyZone(user.companyId);
 
-  // Live-Lock: NUR relevant, wenn der bearbeitete Tag HEUTE ist — nur
-  // der heutige Tag kann eine laufende (offene) Erfassung haben. Ein
-  // anderer Tag (Vergangenheit/Zukunft) ist nie "live", daher darf das
-  // heutige Eingestempelt-Sein dort NICHT blockieren.
-  // (Vorher wurde generell blockiert, sobald der Mitarbeiter heute
-  // eingestempelt war — das verhinderte das Bearbeiten ANDERER Tage.)
+  // Live lock: ONLY relevant when the edited day is TODAY — only
+  // today can have a running (open) time entry. A different day
+  // (past/future) is never "live", so being clocked in today MUST
+  // NOT block editing of other days.
+  // (Previously it blocked globally whenever the employee was clocked
+  // in today — which prevented editing OTHER days.)
   const today = localDateString(new Date(), zone);
   if (data.workDate === today) {
     const state = await getCurrentKioskState(emp.id, {
@@ -254,21 +254,21 @@ async function replaceTimeEntryDayImpl(
     });
     if (state.status === "OPEN" || state.status === "ON_BREAK") {
       throw new SheetError(
-        "Der heutige Tag kann nicht bearbeitet werden, solange der Mitarbeiter live eingestempelt ist. " +
-          "Bitte zuerst ausstempeln (über PIN oder Admin-Override).",
+        "Today cannot be edited while the employee is clocked in live. " +
+          "Please clock out first (via PIN or admin override).",
       );
     }
   }
 
   const workDate = localMidnightUtc(data.workDate);
 
-  // Vorher-Snapshot für Audit
+  // Before snapshot for audit
   const before = await prisma.timeEntry.findUnique({
     where: { employeeId_workDate: { employeeId: emp.id, workDate } },
     include: { punches: true, breaks: true },
   });
 
-  // Transaktion: wipe + recreate
+  // Transaction: wipe + recreate
   await prisma.$transaction(async (tx) => {
     if (before) {
       await tx.timePunch.deleteMany({ where: { timeEntryId: before.id } });
@@ -277,7 +277,7 @@ async function replaceTimeEntryDayImpl(
     }
 
     if (data.blocks.length === 0) {
-      // Leer-Tag → wir lassen die TimeEntry-Row ganz weg
+      // Empty day → we leave the TimeEntry row completely out
       return;
     }
 
@@ -289,10 +289,10 @@ async function replaceTimeEntryDayImpl(
       },
     });
 
-    // Pro Block: passende TimePunches anlegen.
-    //   WORK / HOME_OFFICE → CLOCK_IN + CLOCK_OUT (Home Office mit
-    //                        isHomeOffice=true; rechnerisch identisch)
-    //   BREAK              → BREAK_START + BREAK_END + BreakEntry-Row
+    // Per block: create matching TimePunches.
+    //   WORK / HOME_OFFICE → CLOCK_IN + CLOCK_OUT (Home Office with
+    //                        isHomeOffice=true; computationally identical)
+    //   BREAK              → BREAK_START + BREAK_END + BreakEntry row
     const reasonTag = `Sheet-Update durch ${user.name || user.email}: ${data.reason}`;
     const allPunches: Array<{
       type: "CLOCK_IN" | "CLOCK_OUT" | "BREAK_START" | "BREAK_END";
@@ -374,7 +374,7 @@ async function replaceTimeEntryDayImpl(
       }
     }
 
-    // Aggregate neu berechnen — gleiche Logik wie refreshEntry() in punch.ts
+    // Recalculate aggregates — same logic as refreshEntry() in punch.ts
     const result = computeWorkedTime({
       punches: allPunches,
       breaks: data.blocks
@@ -404,13 +404,13 @@ async function replaceTimeEntryDayImpl(
     });
   });
 
-  // ── Einzeltag-Abwesenheit verwalten ──────────────────────────────
-  // Der Sheet-Editor verwaltet AUSSCHLIESSLICH Einzeltag-Absences
-  // (startDate == endDate == workDate). Mehrtages-Absences bleiben
-  // unangetastet — die werden über /admin/absences gepflegt.
-  // `data.absence === undefined` → Absences nicht anfassen (Backward-Compat).
-  // `data.absence === null`      → Einzeltag-Absence dieses Tages entfernen.
-  // `data.absence === {…}`       → Einzeltag-Absence setzen/aktualisieren.
+  // ── Manage single-day absence ──────────────────────────────
+  // The sheet editor manages EXCLUSIVELY single-day absences
+  // (startDate == endDate == workDate). Multi-day absences remain
+  // untouched — those are managed via /admin/absences.
+  // `data.absence === undefined` → don't touch absences (backward compat).
+  // `data.absence === null`      → remove single-day absence for this day.
+  // `data.absence === {…}`       → set/update single-day absence.
   if (data.absence !== undefined) {
     const existingSingleDay = await prisma.absence.findFirst({
       where: {
@@ -430,8 +430,8 @@ async function replaceTimeEntryDayImpl(
         });
       }
     } else {
-      // Guard: keine Einzeltag-Absence anlegen, wenn eine Mehrtages-Absence
-      // diesen Tag bereits abdeckt — sonst zwei überlappende Records.
+      // Guard: don't create a single-day absence if a multi-day absence
+      // already covers this day — otherwise two overlapping records.
       const coveringMultiDay = await prisma.absence.findFirst({
         where: {
           employeeId: emp.id,
@@ -446,8 +446,8 @@ async function replaceTimeEntryDayImpl(
       });
       if (coveringMultiDay) {
         throw new SheetError(
-          "Für diesen Tag existiert bereits eine mehrtägige Abwesenheit. " +
-            "Bitte über „Ferien & Absenzen“ bearbeiten.",
+          "A multi-day absence already exists for this day. " +
+            "Please edit via Holidays & Absences.",
         );
       }
 
@@ -459,7 +459,7 @@ async function replaceTimeEntryDayImpl(
         },
         select: { id: true },
       });
-      if (!type) throw new SheetError("Unbekannter Abwesenheitstyp.");
+      if (!type) throw new SheetError("Unknown absence type.");
 
       const absenceData = {
         absenceTypeId: type.id,

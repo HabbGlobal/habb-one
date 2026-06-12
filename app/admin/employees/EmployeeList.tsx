@@ -27,8 +27,8 @@ export interface EmployeeRow {
 }
 
 const labels = {
-  monthly: "Monatslohn",
-  hourly: "Stundenlohn",
+  monthly: "Monthly salary",
+  hourly: "Hourly wage",
   active: "Active",
   inactive: "Inactive",
 };
@@ -51,7 +51,7 @@ export function EmployeeList({
       ),
     },
     {
-      header: "Anstellung",
+      header: "Employment",
       cell: (e) =>
         e.employmentType === "MONTHLY_SALARY" ? labels.monthly : labels.hourly,
     },
@@ -60,12 +60,12 @@ export function EmployeeList({
       cell: (e) => (e.workloadPercent ? `${e.workloadPercent}%` : "—"),
     },
     {
-      header: "Ferien",
-      cell: (e) => `${e.annualVacationDays} T`,
+      header: "Vacation",
+      cell: (e) => `${e.annualVacationDays} d`,
       className: "text-right",
     },
     {
-      header: "Bereiche",
+      header: "Areas",
       cell: (e) =>
         e.areas.length === 0 ? (
           <span className="text-muted-foreground text-xs">—</span>
@@ -112,10 +112,10 @@ export function EmployeeList({
       }}
       emptyText={
         view === "active"
-          ? "Keine aktiven Mitarbeitenden."
+          ? "No active employees."
           : view === "archived"
-          ? "Keine archivierten Mitarbeitenden."
-          : "Papierkorb ist leer."
+          ? "No archived employees."
+          : "Trash is empty."
       }
     />
   );

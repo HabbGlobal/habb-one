@@ -5,8 +5,8 @@ import { cn } from "@/lib/utils";
 type Tab = "plan" | "areas";
 
 const tabs: { key: Tab; label: string; href: string }[] = [
-  { key: "plan", label: "Monatsplan", href: "/admin/schedule" },
-  { key: "areas", label: "Bereich-Übersicht", href: "/admin/schedule/areas" },
+  { key: "plan", label: "Monthly plan", href: "/admin/schedule" },
+  { key: "areas", label: "Area overview", href: "/admin/schedule/areas" },
 ];
 
 export function ScheduleSubNav({ active }: { active: Tab }) {

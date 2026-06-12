@@ -14,16 +14,16 @@ export const swissVatNumber = z
   .string()
   .regex(
     /^CHE-\d{3}\.\d{3}\.\d{3}( (MWST|TVA|IVA))?$/,
-    "Ungültiges CH-Format. Beispiel: CHE-123.456.789 MWST",
+    "Invalid CH format. Example: CHE-123.456.789 MWST",
   );
 
 /** Country-aware ZIP validator: CH/AT 4-digit, DE 5-digit, others 3–10 chars. */
 export function zipForCountry(country: string): z.ZodString {
   if (country === "CH" || country === "AT") {
-    return z.string().regex(/^\d{4}$/, "PLZ muss 4-stellig sein.");
+    return z.string().regex(/^\d{4}$/, "ZIP must be 4 digits.");
   }
   if (country === "DE") {
-    return z.string().regex(/^\d{5}$/, "PLZ muss 5-stellig sein.");
+    return z.string().regex(/^\d{5}$/, "ZIP must be 5 digits.");
   }
   return z.string().min(3).max(10);
 }
@@ -37,7 +37,7 @@ const optionalString = z
 
 const optionalEmail = z
   .string()
-  .email("Ungültige E-Mail-Adresse.")
+  .email("Invalid email address.")
   .optional()
   .or(z.literal(""))
   .transform((v) => (v === "" ? undefined : v));
@@ -48,7 +48,7 @@ const optionalSwissVat = swissVatNumber
   .transform((v) => (v === "" ? undefined : v));
 
 // ─────────────────────────────────────────
-// Customer (Stammdaten)
+// Customer (Master Data)
 // ─────────────────────────────────────────
 
 export const customerCoreSchema = z
@@ -79,7 +79,7 @@ export const customerCoreSchema = z
       ctx.addIssue({
         code: z.ZodIssueCode.custom,
         path: ["companyName"],
-        message: "Firmenname ist bei Geschäftskunden Pflicht.",
+        message: "Company name is required for business customers.",
       });
     }
   });
@@ -93,11 +93,11 @@ export type CustomerCoreFormData = z.infer<typeof customerCoreSchema>;
 export const addressSchema = z
   .object({
     type: z.enum(["BILLING", "SHIPPING", "BOTH"]).default("BOTH"),
-    street: z.string().trim().min(1, "Strasse ist Pflicht.").max(200),
+    street: z.string().trim().min(1, "Street is required.").max(200),
     zip: z.string().trim().min(3).max(10),
-    city: z.string().trim().min(1, "Ort ist Pflicht.").max(120),
+    city: z.string().trim().min(1, "City is required.").max(120),
     canton: optionalString,
-    country: z.string().trim().length(2, "Länder­code 2-stellig (z. B. CH, DE).").default("CH"),
+    country: z.string().trim().length(2, "Country code must be 2 characters (e.g. CH, DE).").default("CH"),
     isDefault: z.boolean().default(false),
   })
   .superRefine((d, ctx) => {
@@ -107,7 +107,7 @@ export const addressSchema = z
       ctx.addIssue({
         code: z.ZodIssueCode.custom,
         path: ["zip"],
-        message: r.error.issues[0]?.message ?? "Ungültige PLZ.",
+        message: r.error.issues[0]?.message ?? "Invalid ZIP code.",
       });
     }
   });
@@ -120,8 +120,8 @@ export type AddressFormData = z.infer<typeof addressSchema>;
 
 export const contactSchema = z.object({
   salutation: optionalString,
-  firstName: z.string().trim().min(1, "Vorname ist Pflicht.").max(80),
-  lastName: z.string().trim().min(1, "Nachname ist Pflicht.").max(80),
+  firstName: z.string().trim().min(1, "First name is required.").max(80),
+  lastName: z.string().trim().min(1, "Last name is required.").max(80),
   position: optionalString,
   email: optionalEmail,
   phone: optionalString,

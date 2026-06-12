@@ -4,11 +4,11 @@
 // address + contact) and update flows. Triggers a duplicate-check before
 // submit so the user can re-evaluate when a likely duplicate exists.
 //
-// Validierung läuft client-seitig mit demselben Zod-Schema wie auf dem
-// Server. Field-level Fehler werden direkt unter den Inputs gerendert,
-// zusätzlich ein Summary-Banner oben. HTML5-`required` ist bewusst NICHT
-// gesetzt, weil die Browser-Tooltips bei langen Formularen vom User oft
-// übersehen werden ("ich klicke Speichern, passiert nichts").
+// Validation runs client-side with the same Zod schema as on the server.
+// Field-level errors are rendered directly below the inputs, plus a
+// summary banner at the top. HTML5 `required` is intentionally NOT set,
+// because browser tooltips on long forms are often missed by users
+// ("I click Save, nothing happens").
 
 import { useState, useTransition, useRef } from "react";
 import { useRouter } from "next/navigation";
@@ -87,9 +87,9 @@ export function CustomerForm({ initial, mode }: Props) {
 
   const update = <K extends keyof CustomerFormData>(k: K, v: CustomerFormData[K]) => {
     setData((d) => ({ ...d, [k]: v }));
-    // Optimistisch: sobald der User in einem Feld editiert, dort den
-    // Inline-Fehler ausblenden — die nächste Submit-Validierung entscheidet
-    // neu. Sonst bleiben alte Fehlermeldungen hängen, was verwirrt.
+    // Optimistic: as soon as the user edits a field, hide the inline
+    // error there — the next submit validation decides anew. Otherwise
+    // old error messages linger, which is confusing.
     setFieldErrors((prev) => {
       if (!prev[k as string]) return prev;
       const next = { ...prev };
@@ -122,7 +122,7 @@ export function CustomerForm({ initial, mode }: Props) {
     setError(null);
     setFieldErrors({});
 
-    // ─── 1. Core-Stammdaten validieren ──────────────────────────────
+    // ─── 1. Validate core master data ──────────────────────────────
     const coreCandidate = {
       type: data.type,
       companyName: data.companyName.trim() || undefined,
@@ -137,7 +137,7 @@ export function CustomerForm({ initial, mode }: Props) {
     };
     const coreResult = customerCoreSchema.safeParse(coreCandidate);
 
-    // Issues sammeln pro Feldpfad → der erste Fehler je Feld gewinnt.
+    // Collect issues per field path → the first error per field wins.
     const issues: Record<string, string> = {};
     if (!coreResult.success) {
       for (const i of coreResult.error.issues) {
@@ -146,7 +146,7 @@ export function CustomerForm({ initial, mode }: Props) {
       }
     }
 
-    // ─── 2. Adresse "all or nothing" (nur bei create) ───────────────
+    // ─── 2. Address "all or nothing" (create only) ───────────────
     let initialAddress: ReturnType<typeof addressSchema.parse> | undefined;
     if (mode.kind === "create") {
       const street = data.street?.trim() ?? "";
@@ -155,7 +155,7 @@ export function CustomerForm({ initial, mode }: Props) {
       const country = (data.country ?? "CH").trim().toUpperCase();
       const anyAddress = street || zip || city;
       if (anyAddress) {
-        // Mindestens ein Adressfeld ist gesetzt → ALLE müssen valide sein.
+        // At least one address field is set → ALL must be valid.
         const r = addressSchema.safeParse({
           type: "BOTH" as const,
           street,
@@ -175,7 +175,7 @@ export function CustomerForm({ initial, mode }: Props) {
       }
     }
 
-    // ─── 3. Kontakt "all or nothing" (nur bei create) ───────────────
+    // ─── 3. Contact "all or nothing" (create only) ───────────────
     let initialContact: ReturnType<typeof contactSchema.parse> | undefined;
     if (mode.kind === "create") {
       const fn = data.contactFirstName?.trim() ?? "";
@@ -195,7 +195,7 @@ export function CustomerForm({ initial, mode }: Props) {
           initialContact = r.data;
         } else {
           for (const i of r.error.issues) {
-            // Mapping auf die Formularfeld-Namen
+            // Map to form field names
             const path = i.path.join(".");
             const key =
               path === "firstName"
@@ -213,21 +213,21 @@ export function CustomerForm({ initial, mode }: Props) {
       }
     }
 
-    // ─── 4. Wenn irgendein Fehler → anzeigen + zur Summary scrollen ──
+    // ─── 4. If any error → display + scroll to summary ──
     if (Object.keys(issues).length > 0) {
       setFieldErrors(issues);
       setError(
-        `Bitte ${Object.keys(issues).length === 1 ? "das markierte Feld korrigieren" : "die markierten Felder korrigieren"}.`,
+        `Please ${Object.keys(issues).length === 1 ? "correct the marked field" : "correct the marked fields"}.`,
       );
-      // Damit der User die Fehlermeldung garantiert sieht, scrollen wir
-      // die Summary-Banner-Position in den sichtbaren Bereich.
+      // Scroll the summary banner position into the visible area so the
+      // user is guaranteed to see the error message.
       requestAnimationFrame(() => {
         summaryRef.current?.scrollIntoView({ behavior: "smooth", block: "center" });
       });
       return;
     }
 
-    // ─── 5. Absenden ─────────────────────────────────────────────────
+    // ─── 5. Submit ─────────────────────────────────────────────────
     const core = coreResult.success ? coreResult.data : coreCandidate;
     start(async () => {
       try {
@@ -256,9 +256,9 @@ export function CustomerForm({ initial, mode }: Props) {
 
   return (
     <form onSubmit={submit} className="space-y-6" noValidate>
-      {/* Summary-Banner: erscheint bei Validierungs- ODER Server-Fehler.
-          Wird beim Submit in den sichtbaren Bereich gescrollt, damit der
-          User nicht denkt "passiert nichts". */}
+      {/* Summary banner: appears on validation OR server errors.
+          Scrolled into the visible area on submit so the user doesn't
+          think "nothing happens". */}
       <div ref={summaryRef}>
         {error && (
           <Card className="border-habb-red/40 bg-habb-red/5">
@@ -286,13 +286,13 @@ export function CustomerForm({ initial, mode }: Props) {
           <CardTitle>Master data</CardTitle>
         </CardHeader>
         <CardContent className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <Field label="Typ">
+          <Field label="Type">
             <Select
               value={data.type}
               onChange={(e) => update("type", e.target.value as "PRIVATE" | "BUSINESS")}
             >
-              <option value="BUSINESS">Geschäftskunde</option>
-              <option value="PRIVATE">Privatkunde</option>
+              <option value="BUSINESS">Business customer</option>
+              <option value="PRIVATE">Private customer</option>
             </Select>
           </Field>
           <Field label="Status">
@@ -307,8 +307,8 @@ export function CustomerForm({ initial, mode }: Props) {
           <Field
             label={
               data.type === "BUSINESS"
-                ? "Firmenname *"
-                : "Firmenname (optional)"
+                ? "Company name *"
+                : "Company name (optional)"
             }
             full
             error={fieldErrors.companyName}
@@ -320,7 +320,7 @@ export function CustomerForm({ initial, mode }: Props) {
               aria-invalid={!!fieldErrors.companyName}
             />
           </Field>
-          <Field label="MwSt-Nummer (optional)" error={fieldErrors.vatNumber}>
+          <Field label="VAT number (optional)" error={fieldErrors.vatNumber}>
             <Input
               value={data.vatNumber}
               onChange={(e) => update("vatNumber", e.target.value)}
@@ -329,18 +329,18 @@ export function CustomerForm({ initial, mode }: Props) {
               aria-invalid={!!fieldErrors.vatNumber}
             />
           </Field>
-          <Field label="Sprache">
+          <Field label="Language">
             <Select
               value={data.language}
               onChange={(e) => update("language", e.target.value as CustomerFormData["language"])}
             >
-              <option value="DE">Deutsch</option>
-              <option value="FR">Französisch</option>
-              <option value="IT">Italienisch</option>
-              <option value="EN">Englisch</option>
+              <option value="DE">German</option>
+              <option value="FR">French</option>
+              <option value="IT">Italian</option>
+              <option value="EN">English</option>
             </Select>
           </Field>
-          <Field label="Zahlungsfrist (Tage)" error={fieldErrors.paymentTerms}>
+          <Field label="Payment terms (days)" error={fieldErrors.paymentTerms}>
             <Input
               type="number"
               min={0}
@@ -349,7 +349,7 @@ export function CustomerForm({ initial, mode }: Props) {
               onChange={(e) => update("paymentTerms", Number(e.target.value || 0))}
             />
           </Field>
-          <Field label="Standard-Rabatt (%)" error={fieldErrors.defaultDiscount}>
+          <Field label="Default discount (%)" error={fieldErrors.defaultDiscount}>
             <Input
               type="number"
               min={0}
@@ -357,20 +357,20 @@ export function CustomerForm({ initial, mode }: Props) {
               step={0.5}
               value={data.defaultDiscount}
               onChange={(e) => update("defaultDiscount", e.target.value)}
-              placeholder="leer = kein Rabatt"
+              placeholder="empty = no discount"
             />
           </Field>
-          <Field label="Kreditlimit (CHF)" error={fieldErrors.creditLimit}>
+          <Field label="Credit limit (CHF)" error={fieldErrors.creditLimit}>
             <Input
               type="number"
               min={0}
               step={100}
               value={data.creditLimit}
               onChange={(e) => update("creditLimit", e.target.value)}
-              placeholder="leer = kein Limit"
+              placeholder="empty = no limit"
             />
           </Field>
-          <Field label="Notizen (intern)" full>
+          <Field label="Notes (internal)" full>
             <Textarea
               rows={3}
               value={data.notes}
@@ -382,23 +382,23 @@ export function CustomerForm({ initial, mode }: Props) {
 
       {/* On create only: optional initial address + contact, so the user can
           provision a usable customer record from a single form. "All or
-          nothing" — sobald EIN Feld gefüllt ist, müssen alle nötigen gefüllt
-          sein (sonst Inline-Fehler). */}
+          nothing" — once ONE field is filled, all required ones must be
+          filled (otherwise inline errors). */}
       {!isEdit && (
         <>
           <Card>
             <CardHeader>
-              <CardTitle>Erste Adresse (optional, aber komplett wenn ausgefüllt)</CardTitle>
+              <CardTitle>First address (optional, but complete if filled)</CardTitle>
             </CardHeader>
             <CardContent className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <Field label="Strasse + Nr." full error={fieldErrors.street}>
+              <Field label="Street + No." full error={fieldErrors.street}>
                 <Input
                   value={data.street ?? ""}
                   onChange={(e) => update("street", e.target.value)}
                   aria-invalid={!!fieldErrors.street}
                 />
               </Field>
-              <Field label="PLZ" error={fieldErrors.zip}>
+              <Field label="ZIP" error={fieldErrors.zip}>
                 <Input
                   value={data.zip ?? ""}
                   onChange={(e) => update("zip", e.target.value)}
@@ -406,14 +406,14 @@ export function CustomerForm({ initial, mode }: Props) {
                   aria-invalid={!!fieldErrors.zip}
                 />
               </Field>
-              <Field label="Ort" error={fieldErrors.city}>
+              <Field label="City" error={fieldErrors.city}>
                 <Input
                   value={data.city ?? ""}
                   onChange={(e) => update("city", e.target.value)}
                   aria-invalid={!!fieldErrors.city}
                 />
               </Field>
-              <Field label="Land" error={fieldErrors.country}>
+              <Field label="Country" error={fieldErrors.country}>
                 <Input
                   value={data.country ?? "CH"}
                   maxLength={2}
@@ -426,17 +426,17 @@ export function CustomerForm({ initial, mode }: Props) {
 
           <Card>
             <CardHeader>
-              <CardTitle>Erster Kontakt (optional, aber komplett wenn ausgefüllt)</CardTitle>
+              <CardTitle>First contact (optional, but complete if filled)</CardTitle>
             </CardHeader>
             <CardContent className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <Field label="Vorname" error={fieldErrors.contactFirstName}>
+              <Field label="First Name" error={fieldErrors.contactFirstName}>
                 <Input
                   value={data.contactFirstName ?? ""}
                   onChange={(e) => update("contactFirstName", e.target.value)}
                   aria-invalid={!!fieldErrors.contactFirstName}
                 />
               </Field>
-              <Field label="Nachname" error={fieldErrors.contactLastName}>
+              <Field label="Last Name" error={fieldErrors.contactLastName}>
                 <Input
                   value={data.contactLastName ?? ""}
                   onChange={(e) => update("contactLastName", e.target.value)}
@@ -473,8 +473,8 @@ export function CustomerForm({ initial, mode }: Props) {
             <div className="text-sm space-y-1">
               <p className="font-semibold">
                 {duplicates.length === 1
-                  ? "Möglicher Dublikat-Treffer:"
-                  : `${duplicates.length} mögliche Dublikate:`}
+                  ? "Possible duplicate match:"
+                  : `${duplicates.length} possible duplicates:`}
               </p>
               <ul className="space-y-0.5">
                 {duplicates.map((d) => (
@@ -494,8 +494,7 @@ export function CustomerForm({ initial, mode }: Props) {
                 ))}
               </ul>
               <p className="text-xs text-muted-foreground">
-                Du kannst trotzdem speichern, falls es sich um eine separate
-                Buchungseinheit handelt.
+                You can still save if this is a separate billing entity.
               </p>
             </div>
           </CardContent>
@@ -503,12 +502,12 @@ export function CustomerForm({ initial, mode }: Props) {
       )}
 
       {duplicateCheckPending && (
-        <p className="text-xs text-muted-foreground">Prüfe auf Dublikate …</p>
+        <p className="text-xs text-muted-foreground">Checking for duplicates…</p>
       )}
 
       <div className="flex gap-2">
         <Button type="submit" disabled={pending}>
-          {isEdit ? "Save" : "Kunde anlegen"}
+          {isEdit ? "Save" : "Create customer"}
         </Button>
         <Button type="button" variant="ghost" onClick={() => router.back()}>Cancel</Button>
       </div>
@@ -516,34 +515,34 @@ export function CustomerForm({ initial, mode }: Props) {
   );
 }
 
-/** Übersetzt einen Feld-Pfad in das deutsche Label, das im Summary-Banner
- *  oben angezeigt wird. Bewusst handgepflegt, weil Zod-Pfade
- *  (z.B. "companyName", "vatNumber") für den User nicht selbsterklärend sind. */
+/** Translates a field path into the label shown in the summary banner
+ *  at the top. Manually maintained because Zod paths (e.g. "companyName",
+ *  "vatNumber") are not self-explanatory for the user. */
 function labelFor(field: string): string {
   const map: Record<string, string> = {
-    companyName: "Firmenname",
-    vatNumber: "MwSt-Nummer",
-    paymentTerms: "Zahlungsfrist",
-    defaultDiscount: "Standard-Rabatt",
-    creditLimit: "Kreditlimit",
-    street: "Strasse",
-    zip: "PLZ",
-    city: "Ort",
-    country: "Land",
-    contactFirstName: "Vorname Kontakt",
-    contactLastName: "Nachname Kontakt",
-    contactEmail: "E-Mail Kontakt",
-    contactPhone: "Telefon Kontakt",
-    _root: "Formular",
+    companyName: "Company Name",
+    vatNumber: "VAT Number",
+    paymentTerms: "Payment Terms",
+    defaultDiscount: "Default Discount",
+    creditLimit: "Credit Limit",
+    street: "Street",
+    zip: "ZIP",
+    city: "City",
+    country: "Country",
+    contactFirstName: "Contact First Name",
+    contactLastName: "Contact Last Name",
+    contactEmail: "Contact Email",
+    contactPhone: "Contact Phone",
+    _root: "Form",
   };
   return map[field] ?? field;
 }
 
 function matchReason(r: DuplicateMatch["matchedOn"][number]): string {
   return {
-    vatNumber: "MwSt-Nr identisch",
-    companyAndZip: "Firma + PLZ identisch",
-    primaryEmail: "Haupt-E-Mail identisch",
+    vatNumber: "VAT number identical",
+    companyAndZip: "Company + ZIP identical",
+    primaryEmail: "Primary email identical",
   }[r];
 }
 
@@ -556,7 +555,7 @@ function Field({
   label: string;
   children: React.ReactNode;
   full?: boolean;
-  /** Inline-Fehler unter dem Feld. Färbt zusätzlich das Label rot. */
+  /** Inline error below the field. Also colors the label red. */
   error?: string;
 }) {
   return (

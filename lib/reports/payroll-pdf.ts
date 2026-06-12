@@ -1,7 +1,7 @@
 /**
- * Personalabrechnungs-PDF — eine A4-Seite pro Mitarbeiter mit allen
- * relevanten Daten (Stammdaten, Anstellung, Stunden-Summary, Abwesenheiten,
- * Ferien-Saldo, Tagesliste).
+ * Payroll PDF — one A4 page per employee with all relevant data
+ * (master data, employment, hours summary, absences, vacation balance,
+ * daily list).
  */
 
 import { PDFDocument, StandardFonts, rgb, type PDFFont, type PDFPage } from "pdf-lib";
@@ -9,8 +9,8 @@ import { formatHM, formatHours, type PayrollDataPoint } from "./payroll";
 import { embedCompanyLogo, drawCompanyLogoTopRight } from "@/lib/pdf/logo";
 
 const MONTHS = [
-  "Januar", "Februar", "März", "April", "Mai", "Juni",
-  "Juli", "August", "September", "Oktober", "November", "Dezember",
+  "January", "February", "March", "April", "May", "June",
+  "July", "August", "September", "October", "November", "December",
 ];
 
 const A4: [number, number] = [595.28, 841.89];
@@ -43,9 +43,9 @@ export async function payrollPdf(
   // ── Header ────────────────────────────────────────────────────────────
   page.drawText(report.company.name, { x: MARGIN, y, size: 11, font: bold, color: HEADING });
   y -= 18;
-  page.drawText("Personalabrechnung", { x: MARGIN, y, size: 18, font: bold, color: HEADING });
+  page.drawText("Payroll Report", { x: MARGIN, y, size: 18, font: bold, color: HEADING });
   y -= 22;
-  page.drawText(`${fullName}  ·  Mitarbeiter-Nr. ${report.employee.employeeNumber}`, {
+  page.drawText(`${fullName}  ·  Employee No. ${report.employee.employeeNumber}`, {
     x: MARGIN,
     y,
     size: 11,
@@ -53,33 +53,33 @@ export async function payrollPdf(
     color: TEXT,
   });
   y -= 14;
-  page.drawText(`Zeitraum: ${monthLabel}`, { x: MARGIN, y, size: 10, font, color: MUTED });
+  page.drawText(`Period: ${monthLabel}`, { x: MARGIN, y, size: 10, font, color: MUTED });
   y -= 18;
   drawHRule(page, y);
   y -= 18;
 
-  // ── Stammdaten + Anstellung als zwei Spalten ─────────────────────────
+  // ── Master data + Employment as two columns ─────────────────────────
   const colWidth = (A4[0] - 2 * MARGIN) / 2 - 12;
   const col1X = MARGIN;
   const col2X = MARGIN + colWidth + 24;
   let yLeft = y;
   let yRight = y;
 
-  yLeft = drawSection(page, col1X, yLeft, "Master data", bold);
-  yLeft = drawKV(page, col1X, colWidth, yLeft, "Geburtsdatum", fmt(report.employee.dateOfBirth), font, bold);
-  yLeft = drawKV(page, col1X, colWidth, yLeft, "AHV-Nr.", report.employee.ahvNumber ?? "—", font, bold);
-  yLeft = drawKV(page, col1X, colWidth, yLeft, "Adresse", report.employee.address ?? "—", font, bold);
+  yLeft = drawSection(page, col1X, yLeft, "Master Data", bold);
+  yLeft = drawKV(page, col1X, colWidth, yLeft, "Date of Birth", fmt(report.employee.dateOfBirth), font, bold);
+  yLeft = drawKV(page, col1X, colWidth, yLeft, "SSN", report.employee.ahvNumber ?? "—", font, bold);
+  yLeft = drawKV(page, col1X, colWidth, yLeft, "Address", report.employee.address ?? "—", font, bold);
   yLeft = drawKV(page, col1X, colWidth, yLeft, "Email", report.employee.email ?? "—", font, bold);
   yLeft = drawKV(page, col1X, colWidth, yLeft, "Phone", report.employee.phone ?? "—", font, bold);
 
-  yRight = drawSection(page, col2X, yRight, "Anstellung", bold);
+  yRight = drawSection(page, col2X, yRight, "Employment", bold);
   yRight = drawKV(
     page,
     col2X,
     colWidth,
     yRight,
-    "Art",
-    report.employee.employmentType === "MONTHLY_SALARY" ? "Monatslohn" : "Stundenlohn",
+    "Type",
+    report.employee.employmentType === "MONTHLY_SALARY" ? "Monthly Salary" : "Hourly Wage",
     font,
     bold,
   );
@@ -88,7 +88,7 @@ export async function payrollPdf(
     col2X,
     colWidth,
     yRight,
-    "Pensum",
+    "Workload",
     report.employee.workloadPercent != null ? `${report.employee.workloadPercent}%` : "—",
     font,
     bold,
@@ -98,7 +98,7 @@ export async function payrollPdf(
     col2X,
     colWidth,
     yRight,
-    "Wochenstunden",
+    "Weekly Hours",
     report.employee.weeklyTargetHours != null ? `${report.employee.weeklyTargetHours.toFixed(2)} h` : "—",
     font,
     bold,
@@ -108,26 +108,26 @@ export async function payrollPdf(
     col2X,
     colWidth,
     yRight,
-    "Ferienanspruch",
-    `${report.employee.annualVacationDays} Tage`,
+    "Vacation Entitlement",
+    `${report.employee.annualVacationDays} days`,
     font,
     bold,
   );
-  yRight = drawKV(page, col2X, colWidth, yRight, "Vertragsbeginn", fmt(report.employee.startDate), font, bold);
-  yRight = drawKV(page, col2X, colWidth, yRight, "Vertragsende", fmt(report.employee.endDate), font, bold);
+  yRight = drawKV(page, col2X, colWidth, yRight, "Contract Start", fmt(report.employee.startDate), font, bold);
+  yRight = drawKV(page, col2X, colWidth, yRight, "Contract End", fmt(report.employee.endDate), font, bold);
 
   y = Math.min(yLeft, yRight) - 8;
   drawHRule(page, y);
   y -= 18;
 
-  // ── Stunden-Summary ──────────────────────────────────────────────────
-  y = drawSection(page, MARGIN, y, `Stunden ${monthLabel}`, bold);
+  // ── Hours Summary ──────────────────────────────────────────────────
+  y = drawSection(page, MARGIN, y, `Hours ${monthLabel}`, bold);
   const stats: [string, string][] = [
-    ["Soll", `${formatHours(report.totals.targetMinutes)} h`],
-    ["Gearbeitet", `${formatHours(report.totals.workedMinutes)} h`],
-    ["Pause", `${formatHours(report.totals.breakMinutes)} h`],
+    ["Target", `${formatHours(report.totals.targetMinutes)} h`],
+    ["Worked", `${formatHours(report.totals.workedMinutes)} h`],
+    ["Break", `${formatHours(report.totals.breakMinutes)} h`],
     [
-      "Saldo Monat",
+      "Monthly Balance",
       `${report.totals.balanceMinutes >= 0 ? "+" : ""}${formatHours(report.totals.balanceMinutes)} h`,
     ],
   ];
@@ -141,19 +141,19 @@ export async function payrollPdf(
   y -= 30;
   const adjLabel =
     report.totals.adjustmentMinutes !== 0
-      ? `  ·  Korrekturen: ${report.totals.adjustmentMinutes >= 0 ? "+" : ""}${formatHours(report.totals.adjustmentMinutes)} h`
+      ? `  ·  Corrections: ${report.totals.adjustmentMinutes >= 0 ? "+" : ""}${formatHours(report.totals.adjustmentMinutes)} h`
       : "";
   page.drawText(
-    `Saldo kumuliert: ${report.totals.cumulativeBalanceMinutes >= 0 ? "+" : ""}${formatHours(report.totals.cumulativeBalanceMinutes)} h  ·  Anfangsbestand: ${report.employee.initialOvertimeHours >= 0 ? "+" : ""}${report.employee.initialOvertimeHours.toFixed(2)} h${adjLabel}`,
+    `Cumulative balance: ${report.totals.cumulativeBalanceMinutes >= 0 ? "+" : ""}${formatHours(report.totals.cumulativeBalanceMinutes)} h  ·  Opening balance: ${report.employee.initialOvertimeHours >= 0 ? "+" : ""}${report.employee.initialOvertimeHours.toFixed(2)} h${adjLabel}`,
     { x: MARGIN, y, size: 9, font, color: MUTED },
   );
   y -= 16;
   drawHRule(page, y);
   y -= 18;
 
-  // ── Manuelle Korrekturen (nur wenn vorhanden) ────────────────────────
+  // ── Manual Corrections (only if present) ────────────────────────
   if (report.adjustments.length > 0) {
-    y = drawSection(page, MARGIN, y, "Manuelle Korrekturen", bold);
+    y = drawSection(page, MARGIN, y, "Manual Corrections", bold);
     for (const a of report.adjustments) {
       const label = `${a.date} — ${a.reason}`.slice(0, 80);
       const value = `${a.minutes >= 0 ? "+" : ""}${formatHours(a.minutes)} h`;
@@ -164,31 +164,31 @@ export async function payrollPdf(
     y -= 18;
   }
 
-  // ── Abwesenheiten + Ferien-Saldo als zwei Spalten ────────────────────
+  // ── Absences + Vacation Balance as two columns ────────────────────
   let yL = y;
   let yR = y;
 
-  yL = drawSection(page, col1X, yL, "Abwesenheiten", bold);
+  yL = drawSection(page, col1X, yL, "Absences", bold);
   if (report.absences.length === 0) {
-    page.drawText("Keine Abwesenheiten in diesem Monat.", { x: col1X, y: yL, size: 9, font, color: MUTED });
+    page.drawText("No absences in this month.", { x: col1X, y: yL, size: 9, font, color: MUTED });
     yL -= 14;
   } else {
     for (const a of report.absences) {
-      const label = `${a.label} ${a.isPaid ? "" : "(unbezahlt)"}`.trim();
-      const value = `${a.days.toFixed(1)} T / ${a.hours.toFixed(1)} h`;
+      const label = `${a.label} ${a.isPaid ? "" : "(unpaid)"}`.trim();
+      const value = `${a.days.toFixed(1)} d / ${a.hours.toFixed(1)} h`;
       yL = drawKV(page, col1X, colWidth, yL, label, value, font, bold);
     }
   }
 
-  yR = drawSection(page, col2X, yR, `Ferien-Saldo ${report.period.year}`, bold);
-  yR = drawKV(page, col2X, colWidth, yR, "Jahresanspruch", `${report.vacation.entitlementDays} Tage`, font, bold);
-  yR = drawKV(page, col2X, colWidth, yR, "Übertrag Vorjahr", `${report.vacation.carriedOverDays} Tage`, font, bold);
-  yR = drawKV(page, col2X, colWidth, yR, "Bezogen YTD", `${report.vacation.takenDaysYtd} Tage`, font, bold);
-  yR = drawKV(page, col2X, colWidth, yR, "Geplant", `${report.vacation.plannedDays} Tage`, font, bold);
+  yR = drawSection(page, col2X, yR, `Vacation Balance ${report.period.year}`, bold);
+  yR = drawKV(page, col2X, colWidth, yR, "Annual Entitlement", `${report.vacation.entitlementDays} days`, font, bold);
+  yR = drawKV(page, col2X, colWidth, yR, "Carry-over", `${report.vacation.carriedOverDays} days`, font, bold);
+  yR = drawKV(page, col2X, colWidth, yR, "Taken YTD", `${report.vacation.takenDaysYtd} days`, font, bold);
+  yR = drawKV(page, col2X, colWidth, yR, "Planned", `${report.vacation.plannedDays} days`, font, bold);
   yR -= 4;
-  page.drawText("Restanspruch", { x: col2X, y: yR, size: 9, font: bold, color: HEADING });
-  page.drawText(`${report.vacation.remainingDays} Tage`, {
-    x: col2X + colWidth - widthOf(`${report.vacation.remainingDays} Tage`, 11, bold),
+  page.drawText("Remaining", { x: col2X, y: yR, size: 9, font: bold, color: HEADING });
+  page.drawText(`${report.vacation.remainingDays} days`, {
+    x: col2X + colWidth - widthOf(`${report.vacation.remainingDays} days`, 11, bold),
     y: yR,
     size: 11,
     font: bold,
@@ -200,21 +200,21 @@ export async function payrollPdf(
   drawHRule(page, y);
   y -= 18;
 
-  // ── Tagesliste ──────────────────────────────────────────────────────
-  y = drawSection(page, MARGIN, y, "Tagesübersicht", bold);
+  // ── Daily List ──────────────────────────────────────────────────────
+  y = drawSection(page, MARGIN, y, "Daily Overview", bold);
   const cols = [
     { label: "Date", width: 64 },
     { label: "Day", width: 34 },
-    { label: "Soll", width: 52, right: true },
-    { label: "Gearb.", width: 62, right: true },
-    { label: "Pause", width: 50, right: true },
-    { label: "Saldo", width: 56, right: true },
-    { label: "Saldo kum.", width: 66, right: true },
-    { label: "Hinweis", width: 131 },
+    { label: "Target", width: 52, right: true },
+    { label: "Worked", width: 62, right: true },
+    { label: "Break", width: 50, right: true },
+    { label: "Balance", width: 56, right: true },
+    { label: "Cum. Bal.", width: 66, right: true },
+    { label: "Note", width: 131 },
   ];
 
-  // Kleiner Innenabstand für rechtsbündige Spalten, damit Werte/Header
-  // nicht an die nächste Spalte stoßen (z. B. "SALDO KUM."→"HINWEIS").
+  // Small padding for right-aligned columns so values/headers do not
+  // touch the next column (e.g. "CUM. BAL."→"NOTE").
   const RIGHT_PAD = 8;
 
   // Header
@@ -236,7 +236,7 @@ export async function payrollPdf(
       page = doc.addPage(A4);
       if (logo) drawCompanyLogoTopRight(page, logo);
       y = A4[1] - MARGIN;
-      page.drawText(`Personalabrechnung — ${fullName} — ${monthLabel} (Fortsetzung)`, {
+      page.drawText(`Payroll Report — ${fullName} — ${monthLabel} (continued)`, {
         x: MARGIN,
         y,
         size: 9,
@@ -276,8 +276,8 @@ export async function payrollPdf(
     y -= 12;
   }
 
-  // ── Unterschriften / Freigabe ────────────────────────────────────────
-  // Genug Platz sicherstellen (Block braucht ~110px), sonst neue Seite.
+  // ── Signatures / Approval ────────────────────────────────────────
+  // Ensure enough space (block needs ~110px), otherwise new page.
   if (y < MARGIN + 130) {
     page = doc.addPage(A4);
     if (logo) drawCompanyLogoTopRight(page, logo);
@@ -287,18 +287,18 @@ export async function payrollPdf(
   }
   drawHRule(page, y, RULE);
   y -= 20;
-  page.drawText("Bestätigung & Freigabe", { x: MARGIN, y, size: 10, font: bold, color: HEADING });
+  page.drawText("Confirmation & Approval", { x: MARGIN, y, size: 10, font: bold, color: HEADING });
   y -= 12;
   page.drawText(
-    "Die erfassten Zeiten wurden geprüft und für korrekt befunden.",
+    "The recorded times have been reviewed and found to be correct.",
     { x: MARGIN, y, size: 8, font, color: MUTED },
   );
   y -= 40;
 
-  // Zwei Unterschriften-Spalten: Mitarbeiter:in | Vorgesetzte:r
+  // Two signature columns: Employee | Supervisor
   const sigColW = (A4[0] - 2 * MARGIN - 40) / 2;
-  drawSignatureSlot(page, MARGIN, y, sigColW, "Ort / Datum, Unterschrift Mitarbeiter:in", font);
-  drawSignatureSlot(page, MARGIN + sigColW + 40, y, sigColW, "Ort / Datum, Unterschrift Vorgesetzte:r", font);
+  drawSignatureSlot(page, MARGIN, y, sigColW, "Place / Date, Employee Signature", font);
+  drawSignatureSlot(page, MARGIN + sigColW + 40, y, sigColW, "Place / Date, Supervisor Signature", font);
   y -= 28;
 
   // Footer
@@ -306,14 +306,14 @@ export async function payrollPdf(
   drawHRule(page, y, RULE);
   y -= 12;
   page.drawText(
-    `Erstellt: ${new Date().toLocaleString("de-CH", { timeZone: "Europe/Zurich" })} — Exportiert von ${exportedBy}`,
+    `Created: ${new Date().toLocaleString("en-GB", { timeZone: "Europe/Zurich" })} — Exported by ${exportedBy}`,
     { x: MARGIN, y, size: 8, font, color: MUTED },
   );
 
   return doc.save();
 }
 
-/** Zeichnet eine Unterschrift-Linie + Beschriftung darunter. */
+/** Draws a signature line + label below. */
 function drawSignatureSlot(
   page: PDFPage,
   x: number,
@@ -366,5 +366,5 @@ function widthOf(text: string, size: number, font: PDFFont): number {
 }
 
 function fmt(d: Date | null): string {
-  return d ? d.toLocaleDateString("de-CH") : "—";
+  return d ? d.toLocaleDateString("en-GB") : "—";
 }

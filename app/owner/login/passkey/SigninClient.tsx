@@ -28,19 +28,19 @@ export function SigninClient({
         if (!res.ok) {
           const body = (await res.json().catch(() => null)) as { error?: string } | null;
           const map: Record<string, string> = {
-            CODE_INVALID: "Code ungültig. Bitte erneut versuchen.",
-            LOCKED: "Zu viele Fehlversuche. Bitte 15 Minuten warten.",
+            CODE_INVALID: "Invalid code. Please try again.",
+            LOCKED: "Too many failed attempts. Please wait 15 minutes.",
             RECOVERY_UNAVAILABLE:
-              "Für diesen Account ist kein Notfall-Code eingerichtet.",
-            NO_CEREMONY: "Sitzung abgelaufen. Bitte erneut mit Passwort anmelden.",
+              "No recovery code is set up for this account.",
+            NO_CEREMONY: "Session expired. Please log in again with password.",
             INVALID_CEREMONY:
-              "Sitzung abgelaufen. Bitte erneut mit Passwort anmelden.",
+              "Session expired. Please log in again with password.",
           };
           throw new Error(
-            map[body?.error ?? ""] ?? "Notfall-Anmeldung fehlgeschlagen.",
+            map[body?.error ?? ""] ?? "Emergency login failed.",
           );
         }
-        // TOTP gewährt KEINEN Zugang — zwingt zur Passkey-Neuregistrierung.
+        // TOTP does NOT grant access — forces passkey re-registration.
         router.replace("/owner/enroll-passkey");
         router.refresh();
       } catch (err) {
@@ -54,7 +54,7 @@ export function SigninClient({
     start(async () => {
       try {
         const optsRes = await fetch("/api/owner/auth/passkey/signin-options");
-        if (!optsRes.ok) throw new Error("Konnte Anmelde-Optionen nicht abrufen.");
+        if (!optsRes.ok) throw new Error("Could not retrieve sign-in options.");
         const options = await optsRes.json();
 
         const assertion = await startAuthentication({ optionsJSON: options });
@@ -64,14 +64,14 @@ export function SigninClient({
           headers: { "content-type": "application/json" },
           body: JSON.stringify({ response: assertion }),
         });
-        if (!verifyRes.ok) throw new Error("Passkey-Anmeldung fehlgeschlagen.");
+        if (!verifyRes.ok) throw new Error("Passkey sign-in failed.");
 
         router.replace("/owner");
         router.refresh();
       } catch (err) {
-        const msg = err instanceof Error ? err.message : "Unbekannter Fehler.";
+        const msg = err instanceof Error ? err.message : "Unknown error.";
         if (msg.includes("aborted") || msg.includes("cancelled")) {
-          setError("Vorgang abgebrochen. Bitte erneut versuchen.");
+          setError("Process cancelled. Please try again.");
         } else {
           setError(msg);
         }
@@ -88,7 +88,7 @@ export function SigninClient({
         className="inline-flex w-full items-center justify-center gap-2 rounded-lg bg-habb-black px-5 py-3.5 text-base font-medium text-white shadow-sm transition-colors hover:bg-habb-ink focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-habb-red focus-visible:ring-offset-2 disabled:opacity-60"
       >
         {pending ? <Loader2 className="h-4 w-4 animate-spin" /> : <KeyRound className="h-4 w-4" />}
-        Anmelden mit Passkey
+        Sign in with passkey
       </button>
 
       {error && (
@@ -110,15 +110,15 @@ export function SigninClient({
           className="inline-flex w-full items-center justify-center gap-2 text-xs text-habb-muted hover:text-habb-ink"
         >
           <LifeBuoy className="h-3.5 w-3.5" />
-          Kein Passkey zur Hand? Notfall-Zugang mit Authenticator-Code
+          No passkey at hand? Emergency access with authenticator code
         </button>
       )}
       {recoveryAvailable && recoveryOpen && (
         <div className="space-y-3 rounded-lg border border-habb-line bg-habb-paper px-4 py-3.5">
           <p className="text-xs text-habb-muted">
-            Gib den 6-stelligen Code aus deiner Authenticator-App ein. Danach
-            musst du sofort einen neuen Passkey registrieren — der Notfall-Code
-            allein gewährt no Zugang.
+            Enter the 6-digit code from your authenticator app. Afterwards
+            you must immediately register a new passkey — the emergency code
+            alone does not grant access.
           </p>
           <input
             inputMode="numeric"
@@ -136,7 +136,7 @@ export function SigninClient({
             className="inline-flex w-full items-center justify-center gap-2 rounded-lg bg-habb-black px-5 py-3 text-sm font-medium text-white hover:bg-habb-ink disabled:opacity-60"
           >
             {pending ? <Loader2 className="h-4 w-4 animate-spin" /> : null}
-            Notfall-Anmeldung
+            Emergency login
           </button>
           <button
             type="button"

@@ -76,9 +76,7 @@ export function InvoiceList({ rows }: { rows: InvoiceListItemDTO[] }) {
                 </Badge>
                 {i.isOverdue && i.status !== "OVERDUE" && (
                   <span className="text-[10px] text-destructive flex items-center gap-1">
-                    <AlertTriangle className="h-3 w-3" />
-                    überfällig
-                  </span>
+                    <AlertTriangle className="h-3 w-3" />overdue</span>
                 )}
                 {i.orderId && (
                   <span className="text-[10px] text-muted-foreground">aus Auftrag</span>

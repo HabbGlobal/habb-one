@@ -1,4 +1,4 @@
-// Server-side wrapper that turns a competency.ts violation into a German
+// Server-side wrapper that turns a competency.ts violation into an
 // error message thrown from a server action.
 
 import { prisma } from "@/lib/prisma";
@@ -9,7 +9,7 @@ import {
   type ExistingEntry,
 } from "./competency";
 
-const WEEKDAY_LABELS = ["Mo", "Di", "Mi", "Do", "Fr", "Sa", "So"];
+const WEEKDAY_LABELS = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
 
 export class ScheduleRuleError extends Error {
   constructor(public code: "MISSING_COMPETENCY" | "CAPACITY_EXCEEDED", message: string) {
@@ -59,10 +59,10 @@ export async function checkAssignment(args: CheckArgs): Promise<void> {
   ]);
 
   if (!area || area.companyId !== args.companyId || area.deletedAt) {
-    throw new ScheduleRuleError("MISSING_COMPETENCY", "Bereich nicht gefunden.");
+    throw new ScheduleRuleError("MISSING_COMPETENCY", "Area not found.");
   }
   if (!employee || employee.companyId !== args.companyId) {
-    throw new ScheduleRuleError("MISSING_COMPETENCY", "Mitarbeiter nicht gefunden.");
+    throw new ScheduleRuleError("MISSING_COMPETENCY", "Employee not found.");
   }
 
   const areaSpec: AreaSpec = {
@@ -95,17 +95,17 @@ export async function checkAssignment(args: CheckArgs): Promise<void> {
   if (violation.kind === "MISSING_COMPETENCY") {
     throw new ScheduleRuleError(
       "MISSING_COMPETENCY",
-      `${employee.firstName} ${employee.lastName} ist nicht für „${area.name}" qualifiziert. ` +
-        `Kompetenz unter Planung → Team-Zuteilung anlegen.`
+      `${employee.firstName} ${employee.lastName} is not qualified for "${area.name}". ` +
+        `Create competency under Planning → Team assignment.`
     );
   }
   // CAPACITY_EXCEEDED
   const cap = area.maxEmployeesPerDay ?? 0;
   throw new ScheduleRuleError(
     "CAPACITY_EXCEEDED",
-    `„${area.name}" ist am ${formatDate(args.date)} bereits voll (max. ${cap} ` +
-      `Mitarbeiter${cap === 1 ? "" : "innen"} pro Tag). ` +
-      `Aktuell: ${violation.current}.`
+    `"${area.name}" is already full on ${formatDate(args.date)} (max. ${cap} ` +
+      `employee${cap === 1 ? "" : "s"} per day). ` +
+      `Current: ${violation.current}.`
   );
 }
 

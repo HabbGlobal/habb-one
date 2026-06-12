@@ -80,7 +80,7 @@ export function OrderStatusActions({
     if (s === "CONFIRMED") {
       if (
         !confirm(
-          "Auftrag bestätigen? Damit werden die aktuellen Berechnungs-Parameter eingefroren — Preise und Schritt-Dauern ändern sich danach nicht mehr.",
+          "Confirm order? This will freeze the current calculation parameters — prices and step durations will not change after that.",
         )
       ) {
         return;

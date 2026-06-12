@@ -39,7 +39,7 @@ export default async function OnboardingPage() {
             habb<span className="text-habb-red">.ch</span>
           </Link>
           <h1 className="mt-6 text-2xl font-semibold tracking-tight text-habb-black">
-            Willkommen, {session.user.name}
+            Welcome, {session.user.name}
           </h1>
           <p className="mt-1 text-sm text-habb-muted">{company.name}</p>
         </div>
@@ -68,31 +68,31 @@ export default async function OnboardingPage() {
             {rejected ? (
               <>
                 <h2 className="text-base font-semibold text-habb-red">
-                  Registrierung abgelehnt
+                  Registration rejected
                 </h2>
                 <p className="mt-1 text-sm text-habb-red/90">
                   {company.registrationRejectionReason ??
-                    "Das HABB Global (PVT) LTD Team hat Ihre Anfrage nicht freigegeben. Bei Fragen: support@HABB Global (PVT) LTD."}
+                    "The HABB Global (PVT) LTD team has not approved your request. For questions: support@HABB Global (PVT) LTD."}
                 </p>
               </>
             ) : pendingApproval ? (
               <>
                 <h2 className="text-base font-semibold text-habb-warning">
-                  Wartet auf Freigabe
+                  Waiting for approval
                 </h2>
                 <p className="mt-1 text-sm text-habb-warning">
-                  Wir prüfen Ihre Anfrage. Sobald freigegeben, erhalten Sie eine Mail und können
-                  HABB One vollständig nutzen. Bis dahin können Sie Ihr Firmenprofil bearbeiten.
+                  We are reviewing your request. Once approved, you will receive an email and can
+                  use HABB One fully. Until then you can edit your company profile.
                 </p>
               </>
             ) : pendingVerify ? (
               <>
                 <h2 className="text-base font-semibold text-habb-warning">
-                  E-Mail-Bestätigung ausstehend
+                  Email verification pending
                 </h2>
                 <p className="mt-1 text-sm text-habb-warning">
-                  Bitte klicken Sie den Link in der Bestätigungsmail. Sobald Ihre E-Mail
-                  verifiziert ist, prüft das HABB Global (PVT) LTD Team Ihre Anfrage.
+                  Please click the link in the confirmation email. Once your email
+                  is verified, the HABB Global (PVT) LTD team will review your request.
                 </p>
               </>
             ) : null}

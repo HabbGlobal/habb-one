@@ -22,8 +22,8 @@ export async function monthlyPdf(report: ReportInput, exportedBy: string): Promi
   const fontBold = await doc.embedFont(StandardFonts.HelveticaBold);
 
   const monthLabels = [
-    "Jan", "Feb", "Mär", "Apr", "Mai", "Jun",
-    "Jul", "Aug", "Sep", "Okt", "Nov", "Dez",
+    "Jan", "Feb", "Mar", "Apr", "May", "Jun",
+    "Jul", "Aug", "Sep", "Oct", "Nov", "Dec",
   ];
 
   const logo = await embedCompanyLogo(doc, {
@@ -36,25 +36,25 @@ export async function monthlyPdf(report: ReportInput, exportedBy: string): Promi
     if (logo) drawCompanyLogoTopRight(page, logo);
     const { height } = page.getSize();
     page.drawText(report.company.name, { x: 40, y: height - 40, size: 14, font: fontBold });
-    page.drawText(`Zeitrapport — ${title}`, { x: 40, y: height - 60, size: 12, font });
+    page.drawText(`Time Report — ${title}`, { x: 40, y: height - 60, size: 12, font });
     page.drawText(
-      `Zeitraum: ${report.period.from} – ${report.period.to}    Erstellt: ${new Date()
+      `Period: ${report.period.from} – ${report.period.to}    Created: ${new Date()
         .toISOString()
         .slice(0, 16)
-        .replace("T", " ")}    Exportiert von: ${exportedBy}`,
+        .replace("T", " ")}    Exported by: ${exportedBy}`,
       { x: 40, y: height - 78, size: 9, font, color: rgb(0.4, 0.4, 0.4) }
     );
     return { page, top: height - 110 };
   }
 
   // Summary page
-  let { page, top } = addPage(`Übersicht ${monthLabels[report.period.month - 1]} ${report.period.year}`);
-  const headers = ["Nr", "Employee", "Soll", "Gearbeitet", "Pause", "Saldo"];
+  let { page, top } = addPage(`Overview ${monthLabels[report.period.month - 1]} ${report.period.year}`);
+  const headers = ["Nr", "Employee", "Target", "Worked", "Break", "Balance"];
   const cols = [40, 80, 290, 360, 430, 490];
   headers.forEach((h, i) => page.drawText(h, { x: cols[i], y: top, size: 10, font: fontBold }));
   top -= 14;
   for (const e of report.employees) {
-    if (top < 60) ({ page, top } = addPage(`Übersicht (Forts.)`));
+    if (top < 60) ({ page, top } = addPage(`Overview (cont.)`));
     const row = [
       e.employeeNumber,
       `${e.lastName} ${e.firstName}`,
@@ -70,14 +70,14 @@ export async function monthlyPdf(report: ReportInput, exportedBy: string): Promi
   // One page per employee with daily details
   for (const e of report.employees) {
     let p = addPage(`${e.lastName} ${e.firstName} (${e.employeeNumber})`);
-    const detailHeaders = ["Date", "Day", "Soll", "Gearb.", "Pause", "Saldo", "Hinweis"];
+    const detailHeaders = ["Date", "Day", "Target", "Worked", "Break", "Balance", "Note"];
     const detailCols = [40, 110, 160, 210, 260, 310, 360];
     detailHeaders.forEach((h, i) =>
       p.page.drawText(h, { x: detailCols[i], y: p.top, size: 10, font: fontBold })
     );
     p.top -= 14;
     for (const d of e.days) {
-      if (p.top < 60) p = addPage(`${e.lastName} ${e.firstName} (Forts.)`);
+      if (p.top < 60) p = addPage(`${e.lastName} ${e.firstName} (cont.)`);
       const row = [
         d.date,
         d.weekday,
@@ -93,9 +93,9 @@ export async function monthlyPdf(report: ReportInput, exportedBy: string): Promi
     p.top -= 6;
     if (p.top < 80) p = addPage(`${e.lastName} ${e.firstName} (Total)`);
     p.page.drawText(
-      `Total Soll: ${formatMin(e.totals.targetMinutes)}    Gearbeitet: ${formatMin(
+      `Total Target: ${formatMin(e.totals.targetMinutes)}    Worked: ${formatMin(
         e.totals.workedMinutes
-      )}    Saldo: ${formatMin(e.totals.balanceMinutes)}`,
+      )}    Balance: ${formatMin(e.totals.balanceMinutes)}`,
       { x: 40, y: p.top, size: 11, font: fontBold }
     );
   }

@@ -1,8 +1,8 @@
 "use client";
 
-// Lock-Screen: Kiosk-iPad muss erst entsperrt werden, bevor die
-// Mitarbeiter-Liste sichtbar wird. Wird von Sekretärin/Werkstatt-
-// Leiter:in einmal pro Schicht eingegeben.
+// Lock screen: Kiosk iPad must be unlocked before the employee list
+// becomes visible. Entered once per shift by the secretary/workshop
+// manager.
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
@@ -21,7 +21,7 @@ interface CompanyOption {
 interface Props {
   appName: string;
   companyLabel: string;
-  /** Wenn nur 1 Firma in der DB → leer; sonst: Auswahl-Optionen. */
+  /** If only 1 company in the DB → empty; otherwise: selection options. */
   companies: CompanyOption[];
 }
 
@@ -38,11 +38,11 @@ export function KioskLockScreen({ appName, companyLabel, companies }: Props) {
     e.preventDefault();
     setError(null);
     if (companies.length > 1 && !companyId) {
-      setError("Firma auswählen.");
+      setError("Select a company.");
       return;
     }
     if (!password) {
-      setError("Passwort fehlt.");
+      setError("Password missing.");
       return;
     }
     setPending(true);
@@ -51,9 +51,9 @@ export function KioskLockScreen({ appName, companyLabel, companies }: Props) {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          // Immer die companyId mitschicken — wenn nur 1 Firma sichtbar
-          // ist, wurde sie im useState-Initial bereits vorbelegt.
-          // Damit muss der Server nicht raten welche Firma gemeint ist.
+          // Always send the companyId — if only 1 company is visible,
+          // it was already pre-filled in the useState initial.
+          // This way the server doesn't have to guess which company is meant.
           companyId,
           password,
         }),
@@ -66,7 +66,7 @@ export function KioskLockScreen({ appName, companyLabel, companies }: Props) {
         setError(translateError(code));
       }
     } catch {
-      setError("Netzwerk-Fehler. Bitte erneut versuchen.");
+      setError("Network error. Please try again.");
     } finally {
       setPending(false);
     }
@@ -83,10 +83,10 @@ export function KioskLockScreen({ appName, companyLabel, companies }: Props) {
             {companyLabel}
           </p>
           <h1 className="text-2xl font-semibold tracking-tight text-habb-ink">
-            {appName} — Werkstatt-Kiosk
+            {appName} — Workshop Kiosk
           </h1>
           <p className="text-sm text-habb-muted">
-            Bitte Kiosk-Passwort eingeben um das Tablet zu entsperren.
+            Please enter the kiosk password to unlock the tablet.
           </p>
         </div>
 
@@ -103,7 +103,7 @@ export function KioskLockScreen({ appName, companyLabel, companies }: Props) {
                     className="flex h-10 w-full rounded-md border border-habb-line bg-white px-3 py-2 text-sm"
                     required
                   >
-                    <option value="">— wählen —</option>
+                    <option value="">— select —</option>
                     {companies.map((c) => (
                       <option key={c.id} value={c.id}>
                         {c.name}
@@ -114,7 +114,7 @@ export function KioskLockScreen({ appName, companyLabel, companies }: Props) {
               )}
 
               <div className="space-y-1">
-                <Label htmlFor="password">Kiosk-Passwort</Label>
+                <Label htmlFor="password">Kiosk password</Label>
                 <Input
                   id="password"
                   type="password"
@@ -138,11 +138,11 @@ export function KioskLockScreen({ appName, companyLabel, companies }: Props) {
                 className="w-full bg-habb-black text-white hover:bg-habb-ink"
                 disabled={pending}
               >
-                {pending ? "Prüfe …" : "Tablet entsperren"}
+                {pending ? "Checking…" : "Unlock tablet"}
               </Button>
 
               <p className="text-center text-xs text-habb-muted">
-                Tablet bleibt freigeschaltet, bis am Schicht-Ende ausgeloggt wird.
+                Tablet remains unlocked until logged out at end of shift.
               </p>
             </form>
           </CardContent>
@@ -166,14 +166,14 @@ export function KioskLockScreen({ appName, companyLabel, companies }: Props) {
 function translateError(code: string): string {
   switch (code) {
     case "WRONG_PASSWORD":
-      return "Falsches Passwort.";
+      return "Wrong password.";
     case "NO_PASSWORD_SET":
-      return "Für diese Firma ist kein Kiosk-Passwort gesetzt.";
+      return "No kiosk password is set for this company.";
     case "COMPANY_REQUIRED":
-      return "Firma muss ausgewählt werden.";
+      return "Company must be selected.";
     case "NOT_FOUND":
-      return "Firma nicht gefunden.";
+      return "Company not found.";
     default:
-      return "Anmeldung fehlgeschlagen.";
+      return "Login failed.";
   }
 }

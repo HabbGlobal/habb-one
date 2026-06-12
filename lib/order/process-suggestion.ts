@@ -263,7 +263,7 @@ export function suggestProcessSteps(input: SuggestionInput): SuggestionResult {
       recipe.push(
         step(
           "PC_APPLICATION",
-          "Pulverbeschichtung — Indoor reicht eine Schicht.",
+          "Powder coating — Indoor: one layer is sufficient.",
         ),
       );
       recipe.push(

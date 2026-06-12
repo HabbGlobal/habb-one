@@ -11,9 +11,9 @@ interface PageProps {
 }
 
 /**
- * Archiv suspendierter Tenanten. Identische Spalten wie die aktive Liste,
- * zusätzlich "Suspendiert seit" und Grund. Reaktivieren passiert auf der
- * Detail-Seite (Komponente `SuspendButtons`).
+ * Archive of suspended tenants. Identical columns as the active list,
+ * additionally "Suspended since" and reason. Reactivation happens on the
+ * detail page (component `SuspendButtons`).
  */
 export default async function ArchivedTenantsPage({ searchParams }: PageProps) {
   const { q } = await searchParams;
@@ -55,12 +55,11 @@ export default async function ArchivedTenantsPage({ searchParams }: PageProps) {
         <div>
           <p className="text-xs uppercase tracking-[0.18em] text-habb-muted">Platform</p>
           <h1 className="mt-1 text-2xl font-semibold tracking-tight text-habb-black">
-            Tenanten · Archiv
+            Tenants · Archive
           </h1>
           <p className="mt-1 text-sm text-habb-muted">
-            {tenants.length} suspendierte{tenants.length === 1 ? "r" : ""} Tenant
-            {tenants.length === 1 ? "" : "en"}
-            {search ? ` für „${search}"` : ""}
+            {tenants.length} suspended tenant{tenants.length === 1 ? "" : "s"}
+            {search ? ` for "${search}"` : ""}
           </p>
         </div>
 
@@ -70,7 +69,7 @@ export default async function ArchivedTenantsPage({ searchParams }: PageProps) {
             <input
               name="q"
               defaultValue={search}
-              placeholder="Tenant oder Ort suchen…"
+              placeholder="Search tenant or city…"
               className="w-72 rounded-lg border border-habb-line bg-white py-2.5 pl-9 pr-3 text-sm focus:border-habb-black focus:outline-none focus:ring-2 focus:ring-habb-red focus:ring-offset-1"
             />
           </div>
@@ -79,7 +78,7 @@ export default async function ArchivedTenantsPage({ searchParams }: PageProps) {
               href="/owner/tenants/archive"
               className="rounded-md border border-habb-line bg-white px-3 py-2.5 text-xs font-medium text-habb-muted hover:text-habb-ink"
             >
-              Zurücksetzen
+              Reset
             </Link>
           )}
         </form>
@@ -87,8 +86,8 @@ export default async function ArchivedTenantsPage({ searchParams }: PageProps) {
 
       <SectionTabs
         tabs={[
-          { href: "/owner/tenants", label: "Aktive", count: activeCount },
-          { href: "/owner/tenants/archive", label: "Archiv", count: tenants.length },
+          { href: "/owner/tenants", label: "Active", count: activeCount },
+          { href: "/owner/tenants/archive", label: "Archive", count: tenants.length },
         ]}
       />
 
@@ -99,10 +98,10 @@ export default async function ArchivedTenantsPage({ searchParams }: PageProps) {
               <th scope="col" className="px-5 py-3">Tenant</th>
               <th scope="col" className="px-5 py-3">Plan</th>
               <th scope="col" className="px-5 py-3">Status</th>
-              <th scope="col" className="px-5 py-3">Suspendiert seit</th>
-              <th scope="col" className="px-5 py-3">Grund</th>
+              <th scope="col" className="px-5 py-3">Suspended since</th>
+              <th scope="col" className="px-5 py-3">Reason</th>
               <th scope="col" className="px-5 py-3">User</th>
-              <th scope="col" className="px-5 py-3">Mitarbeitende</th>
+              <th scope="col" className="px-5 py-3">Employees</th>
               <th scope="col" className="px-5 py-3 text-right">Action</th>
             </tr>
           </thead>
@@ -110,7 +109,7 @@ export default async function ArchivedTenantsPage({ searchParams }: PageProps) {
             {tenants.length === 0 && (
               <tr>
                 <td colSpan={8} className="px-5 py-12 text-center text-sm text-habb-muted">
-                  Keine suspendierten Tenanten im Archiv.
+                  No suspended tenants in the archive.
                 </td>
               </tr>
             )}
@@ -144,7 +143,7 @@ export default async function ArchivedTenantsPage({ searchParams }: PageProps) {
                     href={`/owner/tenants/${t.id}`}
                     className="text-xs font-medium text-habb-ink hover:underline"
                   >
-                    Öffnen →
+                    Open →
                   </Link>
                 </td>
               </tr>
@@ -154,8 +153,8 @@ export default async function ArchivedTenantsPage({ searchParams }: PageProps) {
       </div>
 
       <p className="text-xs text-habb-muted">
-        Reaktivieren auf der Tenanten-Detail-Seite über &quot;Reaktivieren&quot; — mit Sudo + Begründung,
-        Audit-Eintrag wird automatisch geschrieben.
+        Reactivate on the tenant detail page via &quot;Reactivate&quot; — with sudo + reason,
+        an audit entry is written automatically.
       </p>
     </div>
   );

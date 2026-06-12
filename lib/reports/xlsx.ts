@@ -11,11 +11,11 @@ export function monthlyXlsx(report: {
   // Summary sheet
   const summaryRows: (string | number)[][] = [
     ["Company", report.company.name],
-    ["Zeitraum", `${report.period.from} – ${report.period.to}`],
-    ["Erstellt am", new Date().toISOString().slice(0, 16).replace("T", " ")],
-    ["Exportiert von", exportedBy],
+    ["Period", `${report.period.from} – ${report.period.to}`],
+    ["Created at", new Date().toISOString().slice(0, 16).replace("T", " ")],
+    ["Exported by", exportedBy],
     [],
-    ["Mitarbeiter-Nr", "Name", "Soll (h)", "Gearbeitet (h)", "Pause (h)", "Saldo (h)"],
+    ["Employee No.", "Name", "Target (h)", "Worked (h)", "Break (h)", "Balance (h)"],
   ];
   for (const e of report.employees) {
     summaryRows.push([
@@ -32,7 +32,7 @@ export function monthlyXlsx(report: {
   // One detail sheet per employee
   for (const e of report.employees) {
     const rows: (string | number)[][] = [
-      ["Date", "Wochentag", "Soll (h)", "Gearbeitet (h)", "Pause (h)", "Saldo (h)", "Hinweis"],
+      ["Date", "Weekday", "Target (h)", "Worked (h)", "Break (h)", "Balance (h)", "Note"],
     ];
     for (const d of e.days) {
       rows.push([

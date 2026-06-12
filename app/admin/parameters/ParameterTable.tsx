@@ -21,17 +21,17 @@ export interface ParameterRowData extends ParameterDialogData {
 }
 
 const CATEGORY_LABELS: Record<string, string> = {
-  PROCESS_TIME: "Prozesszeiten",
-  CURING: "Aushärtung",
-  DRYING: "Trocknung",
-  MATERIAL: "Material-Multiplikatoren",
-  COMPLEXITY: "Komplexitätsfaktoren",
-  PRICING_RATE: "Stundensätze",
-  PRICING_SURCHARGE: "Zuschläge & Pauschalen",
-  SCHEDULER: "Scheduler-Parameter",
-  TAX: "MwSt-Sätze",
-  WORKING_HOURS: "Arbeitszeit",
-  OTHER: "Sonstiges",
+  PROCESS_TIME: "Process times",
+  CURING: "Curing",
+  DRYING: "Drying",
+  MATERIAL: "Material multipliers",
+  COMPLEXITY: "Complexity factors",
+  PRICING_RATE: "Hourly rates",
+  PRICING_SURCHARGE: "Surcharges & flat fees",
+  SCHEDULER: "Scheduler parameters",
+  TAX: "VAT rates",
+  WORKING_HOURS: "Working hours",
+  OTHER: "Other",
 };
 
 const ORDER = [
@@ -115,7 +115,7 @@ export function ParameterTable({
 
       <div className="flex flex-wrap items-center gap-1 border-b">
         <CategoryTab
-          label="Alle"
+          label="All"
           count={rows.length}
           active={activeCategory === "ALL"}
           onClick={() => setActiveCategory("ALL")}

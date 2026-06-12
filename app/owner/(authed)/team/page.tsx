@@ -21,8 +21,8 @@ const ROLE_BADGE: Record<string, string> = {
 
 export default async function OwnerTeamPage() {
   const ctx = await getOwnerContext();
-  // OWNER_ROOT-only Seite: andere Rolen werden auf das Dashboard
-  // umgeleitet. Die Sidebar versteckt den Link ohnehin schon.
+  // OWNER_ROOT-only page: other roles are redirected to the dashboard.
+  // The sidebar already hides the link.
   if (!ctx) redirect("/owner/login");
   if (ctx.role !== "OWNER_ROOT") redirect("/owner");
 
@@ -50,8 +50,8 @@ export default async function OwnerTeamPage() {
             Owner Team
           </h1>
           <p className="mt-1 text-sm text-habb-muted">
-            {owners.filter((o) => o.isActive).length} aktive Owner-Accounts ·{" "}
-            {owners.filter((o) => !o.isActive).length} deaktiviert
+            {owners.filter((o) => o.isActive).length} active owner accounts ·{" "}
+            {owners.filter((o) => !o.isActive).length} deactivated
           </p>
         </div>
         <CreateOwnerButton />
@@ -65,7 +65,7 @@ export default async function OwnerTeamPage() {
               <th className="px-5 py-3">Role</th>
               <th className="px-5 py-3">Status</th>
               <th className="px-5 py-3">Passkey</th>
-              <th className="px-5 py-3">Letzter Login</th>
+              <th className="px-5 py-3">Last Login</th>
               <th className="px-5 py-3 text-right">Action</th>
             </tr>
           </thead>
@@ -79,7 +79,7 @@ export default async function OwnerTeamPage() {
                       {o.name}
                       {isSelf && (
                         <span className="ml-2 text-[10px] uppercase tracking-wide text-habb-muted">
-                          (Du)
+                          (You)
                         </span>
                       )}
                     </div>
@@ -100,7 +100,7 @@ export default async function OwnerTeamPage() {
                         <ShieldCheck className="h-3.5 w-3.5" />Active</span>
                     ) : (
                       <span className="inline-flex items-center gap-1 text-habb-muted text-xs">
-                        <ShieldOff className="h-3.5 w-3.5" /> Deaktiviert
+                        <ShieldOff className="h-3.5 w-3.5" /> Deactivated
                       </span>
                     )}
                   </td>
@@ -109,10 +109,10 @@ export default async function OwnerTeamPage() {
                       <span className="inline-flex items-center gap-1">
                         <KeySquare className="h-3 w-3" />
                         {o._count.webauthnCredentials}{" "}
-                        {o._count.webauthnCredentials === 1 ? "Schlüssel" : "Schlüssel"}
+                        {o._count.webauthnCredentials === 1 ? "key" : "keys"}
                       </span>
                     ) : (
-                      <span className="text-habb-warning">noch nicht registriert</span>
+                      <span className="text-habb-warning">not yet registered</span>
                     )}
                   </td>
                   <td className="px-5 py-3 text-xs text-habb-muted">
@@ -123,7 +123,7 @@ export default async function OwnerTeamPage() {
                   <td className="px-5 py-3 text-right">
                     {isSelf ? (
                       <span className="text-xs text-habb-muted">
-                        Eigene Actionen unter &bdquo;My Profile&ldquo;
+                        Own actions under &bdquo;My Profile&ldquo;
                       </span>
                     ) : (
                       <OwnerTeamActions
@@ -146,9 +146,9 @@ export default async function OwnerTeamPage() {
       </div>
 
       <p className="text-xs text-habb-muted">
-        Owner-Account-Verwaltung ist ausschließlich OWNER_ROOT erlaubt. Jede
-        Action (Anlegen, Rolen-Wechsel, Deactivate, 2FA zurücksetzen)
-        verlangt Sudo + Begründung und wird im Audit Log eingetragen.
+        Owner account management is exclusively allowed for OWNER_ROOT. Every
+        action (create, role change, deactivate, 2FA reset)
+        requires sudo + reason and is logged in the audit log.
       </p>
     </div>
   );

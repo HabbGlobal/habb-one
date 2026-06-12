@@ -33,12 +33,12 @@ export default async function TenantRolesPage({
   });
   if (!tenant) notFound();
 
-  // Aktuelle Matrix laden (Defaults ∪ DB-Overrides). Wichtig: HIER
-  // gezielt FÜR diesen Tenanten — nicht für die laufende Owner-Session.
+  // Load current matrix (Defaults ∪ DB overrides). Important: HERE
+  // specifically FOR this tenant — not for the running owner session.
   const matrix = await loadPermissionMatrix(tenant.id);
 
-  // Override-Zeilen separat laden für die "abweichend"-Markierung +
-  // Header-Badge.
+  // Load override rows separately for the "deviating" marker +
+  // header badge.
   const overrideRows = await prisma.rolePermission.findMany({
     where: { companyId: tenant.id },
     select: { role: true, permission: true, allowed: true },
@@ -71,7 +71,7 @@ export default async function TenantRolesPage({
     }
   }
 
-  // Anzahl User mit eigenen Overrides (für Hinweis-Karte).
+  // Number of users with their own overrides (for info card).
   const usersWithOverrides = await prisma.userPermission.groupBy({
     by: ["userId"],
     where: { companyId: tenant.id },
@@ -85,21 +85,21 @@ export default async function TenantRolesPage({
           <ShieldCheck className="h-6 w-6 text-habb-ink" />
         </div>
         <div>
-          <h2 className="text-lg font-semibold">Rolen &amp; Rechte</h2>
+          <h2 className="text-lg font-semibold">Roles &amp; Permissions</h2>
           <p className="text-sm text-muted-foreground mt-1 max-w-3xl">
-            Lege fest, welche Role bei <strong>{tenant.name}</strong> welche
-            Funktionen sehen und ausführen darf.
+            Define which role at <strong>{tenant.name}</strong> can see and
+            execute which functions.
             {" "}
-            <strong className="ml-0">Super-Admin</strong> hat immer alle Rechte
-            und ist hier nicht editierbar. Änderungen wirken sofort; angemeldete
-            User sehen sie nach dem nächsten Reload.
+            <strong className="ml-0">Super Admin</strong> always has all permissions
+            and is not editable here. Changes take effect immediately; logged-in
+            users see them after the next reload.
           </p>
         </div>
       </div>
 
       <Card>
         <CardHeader>
-          <CardTitle className="text-base">Rolen-Overview</CardTitle>
+          <CardTitle className="text-base">Roles Overview</CardTitle>
         </CardHeader>
         <CardContent>
           <ul className="grid grid-cols-1 md:grid-cols-2 gap-3 text-sm">
@@ -115,7 +115,7 @@ export default async function TenantRolesPage({
                   <span>{ROLE_LABELS_DE[r]}</span>
                   {overridesPerRole[r] > 0 && (
                     <span className="text-[10px] uppercase tracking-wider rounded-full bg-amber-100 text-amber-900 px-2 py-0.5">
-                      angepasst
+                      customized
                     </span>
                   )}
                 </div>
@@ -138,24 +138,24 @@ export default async function TenantRolesPage({
       <Card>
         <CardHeader>
           <CardTitle className="text-base flex items-center gap-2">
-            <Users className="h-4 w-4" /> Per-User-Rechte
+            <Users className="h-4 w-4" /> Per-User Permissions
           </CardTitle>
         </CardHeader>
         <CardContent>
           <p className="text-sm text-muted-foreground mb-3">
-            Einzelne User können von der Rolen-Matrix abweichen — zusätzliche
-            Rechte erhalten oder welche entzogen bekommen. Verwaltung pro User
-            auf der Tab <Link href={`/owner/tenants/${tenant.id}/users`} className="underline">User</Link>.
+            Individual users can deviate from the role matrix — receive additional
+            permissions or have some revoked. Management per user
+            on the <Link href={`/owner/tenants/${tenant.id}/users`} className="underline">User</Link> tab.
           </p>
           <div className="text-xs text-muted-foreground">
-            Aktuell mit individuellen Overrides:{" "}
-            <strong>{usersWithOverrides.length}</strong> User
+            Currently with individual overrides:{" "}
+            <strong>{usersWithOverrides.length}</strong> users
           </div>
           <Link
             href={`/owner/tenants/${tenant.id}/users`}
             className="mt-3 inline-flex items-center gap-1 rounded-md border border-habb-line bg-white px-3 py-1.5 text-xs font-medium text-habb-ink hover:bg-habb-paper"
           >
-            Zu den Usern
+            Go to users
             <ChevronRight className="h-3 w-3" />
           </Link>
         </CardContent>

@@ -1,13 +1,12 @@
 "use client";
 
-// Banner an der Sheet-Page, wenn der Mitarbeiter aktuell live
-// eingestempelt ist. Bietet ZWEI Wege zum Ausstempeln (damit der
-// nachfolgende Edit erlaubt wird):
-//   1. PIN-Pad inline → ruft /api/admin/employees/[id]/clock-out-via-pin
-//   2. Admin-Override mit Pflicht-Grund → Server-Action `forceClockOut`
+// Banner on the sheet page when the employee is currently clocked in
+// live. Offers TWO ways to clock out (so the subsequent edit is allowed):
+//   1. PIN pad inline → calls /api/admin/employees/[id]/clock-out-via-pin
+//   2. Admin override with mandatory reason → server action `forceClockOut`
 //
-// Sobald der Aufruf erfolgreich war, `onCleared()` aufrufen — der Parent
-// reloaded dann via router.refresh() und der Live-Status ist weg.
+// Once the call succeeds, call `onCleared()` — the parent then reloads
+// via router.refresh() and the live status is gone.
 
 import { useState, useTransition } from "react";
 import { AlertCircle, KeyRound, ShieldAlert } from "lucide-react";
@@ -48,7 +47,7 @@ export function LiveLockBanner({
     return (
       <Card className="border-habb-success/40 bg-habb-success/5">
         <CardContent className="p-4 text-sm text-habb-success">
-          {success} — die Bearbeitung des heutigen Tags ist jetzt freigegeben.
+          {success} — editing of today is now unlocked.
         </CardContent>
       </Card>
     );
@@ -61,12 +60,12 @@ export function LiveLockBanner({
           <AlertCircle className="mt-0.5 h-5 w-5 shrink-0 text-habb-warning" />
           <div className="space-y-1">
             <p className="font-semibold">
-              {employeeName} ist gerade {status === "ON_BREAK" ? "in der Pause" : "eingestempelt"}
-              {sinceLabel ? ` seit ${sinceLabel}` : ""}.
+              {employeeName} is currently {status === "ON_BREAK" ? "on break" : "clocked in"}
+              {sinceLabel ? ` since ${sinceLabel}` : ""}.
             </p>
             <p className="text-habb-muted">
-              Manuelle Bearbeitung des heutigen Tags würde die laufende
-              Erfassung beschädigen. Bitte zuerst regulär ausstempeln:
+              Manual editing of today would damage the running
+              time recording. Please clock out regularly first:
             </p>
           </div>
         </div>
@@ -75,11 +74,11 @@ export function LiveLockBanner({
           <div className="flex flex-wrap gap-2 pl-8">
             <Button onClick={() => setMode("pin")} size="sm">
               <KeyRound className="mr-1.5 h-4 w-4" />
-              Über Kiosk-PIN ausstempeln
+              Clock out via kiosk PIN
             </Button>
             <Button onClick={() => setMode("override")} size="sm" variant="outline">
               <ShieldAlert className="mr-1.5 h-4 w-4" />
-              Admin-Override (ohne PIN)
+              Admin override (without PIN)
             </Button>
           </div>
         )}
@@ -88,7 +87,7 @@ export function LiveLockBanner({
           <PinPad
             employeeId={employeeId}
             onSuccess={() => {
-              setSuccess(`${employeeName} wurde via PIN ausgestempelt`);
+              setSuccess(`${employeeName} was clocked out via PIN`);
               onCleared();
             }}
             onCancel={() => setMode("menu")}
@@ -100,7 +99,7 @@ export function LiveLockBanner({
             employeeId={employeeId}
             employeeName={employeeName}
             onSuccess={() => {
-              setSuccess(`${employeeName} wurde per Admin-Override ausgestempelt`);
+              setSuccess(`${employeeName} was clocked out via admin override`);
               onCleared();
             }}
             onCancel={() => setMode("menu")}
@@ -112,7 +111,7 @@ export function LiveLockBanner({
 }
 
 // ─────────────────────────────────────────
-// PIN-Pad — 4 Stellen, send-on-complete
+// PIN Pad — 4 digits, send-on-complete
 // ─────────────────────────────────────────
 
 function PinPad({
@@ -170,8 +169,8 @@ function PinPad({
   return (
     <div className="ml-8 space-y-3 rounded-lg border border-habb-line bg-white p-4">
       <p className="text-xs text-habb-muted">
-        Mitarbeiter-PIN (4 Ziffern). Wird wie am Kiosk verifiziert + danach
-        regulär ausgestempelt.
+        Employee PIN (4 digits). Verified as on the kiosk + then
+        clocked out regularly.
       </p>
 
       <div className="flex justify-center gap-2">
@@ -227,7 +226,7 @@ function PinPad({
 
       <div className="flex justify-end gap-2">
         <Button variant="ghost" size="sm" onClick={onCancel} disabled={pending}>Cancel</Button>
-        {pending && <span className="text-xs text-habb-muted">Prüfe PIN …</span>}
+        {pending && <span className="text-xs text-habb-muted">Checking PIN…</span>}
       </div>
     </div>
   );
@@ -236,26 +235,26 @@ function PinPad({
 function translatePinError(code: string): string {
   switch (code) {
     case "INVALID":
-      return "PIN ungültig.";
+      return "Invalid PIN.";
     case "LOCKED":
-      return "PIN-Eingabe gesperrt (5 Min Sperre nach 5 Fehlversuchen).";
+      return "PIN entry locked (5 min lockout after 5 failed attempts).";
     case "INACTIVE":
-      return "Mitarbeiter ist nicht aktiv.";
+      return "Employee is not active.";
     case "NOT_CLOCKED_IN":
-      return "Mitarbeiter ist nicht (mehr) eingestempelt — Reload.";
+      return "Employee is not (anymore) clocked in — reload.";
     case "FORBIDDEN":
-      return "Keine Berechtigung.";
+      return "No permission.";
     case "UNAUTH":
-      return "Session abgelaufen — bitte neu anmelden.";
+      return "Session expired — please log in again.";
     case "NOT_FOUND":
-      return "Mitarbeiter nicht gefunden.";
+      return "Employee not found.";
     default:
-      return "Aktion fehlgeschlagen.";
+      return "Action failed.";
   }
 }
 
 // ─────────────────────────────────────────
-// Override-Form mit Pflicht-Grund
+// Override form with mandatory reason
 // ─────────────────────────────────────────
 
 function OverrideForm({
@@ -276,7 +275,7 @@ function OverrideForm({
   const submit = (e: React.FormEvent) => {
     e.preventDefault();
     if (reason.trim().length < 5) {
-      setError("Grund (mind. 5 Zeichen) erforderlich.");
+      setError("Reason (at least 5 characters) required.");
       return;
     }
     setError(null);
@@ -289,7 +288,7 @@ function OverrideForm({
         }
         onSuccess();
       } catch (err) {
-        setError(err instanceof Error ? err.message : "Override fehlgeschlagen.");
+        setError(err instanceof Error ? err.message : "Override failed.");
       }
     });
   };
@@ -301,13 +300,13 @@ function OverrideForm({
     >
       <div className="space-y-1">
         <Label htmlFor="override-reason">
-          Grund (Pflicht — wird im Audit-Log gespeichert)
+          Reason (mandatory — stored in audit log)
         </Label>
         <Input
           id="override-reason"
           value={reason}
           onChange={(e) => setReason(e.target.value)}
-          placeholder={`z. B. "${employeeName} hat schon den Betrieb verlassen"`}
+          placeholder={`e.g. "${employeeName} has already left the premises"`}
           maxLength={500}
           required
         />
@@ -320,15 +319,15 @@ function OverrideForm({
       )}
 
       <p className="text-xs text-habb-muted">
-        Über Admin-Override wird der Mitarbeiter als ausgestempelt markiert,
-        ohne dass PIN nötig ist. Im Audit-Log erscheint dein Name + der
-        angegebene Grund. Nutze das nur, wenn der PIN nicht zur Hand ist.
+        Via admin override the employee will be marked as clocked out
+        without requiring a PIN. Your name + the stated reason will appear
+        in the audit log. Only use this when the PIN is not at hand.
       </p>
 
       <div className="flex justify-end gap-2">
         <Button type="button" variant="ghost" size="sm" onClick={onCancel} disabled={pending}>Cancel</Button>
         <Button type="submit" size="sm" disabled={pending}>
-          {pending ? "Ausstempel …" : "Jetzt ausstempeln"}
+          {pending ? "Clocking out…" : "Clock out now"}
         </Button>
       </div>
     </form>

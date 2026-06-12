@@ -11,7 +11,7 @@ export default async function OwnerLoginPage() {
     <OwnerAuthShell
       currentStep={1}
       title="Sign in"
-      subtitle="Email und Passwort. Anschliessend Passkey-Bestätigung."
+      subtitle="Email and password. Then passkey verification."
     >
       <PasswordForm />
     </OwnerAuthShell>

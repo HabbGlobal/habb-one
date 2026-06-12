@@ -27,7 +27,7 @@ export function AbsenceList({ rows, view }: { rows: AbsenceRow[]; view: Lifecycl
   const columns: ColumnDef<AbsenceRow>[] = [
     { header: "Name", cell: (a) => a.employeeName },
     {
-      header: "Typ",
+      header: "Type",
       cell: (a) => (
         <span className="inline-flex items-center gap-2">
           <span style={{ color: a.typeColor }}>●</span> {a.typeLabel}

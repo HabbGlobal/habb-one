@@ -143,17 +143,17 @@ export function ScheduleToolbar({
       </div>
 
       <Button asChild variant="outline" size="sm">
-        <Link href={prevHref} aria-label={view === "week" ? "Vorwoche" : "Vormonat"}>
+        <Link href={prevHref} aria-label={view === "week" ? "Previous week" : "Previous month"}>
           <ChevronLeft className="h-4 w-4" />
         </Link>
       </Button>
       <Button asChild variant="outline" size="sm">
         <Link href={todayHref}>
-          {view === "week" ? "Aktuelle Woche" : "Aktueller Monat"}
+          {view === "week" ? "Current week" : "Current month"}
         </Link>
       </Button>
       <Button asChild variant="outline" size="sm">
-        <Link href={nextHref} aria-label={view === "week" ? "Folgewoche" : "Folgemonat"}>
+        <Link href={nextHref} aria-label={view === "week" ? "Next week" : "Next month"}>
           <ChevronRight className="h-4 w-4" />
         </Link>
       </Button>
@@ -163,9 +163,9 @@ export function ScheduleToolbar({
           value={currentArea ?? "all"}
           onChange={(e) => onAreaChange(e.target.value)}
           className="w-44 ml-2"
-          aria-label="Bereich filtern"
+          aria-label="Filter area"
         >
-          <option value="all">Alle Bereiche</option>
+          <option value="all">All areas</option>
           {areas.map((a) => (
             <option key={a.id} value={a.id}>
               {a.name}
@@ -199,20 +199,19 @@ export function ScheduleToolbar({
         size="sm"
         disabled={pending}
         onClick={() => {
-          if (!confirm(`Vormonat (${prevMonth}/${prevYear}) als Vorlage übernehmen? Bestehende Einträge bleiben.`)) return;
+          if (!confirm(`Copy from previous month (${prevMonth}/${prevYear}) as template? Existing entries remain.`)) return;
           start(async () => {
             try {
               const res = await copyFromPreviousMonth(year, month);
-              alert(`${res.created} Einträge übernommen.`);
+              alert(`${res.created} entries copied.`);
               router.refresh();
             } catch (err) {
-              alert(err instanceof Error ? err.message : "Fehler");
+              alert(err instanceof Error ? err.message : "Error");
             }
           });
         }}
       >
-        <Copy className="mr-2 h-4 w-4" />
-        Vormonat kopieren
+        <Copy className="mr-2 h-4 w-4" />Copy previous month
       </Button>
 
       <BulkDeleteMenu
@@ -245,19 +244,19 @@ export function ScheduleToolbar({
               });
               return;
             }
-            if (!confirm(`Planung ${month}/${year} veröffentlichen? Mitarbeitende sehen sie danach.`)) return;
+            if (!confirm(`Publish planning ${month}/${year}? Employees will see it afterwards.`)) return;
             start(async () => {
               try {
                 await publishScheduleMonth(monthId);
                 router.refresh();
               } catch (err) {
-                alert(err instanceof Error ? err.message : "Fehler");
+                alert(err instanceof Error ? err.message : "Error");
               }
             });
           }}
         >
           <Send className="mr-2 h-4 w-4" />
-          {status === "CHANGED_AFTER_PUBLISHING" ? "Erneut veröffentlichen" : "Veröffentlichen"}
+          {status === "CHANGED_AFTER_PUBLISHING" ? "Publish again" : "Publish"}
         </Button>
       )}
 
@@ -267,19 +266,19 @@ export function ScheduleToolbar({
           size="sm"
           disabled={pending}
           onClick={() => {
-            if (!confirm("Zurück zum Entwurf? Mitarbeitende sehen die Planung dann nicht mehr.")) return;
+            if (!confirm("Revert to draft? Employees will no longer see the planning.")) return;
             start(async () => {
               try {
                 await revertToDraft(monthId);
                 router.refresh();
               } catch (err) {
-                alert(err instanceof Error ? err.message : "Fehler");
+                alert(err instanceof Error ? err.message : "Error");
               }
             });
           }}
         >
           <Undo2 className="mr-2 h-4 w-4" />
-          Auf Entwurf
+          Revert to draft
         </Button>
       )}
     </div>

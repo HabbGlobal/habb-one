@@ -8,8 +8,8 @@ export const dynamic = "force-dynamic";
 const PAGE_SIZE = 50;
 
 /**
- * Globaler Owner-Audit Log mit serverseitiger Filterung über URL-Parameter.
- * Append-only: jeder Lookup ist read-only — keine Mutationen hier.
+ * Global owner audit log with server-side filtering via URL parameters.
+ * Append-only: every lookup is read-only — no mutations here.
  */
 export default async function AuditLogPage({
   searchParams,
@@ -74,24 +74,24 @@ export default async function AuditLogPage({
           Audit Log
         </h1>
         <p className="mt-1 text-sm text-habb-muted">
-          {total.toLocaleString("de-CH")} entries gesamt · Seite {pageNum} von{" "}
+          {total.toLocaleString("de-CH")} total entries · Page {pageNum} of{" "}
           {totalPages.toLocaleString("de-CH")}
         </p>
       </header>
 
-      {/* Filter-Bar als GET-Form, damit die URL die einzige Source of Truth bleibt */}
+      {/* Filter bar as GET form so the URL remains the single source of truth */}
       <form
         method="get"
         className="rounded-lg border border-habb-line bg-white p-4 grid grid-cols-1 gap-3 md:grid-cols-5 md:items-end"
       >
         <label className="space-y-1 text-xs">
-          <span className="block uppercase tracking-wide text-habb-muted">Action</span>
+          <span className="block uppercase tracking-wide text-habb-muted">All</span>
           <select
             name="action"
             defaultValue={sp.action ?? ""}
             className="w-full rounded-md border border-habb-line bg-white px-2 py-1.5 text-sm"
           >
-            <option value="">Alle</option>
+            <option value="">All</option>
             {knownActions.map((a) => (
               <option key={a} value={a}>
                 {a}
@@ -104,7 +104,7 @@ export default async function AuditLogPage({
           <input
             name="owner"
             defaultValue={sp.owner ?? ""}
-            placeholder="z.B. atavin@"
+            placeholder="e.g. atavin@"
             className="w-full rounded-md border border-habb-line bg-white px-2 py-1.5 text-sm"
           />
         </label>
@@ -113,12 +113,12 @@ export default async function AuditLogPage({
           <input
             name="tenant"
             defaultValue={sp.tenant ?? ""}
-            placeholder="Name oder ID"
+            placeholder="Name or ID"
             className="w-full rounded-md border border-habb-line bg-white px-2 py-1.5 text-sm"
           />
         </label>
         <label className="space-y-1 text-xs">
-          <span className="block uppercase tracking-wide text-habb-muted">Von</span>
+          <span className="block uppercase tracking-wide text-habb-muted">From</span>
           <input
             type="date"
             name="from"
@@ -127,7 +127,7 @@ export default async function AuditLogPage({
           />
         </label>
         <label className="space-y-1 text-xs">
-          <span className="block uppercase tracking-wide text-habb-muted">Bis</span>
+          <span className="block uppercase tracking-wide text-habb-muted">To</span>
           <input
             type="date"
             name="to"
@@ -141,14 +141,14 @@ export default async function AuditLogPage({
               href="/owner/audit"
               className="rounded-md border border-habb-line bg-white px-3 py-1.5 text-xs font-medium text-habb-muted hover:text-habb-ink"
             >
-              Zurücksetzen
+              Reset
             </Link>
           )}
           <button
             type="submit"
             className="rounded-md bg-habb-black px-4 py-1.5 text-xs font-medium text-white hover:bg-habb-ink"
           >
-            Filter anwenden
+            Apply filter
           </button>
         </div>
       </form>
@@ -156,7 +156,7 @@ export default async function AuditLogPage({
       <section className="rounded-lg border border-habb-line bg-white">
         {events.length === 0 ? (
           <p className="px-5 py-16 text-center text-sm text-habb-muted">
-            Keine entries für die aktuelle Auswahl.
+            No entries for the current selection.
           </p>
         ) : (
           <ul className="divide-y divide-habb-line">
@@ -207,10 +207,10 @@ export default async function AuditLogPage({
           <footer className="flex items-center justify-between border-t border-habb-line px-5 py-3 text-sm">
             <PageLink sp={sp} target={pageNum - 1} disabled={pageNum <= 1}>← Back</PageLink>
             <span className="text-xs text-habb-muted">
-              Seite {pageNum} von {totalPages}
+              Page {pageNum} of {totalPages}
             </span>
             <PageLink sp={sp} target={pageNum + 1} disabled={pageNum >= totalPages}>
-              Weiter →
+              Next →
             </PageLink>
           </footer>
         )}
@@ -220,9 +220,9 @@ export default async function AuditLogPage({
 }
 
 function isAuditAction(v: string): v is OwnerAuditAction {
-  // Whitelist via known actions — wir vertrauen dem URL-Param nicht blind.
-  // Da der Filter aus der Distinct-Query mit dem Schema validiert wird,
-  // reicht hier die String-Form, Prisma validiert serverseitig.
+  // Whitelist via known actions — we don't blindly trust the URL param.
+  // Since the filter comes from the distinct query validated with the schema,
+  // the string form suffices here; Prisma validates server-side.
   return /^[A-Z_]+$/.test(v);
 }
 

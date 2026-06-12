@@ -1,9 +1,9 @@
-// Werkstatt-Laufzettel: Eine Seite (A4) pro Auftrag mit allen Prozessschritten
-// und einem echten QR-Code pro Schritt. Mitarbeiter:innen scannen mit dem
-// Handy → öffnet `/scan/<stepId>`.
+// Workshop traveler: One page (A4) per order with all process steps
+// and a real QR code per step. Employees scan with their phone
+// → opens `/scan/<stepId>`.
 //
-// Ziel-Zielgruppe: Werkstatt — robust, gross gedruckt, klare Struktur. Wird
-// zusammen mit dem Werkstück auf dem Werkstatt-Wagen mitgeführt.
+// Target audience: Workshop — robust, large print, clear structure. Travels
+// together with the workpiece on the workshop cart.
 
 import { PDFDocument, StandardFonts, rgb, type PDFFont, type PDFPage } from "pdf-lib";
 import QRCode from "qrcode";
@@ -29,8 +29,8 @@ interface BuildArgs {
     logoMimeType?: string | null;
   };
   order: OrderDetailDTO;
-  /** Basis-URL der App (z. B. "https://one.HABB Global (PVT) LTD") — Scan-Link wird zu
-   *  `<base>/scan/<stepId>`. Falls nicht gesetzt, fällt auf relative URL zurück. */
+  /** Base URL of the app (e.g. "https://one.HABB Global (PVT) LTD") — Scan link becomes
+   *  `<base>/scan/<stepId>`. If not set, falls back to relative URL. */
   appBaseUrl?: string;
 }
 
@@ -53,7 +53,7 @@ function fmtMin(n: number): string {
 
 /**
  * Generates a QR-PNG (Buffer) for the given URL.
- * QRCode-Lib produziert ein PNG-Buffer das pdf-lib direkt einbetten kann.
+ * QRCode lib produces a PNG Buffer that pdf-lib can embed directly.
  */
 async function generateQrPng(url: string, sizePx: number): Promise<Buffer> {
   return QRCode.toBuffer(url, {
@@ -79,7 +79,7 @@ export async function travelerPdf(args: BuildArgs): Promise<Uint8Array> {
   if (logo) drawCompanyLogoTopRight(page, logo);
   let y = drawHeader(page, font, fontBold, company, order);
 
-  // Alle Schritte aller Positionen einsammeln
+  // Collect all steps from all items
   const steps: Array<{
     stepId: string;
     label: string;
@@ -117,7 +117,7 @@ export async function travelerPdf(args: BuildArgs): Promise<Uint8Array> {
     }
   }
 
-  // QR-Codes vorab parallel generieren (sonst dauert's bei vielen Schritten).
+  // Pre-generate QR codes in parallel (otherwise slow with many steps).
   const qrSize = 110;
   const qrPngs = await Promise.all(
     steps.map((s) => generateQrPng(`${appBaseUrl}/scan/${s.stepId}`, qrSize * 4)),
@@ -137,7 +137,7 @@ export async function travelerPdf(args: BuildArgs): Promise<Uint8Array> {
       y = drawHeader(page, font, fontBold, company, order, /*continuation*/ true);
     }
 
-    // Item-Trenner wenn neue Position beginnt
+    // Item separator when a new position starts
     if (s.itemPos !== currentItemPos) {
       currentItemPos = s.itemPos;
       page.drawText(safe(`Pos. ${s.itemPos} - ${s.itemDesc}`), {
@@ -169,7 +169,7 @@ export async function travelerPdf(args: BuildArgs): Promise<Uint8Array> {
       y -= 10;
     }
 
-    // QR-Code rechts
+    // QR code right
     const qrImage = await doc.embedPng(qrPngs[i]);
     page.drawImage(qrImage, {
       x: QR_X,
@@ -178,7 +178,7 @@ export async function travelerPdf(args: BuildArgs): Promise<Uint8Array> {
       height: qrSize,
     });
 
-    // Step-Inhalt links
+    // Step content left
     const stepTop = y;
     page.drawText(safe(`${s.sequence}.  ${s.label}`), {
       x: CONTENT_X,
@@ -186,28 +186,28 @@ export async function travelerPdf(args: BuildArgs): Promise<Uint8Array> {
       size: 14,
       font: fontBold,
     });
-    page.drawText(safe(`Maschine: ${s.machineLabel}`), {
+    page.drawText(safe(`Machine: ${s.machineLabel}`), {
       x: CONTENT_X,
       y: stepTop - 18,
       size: 9,
       font,
       color: rgb(0.3, 0.3, 0.3),
     });
-    page.drawText(safe(`Mitarbeiter:in: ${s.skillLabel}`), {
+    page.drawText(safe(`Worker: ${s.skillLabel}`), {
       x: CONTENT_X,
       y: stepTop - 30,
       size: 9,
       font,
       color: rgb(0.3, 0.3, 0.3),
     });
-    page.drawText(safe(`Geschätzt: ${fmtMin(s.estimatedMinutes)}`), {
+    page.drawText(safe(`Estimated: ${fmtMin(s.estimatedMinutes)}`), {
       x: CONTENT_X,
       y: stepTop - 46,
       size: 10,
       font: fontBold,
     });
     if (s.actualMinutes != null) {
-      page.drawText(safe(`Ist: ${fmtMin(s.actualMinutes)}`), {
+      page.drawText(safe(`Actual: ${fmtMin(s.actualMinutes)}`), {
         x: CONTENT_X + 130,
         y: stepTop - 46,
         size: 10,
@@ -223,8 +223,8 @@ export async function travelerPdf(args: BuildArgs): Promise<Uint8Array> {
       color: rgb(0.4, 0.4, 0.4),
     });
 
-    // Hinweis-Text neben QR
-    page.drawText(safe("Mit Handy scannen"), {
+    // Note text next to QR
+    page.drawText(safe("Scan with phone"), {
       x: QR_X + 4,
       y: y - qrSize - 2,
       size: 7,
@@ -235,12 +235,12 @@ export async function travelerPdf(args: BuildArgs): Promise<Uint8Array> {
     y -= ROW_HEIGHT;
   }
 
-  // Fußzeile
+  // Footer
   page.drawText(
     safe(
-      "Werkstatt-Laufzettel — bitte mit dem Werkstück mitführen. " +
-      "Beim Beginn jedes Schritts: QR scannen -> Starten. " +
-      "Beim Beenden: QR scannen -> Beenden.",
+      "Workshop traveler — please keep with the workpiece. " +
+      "At the start of each step: scan QR -> Start. " +
+      "When finishing: scan QR -> Complete.",
     ),
     {
       x: 40,
@@ -269,7 +269,7 @@ function drawHeader(
     size: 12,
     font: fontBold,
   });
-  page.drawText(safe("Werkstatt-Laufzettel" + (continuation ? " (Fortsetzung)" : "")), {
+  page.drawText(safe("Workshop Traveler" + (continuation ? " (continued)" : "")), {
     x: 40,
     y: height - 60,
     size: 18,
@@ -281,7 +281,7 @@ function drawHeader(
     size: 14,
     font: fontBold,
   });
-  // Customer-Name auf 35 Zeichen kürzen damit's in den Header passt.
+  // Customer name truncated to 35 chars to fit in the header.
   const custName = order.customerDisplayName.length > 35
     ? order.customerDisplayName.slice(0, 33) + "…"
     : order.customerDisplayName;
@@ -292,7 +292,7 @@ function drawHeader(
     font,
     color: rgb(0.4, 0.4, 0.4),
   });
-  page.drawText(safe(`Liefertermin: ${fmtDate(order.promisedAt)}`), {
+  page.drawText(safe(`Delivery date: ${fmtDate(order.promisedAt)}`), {
     x: width - 200,
     y: height - 70,
     size: 9,

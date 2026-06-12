@@ -9,10 +9,10 @@ export const dynamic = "force-dynamic";
 
 const TABS = [
   { href: "", label: "Overview" },
-  { href: "/modules", label: "Module" },
-  { href: "/roles", label: "Rolen & Rechte" },
+  { href: "/modules", label: "Modules" },
+  { href: "/roles", label: "Roles & Permissions" },
   { href: "/users", label: "User" },
-  { href: "/activity", label: "Aktivität" },
+  { href: "/activity", label: "Activity" },
   { href: "/billing", label: "Billing" },
   { href: "/audit", label: "Audit" },
   { href: "/support", label: "Support" },
@@ -48,7 +48,7 @@ export default async function TenantDetailLayout({
           className="inline-flex items-center gap-1 text-xs text-habb-muted hover:text-habb-ink"
         >
           <ChevronLeft className="h-3 w-3" />
-          Tenanten-Liste
+          Tenant list
         </Link>
 
         <div className="mt-3 flex flex-wrap items-start justify-between gap-4">
@@ -62,7 +62,7 @@ export default async function TenantDetailLayout({
                 {tenant.country}
               </span>
               <span>·</span>
-              <span>seit {tenant.createdAt.toLocaleDateString("de-CH")}</span>
+              <span>since {tenant.createdAt.toLocaleDateString("de-CH")}</span>
             </div>
             <div className="mt-3 flex flex-wrap items-center gap-2">
               <PlanBadge plan={tenant.plan} />
@@ -70,7 +70,7 @@ export default async function TenantDetailLayout({
                 href={`/owner/tenants/${tenant.id}/modules`}
                 className="text-[11px] text-habb-muted underline-offset-2 hover:text-habb-ink hover:underline"
               >
-                Plan & Module ändern →
+                Change plan & modules →
               </Link>
               <TenantStatusBadge suspendedAt={tenant.suspendedAt} />
             </div>

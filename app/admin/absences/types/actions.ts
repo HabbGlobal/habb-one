@@ -198,7 +198,7 @@ export async function archiveAbsenceType(id: string) {
     action: "UPDATE",
     entityType: "AbsenceType",
     entityId: id,
-    reason: "Archiviert",
+    reason: "Archived",
     oldValue: { archivedAt: null, isActive: before.isActive },
     newValue: { archivedAt: new Date().toISOString(), isActive: false },
   });

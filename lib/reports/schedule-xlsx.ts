@@ -1,7 +1,7 @@
 // Excel export for schedule plans, formatted with ExcelJS.
 // Two sheets:
-//   - "Plan"      → employees × days matrix with shift labels, area-coloured
-//   - "Bereiche"  → area × days view (employee initials per cell)
+//   - "Plan"   → employees × days matrix with shift labels, area-coloured
+//   - "Areas"  → area × days view (employee initials per cell)
 // Both sheets use frozen panes, bold headers, weekend / holiday tints, and
 // thin borders so the file looks polished on first open.
 
@@ -63,7 +63,7 @@ function buildPlanSheet(
     3,
     totalCols,
     [
-      `Status: ${report.status}    Erstellt: ${formatNow()}    Exportiert von: ${exportedBy}`,
+      `Status: ${report.status}    Created: ${formatNow()}    Exported by: ${exportedBy}`,
     ],
     { italic: true, size: 9, color: "FF6B7280" }
   );
@@ -97,7 +97,7 @@ function buildPlanSheet(
       `${emp.fullName}\n#${emp.number}`,
       ...report.days.map((d) => {
         const cell = report.cells.get(`${emp.id}|${d.date}`);
-        if (!cell) return d.isHoliday ? "Feiertag" : "";
+        if (!cell) return d.isHoliday ? "Holiday" : "";
         const label = cellLabel(cell);
         return cell.workAreaName ? `${label}\n${cell.workAreaName}` : label;
       }),
@@ -156,10 +156,10 @@ function buildPlanSheet(
 }
 
 // ─────────────────────────────────────────
-// Sheet 2 — "Bereiche" (area × days)
+// Sheet 2 — "Areas" (area × days)
 // ─────────────────────────────────────────
 function buildAreaSheet(wb: ExcelJS.Workbook, report: ScheduleReportData) {
-  const ws = wb.addWorksheet("Bereiche", {
+  const ws = wb.addWorksheet("Areas", {
     pageSetup: {
       paperSize: 9,
       orientation: "landscape",
@@ -170,7 +170,7 @@ function buildAreaSheet(wb: ExcelJS.Workbook, report: ScheduleReportData) {
   });
 
   const totalCols = 1 + report.days.length;
-  mergeRow(ws, 1, totalCols, [`Bereich-Übersicht ${report.range.label}`], {
+  mergeRow(ws, 1, totalCols, [`Area Overview ${report.range.label}`], {
     bold: true,
     size: 13,
   });
@@ -178,7 +178,7 @@ function buildAreaSheet(wb: ExcelJS.Workbook, report: ScheduleReportData) {
 
   const headerRow = ws.getRow(3);
   headerRow.values = [
-    "Bereich",
+    "Area",
     ...report.days.map((d) => `${d.weekdayLabel} ${d.dayLabel}`),
   ];
   headerRow.font = { bold: true, color: { argb: HEADER_FG } };
@@ -311,7 +311,7 @@ function typeColorArgb(type: string): string {
 }
 
 function formatNow(): string {
-  return new Date().toLocaleString("de-CH", {
+  return new Date().toLocaleString("en-GB", {
     timeZone: "Europe/Zurich",
     day: "2-digit",
     month: "2-digit",

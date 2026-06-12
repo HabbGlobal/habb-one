@@ -51,7 +51,7 @@ export function RegistrationActions({ companyId, companyName }: Props) {
         }
       }
       const json = await res.json().catch(() => ({}));
-      setError(json?.message || "Action fehlgeschlagen.");
+      setError(json?.message || "Action failed.");
       setPendingAction(null);
     });
   };
@@ -93,7 +93,7 @@ export function RegistrationActions({ companyId, companyName }: Props) {
           <div className="w-full max-w-md rounded-xl border border-habb-line bg-white shadow-xl">
             <header className="flex items-center justify-between border-b border-habb-line px-5 py-4">
               <h2 className="text-sm font-semibold text-habb-ink">
-                Registrierung von {companyName} ablehnen
+                Reject registration of {companyName}
               </h2>
               <button
                 onClick={() => setRejectOpen(false)}
@@ -107,7 +107,7 @@ export function RegistrationActions({ companyId, companyName }: Props) {
               onSubmit={(e) => {
                 e.preventDefault();
                 if (reason.trim().length < 10) {
-                  setError("Begründung muss mindestens 10 Zeichen lang sein.");
+                  setError("Reason must be at least 10 characters long.");
                   return;
                 }
                 run({ kind: "reject", reason });
@@ -122,7 +122,7 @@ export function RegistrationActions({ companyId, companyName }: Props) {
                 value={reason}
                 onChange={(e) => setReason(e.target.value)}
                 rows={4}
-                placeholder="z.B. Konnten die Identität nicht verifizieren — bitte mit Handelsregisterauszug erneut versuchen."
+                placeholder="e.g. Could not verify identity — please try again with a commercial register extract."
                 className="block w-full rounded-md border border-habb-line bg-white px-3 py-2 text-sm focus:border-habb-black focus:outline-none focus:ring-2 focus:ring-habb-red focus:ring-offset-1"
               />
               {error && (
@@ -162,8 +162,8 @@ export function RegistrationActions({ companyId, companyName }: Props) {
         }}
         actionLabel={
           pendingAction?.kind === "approve"
-            ? `${companyName} freigeben`
-            : `${companyName} ablehnen`
+            ? `Approve ${companyName}`
+            : `Reject ${companyName}`
         }
       />
     </>

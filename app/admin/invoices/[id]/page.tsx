@@ -127,8 +127,7 @@ export default async function InvoiceDetailPage({
             )}
             {dto.isOverdue && dto.status !== "OVERDUE" && (
               <Badge variant="destructive" className="gap-1">
-                <AlertTriangle className="h-3 w-3" /> überfällig
-              </Badge>
+                <AlertTriangle className="h-3 w-3" />overdue</Badge>
             )}
             {dto.reminderLevel > 0 && (
               <Badge variant="warning">Mahnung Stufe {dto.reminderLevel}</Badge>

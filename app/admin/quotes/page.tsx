@@ -18,10 +18,10 @@ const TABS: ReadonlyArray<{
   label: string;
   filter: Prisma.QuoteWhereInput;
 }> = [
-  { key: "open", label: "Offen", filter: { status: { in: ["DRAFT", "SENT"] as QuoteStatus[] } } },
-  { key: "accepted", label: "Angenommen", filter: { status: "ACCEPTED" } },
-  { key: "closed", label: "Abgeschlossen", filter: { status: { in: ["REJECTED", "EXPIRED"] as QuoteStatus[] } } },
-  { key: "all", label: "Alle", filter: {} },
+  { key: "open", label: "Open", filter: { status: { in: ["DRAFT", "SENT"] as QuoteStatus[] } } },
+  { key: "accepted", label: "Accepted", filter: { status: "ACCEPTED" } },
+  { key: "closed", label: "Closed", filter: { status: { in: ["REJECTED", "EXPIRED"] as QuoteStatus[] } } },
+  { key: "all", label: "All", filter: {} },
 ];
 
 export default async function QuotesPage({
@@ -73,14 +73,12 @@ export default async function QuotesPage({
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-semibold">Offerten</h1>
-          <p className="text-sm text-muted-foreground">
-            Angebote erstellen, versenden und in Aufträge umwandeln.
-          </p>
+          <h1 className="text-2xl font-semibold">Quotes</h1>
+          <p className="text-sm text-muted-foreground">Create, send and convert quotes into orders.</p>
         </div>
         {hasPermission(session.user.role, "quotes.write") && (
           <Button asChild>
-            <Link href="/admin/quotes/new">Neue Offerte</Link>
+            <Link href="/admin/quotes/new">New Quote</Link>
           </Button>
         )}
       </div>

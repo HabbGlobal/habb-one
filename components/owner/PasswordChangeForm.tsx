@@ -5,9 +5,9 @@ import { useRouter } from "next/navigation";
 import { Loader2, Check } from "lucide-react";
 
 /**
- * Self-Service-Formular, mit dem der eingeloggte Owner sein Passwort
- * ändert. Current-Password ist Pflicht (Schutz gegen Session-Hijack);
- * der Server verifiziert es nochmal serverseitig.
+ * Self-service form for the logged-in owner to change their password.
+ * Current password is required (protection against session hijack);
+ * the server verifies it again server-side.
  */
 export function PasswordChangeForm() {
   const router = useRouter();
@@ -26,11 +26,11 @@ export function PasswordChangeForm() {
     const confirmPassword = String(fd.get("confirmPassword") ?? "");
 
     if (newPassword.length < 12) {
-      setError("Neues Passwort muss mindestens 12 Zeichen lang sein.");
+      setError("New password must be at least 12 characters long.");
       return;
     }
     if (newPassword !== confirmPassword) {
-      setError("Neues Passwort und Bestätigung stimmen nicht überein.");
+      setError("New password and confirmation do not match.");
       return;
     }
 
@@ -45,10 +45,10 @@ export function PasswordChangeForm() {
         const data = await res.json().catch(() => ({}));
         setError(
           data?.error === "WRONG_PASSWORD"
-            ? "Current password ist falsch."
+            ? "Current password is wrong."
             : data?.error === "WEAK_PASSWORD"
-              ? "Neues Passwort ist zu schwach."
-              : "Ändern fehlgeschlagen. Bitte erneut versuchen.",
+              ? "New password is too weak."
+              : "Change failed. Please try again.",
         );
         return;
       }
@@ -67,14 +67,14 @@ export function PasswordChangeForm() {
         required
       />
       <Field
-        label="Neues Passwort"
+        label="New password"
         name="newPassword"
         autoComplete="new-password"
         required
-        hint="Mindestens 12 Zeichen — gerne länger und ohne Muster."
+        hint="At least 12 characters — longer and without patterns is better."
       />
       <Field
-        label="Neues Passwort bestätigen"
+        label="Confirm new password"
         name="confirmPassword"
         autoComplete="new-password"
         required

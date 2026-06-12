@@ -15,23 +15,23 @@ export function monthlyCsv(report: {
   employees: EmployeeMonthly[];
 }, exportedBy: string): string {
   const headerLines = [
-    `Firma;${csvEscape(report.company.name)}`,
-    `Zeitraum;${report.period.from} – ${report.period.to}`,
-    `Erstellungsdatum;${new Date().toISOString().slice(0, 16).replace("T", " ")}`,
-    `Exportiert von;${csvEscape(exportedBy)}`,
+    `Company;${csvEscape(report.company.name)}`,
+    `Period;${report.period.from} – ${report.period.to}`,
+    `Created at;${new Date().toISOString().slice(0, 16).replace("T", " ")}`,
+    `Exported by;${csvEscape(exportedBy)}`,
     "",
   ];
   const rowHeader = [
-    "Mitarbeiter-Nr",
+    "Employee No.",
     "Name",
     "Date",
-    "Wochentag",
-    "Soll (h)",
-    "Gearbeitet (h)",
-    "Pause (h)",
-    "Saldo (h)",
+    "Weekday",
+    "Target (h)",
+    "Worked (h)",
+    "Break (h)",
+    "Balance (h)",
     "Status",
-    "Hinweis",
+    "Note",
   ].join(";");
 
   const lines: string[] = [...headerLines, rowHeader];
@@ -47,7 +47,7 @@ export function monthlyCsv(report: {
           formatMin(d.workedMinutes),
           formatMin(d.breakMinutes),
           formatMin(d.balanceMinutes),
-          d.isOpen ? "OFFEN" : d.absence ? "ABS" : d.isHoliday ? "FEIERTAG" : "",
+          d.isOpen ? "OPEN" : d.absence ? "ABS" : d.isHoliday ? "HOLIDAY" : "",
           csvEscape(d.holidayName ?? d.absence?.labelDe ?? ""),
         ].join(";")
       );

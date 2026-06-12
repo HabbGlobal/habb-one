@@ -46,7 +46,7 @@ export function TemplateLifecycleActions({
             onClick={() =>
               run(
                 () => archiveTemplate(templateId),
-                "Vorlage archivieren? Sie ist danach im Wizard nicht mehr wählbar — bestehende Aufträge bleiben unverändert.",
+                "Archive template? It will no longer be selectable in the wizard — existing orders remain unchanged.",
               )
             }
             disabled={pending}
@@ -71,7 +71,7 @@ export function TemplateLifecycleActions({
             onClick={() =>
               run(
                 () => deleteTemplate(templateId),
-                "Vorlage in den Papierkorb verschieben? Bestehende Aufträge sind nicht betroffen.",
+                "Move template to trash? Existing orders are not affected.",
               )
             }
             disabled={pending}

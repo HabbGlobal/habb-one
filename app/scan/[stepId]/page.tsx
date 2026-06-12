@@ -1,15 +1,15 @@
-// Werkstatt-Scan-Page für QR-Erfassung am Handy.
+// Workshop scan page for QR capture on mobile.
 //
 // Flow:
-//   1) Mitarbeiter scant QR auf Werkstatt-Laufzettel mit der Kamera.
-//   2) Browser öffnet diese Seite.
-//   3) Seite zeigt aktuellen Schritt-State + verfügbare Aktionen
-//      (Starten / Pausieren / Fortsetzen / Beenden).
-//   4) Mitarbeiter tippt Aktion an, gibt EmployeeNr. + PIN ein, bestätigt.
-//   5) Server speichert Event, State-Update, Auto-Refresh holt neuen Stand.
+//   1) Employee scans QR on the workshop job traveler with the camera.
+//   2) Browser opens this page.
+//   3) Page shows current step state + available actions
+//      (Start / Pause / Resume / Complete).
+//   4) Employee taps an action, enters employee number + PIN, confirms.
+//   5) Server saves event, state update, auto-refresh fetches new state.
 //
-// Server-Component-Layer holt initialen State, Client-Component erlaubt
-// Interaktion + Polling.
+// Server component layer fetches initial state, client component allows
+// interaction + polling.
 
 import { notFound } from "next/navigation";
 import { getStepStatus } from "./actions";

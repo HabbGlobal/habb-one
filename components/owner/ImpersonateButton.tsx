@@ -25,10 +25,10 @@ interface ConsentInfo {
 const DURATION_OPTIONS = [15, 30, 60, 120, 240];
 
 /**
- * "Sign in as"-Button + zweistufiger Modal-Flow.
- *  Stufe 1: Reason + Scope + Dauer → POST /request → OTP geht an Kunde
- *  Stufe 2: Owner tippt OTP, den er vom Kunden persönlich erfragt
- *           POST /verify → Cookie wird gesetzt → Redirect nach /admin
+ * "Sign in as" button + two-stage modal flow.
+ *  Stage 1: Reason + Scope + Duration → POST /request → OTP is sent to customer
+ *  Stage 2: Owner enters OTP that they requested personally from the customer
+ *           POST /verify → Cookie is set → Redirect to /admin
  */
 export function ImpersonateButton({ user }: Props) {
   const router = useRouter();
@@ -59,7 +59,7 @@ export function ImpersonateButton({ user }: Props) {
 
   function submitRequest() {
     if (reason.trim().length < 10) {
-      setError("Begründung muss mindestens 10 Zeichen lang sein.");
+      setError("Reason must be at least 10 characters long.");
       return;
     }
     setError(null);
@@ -96,7 +96,7 @@ export function ImpersonateButton({ user }: Props) {
   function submitOtp() {
     if (!consent) return;
     if (!/^\d{6}$/.test(otp)) {
-      setError("Bitte den 6-stelligen Code eingeben.");
+      setError("Please enter the 6-digit code.");
       return;
     }
     setError(null);
@@ -110,20 +110,20 @@ export function ImpersonateButton({ user }: Props) {
         const json = await res.json().catch(() => ({}));
         if (json?.error === "WRONG_OTP") {
           setAttemptsLeft(json?.attemptsLeft ?? null);
-          setError("Code stimmt nicht.");
+          setError("Code is incorrect.");
         } else if (json?.error === "TOO_MANY_ATTEMPTS") {
-          setError("Zu viele Fehlversuche — Code ist gesperrt. Bitte neu anfordern.");
+          setError("Too many failed attempts — code is locked. Please request a new one.");
         } else if (json?.error === "TOKEN_EXPIRED") {
-          setError("Code ist abgelaufen — bitte neu anfordern.");
+          setError("Code has expired — please request a new one.");
         } else if (json?.error === "TOKEN_USED") {
-          setError("Code wurde schon verwendet oder abgebrochen.");
+          setError("Code has already been used or cancelled.");
         } else {
-          setError("Verifikation fehlgeschlagen.");
+          setError("Verification failed.");
         }
         return;
       }
       const data = await res.json();
-      // Cookie ist gesetzt → ab in die Tenant-App
+      // Cookie is set → go to tenant app
       router.push(data.redirectTo || "/admin");
     });
   }
@@ -157,23 +157,23 @@ export function ImpersonateButton({ user }: Props) {
       {stage === "request" && (
         <ModalShell title={`Sign in as ${user.name}`} onClose={close}>
           <p className="text-sm text-habb-muted">
-            Wir senden einen 6-stelligen Code per Email an{" "}
-            <span className="text-habb-ink">{user.email}</span>. Der Kunde muss
-            den Code persönlich weitergeben, bevor die Sitzung startet.
+            We will send a 6-digit code via email to{" "}
+            <span className="text-habb-ink">{user.email}</span>. The customer must
+            pass the code personally before the session starts.
           </p>
 
           <Field
-            label="Begründung (Pflicht, ≥ 10 Zeichen)"
+            label="Reason (required, ≥ 10 characters)"
             value={reason}
             onChange={setReason}
-            placeholder="z.B. Kunde meldet Fehler beim Anlegen einer Offerte"
+            placeholder="e.g. Customer reports error when creating a quote"
             multiline
           />
           <Field
-            label="Ticket-Referenz (optional)"
+            label="Ticket reference (optional)"
             value={ticketRef}
             onChange={setTicketRef}
-            placeholder="z.B. SUP-1284"
+            placeholder="e.g. SUP-1284"
           />
 
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
@@ -201,7 +201,7 @@ export function ImpersonateButton({ user }: Props) {
               >
                 {DURATION_OPTIONS.map((m) => (
                   <option key={m} value={m}>
-                    {m} Minuten
+                    {m} minutes
                   </option>
                 ))}
               </select>
@@ -220,27 +220,27 @@ export function ImpersonateButton({ user }: Props) {
       )}
 
       {stage === "otp" && consent && (
-        <ModalShell title="Code vom Kunden eingeben" onClose={cancelConsent}>
+        <ModalShell title="Enter code from customer" onClose={cancelConsent}>
           <div className="rounded-lg border border-habb-line bg-habb-paper px-4 py-3 text-sm">
             <div className="flex items-center gap-2 text-habb-success">
               <Shield className="h-3.5 w-3.5" />
               <span className="font-medium">Code sent</span>
             </div>
             <p className="mt-1 text-habb-ink">
-              Empfänger:{" "}
+              Recipient:{" "}
               <span className="font-mono">{consent.targetEmailMasked}</span>
             </p>
             <p className="mt-0.5 text-xs text-habb-muted">
               {consent.emailDelivered
-                ? `Gültig bis ${new Date(consent.expiresAt).toLocaleTimeString("de-CH")}`
-                : "Email-Zustellung unsicher — bitte Kunden direkt anrufen."}
+                ? `Valid until ${new Date(consent.expiresAt).toLocaleTimeString("de-CH")}`
+                : "Email delivery uncertain — please call the customer directly."}
             </p>
           </div>
 
           <p className="text-sm text-habb-ink">
-            Bitte den Code mündlich vom Kunden erfragen und hier eintippen.
-            Der Code wurde nirgendwo sonst angezeigt — er lebt ausschließlich
-            in der Email des Kunden.
+            Please ask the customer for the code verbally and enter it here.
+            The code was not displayed anywhere else — it exists exclusively
+            in the customer's email.
           </p>
 
           <div>
@@ -257,9 +257,9 @@ export function ImpersonateButton({ user }: Props) {
               className="block w-full rounded-md border border-habb-line bg-white px-3 py-2 text-lg font-mono tracking-[0.4em] text-center focus:border-habb-black focus:outline-none focus:ring-2 focus:ring-habb-red focus:ring-offset-1"
             />
             {attemptsLeft !== null && attemptsLeft >= 0 && (
-              <p className="mt-1 text-xs text-habb-warning">
-                Noch {attemptsLeft} Versuche, danach wird der Code gesperrt.
-              </p>
+              <p className="mt-1 text-xs text-habb-muted">
+              {attemptsLeft} attempts remaining, then the code will be locked.
+            </p>
             )}
           </div>
 
@@ -287,7 +287,7 @@ export function ImpersonateButton({ user }: Props) {
   );
 }
 
-// ─── kleine UI-Bausteine, inline gelassen damit die Komponente self-contained ist
+// ─── Small UI building blocks, kept inline so the component is self-contained
 
 function ModalShell({
   title,
@@ -311,7 +311,7 @@ function ModalShell({
           <button
             type="button"
             onClick={onClose}
-            aria-label="Schliessen"
+            aria-label="Close"
             className="text-habb-muted hover:text-habb-ink"
           >
             <X className="h-4 w-4" />
@@ -444,18 +444,18 @@ function ScopePill({
 function labelRequestError(code?: string, message?: string): string {
   switch (code) {
     case "USER_NOT_FOUND":
-      return "Ziel-User wurde nicht gefunden.";
+      return "Target user was not found.";
     case "USER_DELETED":
-      return "Ziel-User ist gelöscht — Impersonation nicht möglich.";
+      return "Target user is deleted — impersonation not possible.";
     case "USER_LOCKED":
-      return "Ziel-User ist gesperrt — bitte erst entsperren.";
+      return "Target user is locked — please unlock first.";
     case "USER_INACTIVE":
-      return "Ziel-User ist inaktiv.";
+      return "Target user is inactive.";
     case "COMPANY_SUSPENDED":
-      return "Tenant ist suspendiert — Impersonation nicht möglich.";
+      return "Tenant is suspended — impersonation not possible.";
     case "INVALID":
-      return message || "Eingabe ungültig.";
+      return message || "Input invalid.";
     default:
-      return message || "Anfrage fehlgeschlagen.";
+      return message || "Request failed.";
   }
 }

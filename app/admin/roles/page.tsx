@@ -77,19 +77,19 @@ export default async function RolesPage() {
           <ShieldCheck className="h-6 w-6 text-habb-ink" />
         </div>
         <div>
-          <h1 className="text-2xl font-semibold">Rollen &amp; Rechte</h1>
+          <h1 className="text-2xl font-semibold">Roles &amp; Permissions</h1>
           <p className="text-sm text-muted-foreground mt-1 max-w-3xl">
-            Lege fest, welche Rolle welche Funktionen sehen und ausführen darf.
-            <strong className="ml-1">Super-Admin</strong> hat immer alle Rechte
-            und ist hier nicht editierbar. Änderungen wirken sofort auf das UI;
-            angemeldete User sehen sie nach dem nächsten Neuladen.
+            Define which role can see and execute which functions.
+            <strong className="ml-1">Super-Admin</strong> always has all permissions
+            and is not editable here. Changes take effect immediately on the UI;
+            logged-in users see them after the next reload.
           </p>
         </div>
       </div>
 
       <Card>
         <CardHeader>
-          <CardTitle className="text-base">Rollen-Übersicht</CardTitle>
+          <CardTitle className="text-base">Roles overview</CardTitle>
         </CardHeader>
         <CardContent>
           <ul className="grid grid-cols-1 md:grid-cols-2 gap-3 text-sm">
@@ -105,7 +105,7 @@ export default async function RolesPage() {
                   <span>{ROLE_LABELS_DE[r]}</span>
                   {overridesPerRole[r] > 0 && (
                     <span className="text-[10px] uppercase tracking-wider rounded-full bg-amber-100 text-amber-900 px-2 py-0.5">
-                      angepasst
+                      customized
                     </span>
                   )}
                 </div>
@@ -148,19 +148,19 @@ async function PerUserOverridesSection({ companyId }: { companyId: string }) {
     <Card>
       <CardHeader>
         <CardTitle className="text-base flex items-center gap-2">
-          <Users className="h-4 w-4" /> Persönliche Rechte pro User
+          <Users className="h-4 w-4" /> Personal permissions per user
         </CardTitle>
       </CardHeader>
       <CardContent>
         <p className="text-sm text-muted-foreground mb-4">
-          Einzelne User können von ihrer Rolle abweichen — Rechte
-          <strong> zusätzlich </strong>bekommen oder <strong>entzogen</strong>
-          {" "}werden. <strong>Super-Admin</strong> behält per Design immer alle
-          Rechte und ist hier ausgeschlossen.
+          Individual users can deviate from their role — permissions can be
+          <strong> additionally </strong>granted or <strong>revoked</strong>
+          {" "}. <strong>Super-Admin</strong> always retains all permissions
+          by design and is excluded here.
         </p>
         {users.length === 0 ? (
           <div className="rounded-md border bg-habb-paper px-3 py-2 text-sm text-muted-foreground">
-            Keine konfigurierbaren User vorhanden.
+            No configurable users available.
           </div>
         ) : (
           <ul className="divide-y divide-habb-line rounded-md border">

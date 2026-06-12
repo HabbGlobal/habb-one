@@ -6,11 +6,11 @@ export default function TenantBillingStub() {
       <span className="mx-auto grid h-10 w-10 place-items-center rounded-full bg-habb-paper">
         <CreditCard className="h-5 w-5 text-habb-muted" />
       </span>
-      <h2 className="mt-3 text-sm font-medium text-habb-ink">Abrechnung</h2>
+      <h2 className="mt-3 text-sm font-medium text-habb-ink">Billing</h2>
       <p className="mt-1 text-xs text-habb-muted">
-        Stripe-Integration und offene Rechnungen — Phase v2. Den{" "}
-        <strong>Plan-Wechsel</strong> (Module folgen automatisch) findest du im
-        Tab <strong>Module</strong>.
+        Stripe integration and open invoices — Phase v2. The{" "}
+        <strong>plan change</strong> (modules follow automatically) can be found in the
+        tab <strong>Modules</strong>.
       </p>
     </section>
   );

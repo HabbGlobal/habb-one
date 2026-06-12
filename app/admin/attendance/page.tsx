@@ -1,8 +1,8 @@
-// Admin-Anwesenheits-Übersicht — Hybrid-Dashboard:
-//   - KPI-Cards oben: Anwesend / In Pause / Abwesend / Heute total
-//   - Liste pro Mitarbeiter mit Status-Badge + Heute/Soll + Wochen-Saldo
+// Admin attendance overview — hybrid dashboard:
+//   - KPI cards at top: Present / On Break / Absent / Today total
+//   - List per employee with status badge + Today/Target + Week balance
 //
-// Auto-Refresh alle 30 s. Kein Caching server-seitig (`force-dynamic`).
+// Auto-refresh every 30 s. No server-side caching (`force-dynamic`).
 
 import Link from "next/link";
 import { redirect } from "next/navigation";
@@ -27,8 +27,8 @@ export default async function AttendancePage() {
     new Date(),
   );
 
-  // Wenn User korrigieren darf, gehen die Zeilen-Links auf das
-  // SAP-Style Stundenblatt — sonst weiter auf die Korrektur-Liste.
+  // If user can correct, the row links go to the SAP-style time sheet
+  // — otherwise to the correction list.
   const canEditSheet = hasPermission(session.user.role, "timeEntries.correct");
 
   return (
@@ -36,10 +36,10 @@ export default async function AttendancePage() {
       <AutoRefresh intervalMs={30_000} />
 
       <header>
-        <h1 className="text-2xl font-semibold">Anwesenheit</h1>
+        <h1 className="text-2xl font-semibold">Attendance</h1>
         <p className="mt-1 text-sm text-muted-foreground">
-          Live-Übersicht der Werkstatt — wer ist da, wer ist in Pause, wer
-          abwesend. Datenstand:{" "}
+          Live workshop overview — who is present, who is on break, who
+          is absent. Data as of:{" "}
           {new Date(snapshot.generatedAtIso).toLocaleTimeString("de-CH", {
             hour: "2-digit",
             minute: "2-digit",
@@ -52,42 +52,41 @@ export default async function AttendancePage() {
       {/* KPI-Cards */}
       <section className="grid grid-cols-2 gap-3 md:grid-cols-5">
         <Kpi
-          label="Aktive Mitarbeiter"
+          label="Active employees"
           value={snapshot.kpis.total}
           icon={<Users className="h-4 w-4" />}
         />
         <Kpi
-          label="Anwesend"
+          label="Present"
           value={snapshot.kpis.countIn}
           tone="success"
           icon={<Activity className="h-4 w-4" />}
         />
         <Kpi
-          label="In Pause"
+          label="On Break"
           value={snapshot.kpis.countBreak}
           tone="warning"
           icon={<Coffee className="h-4 w-4" />}
         />
         <Kpi
-          label="Abwesend"
+          label="Absent"
           value={snapshot.kpis.countAbsent}
           tone="info"
           icon={<Plane className="h-4 w-4" />}
         />
         <Kpi
-          label="Ausgestempelt"
+          label="Clocked Out"
           value={snapshot.kpis.countOut}
           tone="muted"
           icon={<LogOut className="h-4 w-4" />}
         />
       </section>
 
-      {/* Heute Gesamt-Leistung */}
+      {/* Today total performance */}
       <section className="rounded-xl border border-habb-line bg-white px-4 py-3">
         <div className="flex items-baseline justify-between">
           <div>
-            <div className="text-xs uppercase tracking-wide text-habb-muted">
-              Heute geleistet (Werkstatt total)
+            <div className="text-xs uppercase tracking-wide text-habb-muted">Today worked (workshop total)
             </div>
             <div className="mt-1 text-3xl font-semibold tabular-nums">
               {formatHmm(snapshot.kpis.todayWorkedMinutesTotal)}
@@ -96,14 +95,14 @@ export default async function AttendancePage() {
         </div>
       </section>
 
-      {/* Mitarbeiter-Liste */}
+      {/* Employee list */}
       <section className="rounded-xl border border-habb-line bg-white">
         <div className="border-b border-habb-line px-5 py-3">
           <h2 className="text-sm font-semibold">Employee</h2>
         </div>
         {snapshot.employees.length === 0 ? (
           <p className="px-5 py-6 text-sm text-habb-muted">
-            Keine aktiven Mitarbeiter.
+            No active employees.
           </p>
         ) : (
           <ul className="divide-y divide-habb-line">
@@ -115,19 +114,19 @@ export default async function AttendancePage() {
       </section>
 
       <p className="text-xs text-muted-foreground">
-        Hinweis: Stempel-Korrekturen (z. B. wenn jemand das Ausstempeln
-        vergessen hat) gehen weiter über{" "}
+        Note: Clock corrections (e.g. if someone forgot to clock out)
+        continue via{" "}
         <Link href="/admin/time-entries" className="underline">
-          Zeiterfassung
+          Time tracking
         </Link>
-        . Diese Ansicht ist nur lesend.
+        . This view is read-only.
       </p>
     </div>
   );
 }
 
 // ─────────────────────────────────────────
-// Sub-Komponenten
+// Sub-components
 // ─────────────────────────────────────────
 
 function Kpi({
@@ -168,32 +167,24 @@ function StatusBadge({ status }: { status: EmployeeAttendance["status"] }) {
   if (status === "IN") {
     return (
       <span className="inline-flex items-center gap-1.5 rounded-full bg-emerald-100 px-2 py-0.5 text-xs font-medium text-emerald-800">
-        <span className="inline-block h-1.5 w-1.5 rounded-full bg-emerald-500 animate-pulse" />
-        Eingestempelt
-      </span>
+        <span className="inline-block h-1.5 w-1.5 rounded-full bg-emerald-500 animate-pulse" />Clocked In</span>
     );
   }
   if (status === "BREAK") {
     return (
       <span className="inline-flex items-center gap-1.5 rounded-full bg-amber-100 px-2 py-0.5 text-xs font-medium text-amber-800">
-        <span className="inline-block h-1.5 w-1.5 rounded-full bg-amber-500 animate-pulse" />
-        In Pause
-      </span>
+        <span className="inline-block h-1.5 w-1.5 rounded-full bg-amber-500 animate-pulse" />On Break</span>
     );
   }
   if (status === "ABSENT") {
     return (
       <span className="inline-flex items-center gap-1.5 rounded-full bg-sky-100 px-2 py-0.5 text-xs font-medium text-sky-800">
-        <span className="inline-block h-1.5 w-1.5 rounded-full bg-sky-500" />
-        Abwesend
-      </span>
+        <span className="inline-block h-1.5 w-1.5 rounded-full bg-sky-500" />Absent</span>
     );
   }
   return (
     <span className="inline-flex items-center gap-1.5 rounded-full bg-slate-200 px-2 py-0.5 text-xs font-medium text-slate-700">
-      <span className="inline-block h-1.5 w-1.5 rounded-full bg-slate-400" />
-      Ausgestempelt
-    </span>
+      <span className="inline-block h-1.5 w-1.5 rounded-full bg-slate-400" />Clocked Out</span>
   );
 }
 
@@ -208,8 +199,8 @@ function EmployeeRow({
     e.todayTargetMinutes > 0
       ? Math.min(100, Math.round((e.todayWorkedMinutes / e.todayTargetMinutes) * 100))
       : 0;
-  // Mit Korrektur-Recht → direkt zum SAP-Stundenblatt. Sonst → bestehende
-  // Filter-Liste der Zeitbuchungen.
+  // With correction rights → directly to SAP-style time sheet. Otherwise →
+  // existing filter list of time entries.
   const href = canEditSheet
     ? `/admin/attendance/${e.id}/sheet`
     : `/admin/time-entries?employeeId=${e.id}`;
@@ -220,7 +211,7 @@ function EmployeeRow({
         href={href}
         className="grid grid-cols-1 items-center gap-3 px-5 py-3 hover:bg-habb-paper/50 md:grid-cols-[1.5fr_1fr_1fr_1fr]"
       >
-        {/* Spalte 1: Name + Status */}
+        {/* Column 1: Name + Status */}
         <div>
           <div className="font-medium text-habb-ink">
             {e.firstName} {e.lastName}
@@ -232,12 +223,12 @@ function EmployeeRow({
               <span>
                 {e.absenceLabel}
                 {e.absenceUntilIso
-                  ? ` · bis ${new Date(e.absenceUntilIso).toLocaleDateString("de-CH")}`
+                  ? ` · until ${new Date(e.absenceUntilIso).toLocaleDateString("de-CH")}`
                   : ""}
               </span>
             ) : e.statusSinceIso ? (
               <span>
-                seit{" "}
+                since{" "}
                 {new Date(e.statusSinceIso).toLocaleTimeString("de-CH", {
                   hour: "2-digit",
                   minute: "2-digit",
@@ -247,11 +238,9 @@ function EmployeeRow({
           </div>
         </div>
 
-        {/* Spalte 2: Heute Ist / Soll */}
+        {/* Column 2: Today Actual / Target */}
         <div>
-          <div className="text-[10px] uppercase tracking-wide text-habb-muted">
-            Heute
-          </div>
+          <div className="text-[10px] uppercase tracking-wide text-habb-muted">Today</div>
           <div className="font-semibold tabular-nums">
             {formatHmm(e.todayWorkedMinutes)}{" "}
             <span className="text-xs font-normal text-habb-muted">
@@ -268,10 +257,10 @@ function EmployeeRow({
           )}
         </div>
 
-        {/* Spalte 3: Woche Ist / Soll */}
+        {/* Column 3: Week Actual / Target */}
         <div>
           <div className="text-[10px] uppercase tracking-wide text-habb-muted">
-            Diese Woche
+            This week
           </div>
           <div className="font-semibold tabular-nums">
             {formatHmm(e.weekWorkedMinutes)}{" "}
@@ -281,11 +270,9 @@ function EmployeeRow({
           </div>
         </div>
 
-        {/* Spalte 4: Wochen-Saldo */}
+        {/* Column 4: Week balance */}
         <div>
-          <div className="text-[10px] uppercase tracking-wide text-habb-muted">
-            Saldo
-          </div>
+          <div className="text-[10px] uppercase tracking-wide text-habb-muted">Balance</div>
           <div
             className={
               "font-semibold tabular-nums " +
@@ -305,7 +292,7 @@ function EmployeeRow({
 }
 
 // ─────────────────────────────────────────
-// Formatierung
+// Formatting
 // ─────────────────────────────────────────
 
 function formatHmm(minutes: number): string {

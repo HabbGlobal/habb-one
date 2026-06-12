@@ -93,13 +93,11 @@ export default async function CustomersPage({
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-2xl font-semibold">Customers</h1>
-          <p className="text-sm text-muted-foreground">
-            CRM — Stammdaten, Adressen, Kontakte
-          </p>
+          <p className="text-sm text-muted-foreground">CRM — Master data, addresses, contacts</p>
         </div>
         {hasPermission(session.user.role, "customers.write") && (
           <Button asChild>
-            <Link href="/admin/customers/new">Neuer Kunde</Link>
+            <Link href="/admin/customers/new">New Customer</Link>
           </Button>
         )}
       </div>

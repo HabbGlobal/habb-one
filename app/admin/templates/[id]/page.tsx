@@ -53,8 +53,8 @@ export default async function EditTemplatePage({
                 {tpl.key}
               </Badge>
             )}
-            {tpl.archivedAt && <Badge variant="secondary">Archiviert</Badge>}
-            {tpl.deletedAt && <Badge variant="destructive">Gelöscht</Badge>}
+            {tpl.archivedAt && <Badge variant="secondary">Archived</Badge>}
+            {tpl.deletedAt && <Badge variant="destructive">Deleted</Badge>}
           </h1>
           {tpl.description && (
             <p className="text-sm text-muted-foreground mt-1">{tpl.description}</p>

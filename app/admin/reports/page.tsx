@@ -1,5 +1,5 @@
-// Reports-Hub. Eine Übersichtsseite mit allen verfügbaren Berichten —
-// gruppiert nach Personal (bestehend) und ERP (Phase 5b).
+// Reports hub. An overview page with all available reports —
+// grouped by Personnel (existing) and ERP (phase 5b).
 
 import Link from "next/link";
 import { prisma } from "@/lib/prisma";
@@ -37,48 +37,48 @@ export default async function ReportsPage() {
           {t("title")}
         </h1>
         <p className="text-sm text-muted-foreground">
-          Auswertungen für Personal, Aufträge und Maschinen — Excel-/PDF-Export.
+          Reports for personnel, orders, and machines — Excel/PDF export.
         </p>
       </div>
 
       {/* ── ERP-Reports ── */}
       <section className="space-y-3">
         <h2 className="text-sm uppercase tracking-wider text-muted-foreground font-medium">
-          Auftrags- &amp; Werkstatt-Auswertungen
+          Order &amp; workshop reports
         </h2>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
           <ReportCard
             href="/admin/reports/calculation"
             icon={<Calculator className="h-5 w-5" />}
-            title="Kalkulations-Genauigkeit"
-            description="Schätzung vs. Ist vs. Verrechnet pro Auftrag — finde heraus wo wir uns systematisch verschätzen."
+            title="Calculation accuracy"
+            description="Estimate vs. actual vs. billed per order — find out where we systematically miscalculate."
           />
           <ReportCard
             href="/admin/reports/machine-utilization"
             icon={<Cog className="h-5 w-5" />}
-            title="Maschinen-Auslastung"
-            description="Gebuchte vs. verfügbare Stunden pro Maschine. Zeigt Engpässe und Leerlauf."
+            title="Machine utilization"
+            description="Booked vs. available hours per machine. Shows bottlenecks and idle time."
           />
           <ReportCard
             href="/admin/reports/employee-productivity"
             icon={<Users className="h-5 w-5" />}
-            title="Mitarbeiter-Produktivität"
-            description="Scan-Zeiten pro Mitarbeiter:in, davon billable. Periode frei wählbar."
+            title="Employee productivity"
+            description="Scan times per worker, of which billable. Period freely selectable."
           />
         </div>
       </section>
 
-      {/* ── Personal-Report (bestehender Monatsrapport) ── */}
+      {/* ── Personnel report (existing monthly report) ── */}
       <section className="space-y-3">
         <h2 className="text-sm uppercase tracking-wider text-muted-foreground font-medium flex items-center gap-2">
-          <CalendarDays className="h-4 w-4" /> Personal-Auswertungen
+          <CalendarDays className="h-4 w-4" /> Personnel reports
         </h2>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
           <ReportCard
             href="/admin/reports/payroll"
             icon={<Users className="h-5 w-5" />}
-            title="Personalabrechnung"
-            description="Monats-Dashboard pro Mitarbeiter: Stammdaten, Stunden, Abwesenheiten, Ferien-Saldo. Excel + PDF Export."
+            title="Payroll"
+            description="Monthly dashboard per employee: master data, hours, absences, vacation balance. Excel + PDF export."
           />
         </div>
         <Card>

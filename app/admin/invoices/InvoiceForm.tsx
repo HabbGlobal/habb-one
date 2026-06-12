@@ -1,6 +1,6 @@
 "use client";
 
-// Form für manuelle Rechnungs-Erstellung / -Bearbeitung.
+// Form for manual invoice creation / editing.
 
 import { useMemo, useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
@@ -115,7 +115,7 @@ export function InvoiceForm({ mode, customers, defaults, initial }: Props) {
   };
   const removeItem = (idx: number) => {
     if (items.length <= 1) {
-      alert("Mindestens eine Position erforderlich.");
+      alert("At least one line item is required.");
       return;
     }
     setItems((prev) => prev.filter((_, i) => i !== idx));
@@ -144,25 +144,27 @@ export function InvoiceForm({ mode, customers, defaults, initial }: Props) {
       try {
         if (mode === "create") {
           const r = await createInvoice(payload);
-          router.push(`/admin/invoices/${r.id}`);
+          if (r?.error) throw new Error(r.error);
+          router.push(`/admin/invoices/${r?.id}`);
         } else if (mode === "edit" && initial) {
-          await updateDraftInvoice(initial.invoiceId, payload);
+          const r = await updateDraftInvoice(initial.invoiceId, payload);
+          if (r?.error) throw new Error(r.error);
           router.refresh();
         }
       } catch (err) {
-        setError(err instanceof Error ? err.message : "Fehler.");
+        setError(err instanceof Error ? err.message : "Error.");
       }
     });
   };
 
   return (
     <div className="space-y-5">
-      {/* Kopfdaten */}
+      {/* Header data */}
       <div className="grid grid-cols-1 md:grid-cols-4 gap-3">
         <div className="space-y-1 md:col-span-4">
-          <Label>Kunde *</Label>
+          <Label>Customer *</Label>
           <Select value={customerId} onChange={(e) => setCustomerId(e.target.value)}>
-            <option value="">— Kunde wählen —</option>
+            <option value="">— Select customer —</option>
             {customers.map((c) => (
               <option key={c.id} value={c.id}>
                 {c.customerNumber} · {c.label}
@@ -171,7 +173,7 @@ export function InvoiceForm({ mode, customers, defaults, initial }: Props) {
           </Select>
         </div>
         <div className="space-y-1">
-          <Label>Rechnungsdatum *</Label>
+          <Label>Invoice date *</Label>
           <Input
             type="date"
             value={issuedAt}
@@ -179,7 +181,7 @@ export function InvoiceForm({ mode, customers, defaults, initial }: Props) {
           />
         </div>
         <div className="space-y-1">
-          <Label>Fällig am *</Label>
+          <Label>Due date *</Label>
           <Input
             type="date"
             value={dueAt}
@@ -187,7 +189,7 @@ export function InvoiceForm({ mode, customers, defaults, initial }: Props) {
           />
         </div>
         <div className="space-y-1">
-          <Label>MwSt-Satz (%)</Label>
+          <Label>VAT rate (%)</Label>
           <Input
             type="number"
             step={0.1}
@@ -200,19 +202,19 @@ export function InvoiceForm({ mode, customers, defaults, initial }: Props) {
       </div>
 
       <div className="space-y-1">
-        <Label>Notizen / Hinweise</Label>
+        <Label>Notes / remarks</Label>
         <Textarea
           rows={2}
           value={notes}
           onChange={(e) => setNotes(e.target.value)}
-          placeholder="z. B. Zahlung innert 30 Tagen rein netto"
+          placeholder="e.g. Payment within 30 days net"
         />
       </div>
 
-      {/* Positionen */}
+      {/* Line items */}
       <Card>
         <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-          <CardTitle className="text-base">Positionen</CardTitle>
+          <CardTitle className="text-base">Line items</CardTitle>
           <Button type="button" variant="outline" size="sm" onClick={addItem}>
             <Plus className="h-4 w-4 mr-1" /> Position
           </Button>
@@ -234,16 +236,16 @@ export function InvoiceForm({ mode, customers, defaults, initial }: Props) {
                 />
               </div>
               <div className="col-span-5">
-                <Label className="text-xs">Beschreibung *</Label>
+                <Label className="text-xs">Description *</Label>
                 <Input
                   value={it.description}
                   onChange={(e) => updateItem(idx, { description: e.target.value })}
-                  placeholder="z. B. Pulverbeschichtung Geländer"
+                  placeholder="e.g. Powder coating railing"
                   className="text-sm"
                 />
               </div>
               <div className="col-span-1">
-                <Label className="text-xs">Menge</Label>
+                <Label className="text-xs">Qty</Label>
                 <Input
                   type="number"
                   step={0.01}
@@ -254,7 +256,7 @@ export function InvoiceForm({ mode, customers, defaults, initial }: Props) {
                 />
               </div>
               <div className="col-span-1">
-                <Label className="text-xs">Einheit</Label>
+                <Label className="text-xs">Unit</Label>
                 <Input
                   value={it.unit}
                   onChange={(e) => updateItem(idx, { unit: e.target.value })}
@@ -262,7 +264,7 @@ export function InvoiceForm({ mode, customers, defaults, initial }: Props) {
                 />
               </div>
               <div className="col-span-2">
-                <Label className="text-xs">Stückpreis CHF</Label>
+                <Label className="text-xs">Unit price CHF</Label>
                 <Input
                   type="number"
                   step={0.01}
@@ -277,7 +279,7 @@ export function InvoiceForm({ mode, customers, defaults, initial }: Props) {
                 />
               </div>
               <div className="col-span-1">
-                <Label className="text-xs">Rabatt %</Label>
+                <Label className="text-xs">Discount %</Label>
                 <Input
                   type="number"
                   step={0.5}
@@ -299,7 +301,7 @@ export function InvoiceForm({ mode, customers, defaults, initial }: Props) {
                 </button>
               </div>
               <div className="col-span-12 text-xs text-right text-muted-foreground tabular-nums">
-                Total Position:{" "}
+                Line total:{" "}
                 <span className="font-medium">
                   {fmtCHF(it.quantity * it.unitPriceCHF * (1 - it.discountPct / 100))}
                 </span>
@@ -309,12 +311,12 @@ export function InvoiceForm({ mode, customers, defaults, initial }: Props) {
         </CardContent>
       </Card>
 
-      {/* Summen */}
+      {/* Totals */}
       <Card>
         <CardContent className="p-4">
           <div className="grid grid-cols-3 gap-4 text-sm">
             <div>
-              <div className="text-xs text-muted-foreground">Total netto</div>
+              <div className="text-xs text-muted-foreground">Total net</div>
               <div className="text-lg font-semibold tabular-nums">
                 {fmtCHF(totals.totalNet)}
               </div>
@@ -324,7 +326,7 @@ export function InvoiceForm({ mode, customers, defaults, initial }: Props) {
               <div className="text-lg tabular-nums">{fmtCHF(totals.vatCHF)}</div>
             </div>
             <div>
-              <div className="text-xs text-muted-foreground">Total brutto</div>
+              <div className="text-xs text-muted-foreground">Total gross</div>
               <div className="text-xl font-semibold tabular-nums text-emerald-700">
                 {fmtCHF(totals.totalGross)}
               </div>
@@ -342,7 +344,7 @@ export function InvoiceForm({ mode, customers, defaults, initial }: Props) {
       <div className="flex justify-end gap-2 pt-2 border-t">
         <Button variant="ghost" onClick={() => router.back()} disabled={pending}>Cancel</Button>
         <Button onClick={submit} disabled={pending || !customerId}>
-          {pending ? "Saving..." : mode === "create" ? "Rechnung anlegen" : "Save"}
+          {pending ? "Saving..." : mode === "create" ? "Create invoice" : "Save"}
         </Button>
       </div>
     </div>

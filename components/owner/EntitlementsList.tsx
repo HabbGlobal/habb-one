@@ -12,7 +12,7 @@ export interface EntitlementRow {
   enabled: boolean;
   monthlyLimit: number | null;
   hasOverride: boolean;
-  /** Gehört dieses Modul zum aktuellen Plan des Tenanten? */
+  /** Does this module belong to the tenant's current plan? */
   inPlan: boolean;
 }
 
@@ -40,7 +40,7 @@ export function EntitlementsList({ tenantId, initial }: EntitlementsListProps) {
     reasonText: string,
   ) => {
     if (reasonText.trim().length < 10) {
-      setError("Begründung muss mindestens 10 Zeichen lang sein.");
+      setError("Reason must be at least 10 characters long.");
       return;
     }
     setError(null);
@@ -79,10 +79,10 @@ export function EntitlementsList({ tenantId, initial }: EntitlementsListProps) {
       <header className="border-b border-habb-line px-5 py-3">
         <h2 className="text-sm font-medium text-habb-ink">Modules & Limits</h2>
         <p className="mt-0.5 text-xs text-habb-muted">
-          By default, the <strong>Plan</strong> die Module. Ein Plan-Wechsel
-          aktiviert/deaktiviert sie automatisch. Hier kannst du einzelne Module zusätzlich
-          manuell übersteuern — diese Sonderfälle <strong>bleiben auch bei einem
-          Plan-Wechsel erhalten</strong>. Changes take effect immediately and are audited.
+          By default, the <strong>Plan</strong> determines the modules. A plan change
+          activates/deactivates them automatically. Here you can additionally
+          override individual modules manually — these special cases <strong>are preserved even
+          after a plan change</strong>. Changes take effect immediately and are audited.
         </p>
       </header>
 
@@ -102,11 +102,11 @@ export function EntitlementsList({ tenantId, initial }: EntitlementsListProps) {
                   <p className="mt-0.5 text-xs text-habb-muted">{def.description}</p>
                   <p className="mt-1.5 text-xs text-habb-ink">
                     <span className={row.enabled ? "text-habb-success" : "text-habb-red"}>
-                      {row.enabled ? "Active" : "Deaktiviert"}
+                      {row.enabled ? "Active" : "Deactivated"}
                     </span>
                     <span className="mx-2 text-habb-muted">·</span>
                     <span className="text-habb-muted">
-                      Limit: {row.monthlyLimit === null ? "unlimited" : `${row.monthlyLimit} / Monat`}
+                      Limit: {row.monthlyLimit === null ? "unlimited" : `${row.monthlyLimit} / month`}
                     </span>
                   </p>
                 </div>
@@ -162,8 +162,8 @@ export function EntitlementsList({ tenantId, initial }: EntitlementsListProps) {
         }}
         actionLabel={
           pendingState
-            ? `Modul "${MODULE_DEFAULTS[pendingState.module].label}" ändern`
-            : "Modul ändern"
+            ? `Change module "${MODULE_DEFAULTS[pendingState.module].label}"`
+            : "Change module"
         }
       />
     </section>
@@ -171,17 +171,17 @@ export function EntitlementsList({ tenantId, initial }: EntitlementsListProps) {
 }
 
 /**
- * Zeigt die Herkunft des effektiven Modul-Zustands:
- *   - "Plan": kommt aus dem Plan, keine manuelle Abweichung
- *   - "Manuell +/−": Override weicht vom Plan ab (zusätzlich frei / gesperrt)
- *   - "Not in plan": weder im Plan noch manuell aktiviert
+ * Shows the provenance of the effective module state:
+ *   - "Plan": comes from the plan, no manual deviation
+ *   - "Manual +/−": Override deviates from plan (additionally enabled / blocked)
+ *   - "Not in plan": neither in plan nor manually activated
  */
 function ProvenanceBadge({ row }: { row: EntitlementRow }) {
   const deviates = row.hasOverride && row.enabled !== row.inPlan;
   if (deviates) {
     return (
       <span className="rounded-full border border-habb-warning/40 bg-habb-warning/10 px-1.5 text-[10px] font-medium uppercase tracking-wide text-habb-warning">
-        {row.enabled ? "Manuell +" : "Manuell −"}
+        {row.enabled ? "Manual +" : "Manual −"}
       </span>
     );
   }
@@ -267,13 +267,13 @@ function EntitlementForm({
 
       <div className="space-y-1.5 sm:col-span-2">
         <label className="block text-xs font-medium uppercase tracking-wide text-habb-muted">
-          Begründung (Pflicht, ≥ 10 Zeichen)
+          Reason (required, ≥ 10 characters)
         </label>
         <input
           type="text"
           value={reason}
           onChange={(e) => setReason(e.target.value)}
-          placeholder="z.B. Pro-Plan-Upgrade auf Kundenwunsch — Ticket #1234"
+          placeholder="e.g. Pro plan upgrade on customer request — Ticket #1234"
           className="block w-full rounded-md border border-habb-line bg-white px-3 py-2 text-sm focus:border-habb-black focus:outline-none focus:ring-2 focus:ring-habb-red focus:ring-offset-2"
         />
       </div>

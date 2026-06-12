@@ -96,7 +96,7 @@ export function CellEditor({
       onClose();
       return;
     }
-    if (!confirm("Eintrag entfernen?")) return;
+    if (!confirm("Remove entry?")) return;
     setError(null);
     start(async () => {
       try {
@@ -104,7 +104,7 @@ export function CellEditor({
         router.refresh();
         onClose();
       } catch (err) {
-        setError(err instanceof Error ? err.message : "Fehler beim Löschen");
+        setError(err instanceof Error ? err.message : "Error while deleting");
       }
     });
   };
@@ -132,21 +132,21 @@ export function CellEditor({
             type="button"
             onClick={onClose}
             className="p-1 hover:bg-accent rounded"
-            aria-label="Schliessen"
+            aria-label="Close"
           >
             <X className="h-4 w-4" />
           </button>
         </CardHeader>
         <CardContent className="space-y-3">
-          <Field label="Typ">
+          <Field label="Type">
             <Select value={type} onChange={(e) => setType(e.target.value as EntryType)}>
-              <option value="WORK">Arbeit</option>
-              <option value="FREE">Frei</option>
-              <option value="VACATION">Ferien</option>
-              <option value="SICKNESS">Krankheit</option>
-              <option value="ABSENCE">Abwesenheit</option>
-              <option value="COMPENSATION">Kompensation</option>
-              <option value="OTHER">Sonstiges</option>
+              <option value="WORK">Work</option>
+              <option value="FREE">Off</option>
+              <option value="VACATION">Vacation</option>
+              <option value="SICKNESS">Sickness</option>
+              <option value="ABSENCE">Absence</option>
+              <option value="COMPENSATION">Compensation</option>
+              <option value="OTHER">Other</option>
             </Select>
           </Field>
 
@@ -160,7 +160,7 @@ export function CellEditor({
                     onChange={(e) => setPlannedStart(e.target.value)}
                   />
                 </Field>
-                <Field label="Ende">
+                <Field label="End">
                   <Input
                     type="time"
                     value={plannedEnd}
@@ -168,7 +168,7 @@ export function CellEditor({
                   />
                 </Field>
               </div>
-              <Field label="Pause (Min.)">
+              <Field label="Break (min)">
                 <Input
                   type="number"
                   min={0}
@@ -179,12 +179,12 @@ export function CellEditor({
                 />
               </Field>
               {areas.length > 0 && (
-                <Field label="Bereich">
+                <Field label="Area">
                   <Select
                     value={workAreaId}
                     onChange={(e) => setWorkAreaId(e.target.value)}
                   >
-                    <option value="">— kein Bereich —</option>
+                    <option value="">— no area —</option>
                     {areas.map((a) => (
                       <option key={a.id} value={a.id}>
                         {a.name}
@@ -196,7 +196,7 @@ export function CellEditor({
             </>
           )}
 
-          <Field label="Notiz">
+          <Field label="Note">
             <Textarea
               rows={2}
               value={note}
@@ -216,7 +216,7 @@ export function CellEditor({
               onClick={remove}
               className="text-destructive hover:text-destructive"
             >
-              Eintrag löschen
+              Delete entry
             </Button>
             <div className="flex gap-2">
               <Button type="button" variant="ghost" onClick={onClose}>Cancel</Button>

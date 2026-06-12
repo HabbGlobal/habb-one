@@ -49,10 +49,10 @@ export interface ScheduleReportData {
   areas: Array<{ id: string; name: string; colorHex: string }>;
 }
 
-const WEEKDAY_DE = ["Mo", "Di", "Mi", "Do", "Fr", "Sa", "So"];
+const WEEKDAY_DE = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
 const MONTH_NAMES_DE = [
-  "Januar", "Februar", "März", "April", "Mai", "Juni",
-  "Juli", "August", "September", "Oktober", "November", "Dezember",
+  "January", "February", "March", "April", "May", "June",
+  "July", "August", "September", "October", "November", "December",
 ];
 
 interface BuildOpts {
@@ -170,7 +170,7 @@ export async function buildScheduleReport(opts: BuildOpts): Promise<ScheduleRepo
   if (mode === "month") {
     rangeLabel = `${MONTH_NAMES_DE[fromYM.month - 1]} ${fromYM.year}`;
   } else {
-    rangeLabel = `Woche ${weekNumber(from)} (${fmtCh(from)} – ${fmtCh(to)})`;
+    rangeLabel = `Week ${weekNumber(from)} (${fmtCh(from)} – ${fmtCh(to)})`;
   }
 
   return {
@@ -240,15 +240,15 @@ export function cellLabel(cell: ScheduleReportCell): string {
     if (cell.plannedStart && cell.plannedEnd) {
       return `${cell.plannedStart}–${cell.plannedEnd}`;
     }
-    return "Arbeit";
+    return "Work";
   }
   return {
-    FREE: "Frei",
-    VACATION: "Ferien",
-    SICKNESS: "Krank",
-    ABSENCE: "Abw.",
-    HOLIDAY: "Feiertag",
-    COMPENSATION: "Komp.",
-    OTHER: "Sonst.",
+    FREE: "Off",
+    VACATION: "Vacation",
+    SICKNESS: "Sick",
+    ABSENCE: "Absent",
+    HOLIDAY: "Holiday",
+    COMPENSATION: "Comp.",
+    OTHER: "Other",
   }[cell.type] ?? cell.type;
 }

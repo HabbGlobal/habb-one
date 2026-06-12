@@ -14,7 +14,7 @@ export default async function NewCustomerPage() {
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
-        <h1 className="text-2xl font-semibold">Neuer Kunde</h1>
+        <h1 className="text-2xl font-semibold">New Customer</h1>
         <Link
           href="/admin/customers"
           className="text-sm text-muted-foreground hover:underline"

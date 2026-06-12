@@ -1,6 +1,6 @@
 "use client";
 
-// Schedule export dialog. Two range modes (Monat / Woche), optional area
+// Schedule export dialog. Two range modes (Month / Week), optional area
 // filter, two formats (PDF / Excel). Buttons trigger downloads via the
 // /api/reports/schedule endpoint.
 
@@ -65,7 +65,7 @@ export function ScheduleExportButton({
           <Card className="fixed inset-x-4 top-12 z-50 mx-auto max-w-md max-h-[80vh] overflow-y-auto">
             <CardHeader className="flex flex-row items-start justify-between gap-2 space-y-0">
               <div>
-                <CardTitle className="text-base">Plan exportieren</CardTitle>
+                <CardTitle className="text-base">Export plan</CardTitle>
                 <p className="text-sm text-muted-foreground">
                   PDF (druckfertig) oder Excel (zur Weiterverarbeitung)
                 </p>
@@ -74,14 +74,14 @@ export function ScheduleExportButton({
                 type="button"
                 onClick={() => setOpen(false)}
                 className="p-1 rounded hover:bg-accent"
-                aria-label="Schliessen"
+                aria-label="Close"
               >
                 <X className="h-4 w-4" />
               </button>
             </CardHeader>
             <CardContent className="space-y-4">
               <div>
-                <Label>Zeitraum</Label>
+                <Label>Period</Label>
                 <div className="mt-1 flex gap-1">
                   <button
                     type="button"
@@ -92,7 +92,7 @@ export function ScheduleExportButton({
                     }`}
                     onClick={() => setMode("month")}
                   >
-                    Monat ({String(month).padStart(2, "0")}/{year})
+                    Month ({String(month).padStart(2, "0")}/{year})
                   </button>
                   <button
                     type="button"
@@ -108,26 +108,25 @@ export function ScheduleExportButton({
 
               {mode === "week" && (
                 <div className="space-y-1">
-                  <Label>Datum in der Woche</Label>
+                  <Label>Date in the week</Label>
                   <Input
                     type="date"
                     value={weekStart}
                     onChange={(e) => setWeekStart(e.target.value)}
                   />
                   <p className="text-xs text-muted-foreground">
-                    Es wird die ganze Woche (Mo–So) exportiert, in der dieses
-                    Datum liegt.
+                    The entire week (Mon–Sun) containing this date will be exported.
                   </p>
                 </div>
               )}
 
               <div className="space-y-1">
-                <Label>Bereich (optional)</Label>
+                <Label>Area (optional)</Label>
                 <Select
                   value={areaId}
                   onChange={(e) => setAreaId(e.target.value)}
                 >
-                  <option value="">Alle Bereiche</option>
+                  <option value="">All areas</option>
                   {areas.map((a) => (
                     <option key={a.id} value={a.id}>
                       {a.name}
@@ -135,19 +134,19 @@ export function ScheduleExportButton({
                   ))}
                 </Select>
                 <p className="text-xs text-muted-foreground">
-                  Filtert die Mitarbeiter-Zeilen auf jene des gewählten Bereichs.
+                  Filters employee rows to those of the selected area.
                 </p>
               </div>
 
               <div className="flex flex-col gap-2 pt-2">
                 <Button asChild>
                   <a href={buildUrl("pdf")} onClick={() => setOpen(false)}>
-                    PDF herunterladen
+                    PDF download
                   </a>
                 </Button>
                 <Button asChild variant="outline">
                   <a href={buildUrl("xlsx")} onClick={() => setOpen(false)}>
-                    Excel herunterladen
+                    Excel download
                   </a>
                 </Button>
               </div>

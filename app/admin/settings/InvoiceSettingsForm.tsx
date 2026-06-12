@@ -1,6 +1,6 @@
 "use client";
 
-// Banking + Rechnungs-Defaults für Schweizer QR-Rechnung.
+// Banking + invoice defaults for Swiss QR invoice.
 
 import { useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
@@ -52,11 +52,11 @@ export function InvoiceSettingsForm({ initial }: { initial: Initial }) {
           invoicePaymentTerms: paymentTerms,
           invoiceDefaultVatRate: vatRate,
         });
-        setSuccess("Banking-Einstellungen gespeichert.");
+        setSuccess("Banking settings saved.");
         router.refresh();
         setTimeout(() => setSuccess(null), 4000);
       } catch (err) {
-        setError(err instanceof Error ? err.message : "Fehler.");
+        setError(err instanceof Error ? err.message : "Error.");
       }
     });
   };
@@ -85,17 +85,17 @@ export function InvoiceSettingsForm({ initial }: { initial: Initial }) {
               {ibanValid ? (
                 isQr ? (
                   <span className="text-emerald-700 font-medium">
-                    ✓ gültige QR-IBAN
+                    ✓ valid QR-IBAN
                   </span>
                 ) : (
                   <span className="text-amber-700">
-                    Gültige IBAN, aber keine QR-IBAN — bitte separates QR-Konto
-                    bei der Bank beantragen.
+                    Valid IBAN, but not a QR-IBAN — please request a separate QR account
+                    from the bank.
                   </span>
                 )
               ) : (
                 <span className="text-destructive font-medium">
-                  ⚠ Prüfziffer falsch
+                  ⚠ Check digit incorrect
                 </span>
               )}
             </div>
@@ -103,14 +103,14 @@ export function InvoiceSettingsForm({ initial }: { initial: Initial }) {
         </div>
 
         <div className="space-y-1">
-          <Label>Konto-Inhaber (Anzeige auf QR-Rechnung)</Label>
+          <Label>Account holder (display on QR invoice)</Label>
           <Input
             value={creditorName}
             onChange={(e) => setCreditorName(e.target.value)}
             placeholder="z. B. habb global Spritzwerk AG"
           />
           <div className="text-xs text-muted-foreground">
-            Leer lassen für Firmen-Namen aus den Stammdaten.
+            Leave empty for company name from master data.
           </div>
         </div>
 
@@ -125,7 +125,7 @@ export function InvoiceSettingsForm({ initial }: { initial: Initial }) {
         </div>
 
         <div className="space-y-1">
-          <Label>Standard-Zahlfrist (Tage)</Label>
+          <Label>Standard payment terms (days)</Label>
           <Input
             type="number"
             min={0}
@@ -136,7 +136,7 @@ export function InvoiceSettingsForm({ initial }: { initial: Initial }) {
         </div>
 
         <div className="space-y-1">
-          <Label>Standard MwSt-Satz (%)</Label>
+          <Label>Standard VAT rate (%)</Label>
           <Input
             type="number"
             step={0.1}
@@ -162,7 +162,7 @@ export function InvoiceSettingsForm({ initial }: { initial: Initial }) {
       <div className="flex justify-end pt-2 border-t">
         <Button onClick={submit} disabled={pending || (qrIban !== "" && !ibanValid)}>
           <Save className="h-4 w-4 mr-1" />
-          {pending ? "Saving..." : "Banking speichern"}
+          {pending ? "Saving..." : "Save banking"}
         </Button>
       </div>
     </div>

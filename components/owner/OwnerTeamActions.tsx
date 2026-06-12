@@ -23,9 +23,9 @@ type Action =
   | { kind: "reset-2fa" };
 
 /**
- * Per-Row-Actionen für Owner Team. Role ändern, Disable/Enable,
- * 2FA-Reset (zwingt Passkey-Neuregistrierung beim nächsten Login).
- * Alles verlangt Sudo + Begründung.
+ * Per-row actions for Owner Team. Change role, Disable/Enable,
+ * 2FA reset (forces passkey re-registration on next login).
+ * All require sudo + reason.
  */
 export function OwnerTeamActions({ owner }: { owner: OwnerRow }) {
   const router = useRouter();
@@ -44,7 +44,7 @@ export function OwnerTeamActions({ owner }: { owner: OwnerRow }) {
 
   function submit(action: Action, reasonText: string) {
     if (reasonText.trim().length < 10) {
-      setError("Begründung muss mindestens 10 Zeichen lang sein.");
+      setError("Reason must be at least 10 characters long.");
       return;
     }
     setError(null);
@@ -176,18 +176,18 @@ function ActionModal({
   onRoleChange: (r: OwnerRole) => void;
 }) {
   const titles: Record<Action["kind"], string> = {
-    role: "Role ändern",
-    disable: "Owner deaktivieren",
-    enable: "Owner aktivieren",
-    "reset-2fa": "2FA zurücksetzen",
+    role: "Change role",
+    disable: "Deactivate owner",
+    enable: "Activate owner",
+    "reset-2fa": "Reset 2FA",
   };
   const bodies: Record<Action["kind"], string> = {
-    role: "Bestehende Sessions werden invalidiert. Neue Role gilt beim nächsten Login.",
+    role: "Existing sessions will be invalidated. The new role takes effect on next login.",
     disable:
-      "Der Owner kann sich nicht mehr anmelden. Bestehende Sessions werden NICHT automatisch beendet — falls nötig, separat killen.",
-    enable: "Der Owner kann sich wieder anmelden.",
+      "The owner can no longer log in. Existing sessions are NOT automatically terminated — if needed, kill them separately.",
+    enable: "The owner can log in again.",
     "reset-2fa":
-      "Alle registrierten Passkeys werden gelöscht. Der Owner muss beim nächsten Login einen neuen Passkey registrieren (Passwort + Mail bleiben unverändert).",
+      "All registered passkeys will be deleted. The owner must register a new passkey on next login (password + email remain unchanged).",
   };
 
   return (
@@ -209,7 +209,7 @@ function ActionModal({
           <button
             type="button"
             onClick={onClose}
-            aria-label="Schliessen"
+            aria-label="Close"
             className="text-habb-muted hover:text-habb-ink"
           >
             <X className="h-4 w-4" />
@@ -226,15 +226,15 @@ function ActionModal({
           {action.kind === "role" && (
             <div>
               <label className="block text-xs font-medium uppercase tracking-wide text-habb-muted mb-1">
-                Neue Role
+                New role
               </label>
               <select
                 value={action.newRole}
                 onChange={(e) => onRoleChange(e.target.value as OwnerRole)}
                 className="block w-full rounded-md border border-habb-line bg-white px-3 py-2 text-sm"
               >
-                <option value="OWNER_SUPPORT">Support (Read-only mit Consent)</option>
-                <option value="OWNER_ADMIN">Admin (Tenants verwalten)</option>
+                <option value="OWNER_SUPPORT">Support (Read-only with consent)</option>
+                <option value="OWNER_ADMIN">Admin (Manage tenants)</option>
                 <option value="OWNER_ROOT">Root (Full access)</option>
               </select>
             </div>
@@ -242,14 +242,14 @@ function ActionModal({
 
           <div>
             <label className="block text-xs font-medium uppercase tracking-wide text-habb-muted mb-1">
-              Begründung (Pflicht, ≥ 10 Zeichen)
+              Reason (required, ≥ 10 characters)
             </label>
             <textarea
               value={reason}
               onChange={(e) => setReason(e.target.value)}
               rows={3}
               className="block w-full rounded-md border border-habb-line bg-white px-3 py-2 text-sm"
-              placeholder="z.B. Neues Team-Mitglied im Support — Onboarding Ticket #4123"
+              placeholder="e.g. New team member in support — onboarding ticket #4123"
             />
           </div>
 
@@ -320,34 +320,34 @@ function dispatch(ownerId: string, action: Action, reason: string) {
 }
 
 function describe(action: Action | null, name: string): string {
-  if (!action) return "Action bestätigen";
+  if (!action) return "Confirm action";
   switch (action.kind) {
     case "role":
-      return `Role von ${name} ändern`;
+      return `Change role of ${name}`;
     case "disable":
-      return `${name} deaktivieren`;
+      return `Deactivate ${name}`;
     case "enable":
-      return `${name} aktivieren`;
+      return `Activate ${name}`;
     case "reset-2fa":
-      return `2FA von ${name} zurücksetzen`;
+      return `Reset 2FA of ${name}`;
   }
 }
 
 function labelError(code?: string): string {
   switch (code) {
     case "NOT_FOUND":
-      return "Owner nicht gefunden.";
+      return "Owner not found.";
     case "ROOT_PROTECTED":
-      return "Action gegen OWNER_ROOT ist gesperrt.";
+      return "Action against OWNER_ROOT is blocked.";
     case "SELF_PROTECTED":
-      return "Action gegen eigenen Account ist nicht erlaubt.";
+      return "Action against own account is not allowed.";
     case "NO_CHANGE":
-      return "Keine Änderung.";
+      return "No change.";
     case "EMAIL_EXISTS":
-      return "Diese Email-Adresse existiert bereits.";
+      return "This email address already exists.";
     case "INVALID":
-      return "Eingabe ungültig.";
+      return "Input invalid.";
     default:
-      return "Action fehlgeschlagen.";
+      return "Action failed.";
   }
 }

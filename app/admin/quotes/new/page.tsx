@@ -42,7 +42,7 @@ export default async function NewQuotePage() {
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="text-2xl font-semibold">Neue Offerte</h1>
+        <h1 className="text-2xl font-semibold">New Quote</h1>
         <p className="text-sm text-muted-foreground">
           Status startet als <strong>Entwurf</strong>. Wird beim Versenden eingefroren.
         </p>
@@ -50,7 +50,7 @@ export default async function NewQuotePage() {
 
       <Card>
         <CardHeader>
-          <CardTitle className="text-base">Offerten-Daten</CardTitle>
+          <CardTitle className="text-base">Quotes-Daten</CardTitle>
         </CardHeader>
         <CardContent>
           <QuoteWizard

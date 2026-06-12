@@ -1,34 +1,34 @@
 /**
- * Validierung der Zeit-Blöcke im manuellen Stundenblatt-Editor.
+ * Validation of time blocks in the manual timesheet editor.
  *
- * Modell (Schweizer Praxis, unbezahlte Pausen):
- *   - "Arbeit"-Blöcke = ANWESENHEIT (Kommt–Geht), die gesamte Zeit am
- *     Arbeitsplatz inkl. der Pausen-Zeiträume.
- *   - "Pause"-Blöcke  = unbezahlte Pausen, die INNERHALB der Anwesenheit
- *     liegen und von der Arbeitszeit ABGEZOGEN werden.
- *   - Bezahlte Arbeitszeit = Σ Anwesenheit − Σ Pausen.
+ * Model (Swiss practice, unpaid breaks):
+ *   - "Work" blocks = PRESENCE (Arrival–Departure), the entire time at
+ *     the workplace including break periods.
+ *   - "Break" blocks = unpaid breaks that are WITHIN the presence
+ *     and are DEDUCTED from working time.
+ *   - Paid working time = Σ Presence − Σ Breaks.
  *
- * Pausen DÜRFEN (und sollen) sich mit der Arbeitszeit überschneiden —
- * sie liegen ja darin. Verboten ist nur:
- *   - Arbeit überlappt Arbeit
- *   - Pause überlappt Pause
- *   - Pause liegt NICHT vollständig in einer Arbeitszeit (sonst würde
- *     der Abzug doppelt/falsch zählen)
+ * Breaks MAY (and should) overlap with working time —
+ * they are contained within it. Forbidden is only:
+ *   - Work overlaps work
+ *   - Break overlaps break
+ *   - Break is NOT entirely within a working time (otherwise the
+ *     deduction would count double/incorrectly)
  *
- * Wird von der Server-Action UND dem Client-Editor genutzt, damit beide
- * Seiten identisch validieren.
+ * Used by the server action AND the client editor so both
+ * sides validate identically.
  */
 
 /**
- * Block-Typen:
- *   WORK        = Anwesenheit vor Ort
- *   HOME_OFFICE = Anwesenheit im Home Office — rechnerisch IDENTISCH zu
- *                 WORK (zählt als Arbeitszeit), nur zur Unterscheidung.
- *   BREAK       = unbezahlte Pause, liegt innerhalb einer Anwesenheit.
+ * Block types:
+ *   WORK        = Presence on site
+ *   HOME_OFFICE = Presence in home office — computationally IDENTICAL to
+ *                 WORK (counts as working time), only for distinction.
+ *   BREAK       = unpaid break, within a presence period.
  */
 export type DayBlockType = "WORK" | "HOME_OFFICE" | "BREAK";
 
-/** WORK und HOME_OFFICE zählen beide als "Anwesenheit" (Presence). */
+/** WORK and HOME_OFFICE both count as "Presence". */
 export function isPresenceType(t: DayBlockType): boolean {
   return t === "WORK" || t === "HOME_OFFICE";
 }
@@ -42,20 +42,20 @@ export interface DayBlockInput {
 const HHMM = /^([01]\d|2[0-3]):[0-5]\d$/;
 
 /**
- * Gibt eine deutsche Fehlermeldung zurück oder `null`, wenn die Blöcke
- * gültig sind. Leere Block-Liste (= Leer-Tag) ist gültig.
+ * Returns an error message or `null` if the blocks are valid.
+ * Empty block list (= empty day) is valid.
  */
 export function validateDayBlocks(blocks: DayBlockInput[]): string | null {
-  // 1) Format + Beginn < Ende
+  // 1) Format + start < end
   for (const b of blocks) {
-    if (!HHMM.test(b.start)) return `Ungültige Beginn-Zeit: „${b.start}".`;
-    if (!HHMM.test(b.end)) return `Ungültige Ende-Zeit: „${b.end}".`;
+    if (!HHMM.test(b.start)) return `Invalid start time: "${b.start}".`;
+    if (!HHMM.test(b.end)) return `Invalid end time: "${b.end}".`;
     if (b.start >= b.end) {
-      return `Ende muss nach Beginn liegen (${b.start}–${b.end}).`;
+      return `End must be after start (${b.start}–${b.end}).`;
     }
   }
 
-  // Presence = WORK + HOME_OFFICE (beide zählen als Anwesenheit).
+  // Presence = WORK + HOME_OFFICE (both count as presence).
   const work = blocks
     .filter((b) => isPresenceType(b.type))
     .sort((a, b) => a.start.localeCompare(b.start));
@@ -63,30 +63,30 @@ export function validateDayBlocks(blocks: DayBlockInput[]): string | null {
     .filter((b) => b.type === "BREAK")
     .sort((a, b) => a.start.localeCompare(b.start));
 
-  // 2) Anwesenheiten (Arbeit/Home Office) dürfen sich nicht überlappen
+  // 2) Presences (work/home office) must not overlap
   for (let i = 0; i < work.length - 1; i++) {
     if (work[i].end > work[i + 1].start) {
-      return `Arbeitszeiten überlappen sich: ${work[i].start}–${work[i].end} und ${work[i + 1].start}–${work[i + 1].end}.`;
+      return `Working times overlap: ${work[i].start}–${work[i].end} and ${work[i + 1].start}–${work[i + 1].end}.`;
     }
   }
 
-  // 3) Jede Pause muss vollständig innerhalb einer Arbeitszeit liegen
+  // 3) Each break must be entirely within a working time
   for (const br of breaks) {
     const within = work.some(
       (w) => br.start >= w.start && br.end <= w.end,
     );
     if (!within) {
       if (work.length === 0) {
-        return `Pause ${br.start}–${br.end} ohne Arbeitszeit — bitte zuerst die Arbeitszeit (Anwesenheit) erfassen.`;
+        return `Break ${br.start}–${br.end} without working time — please enter working time (presence) first.`;
       }
-      return `Die Pause ${br.start}–${br.end} muss innerhalb einer Arbeitszeit liegen.`;
+      return `Break ${br.start}–${br.end} must be within a working time.`;
     }
   }
 
-  // 4) Pausen dürfen sich nicht gegenseitig überlappen
+  // 4) Breaks must not overlap each other
   for (let i = 0; i < breaks.length - 1; i++) {
     if (breaks[i].end > breaks[i + 1].start) {
-      return `Pausen überlappen sich: ${breaks[i].start}–${breaks[i].end} und ${breaks[i + 1].start}–${breaks[i + 1].end}.`;
+      return `Breaks overlap: ${breaks[i].start}–${breaks[i].end} and ${breaks[i + 1].start}–${breaks[i + 1].end}.`;
     }
   }
 

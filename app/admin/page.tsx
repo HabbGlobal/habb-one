@@ -214,22 +214,19 @@ export default async function AdminDashboardPage() {
           <h1 className="text-2xl font-semibold">
             {company?.name ?? "Dashboard"}
           </h1>
-          <p className="text-sm text-muted-foreground mt-1">
-            Stand: {refreshedAt} ({ZONE}) · Auto-Refresh alle 15 s
-          </p>
+          <p className="text-sm text-muted-foreground mt-1">As of: {refreshedAt} ({ZONE}) · Auto-refresh every 15 s</p>
         </div>
       </div>
 
       {/* ─── Block 1: Geschäfts-KPIs ─────────────────────────────── */}
       {kpis && (
         <section>
-          <h2 className="text-xs uppercase tracking-wider text-muted-foreground font-medium mb-3">
-            Geschäft — {monthLabel}
+          <h2 className="text-xs uppercase tracking-wider text-muted-foreground font-medium mb-3">Business —{monthLabel}
           </h2>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
             {canSeeFinance && (
               <KpiCard
-                label="Umsatz Monat"
+                label="Monthly Revenue"
                 value={CHF_LARGE(kpis.revenueThisMonthNet)}
                 icon={Banknote}
                 tone="emerald"
@@ -237,19 +234,19 @@ export default async function AdminDashboardPage() {
                 subline={
                   kpis.revenueTrendPct != null
                     ? `vs. ${CHF_LARGE(kpis.revenuePrevMonthNet)} Vormonat`
-                    : "kein Vormonats-Vergleich"
+                    : "no previous month comparison"
                 }
               />
             )}
             {canSeeFinance && (
               <KpiCard
-                label="Offene Forderungen"
+                label="Outstanding Claims"
                 value={CHF_LARGE(kpis.outstandingGrossCHF)}
                 icon={Receipt}
                 tone={kpis.overdueCount > 0 ? "rose" : "blue"}
                 subline={
                   kpis.outstandingCount === 0
-                    ? "alle Rechnungen bezahlt"
+                    ? "all invoices paid"
                     : kpis.overdueCount > 0
                       ? `${kpis.outstandingCount} offen, davon ${kpis.overdueCount} überfällig`
                       : `${kpis.outstandingCount} offen`
@@ -258,13 +255,13 @@ export default async function AdminDashboardPage() {
             )}
             {canSeeOrders && (
               <KpiCard
-                label="Aktive Aufträge"
+                label="Active Orders"
                 value={String(kpis.activeOrdersCount)}
                 icon={ClipboardList}
                 tone="blue"
                 subline={
                   kpis.activeOrdersCount === 0
-                    ? "keine aktiven Aufträge"
+                    ? "no active orders"
                     : `${kpis.activeOrdersInProgress} in Arbeit · ${kpis.activeOrdersConfirmed} bestätigt`
                 }
                 trendPct={
@@ -278,13 +275,13 @@ export default async function AdminDashboardPage() {
             )}
             {canSeeQuotes && (
               <KpiCard
-                label="Offerten im Umlauf"
+                label="Quotes in Circulation"
                 value={String(kpis.openQuotesCount)}
                 icon={FileText}
                 tone="purple"
                 subline={
                   kpis.openQuotesCount === 0
-                    ? "keine offenen Offerten"
+                    ? "no open quotes"
                     : `Gesamtwert ${CHF_LARGE(kpis.openQuotesNetCHF)}`
                 }
               />
@@ -296,46 +293,44 @@ export default async function AdminDashboardPage() {
       {/* ─── Block 2: Werkstatt-Live ─────────────────────────────── */}
       {canSeeEmployees && employeeRows.length > 0 && (
         <section>
-          <h2 className="text-xs uppercase tracking-wider text-muted-foreground font-medium mb-3">
-            Werkstatt heute
-          </h2>
+          <h2 className="text-xs uppercase tracking-wider text-muted-foreground font-medium mb-3">Workshop Today</h2>
           <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
             <KpiCard
-              label="Eingestempelt"
+              label="Clocked In"
               value={String(presentNow.length)}
               icon={UsersIcon}
               tone="emerald"
               subline={
                 presentNow.length === 0
-                  ? "niemand aktuell anwesend"
+                  ? "no one currently present"
                   : `von ${employeeRows.length} aktiven Mitarbeitern`
               }
             />
             <KpiCard
-              label="In Pause"
+              label="On Break"
               value={String(onBreak.length)}
               icon={Coffee}
               tone="amber"
             />
             <KpiCard
-              label="Warnungen"
+              label="Warnings"
               value={String(allWarnings.length)}
               icon={AlertTriangle}
               tone={allWarnings.length > 0 ? "rose" : "slate"}
               subline={
                 allWarnings.length === 0
-                  ? "alles im grünen Bereich"
-                  : "siehe unten"
+                  ? "everything in the green"
+                  : "see below"
               }
             />
             <KpiCard
-              label="Heute total"
+              label="Today Total"
               value={formatHours(
                 employeeRows.reduce((sum, r) => sum + r.todayWorkedMin, 0),
               )}
               icon={Activity}
               tone="blue"
-              subline="geleistete Arbeitszeit"
+              subline="hours worked"
             />
           </div>
         </section>
@@ -355,8 +350,7 @@ export default async function AdminDashboardPage() {
           <CardHeader className="pb-3">
             <CardTitle className="text-base flex items-center gap-2">
               <AlertTriangle className="h-4 w-4 text-habb-red" />
-              Personal-Warnungen
-            </CardTitle>
+              Personal-Warnings</CardTitle>
           </CardHeader>
           <CardContent>
             <ul className="space-y-2 text-sm">
@@ -394,10 +388,10 @@ export default async function AdminDashboardPage() {
                 <TableRow>
                   <TableHead>Name</TableHead>
                   <TableHead>Status</TableHead>
-                  <TableHead>Seit</TableHead>
-                  <TableHead className="text-right">Heute</TableHead>
+                  <TableHead>Since</TableHead>
+                  <TableHead className="text-right">Today</TableHead>
                   <TableHead className="text-right">Week</TableHead>
-                  <TableHead className="text-right">Saldo</TableHead>
+                  <TableHead className="text-right">Balance</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
@@ -448,10 +442,8 @@ export default async function AdminDashboardPage() {
       {/* ─── Empty-State für Rollen ohne Sicht auf irgendwas ─────── */}
       {!canSeeFinance && !canSeeOrders && !canSeeQuotes && !canSeeEmployees && (
         <Card>
-          <CardContent className="py-10 text-center text-sm text-muted-foreground">
-            Du hast aktuell keine Zugriffsrechte für die Dashboard-Ansicht.
-            Wende dich an den Super-Admin.
-          </CardContent>
+          <CardContent className="py-10 text-center text-sm text-muted-foreground">You currently have no access rights for the dashboard view.
+            Contact the super-admin.</CardContent>
         </Card>
       )}
     </div>
@@ -460,11 +452,11 @@ export default async function AdminDashboardPage() {
 
 function warningLabel(key: string): string {
   const labels: Record<string, string> = {
-    missingClockOut: "Fehlende Ausstempelung",
-    longWorkday: "Langer Arbeitstag",
-    missingBreak: "Fehlende Pause",
-    highOvertime: "Hohe Überstunden",
-    highNegative: "Negativer Saldo",
+    missingClockOut: "Missing clock-out",
+    longWorkday: "Long workday",
+    missingBreak: "Missing break",
+    highOvertime: "High overtime",
+    highNegative: "Negative balance",
   };
   return labels[key] ?? key;
 }
@@ -475,10 +467,10 @@ function StatusBadge({
   status: "IN" | "OUT" | "BREAK" | "ABSENT";
 }) {
   const map = {
-    IN: { label: "Eingestempelt", variant: "success" as const },
-    OUT: { label: "Ausgestempelt", variant: "secondary" as const },
-    BREAK: { label: "In Pause", variant: "warning" as const },
-    ABSENT: { label: "Abwesend", variant: "info" as const },
+    IN: { label: "Clocked In", variant: "success" as const },
+    OUT: { label: "Clocked Out", variant: "secondary" as const },
+    BREAK: { label: "On Break", variant: "warning" as const },
+    ABSENT: { label: "Absent", variant: "info" as const },
   }[status];
   return <Badge variant={map.variant}>{map.label}</Badge>;
 }

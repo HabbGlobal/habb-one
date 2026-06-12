@@ -1,5 +1,5 @@
-// Excel-Export für die drei ERP-Reports. Pure Funktion: nimmt Report-DTO,
-// liefert Buffer.
+// Excel export for the three ERP reports. Pure function: takes Report DTO,
+// returns buffer.
 
 import ExcelJS from "exceljs";
 import type { CalcAccuracyReport } from "./calculation";
@@ -42,22 +42,22 @@ export async function calcAccuracyXlsx(
   const wb = new ExcelJS.Workbook();
   wb.creator = exportedBy;
   wb.created = new Date();
-  wb.title = `Kalkulations-Genauigkeit ${fmtPeriod(r.period.from, r.period.to)}`;
+  wb.title = `Calculation Accuracy ${fmtPeriod(r.period.from, r.period.to)}`;
 
-  const ws = wb.addWorksheet("Kalkulation");
+  const ws = wb.addWorksheet("Calculation");
   ws.columns = [
     { header: "Order", key: "orderNumber", width: 18 },
     { header: "Customer", key: "customerName", width: 32 },
     { header: "Status", key: "status", width: 14 },
-    { header: "Liefertermin", key: "promisedAt", width: 14 },
+    { header: "Delivery date", key: "promisedAt", width: 14 },
     { header: "Pos.", key: "itemCount", width: 6 },
-    { header: "Schätzung (Min)", key: "estimatedMinutes", width: 16 },
-    { header: "Ist (Min)", key: "actualMinutes", width: 14 },
-    { header: "Verrechnet (Min)", key: "billedMinutes", width: 16 },
-    { header: "Abw. Ist vs. Schätz. (%)", key: "deviationActualVsEstimatedPct", width: 22 },
-    { header: "Abw. Verr. vs. Schätz. (%)", key: "deviationBilledVsEstimatedPct", width: 24 },
-    { header: "Schätzung CHF", key: "estimatedCHF", width: 14 },
-    { header: "Verrechnet CHF", key: "billedCHF", width: 14 },
+    { header: "Estimate (min)", key: "estimatedMinutes", width: 16 },
+    { header: "Actual (min)", key: "actualMinutes", width: 14 },
+    { header: "Billed (min)", key: "billedMinutes", width: 16 },
+    { header: "Deviation Actual vs. Est. (%)", key: "deviationActualVsEstimatedPct", width: 22 },
+    { header: "Deviation Billed vs. Est. (%)", key: "deviationBilledVsEstimatedPct", width: 24 },
+    { header: "Estimate CHF", key: "estimatedCHF", width: 14 },
+    { header: "Billed CHF", key: "billedCHF", width: 14 },
   ];
   styleHeader(ws);
 
@@ -83,7 +83,7 @@ export async function calcAccuracyXlsx(
     });
   }
 
-  // Total-Zeile
+  // Total row
   const total = ws.addRow({
     orderNumber: "TOTAL",
     customerName: "",
@@ -116,16 +116,16 @@ export async function machineUtilizationXlsx(
   const wb = new ExcelJS.Workbook();
   wb.creator = exportedBy;
   wb.created = new Date();
-  wb.title = `Maschinen-Auslastung ${fmtPeriod(r.period.from, r.period.to)}`;
+  wb.title = `Machine Utilization ${fmtPeriod(r.period.from, r.period.to)}`;
 
-  const ws = wb.addWorksheet("Maschinen-Auslastung");
+  const ws = wb.addWorksheet("Machine Utilization");
   ws.columns = [
     { header: "Machine", key: "machineName", width: 28 },
-    { header: "Typ", key: "machineType", width: 18 },
-    { header: "Verfügbar (h)", key: "available", width: 14 },
-    { header: "Gebucht (h)", key: "booked", width: 14 },
-    { header: "Auslastung (%)", key: "utilizationPct", width: 16 },
-    { header: "Buchungen", key: "bookingCount", width: 12 },
+    { header: "Type", key: "machineType", width: 18 },
+    { header: "Available (h)", key: "available", width: 14 },
+    { header: "Booked (h)", key: "booked", width: 14 },
+    { header: "Utilization (%)", key: "utilizationPct", width: 16 },
+    { header: "Bookings", key: "bookingCount", width: 12 },
   ];
   styleHeader(ws);
 
@@ -138,7 +138,7 @@ export async function machineUtilizationXlsx(
       utilizationPct: row.utilizationPct,
       bookingCount: row.bookingCount,
     });
-    // Farbliche Markierung — überlastete Maschinen rot, freie blau
+    // Color marking — overloaded machines red, free ones blue
     if (row.utilizationPct > 90) {
       r2.getCell("utilizationPct").font = { color: { argb: "FFB91C1C" }, bold: true };
     } else if (row.utilizationPct < 30) {
@@ -172,14 +172,14 @@ export async function employeeProductivityXlsx(
   const wb = new ExcelJS.Workbook();
   wb.creator = exportedBy;
   wb.created = new Date();
-  wb.title = `Mitarbeiter-Produktivität ${fmtPeriod(r.period.from, r.period.to)}`;
+  wb.title = `Employee Productivity ${fmtPeriod(r.period.from, r.period.to)}`;
 
-  const ws = wb.addWorksheet("Produktivität");
+  const ws = wb.addWorksheet("Productivity");
   ws.columns = [
-    { header: "Nr.", key: "employeeNumber", width: 8 },
-    { header: "Nachname", key: "lastName", width: 20 },
-    { header: "Vorname", key: "firstName", width: 18 },
-    { header: "Schritte", key: "stepCount", width: 10 },
+    { header: "No.", key: "employeeNumber", width: 8 },
+    { header: "Last name", key: "lastName", width: 20 },
+    { header: "First name", key: "firstName", width: 18 },
+    { header: "Steps", key: "stepCount", width: 10 },
     { header: "Total (h)", key: "totalHours", width: 12 },
     { header: "Billable (h)", key: "billableHours", width: 12 },
     { header: "Quote (%)", key: "quotaPct", width: 12 },

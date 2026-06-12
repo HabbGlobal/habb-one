@@ -1,7 +1,7 @@
 "use client";
 
-// Form für Process-Vorlagen — Schritte hinzufügen/entfernen/sortieren.
-// Benutzt von /admin/templates/new (mode="create") und /admin/templates/[id]
+// Form for process templates — add/remove/sort steps.
+// Used by /admin/templates/new (mode="create") and /admin/templates/[id]
 // (mode="edit").
 
 import { useState, useTransition } from "react";
@@ -88,7 +88,7 @@ export function TemplateForm({
 
   const removeStep = (idx: number) => {
     if (steps.length <= 1) {
-      alert("Mindestens ein Schritt erforderlich.");
+      alert("At least one step is required.");
       return;
     }
     setSteps((prev) =>
@@ -119,7 +119,7 @@ export function TemplateForm({
   const submit = () => {
     setError(null);
     if (!label.trim()) {
-      setError("Bezeichnung ist Pflicht.");
+      setError("Label is required.");
       return;
     }
     const payload = {
@@ -145,7 +145,7 @@ export function TemplateForm({
           router.refresh();
         }
       } catch (err) {
-        setError(err instanceof Error ? err.message : "Fehler.");
+        setError(err instanceof Error ? err.message : "Error.");
       }
     });
   };
@@ -155,15 +155,15 @@ export function TemplateForm({
       {/* Stammdaten */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
         <div className="space-y-1 md:col-span-2">
-          <Label>Bezeichnung *</Label>
+          <Label>Label *</Label>
           <Input
             value={label}
             onChange={(e) => setLabel(e.target.value)}
-            placeholder="z. B. Sondervorbehandlung Aluminium"
+            placeholder="e.g. Special pre-treatment aluminium"
           />
         </div>
         <div className="space-y-1">
-          <Label>Reihenfolge (Sortierung)</Label>
+          <Label>Order (sorting)</Label>
           <Input
             type="number"
             value={sortOrder}
@@ -172,12 +172,12 @@ export function TemplateForm({
           />
         </div>
         <div className="space-y-1 md:col-span-3">
-          <Label>Beschreibung</Label>
+          <Label>Description</Label>
           <Textarea
             rows={2}
             value={description}
             onChange={(e) => setDescription(e.target.value)}
-            placeholder="Wofür wird diese Vorlage verwendet, wann sollte sie gewählt werden?"
+            placeholder="What is this template used for, when should it be selected?"
           />
         </div>
       </div>
@@ -185,9 +185,9 @@ export function TemplateForm({
       {/* Schritte */}
       <Card>
         <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-          <CardTitle className="text-base">Prozessschritte ({steps.length})</CardTitle>
+          <CardTitle className="text-base">Process steps ({steps.length})</CardTitle>
           <Button type="button" variant="outline" size="sm" onClick={addStep}>
-            <Plus className="h-4 w-4 mr-1" /> Schritt
+            <Plus className="h-4 w-4 mr-1" /> Step
           </Button>
         </CardHeader>
         <CardContent className="space-y-2">
@@ -218,13 +218,13 @@ export function TemplateForm({
                 </button>
               </div>
               <div className="col-span-3">
-                <Label className="text-xs">Prozessschritt</Label>
+                <Label className="text-xs">Process step</Label>
                 <Select
                   value={s.processCode}
                   onChange={(e) => onProcessCodeChange(idx, e.target.value as ProcessCode)}
                   className="text-xs"
                 >
-                  {(["Vorbereitung", "Sandstrahlen", "Nasslackieren", "Pulverbeschichtung", "Nachbereitung"] as const).map(
+                  {(["Preparation", "Sandblasting", "Wet Painting", "Powder Coating", "Post-processing"] as const).map(
                     (group) => (
                       <optgroup key={group} label={group}>
                         {PROCESS_CODES.filter((c) => PROCESS_GROUP[c] === group).map((c) => (
@@ -238,7 +238,7 @@ export function TemplateForm({
                 </Select>
               </div>
               <div className="col-span-2">
-                <Label className="text-xs">Mitarbeiter:in</Label>
+                <Label className="text-xs">Worker</Label>
                 <Select
                   value={s.skillRequired}
                   onChange={(e) =>
@@ -264,7 +264,7 @@ export function TemplateForm({
                   }
                   className="text-xs"
                 >
-                  <option value="">— keine —</option>
+                  <option value="">— none —</option>
                   {MACHINE_TYPES.map((m) => (
                     <option key={m} value={m}>
                       {MACHINE_LABEL[m]}
@@ -273,7 +273,7 @@ export function TemplateForm({
                 </Select>
               </div>
               <div className="col-span-2">
-                <Label className="text-xs">Wartezeit (Min)</Label>
+                <Label className="text-xs">Wait time (min)</Label>
                 <Input
                   type="number"
                   min={0}
@@ -298,7 +298,7 @@ export function TemplateForm({
                 <Input
                   value={s.notes}
                   onChange={(e) => updateStep(idx, { notes: e.target.value })}
-                  placeholder="Notiz (optional)"
+                  placeholder="Note (optional)"
                   className="text-xs h-8"
                 />
               </div>
@@ -316,7 +316,7 @@ export function TemplateForm({
       <div className="flex justify-end gap-2 pt-2 border-t">
         <Button variant="ghost" onClick={() => router.back()} disabled={pending}>Cancel</Button>
         <Button onClick={submit} disabled={pending || !label.trim()}>
-          {pending ? "Saving..." : mode === "create" ? "Vorlage anlegen" : "Save"}
+          {pending ? "Saving..." : mode === "create" ? "Create template" : "Save"}
         </Button>
       </div>
     </div>

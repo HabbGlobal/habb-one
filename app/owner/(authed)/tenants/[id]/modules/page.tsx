@@ -33,15 +33,15 @@ export default async function TenantModulesPage({
 
   return (
     <div className="space-y-6">
-      {/* ── Plan-Steuerung: Switch plan → Module folgen automatisch ── */}
+      {/* ── Plan control: Switch plan → Modules follow automatically ── */}
       <section className="rounded-lg border border-habb-line bg-white">
         <header className="flex flex-wrap items-start justify-between gap-3 border-b border-habb-line px-5 py-3">
           <div>
             <h2 className="text-sm font-medium text-habb-ink">Plan</h2>
             <p className="mt-0.5 text-xs text-habb-muted">
-              Der Plan bestimmt die enthaltenen Module. Beim Wechsel werden sie
-              automatisch aktiviert (Upgrade) bzw. entfernt (Downgrade). Manuelle
-              Sonderfreischaltungen/-sperren unten <strong>bleiben erhalten</strong>.
+              The plan determines the included modules. When switching, they are
+              automatically activated (upgrade) or removed (downgrade). Manual
+              custom overrides below <strong>are preserved</strong>.
             </p>
           </div>
           <PlanChangeAction
@@ -57,7 +57,7 @@ export default async function TenantModulesPage({
         <div className="flex flex-wrap items-center gap-x-8 gap-y-3 px-5 py-4">
           <div>
             <p className="text-[10px] uppercase tracking-wide text-habb-muted">
-              Aktiver Plan
+              Active plan
             </p>
             <p className="mt-0.5 text-base font-semibold text-habb-ink">
               {planSpec?.label ?? tenant.plan}
@@ -72,7 +72,7 @@ export default async function TenantModulesPage({
           </div>
           <div className="min-w-0 flex-1">
             <p className="text-[10px] uppercase tracking-wide text-habb-muted">
-              Im Plan enthaltene Module
+              Modules included in plan
             </p>
             {planSpec && planSpec.modules.length > 0 ? (
               <ul className="mt-1 flex flex-wrap gap-x-4 gap-y-1">

@@ -38,7 +38,7 @@ export default async function NewInvoicePage() {
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="text-2xl font-semibold">Neue Rechnung</h1>
+        <h1 className="text-2xl font-semibold">New Invoice</h1>
         <p className="text-sm text-muted-foreground">
           Status startet als <strong>Entwurf</strong>. Beim Versenden wird eine
           QR-Referenz vergeben — danach unveränderlich.

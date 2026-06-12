@@ -50,7 +50,7 @@ export function StammdatenForm({ initial }: Props) {
 
   const submit = (reasonText: string) => {
     if (reasonText.trim().length < 10) {
-      setError("Begründung muss mindestens 10 Zeichen lang sein.");
+      setError("Reason must be at least 10 characters long.");
       return;
     }
     setError(null);
@@ -109,18 +109,18 @@ export function StammdatenForm({ initial }: Props) {
         </header>
         <dl className="grid grid-cols-1 gap-x-8 gap-y-3 px-5 py-4 sm:grid-cols-2">
           <Row label="Name" value={initial.name} />
-          <Row label="Adresse" value={initial.address || "—"} />
-          <Row label="Ort" value={initial.city || "—"} />
-          <Row label="Land" value={initial.country} />
-          <Row label="Zeitzone" value={initial.timezone} />
+          <Row label="Address" value={initial.address || "—"} />
+          <Row label="City" value={initial.city || "—"} />
+          <Row label="Country" value={initial.country} />
+          <Row label="Timezone" value={initial.timezone} />
           <Row
-            label="Standardsprache"
+            label="Default language"
             value={LANGUAGES.find((l) => l.value === initial.defaultLanguage)?.label ?? initial.defaultLanguage.toUpperCase()}
           />
-          <Row label="MwSt-Nr." value={initial.vatNumber || "—"} />
+          <Row label="VAT No." value={initial.vatNumber || "—"} />
           <Row label="QR-IBAN" value={initial.qrIban || "—"} mono />
-          <Row label="Rechnungs-Empfänger" value={initial.invoiceCreditorName || "—"} />
-          <Row label="Zahlungsfrist" value={`${initial.invoicePaymentTerms} Tage`} />
+          <Row label="Invoice recipient" value={initial.invoiceCreditorName || "—"} />
+          <Row label="Payment terms" value={`${initial.invoicePaymentTerms} days`} />
         </dl>
       </section>
     );
@@ -150,14 +150,14 @@ export function StammdatenForm({ initial }: Props) {
             />
           </Field>
 
-          <Field label="Land *">
+          <Field label="Country *">
             <select
               required
               value={form.country}
               onChange={(e) => setForm({ ...form, country: e.target.value })}
               className={inputCls}
             >
-              {/* aktuellen Wert auch zeigen, falls er nicht in der Liste ist */}
+              {/* also show current value if it's not in the list */}
               {!COUNTRY_OPTIONS.some((c) => c.code === form.country) && form.country && (
                 <option value={form.country}>{form.country}</option>
               )}
@@ -169,7 +169,7 @@ export function StammdatenForm({ initial }: Props) {
             </select>
           </Field>
 
-          <Field label="Adresse">
+          <Field label="Address">
             <input
               value={form.address ?? ""}
               onChange={(e) => setForm({ ...form, address: e.target.value })}
@@ -177,7 +177,7 @@ export function StammdatenForm({ initial }: Props) {
             />
           </Field>
 
-          <Field label="Ort">
+          <Field label="City">
             <input
               value={form.city ?? ""}
               onChange={(e) => setForm({ ...form, city: e.target.value })}
@@ -185,7 +185,7 @@ export function StammdatenForm({ initial }: Props) {
             />
           </Field>
 
-          <Field label="Zeitzone">
+          <Field label="Timezone">
             <select
               value={form.timezone}
               onChange={(e) => setForm({ ...form, timezone: e.target.value })}
@@ -202,7 +202,7 @@ export function StammdatenForm({ initial }: Props) {
             </select>
           </Field>
 
-          <Field label="Standardsprache">
+          <Field label="Default language">
             <select
               value={form.defaultLanguage}
               onChange={(e) => setForm({ ...form, defaultLanguage: e.target.value })}
@@ -216,7 +216,7 @@ export function StammdatenForm({ initial }: Props) {
             </select>
           </Field>
 
-          <Field label="MwSt-Nr.">
+          <Field label="VAT No.">
             <input
               value={form.vatNumber ?? ""}
               onChange={(e) => setForm({ ...form, vatNumber: e.target.value })}
@@ -235,16 +235,16 @@ export function StammdatenForm({ initial }: Props) {
             />
           </Field>
 
-          <Field label="Rechnungs-Empfänger">
+          <Field label="Invoice recipient">
             <input
               value={form.invoiceCreditorName ?? ""}
               onChange={(e) => setForm({ ...form, invoiceCreditorName: e.target.value })}
-              placeholder="Falls anders als Firmenname"
+              placeholder="If different from company name"
               className={inputCls}
             />
           </Field>
 
-          <Field label="Zahlungsfrist (Tage)">
+          <Field label="Payment terms (days)">
             <input
               type="number"
               min={0}
@@ -256,12 +256,12 @@ export function StammdatenForm({ initial }: Props) {
           </Field>
 
           <div className="sm:col-span-2">
-            <Field label="Begründung (Pflicht, ≥ 10 Zeichen)">
+            <Field label="Reason (required, ≥ 10 characters)">
               <textarea
                 value={reason}
                 onChange={(e) => setReason(e.target.value)}
                 rows={2}
-                placeholder="z.B. Adresswechsel — Mail von Kunde vom 12.05.2026"
+                placeholder="e.g. Address change — mail from customer on 12.05.2026"
                 className={inputCls}
               />
             </Field>
@@ -301,7 +301,7 @@ export function StammdatenForm({ initial }: Props) {
           setShowSudo(false);
           submit(reason);
         }}
-        actionLabel="Stammdaten ändern"
+        actionLabel="Edit master data"
       />
     </>
   );

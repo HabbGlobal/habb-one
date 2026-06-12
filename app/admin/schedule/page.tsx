@@ -130,7 +130,7 @@ export default async function SchedulePage({
       select: { id: true, name: true, colorHex: true },
     }),
     // Approved or pending absences whose period overlaps the visible range.
-    // Used to mark "Mitarbeiter abwesend" cells red even when no schedule
+    // Used to mark "employee absent" cells red even when no schedule
     // entry has been created for those days yet.
     prisma.absence.findMany({
       where: {
@@ -240,7 +240,7 @@ export default async function SchedulePage({
           <h1 className="text-2xl font-semibold">{heading}</h1>
           {scheduleMonth?.publishedAt && (
             <p className="text-xs text-muted-foreground">
-              Veröffentlicht am {scheduleMonth.publishedAt.toLocaleString("de-CH")}
+              Published on {scheduleMonth.publishedAt.toLocaleString("de-CH")}
             </p>
           )}
         </div>
@@ -280,10 +280,10 @@ export default async function SchedulePage({
 
 function StatusBadge({ status }: { status: string }) {
   const map: Record<string, { label: string; variant: "secondary" | "success" | "warning" | "info" }> = {
-    DRAFT: { label: "Entwurf", variant: "secondary" },
-    PUBLISHED: { label: "Veröffentlicht", variant: "success" },
-    CHANGED_AFTER_PUBLISHING: { label: "Geändert nach Veröffentlichung", variant: "warning" },
-    ARCHIVED: { label: "Archiviert", variant: "secondary" },
+    DRAFT: { label: "Draft", variant: "secondary" },
+    PUBLISHED: { label: "Published", variant: "success" },
+    CHANGED_AFTER_PUBLISHING: { label: "Modified after publishing", variant: "warning" },
+    ARCHIVED: { label: "Archived", variant: "secondary" },
   };
   const cfg = map[status] ?? map.DRAFT;
   return <Badge variant={cfg.variant}>{cfg.label}</Badge>;

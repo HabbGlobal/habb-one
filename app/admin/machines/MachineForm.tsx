@@ -107,7 +107,7 @@ export function MachineForm({ initial, areas, mode }: Props) {
             />
           </div>
           <div className="space-y-1">
-            <Label>Typ *</Label>
+            <Label>Typeee *</Label>
             <Select
               value={data.type}
               onChange={(e) => update("type", e.target.value)}

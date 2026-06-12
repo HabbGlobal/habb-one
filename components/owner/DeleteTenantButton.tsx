@@ -11,9 +11,9 @@ interface Props {
 }
 
 /**
- * UNWIDERRUFLICHE Tenanten-Löschung. Nur sichtbar wenn der Tenant
- * bereits suspendiert ist (Server erzwingt das zusätzlich). OWNER_ROOT
- * + Sudo + Begründung; der Server prüft alles erneut.
+ * IRREVOCABLE tenant deletion. Only visible when the tenant is already
+ * suspended (server enforces this additionally). OWNER_ROOT + Sudo + reason;
+ * the server re-checks everything.
  */
 export function DeleteTenantButton({ tenantId, tenantName }: Props) {
   const router = useRouter();
@@ -25,7 +25,7 @@ export function DeleteTenantButton({ tenantId, tenantName }: Props) {
 
   const submit = (reasonText: string) => {
     if (reasonText.trim().length < 10) {
-      setError("Begründung muss mindestens 10 Zeichen lang sein.");
+      setError("Reason must be at least 10 characters long.");
       return;
     }
     setError(null);
@@ -37,7 +37,7 @@ export function DeleteTenantButton({ tenantId, tenantName }: Props) {
       });
       if (res.ok) {
         setOpen(false);
-        // Tenant existiert nicht mehr — zurück zur Overview.
+        // Tenant no longer exists — back to overview.
         router.push("/owner/tenants");
         router.refresh();
         return;
@@ -52,16 +52,16 @@ export function DeleteTenantButton({ tenantId, tenantName }: Props) {
       const json = await res.json().catch(() => ({}));
       const map: Record<string, string> = {
         NOT_SUSPENDED:
-          "Tenant muss zuerst suspendiert werden, bevor er gelöscht werden kann.",
-        NOT_FOUND: "Tenant nicht gefunden.",
-        UNAUTHORIZED: "Keine Permission (OWNER_ROOT erforderlich).",
+          "Tenant must be suspended first before it can be deleted.",
+        NOT_FOUND: "Tenant not found.",
+        UNAUTHORIZED: "No permission (OWNER_ROOT required).",
       };
       const msg =
         map[json?.error] ||
         (json?.error === "DELETE_FAILED" && json?.message
-          ? `Löschung fehlgeschlagen: ${json.message}`
+          ? `Deletion failed: ${json.message}`
           : json?.message) ||
-        "Löschung fehlgeschlagen.";
+        "Deletion failed.";
       setError(msg);
     });
   };
@@ -89,7 +89,7 @@ export function DeleteTenantButton({ tenantId, tenantName }: Props) {
           <div className="w-full max-w-md rounded-xl border border-habb-line bg-white shadow-xl">
             <header className="flex items-center justify-between border-b border-habb-line px-5 py-4">
               <h2 className="text-sm font-semibold text-habb-red">
-                Tenant unwiderruflich löschen
+                Permanently delete tenant
               </h2>
               <button
                 type="button"
@@ -111,22 +111,22 @@ export function DeleteTenantButton({ tenantId, tenantName }: Props) {
               <div className="flex gap-2 rounded-md border border-habb-red/30 bg-habb-red/5 px-3 py-2.5 text-sm text-habb-red">
                 <AlertTriangle className="mt-0.5 h-4 w-4 shrink-0" />
                 <p>
-                  <strong>{tenantName}</strong> wird mit{" "}
-                  <strong>all data</strong> (Kunden, Aufträge, Offerten,
-                  Rechnungen, Mitarbeitende, Zeiterfassung) und{" "}
-                  <strong>allen Userkonten</strong> endgültig entfernt.
-                  Das kann <strong>not be undone</strong> .
+                  <strong>{tenantName}</strong> will be permanently removed with{" "}
+                  <strong>all data</strong> (customers, orders, quotes,
+                  invoices, employees, time tracking) and{" "}
+                  <strong>all user accounts</strong>.
+                  This <strong>cannot be undone</strong>.
                 </p>
               </div>
               <label className="block text-xs font-medium uppercase tracking-wide text-habb-muted">
-                Begründung (Pflicht, ≥ 10 Zeichen)
+                Reason (required, ≥ 10 characters)
               </label>
               <textarea
                 value={reason}
                 onChange={(e) => setReason(e.target.value)}
                 rows={3}
                 className="block w-full rounded-md border border-habb-line bg-white px-3 py-2 text-sm focus:border-habb-black focus:outline-none focus:ring-2 focus:ring-habb-red focus:ring-offset-2"
-                placeholder="z.B. Vertragsende + DSG-Löschauftrag — Ticket #1234"
+                placeholder="e.g. Contract ended + DPA deletion request — Ticket #1234"
               />
               {error && (
                 <p
@@ -163,7 +163,7 @@ export function DeleteTenantButton({ tenantId, tenantName }: Props) {
           setShowSudo(false);
           submit(reason);
         }}
-        actionLabel="Tenant löschen"
+        actionLabel="Delete tenant"
       />
     </>
   );

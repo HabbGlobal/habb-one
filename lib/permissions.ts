@@ -3,29 +3,29 @@ import { prisma } from "@/lib/prisma";
 import { effectiveRole, isSuperAdmin, type ManagedRole } from "@/lib/roles";
 
 /**
- * Permission-Schlüssel, die quer durch die App verwendet werden.
+ * Permission keys used throughout the app.
  *
- * Strategie:
- *   - **Statische Defaults** (`STATIC_DEFAULTS` unten) definieren das
- *     Default-Verhalten pro Rolle. Dies ist die "sichere" Baseline,
- *     die ohne Datenbank funktioniert.
- *   - **Runtime-Overrides** liegen in der Tabelle `RolePermission`
- *     (per Company). Der SUPERADMIN bearbeitet sie unter
- *     `/admin/roles`. Eine vorhandene Override-Zeile gewinnt IMMER über
- *     den statischen Default — egal ob sie das Recht erlaubt oder verbietet.
- *   - SUPERADMIN bypasst alle Checks und hat IMMER alles.
+ * Strategy:
+ *   - **Static Defaults** (`STATIC_DEFAULTS` below) define the default
+ *     behavior per role. This is the "safe" baseline that works without
+ *     a database.
+ *   - **Runtime Overrides** live in the `RolePermission` table (per
+ *     Company). SUPERADMIN edits them under `/admin/roles`. An existing
+ *     override row ALWAYS wins over the static default — whether it
+ *     grants or denies the permission.
+ *   - SUPERADMIN bypasses all checks and ALWAYS has everything.
  *
  * Backward-compat:
- *   - `hasPermission(role, perm)` bleibt SYNC verfügbar. Sie liest aus
- *     einem Modul-Cache wenn dieser via `loadPermissionMatrix()` (am
- *     Request-Anfang in NextAuth-Session-Callback) befüllt wurde, sonst
- *     fällt sie auf `STATIC_DEFAULTS` zurück.
- *   - Damit funktionieren alle ~127 bestehenden `hasPermission`-Aufrufe
- *     unverändert weiter — sie sehen nach dem Login automatisch die
- *     Override-Werte, weil der Cache vorgewärmt ist.
+ *   - `hasPermission(role, perm)` remains available as SYNC. It reads
+ *     from a module cache if populated via `loadPermissionMatrix()` (at
+ *     request start in NextAuth session callback), otherwise falls back
+ *     to `STATIC_DEFAULTS`.
+ *   - This means all ~127 existing `hasPermission` calls continue to
+ *     work unchanged — they automatically see override values after
+ *     login because the cache is warmed.
  */
 export type Permission =
-  // Personal-Modul
+  // Personnel module
   | "employees.read"
   | "employees.write"
   | "employees.pin.reset"
@@ -45,83 +45,83 @@ export type Permission =
   // ERP — CRM
   | "customers.read"
   | "customers.write"
-  // ERP — Aufträge
+  // ERP — Orders
   | "orders.read"
   | "orders.write"
   | "orders.confirm"
   | "orders.cancel"
-  // ERP — Offerten
+  // ERP — Quotes
   | "quotes.read"
   | "quotes.write"
   | "quotes.send"
-  // ERP — Rechnungen
+  // ERP — Invoices
   | "invoices.read"
   | "invoices.write"
   | "invoices.markPaid"
-  // ERP — Maschinen
+  // ERP — Machines
   | "machines.read"
   | "machines.write"
-  // ERP — Parameter (NUR ADMIN per Default)
+  // ERP — Parameters (ADMIN only by default)
   | "parameters.read"
   | "parameters.write"
-  // ERP — Process-Vorlagen
+  // ERP — Process Templates
   | "templates.read"
   | "templates.write"
-  // System — nur SUPERADMIN per Default
+  // System — SUPERADMIN only by default
   | "roles.manage";
 
-/** Gruppen für die Matrix-UI (Reihenfolge = Anzeige-Reihenfolge). */
+/** Groups for the matrix UI (order = display order). */
 export interface PermissionDefinition {
   key: Permission;
-  group: string; // German group label
-  label: string; // German short label
+  group: string;
+  label: string;
   description?: string;
 }
 
 export const PERMISSION_DEFINITIONS: ReadonlyArray<PermissionDefinition> = [
-  // Personal
-  { key: "employees.read", group: "Personal", label: "Mitarbeitende ansehen" },
-  { key: "employees.write", group: "Personal", label: "Mitarbeitende bearbeiten" },
-  { key: "employees.pin.reset", group: "Personal", label: "PIN zurücksetzen" },
-  { key: "timeEntries.read", group: "Personal", label: "Zeiterfassung ansehen" },
-  { key: "timeEntries.correct", group: "Personal", label: "Zeiten korrigieren" },
-  { key: "absences.read", group: "Personal", label: "Abwesenheiten ansehen" },
-  { key: "absences.write", group: "Personal", label: "Abwesenheiten erfassen" },
-  { key: "absences.approve", group: "Personal", label: "Abwesenheiten freigeben" },
-  { key: "schedule.read", group: "Personal", label: "Personal-Plan ansehen" },
-  { key: "schedule.write", group: "Personal", label: "Personal-Plan bearbeiten" },
-  { key: "schedule.publish", group: "Personal", label: "Personal-Plan veröffentlichen" },
-  { key: "attendance.read", group: "Personal", label: "Anwesenheits-Übersicht ansehen" },
+  // Personnel
+  { key: "employees.read", group: "Personnel", label: "View employees" },
+  { key: "employees.write", group: "Personnel", label: "Edit employees" },
+  { key: "employees.pin.reset", group: "Personnel", label: "Reset PIN" },
+  { key: "timeEntries.read", group: "Personnel", label: "View time entries" },
+  { key: "timeEntries.correct", group: "Personnel", label: "Correct time entries" },
+  { key: "absences.read", group: "Personnel", label: "View absences" },
+  { key: "absences.write", group: "Personnel", label: "Record absences" },
+  { key: "absences.approve", group: "Personnel", label: "Approve absences" },
+  { key: "schedule.read", group: "Personnel", label: "View staff schedule" },
+  { key: "schedule.write", group: "Personnel", label: "Edit staff schedule" },
+  { key: "schedule.publish", group: "Personnel", label: "Publish staff schedule" },
+  { key: "attendance.read", group: "Personnel", label: "View attendance overview" },
   // CRM
-  { key: "customers.read", group: "CRM", label: "Kunden ansehen" },
-  { key: "customers.write", group: "CRM", label: "Kunden bearbeiten" },
-  // Aufträge
-  { key: "orders.read", group: "Orders", label: "Aufträge ansehen" },
-  { key: "orders.write", group: "Orders", label: "Aufträge erstellen/bearbeiten" },
-  { key: "orders.confirm", group: "Orders", label: "Aufträge bestätigen" },
-  { key: "orders.cancel", group: "Orders", label: "Aufträge stornieren" },
-  // Offerten
-  { key: "quotes.read", group: "Offerten", label: "Offerten ansehen" },
-  { key: "quotes.write", group: "Offerten", label: "Offerten erstellen/bearbeiten" },
-  { key: "quotes.send", group: "Offerten", label: "Offerten versenden" },
-  // Rechnungen
-  { key: "invoices.read", group: "Invoices", label: "Rechnungen ansehen" },
-  { key: "invoices.write", group: "Invoices", label: "Rechnungen erstellen/bearbeiten" },
-  { key: "invoices.markPaid", group: "Invoices", label: "Rechnung als bezahlt markieren" },
-  // Maschinen / Vorlagen
-  { key: "machines.read", group: "Werkstatt", label: "Maschinen ansehen" },
-  { key: "machines.write", group: "Werkstatt", label: "Maschinen bearbeiten" },
-  { key: "templates.read", group: "Werkstatt", label: "Process-Vorlagen ansehen" },
-  { key: "templates.write", group: "Werkstatt", label: "Process-Vorlagen bearbeiten" },
-  // Berichte
-  { key: "reports.export", group: "Reports", label: "Berichte exportieren" },
+  { key: "customers.read", group: "CRM", label: "View customers" },
+  { key: "customers.write", group: "CRM", label: "Edit customers" },
+  // Orders
+  { key: "orders.read", group: "Orders", label: "View orders" },
+  { key: "orders.write", group: "Orders", label: "Create/edit orders" },
+  { key: "orders.confirm", group: "Orders", label: "Confirm orders" },
+  { key: "orders.cancel", group: "Orders", label: "Cancel orders" },
+  // Quotes
+  { key: "quotes.read", group: "Quotes", label: "View quotes" },
+  { key: "quotes.write", group: "Quotes", label: "Create/edit quotes" },
+  { key: "quotes.send", group: "Quotes", label: "Send quotes" },
+  // Invoices
+  { key: "invoices.read", group: "Invoices", label: "View invoices" },
+  { key: "invoices.write", group: "Invoices", label: "Create/edit invoices" },
+  { key: "invoices.markPaid", group: "Invoices", label: "Mark invoice as paid" },
+  // Workshop
+  { key: "machines.read", group: "Workshop", label: "View machines" },
+  { key: "machines.write", group: "Workshop", label: "Edit machines" },
+  { key: "templates.read", group: "Workshop", label: "View process templates" },
+  { key: "templates.write", group: "Workshop", label: "Edit process templates" },
+  // Reports
+  { key: "reports.export", group: "Reports", label: "Export reports" },
   // System
   { key: "settings.read", group: "System", label: "View settings" },
   { key: "settings.write", group: "System", label: "Edit settings" },
-  { key: "audit.read", group: "System", label: "Audit-Log ansehen" },
-  { key: "parameters.read", group: "System", label: "Parameter ansehen" },
-  { key: "parameters.write", group: "System", label: "Parameter ändern" },
-  { key: "roles.manage", group: "System", label: "Rollen & Rechte verwalten" },
+  { key: "audit.read", group: "System", label: "View audit log" },
+  { key: "parameters.read", group: "System", label: "View parameters" },
+  { key: "parameters.write", group: "System", label: "Edit parameters" },
+  { key: "roles.manage", group: "System", label: "Manage roles & permissions" },
 ];
 
 export const ALL_PERMISSIONS: ReadonlyArray<Permission> = PERMISSION_DEFINITIONS.map(
@@ -135,18 +135,18 @@ export function isKnownPermission(p: string): p is Permission {
 }
 
 // ─────────────────────────────────────────────────────────────────
-// STATIC DEFAULTS — sichere Baseline ohne DB
+// STATIC DEFAULTS — safe baseline without DB
 // ─────────────────────────────────────────────────────────────────
 
 const STATIC_DEFAULTS: Record<
   ManagedRole | "CUSTOMER_PORTAL" | "KIOSK_OPERATOR",
   Permission[]
 > = {
-  // Werkstatt-Tablet-Konto. Bewusst leer: dieser User darf nichts in /admin
-  // und keine API-Calls außer Kiosk-Routen. Schutz ist additiv zur Middleware,
-  // die /admin für diese Rolle ohnehin sperrt.
+  // Workshop tablet account. Intentionally empty: this user may not access
+  // /admin or make API calls other than kiosk routes. Protection is additive
+  // to the middleware that blocks /admin for this role anyway.
   KIOSK_OPERATOR: [],
-  SUPERADMIN: [...ALL_PERMISSIONS], // hat alles, wird aber sowieso bypasst
+  SUPERADMIN: [...ALL_PERMISSIONS], // has everything, but is bypassed anyway
   ADMIN: [
     "employees.read",
     "employees.write",
@@ -182,15 +182,15 @@ const STATIC_DEFAULTS: Record<
     "parameters.write",
     "templates.read",
     "templates.write",
-    // KEIN "roles.manage" per Default — nur SUPERADMIN
+    // NO "roles.manage" by default — only SUPERADMIN
   ],
   PLANNER: [
     "employees.read",
     "timeEntries.read",
-    // PLANNER (Sekretariat) darf Zeiten manuell korrigieren — z. B. wenn
-    // Mitarbeiter:in vergessen hat aus-/einzustempeln. Same Tier wie der
-    // ADMIN-Default. Owner kann das pro Mandant via Role-Matrix entziehen,
-    // wenn der spezifische Kunde es nicht möchte.
+    // PLANNER (Secretary) may manually correct times — e.g. when an
+    // employee forgot to clock in/out. Same tier as ADMIN default.
+    // Owner can revoke this per tenant via role matrix if the specific
+    // customer does not want it.
     "timeEntries.correct",
     "absences.read",
     "absences.write",
@@ -217,8 +217,8 @@ const STATIC_DEFAULTS: Record<
     "schedule.read",
   ],
   CUSTOMER_PORTAL: [
-    // Customer-portal Datentrennung wird separat über
-    // `assertCustomerOwnership(customerId, session)` durchgesetzt.
+    // Customer portal data separation is enforced separately via
+    // `assertCustomerOwnership(customerId, session)`.
     "orders.read",
     "quotes.read",
     "invoices.read",
@@ -231,7 +231,7 @@ export function getStaticDefaults(role: UserRole): Permission[] {
 }
 
 // ─────────────────────────────────────────────────────────────────
-// MATRIX (Default ∪ DB-Overrides) — pro Company gecached
+// MATRIX (Default ∪ DB Overrides) — cached per company
 // ─────────────────────────────────────────────────────────────────
 
 export type RoleMatrix = Record<string, Set<Permission>>;
@@ -243,27 +243,26 @@ interface CacheEntry {
 
 const TTL_MS = 30_000;
 /**
- * Modul-Level-Cache. Single-Company-Deployment → eine Map reicht.
- * Bei Multi-Tenant würde man React `cache()` per Request nutzen.
+ * Module-level cache. Single-company deployment → one map is sufficient.
+ * For multi-tenant you would use React `cache()` per request.
  */
 const matrixCache = new Map<string, CacheEntry>();
 /**
- * Zuletzt geladener companyId — der sync `hasPermission()`-Helper liest
- * von hier, wenn die Caller-Site den companyId-Kontext nicht durchreichen
- * kann (z. B. Sidebar-Filter). In Single-Tenant-Setups (habb global) ist
- * das genau richtig.
+ * Last loaded companyId — the sync `hasPermission()` helper reads from
+ * here when the caller site cannot pass the companyId context (e.g.
+ * sidebar filter). In single-tenant setups (habb global) this is exactly
+ * right.
  */
 let lastLoadedCompanyId: string | null = null;
 
 /**
- * Per-User-Override-Cache des aktuellen Request-Users. Wird vom
- * NextAuth-Session-Callback gefüllt (siehe `lib/auth.ts`), damit die
- * bestehenden ~127 `hasPermission(session.user.role, perm)`-Aufrufe
- * automatisch die User-Overrides mitbekommen — ohne flächige Migration
- * der Call-Sites. Heuristik: Override wird nur angewendet, wenn die
- * geprüfte Rolle der Rolle des gecacheten Users entspricht (verhindert,
- * dass beim Anzeigen einer Rollen-Default-Übersicht für eine ANDERE
- * Rolle die Overrides des aktuellen Users durchschlagen).
+ * Per-user override cache of the current request user. Populated by the
+ * NextAuth session callback (see `lib/auth.ts`) so that the existing ~127
+ * `hasPermission(session.user.role, perm)` calls automatically pick up
+ * user overrides — without a sweeping migration of call sites.
+ * Heuristic: Override is only applied when the checked role matches the
+ * role of the cached user (prevents user overrides from leaking when
+ * displaying a role default overview for a DIFFERENT role).
  */
 let lastLoadedUserId: string | null = null;
 let lastLoadedUserRole: UserRole | null = null;
@@ -290,9 +289,9 @@ function buildMatrix(
 
   // Overlay: Overrides.
   for (const o of overrides) {
-    if (!isKnownPermission(o.permission)) continue; // Stale/unbekannt → ignorieren
+    if (!isKnownPermission(o.permission)) continue; // Stale/unknown → ignore
     const eff = effectiveRole(o.role);
-    if (eff === "SUPERADMIN") continue; // SUPERADMIN ist immutable
+    if (eff === "SUPERADMIN") continue; // SUPERADMIN is immutable
     const set = out[eff] ?? (out[eff] = new Set());
     if (o.allowed) set.add(o.permission as Permission);
     else set.delete(o.permission as Permission);
@@ -301,16 +300,16 @@ function buildMatrix(
 }
 
 /**
- * Lädt die effektive Permission-Matrix für eine Company aus der DB,
- * mit kleinem Modul-Cache (TTL 30s). Wird vom NextAuth-Session-Callback
- * bei jeder Request-Authentifizierung aufgerufen — danach kann
- * `hasPermission()` synchron darauf zugreifen.
+ * Loads the effective permission matrix for a company from the DB,
+ * with a small module cache (TTL 30s). Called by the NextAuth session
+ * callback on every request authentication — after which
+ * `hasPermission()` can access it synchronously.
  *
- * Wenn `user` mitgegeben wird, lädt die Funktion zusätzlich die
- * Per-User-Overrides dieses Users in den Modul-Cache (siehe oben).
- * Optional, damit der Aufruf aus dem Session-Callback einfach bleibt;
- * andere Caller (z. B. UI-Detailseiten für FREMDE User) sollten
- * `effectivePermissionsForUser()` benutzen.
+ * If `user` is provided, the function additionally loads per-user
+ * overrides for that user into the module cache (see above).
+ * Optional, so the call from the session callback stays simple;
+ * other callers (e.g. UI detail pages for OTHER users) should use
+ * `effectivePermissionsForUser()`.
  */
 export async function loadPermissionMatrix(
   companyId: string,
@@ -328,7 +327,7 @@ export async function loadPermissionMatrix(
         select: { role: true, permission: true, allowed: true },
       });
     } catch {
-      // DB nicht erreichbar → static defaults
+      // DB unreachable → static defaults
       overrides = [];
     }
     matrix = buildMatrix(overrides);
@@ -336,10 +335,10 @@ export async function loadPermissionMatrix(
   }
   lastLoadedCompanyId = companyId;
 
-  // Per-User-Overrides für den aktuellen Request-User laden, damit
-  // die bestehenden `hasPermission(session.user.role, perm)`-Calls
-  // sie automatisch beachten. Frisch pro Request, kein TTL — wir wollen
-  // sofortige Wirkung beim nächsten Reload nach einer Owner-/Admin-Änderung.
+  // Load per-user overrides for the current request user so that
+  // existing `hasPermission(session.user.role, perm)` calls automatically
+  // pick them up. Fresh per request, no TTL — we want immediate effect
+  // on next reload after an owner/admin change.
   if (user) {
     try {
       const userOverrides = await prisma.userPermission.findMany({
@@ -358,15 +357,15 @@ export async function loadPermissionMatrix(
       lastLoadedUserGrants = grants;
       lastLoadedUserDenies = denies;
     } catch {
-      // DB nicht erreichbar → User-Overrides nicht anwenden
+      // DB unreachable → do not apply user overrides
       lastLoadedUserId = null;
       lastLoadedUserRole = null;
       lastLoadedUserGrants = new Set();
       lastLoadedUserDenies = new Set();
     }
   } else {
-    // Wenn kein User mitgegeben wurde, frühere Overrides verwerfen
-    // damit sie nicht auf andere Requests leaken.
+    // If no user was provided, discard earlier overrides
+    // so they do not leak to other requests.
     lastLoadedUserId = null;
     lastLoadedUserRole = null;
     lastLoadedUserGrants = new Set();
@@ -376,16 +375,16 @@ export async function loadPermissionMatrix(
   return matrix;
 }
 
-/** Manuell invalidieren (vom Server-Action nach Override-Update). */
+/** Manually invalidate (from server action after override update). */
 export function invalidatePermissionMatrix(companyId?: string) {
   if (companyId) matrixCache.delete(companyId);
   else matrixCache.clear();
 }
 
 /**
- * Per-User-Override-Cache des aktuellen Requests invalidieren. Wird vom
- * Per-User-Editor nach Save aufgerufen, damit der nächste Reload sofort
- * die neuen Werte sieht.
+ * Invalidate the per-user override cache of the current request. Called
+ * by the per-user editor after save so that the next reload immediately
+ * sees the new values.
  */
 export function invalidateUserPermissionCache() {
   lastLoadedUserId = null;
@@ -399,25 +398,24 @@ export function invalidateUserPermissionCache() {
 // ─────────────────────────────────────────────────────────────────
 
 /**
- * Sync-Variante für Backward-Compat — liest aus dem Cache wenn vorhanden,
- * sonst aus den statischen Defaults.
+ * Sync variant for backward compat — reads from cache if available,
+ * otherwise from static defaults.
  *
- * SUPERADMIN bypasst immer.
+ * SUPERADMIN always bypasses.
  *
- * Wenn der aktuelle Request-User Per-User-Overrides hat (geladen vom
- * Session-Callback) UND die geprüfte Rolle der Rolle dieses Users
- * entspricht, werden die User-Overrides angewendet:
- *   - DENY-Override → false
- *   - GRANT-Override → true
- * Die Heuristik "Rolle passt zum gecacheten User" verhindert, dass beim
- * Anzeigen einer Rollen-Default-Übersicht für eine ANDERE Rolle die
- * Overrides des aktuellen Users durchschlagen.
+ * If the current request user has per-user overrides (loaded from the
+ * session callback) AND the checked role matches the role of this user,
+ * the user overrides are applied:
+ *   - DENY override → false
+ *   - GRANT override → true
+ * The heuristic "role matches cached user" prevents user overrides from
+ * leaking when displaying a role default overview for a DIFFERENT role.
  */
 export function hasPermission(role: UserRole, perm: Permission): boolean {
   if (isSuperAdmin(role)) return true;
   const eff = effectiveRole(role);
 
-  // Basis: Role-Default + Tenant-Override (RolePermission)
+  // Base: Role default + Tenant override (RolePermission)
   let allowed: boolean;
   if (lastLoadedCompanyId) {
     const entry = matrixCache.get(lastLoadedCompanyId);
@@ -427,13 +425,13 @@ export function hasPermission(role: UserRole, perm: Permission): boolean {
       allowed = STATIC_DEFAULTS[eff]?.includes(perm) ?? false;
     }
   } else {
-    // Fallback: statische Defaults
+    // Fallback: static defaults
     allowed = STATIC_DEFAULTS[eff]?.includes(perm) ?? false;
   }
 
-  // Layer: Per-User-Override des aktuellen Requests. Nur wenn die geprüfte
-  // Rolle zum gecacheten User passt (sonst handelt es sich um eine
-  // generische Rollen-Ansicht und die User-Overrides sind irrelevant).
+  // Layer: Per-user override of the current request. Only when the checked
+  // role matches the cached user (otherwise it's a generic role view and
+  // user overrides are irrelevant).
   if (lastLoadedUserId && lastLoadedUserRole === role) {
     if (lastLoadedUserDenies.has(perm)) return false;
     if (lastLoadedUserGrants.has(perm)) return true;
@@ -443,13 +441,13 @@ export function hasPermission(role: UserRole, perm: Permission): boolean {
 }
 
 /**
- * Explizite, eindeutige Variante mit User-Objekt. Nutze diese in neuem
- * Code, wo der User-Kontext eindeutig ist (sicherer als `hasPermission`,
- * weil keine Rollen-Heuristik nötig ist).
+ * Explicit, unambiguous variant with user object. Use this in new code
+ * where the user context is clear (safer than `hasPermission` because
+ * no role heuristic is needed).
  *
- * Für FREMDE User (nicht der aktuelle Request-User) gilt: die im
- * Modul-Cache liegenden Overrides werden nicht angewendet. Wer Rechte
- * für einen anderen User auflösen will, ruft `effectivePermissionsForUser`.
+ * For OTHER users (not the current request user): the overrides in the
+ * module cache are NOT applied. To resolve permissions for another user,
+ * call `effectivePermissionsForUser`.
  */
 export function hasUserPermission(
   user: { id: string; role: UserRole },
@@ -470,7 +468,7 @@ export function hasUserPermission(
     allowed = STATIC_DEFAULTS[eff]?.includes(perm) ?? false;
   }
 
-  // User-Override anwenden nur wenn das WIRKLICH der gecacheten Request-User ist.
+  // Apply user override only if this is REALLY the cached request user.
   if (lastLoadedUserId === user.id) {
     if (lastLoadedUserDenies.has(perm)) return false;
     if (lastLoadedUserGrants.has(perm)) return true;
@@ -479,9 +477,8 @@ export function hasUserPermission(
 }
 
 /**
- * Async-Variante mit explizitem companyId-Kontext (sicherer für
- * Multi-Tenant). Nutze diese in neuen Code-Pfaden, wo du in einem
- * Server-Component bist.
+ * Async variant with explicit companyId context (safer for multi-tenant).
+ * Use in new code paths where you are in a server component.
  */
 export async function userHasPermission(
   user: { role: UserRole; companyId: string },
@@ -499,12 +496,12 @@ export function requirePermission(role: UserRole, perm: Permission) {
 }
 
 /**
- * Async, akkurate effektive Permissions für einen beliebigen User (nicht
- * nur den aktuellen Request-User). Praktisch für UI-Detailseiten, die
- * die Rechte eines anderen Users anzeigen.
+ * Async, accurate effective permissions for any user (not just the current
+ * request user). Useful for UI detail pages that display another user's
+ * permissions.
  *
- * Reihenfolge: SUPERADMIN-Bypass → Static-Default → RolePermission-Overrides
- * für den Mandanten → UserPermission-Overrides für diesen User.
+ * Order: SUPERADMIN bypass → Static default → RolePermission overrides
+ * for the tenant → UserPermission overrides for this user.
  */
 export async function effectivePermissionsForUser(user: {
   id: string;
@@ -523,7 +520,7 @@ export async function effectivePermissionsForUser(user: {
       select: { permission: true, allowed: true },
     });
   } catch {
-    // ignorieren — Fallback auf Rollen-Defaults
+    // ignore — fallback to role defaults
   }
   for (const o of userOverrides) {
     if (!isKnownPermission(o.permission)) continue;
@@ -533,7 +530,7 @@ export async function effectivePermissionsForUser(user: {
   return base;
 }
 
-/** Liefert alle effektiven Permissions einer Rolle. Praktisch für die UI. */
+/** Returns all effective permissions for a role. Useful for the UI. */
 export function effectivePermissionsForRole(
   role: UserRole,
   matrix?: RoleMatrix,

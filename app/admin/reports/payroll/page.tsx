@@ -66,16 +66,16 @@ export default async function PayrollDashboardPage({ searchParams }: PageProps) 
         className="inline-flex items-center gap-1 text-xs text-habb-muted hover:text-habb-ink"
       >
         <ChevronLeft className="h-3 w-3" />
-        Reports-Übersicht
+        Reports overview
       </Link>
 
       <header>
         <h1 className="text-2xl font-semibold tracking-tight text-habb-black">
-          Personalabrechnung
+          Payroll
         </h1>
         <p className="mt-1 text-sm text-habb-muted">
-          Monats-Übersicht pro Mitarbeiter mit Stunden, Abwesenheiten und Ferien-Saldo. Export als
-          Excel oder PDF.
+          Monthly overview per employee with hours, absences, and vacation balance. Export as
+          Excel or PDF.
         </p>
       </header>
 
@@ -89,7 +89,7 @@ export default async function PayrollDashboardPage({ searchParams }: PageProps) 
             >
               {employees.map((e) => (
                 <option key={e.id} value={e.id}>
-                  {e.lastName} {e.firstName} (#{e.employeeNumber}){e.isActive ? "" : " — inaktiv"}
+                  {e.lastName} {e.firstName} (#{e.employeeNumber}){e.isActive ? "" : " — inactive"}
                 </option>
               ))}
             </select>
@@ -117,7 +117,7 @@ export default async function PayrollDashboardPage({ searchParams }: PageProps) 
               type="submit"
               className="inline-flex w-full items-center justify-center rounded-md bg-habb-black px-4 py-2 text-sm font-medium text-white hover:bg-habb-ink"
             >
-              Anzeigen
+              Show
             </button>
           </div>
         </div>
@@ -126,7 +126,7 @@ export default async function PayrollDashboardPage({ searchParams }: PageProps) 
       {!report ? (
         <Card>
           <CardContent className="px-5 py-10 text-center text-sm text-habb-muted">
-            Wähle einen Mitarbeiter und einen Monat.
+            Select an employee and a month.
           </CardContent>
         </Card>
       ) : (
@@ -151,13 +151,13 @@ export default async function PayrollDashboardPage({ searchParams }: PageProps) 
           <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
             <Card>
               <CardHeader>
-                <CardTitle>Personalstammdaten</CardTitle>
+                <CardTitle>Employee master data</CardTitle>
               </CardHeader>
               <CardContent className="space-y-2 text-sm">
                 <Row label="Name" value={`${report.employee.lastName} ${report.employee.firstName}`} />
-                <Row label="Mitarbeiter-Nr." value={report.employee.employeeNumber} />
-                <Row label="Geburtsdatum" value={fmtDate(report.employee.dateOfBirth)} />
-                <Row label="AHV-Nr." value={report.employee.ahvNumber || "—"} />
+                <Row label="Employee No." value={report.employee.employeeNumber} />
+                <Row label="Date of birth" value={fmtDate(report.employee.dateOfBirth)} />
+                <Row label="SSN" value={report.employee.ahvNumber || "—"} />
                 <Row label="Adresse" value={report.employee.address || "—"} />
                 <Row label="Email" value={report.employee.email || "—"} />
                 <Row label="Phone" value={report.employee.phone || "—"} />
@@ -166,57 +166,57 @@ export default async function PayrollDashboardPage({ searchParams }: PageProps) 
 
             <Card>
               <CardHeader>
-                <CardTitle>Anstellung</CardTitle>
+                <CardTitle>Employment</CardTitle>
               </CardHeader>
               <CardContent className="space-y-2 text-sm">
                 <Row
-                  label="Anstellungsart"
+                  label="Employment type"
                   value={
                     report.employee.employmentType === "MONTHLY_SALARY"
-                      ? "Monatslohn"
-                      : "Stundenlohn"
+                      ? "Monthly salary"
+                      : "Hourly wage"
                   }
                 />
-                <Row label="Pensum" value={report.employee.workloadPercent != null ? `${report.employee.workloadPercent}%` : "—"} />
+                <Row label="Workload" value={report.employee.workloadPercent != null ? `${report.employee.workloadPercent}%` : "—"} />
                 <Row
-                  label="Wochenstunden"
+                  label="Weekly hours"
                   value={report.employee.weeklyTargetHours != null ? `${report.employee.weeklyTargetHours.toFixed(2)} h` : "—"}
                 />
-                <Row label="Ferienanspruch" value={`${report.employee.annualVacationDays} Tage`} />
-                <Row label="Vertragsbeginn" value={fmtDate(report.employee.startDate)} />
-                <Row label="Vertragsende" value={fmtDate(report.employee.endDate)} />
+                <Row label="Vacation entitlement" value={`${report.employee.annualVacationDays} Days`} />
+                <Row label="Contract start" value={fmtDate(report.employee.startDate)} />
+                <Row label="Contract end" value={fmtDate(report.employee.endDate)} />
               </CardContent>
             </Card>
 
             <Card className="md:col-span-2">
               <CardHeader>
                 <CardTitle>
-                  Stunden {months[month - 1]} {year}
+                  Hours {months[month - 1]} {year}
                 </CardTitle>
               </CardHeader>
               <CardContent>
                 <div className="grid grid-cols-2 gap-4 sm:grid-cols-4">
-                  <Stat label="Soll" value={`${formatHours(report.totals.targetMinutes)} h`} />
-                  <Stat label="Gearbeitet" value={`${formatHours(report.totals.workedMinutes)} h`} />
-                  <Stat label="Pause" value={`${formatHours(report.totals.breakMinutes)} h`} />
+                  <Stat label="Target" value={`${formatHours(report.totals.targetMinutes)} h`} />
+                  <Stat label="Worked" value={`${formatHours(report.totals.workedMinutes)} h`} />
+                  <Stat label="Break" value={`${formatHours(report.totals.breakMinutes)} h`} />
                   <Stat
-                    label="Saldo Monat"
+                    label="Month balance"
                     value={`${report.totals.balanceMinutes >= 0 ? "+" : ""}${formatHours(report.totals.balanceMinutes)} h`}
                     accent={report.totals.balanceMinutes < 0 ? "red" : "green"}
                   />
                 </div>
                 <p className="mt-3 text-xs text-habb-muted">
-                  Kumulierter Saldo:{" "}
+                  Cumulative balance:{" "}
                   <span className="font-medium text-habb-ink">
                     {report.totals.cumulativeBalanceMinutes >= 0 ? "+" : ""}
                     {formatHours(report.totals.cumulativeBalanceMinutes)} h
                   </span>
-                  &nbsp;(Anfangsbestand{" "}
+                  &nbsp;(Initial balance{" "}
                   {report.employee.initialOvertimeHours >= 0 ? "+" : ""}
                   {report.employee.initialOvertimeHours.toFixed(2)} h
                   {report.totals.adjustmentMinutes !== 0 && (
                     <>
-                      {" "}· Korrekturen{" "}
+                      {" "}· Adjustments{" "}
                       {report.totals.adjustmentMinutes >= 0 ? "+" : ""}
                       {formatHours(report.totals.adjustmentMinutes)} h
                     </>
@@ -236,18 +236,18 @@ export default async function PayrollDashboardPage({ searchParams }: PageProps) 
 
             <Card>
               <CardHeader>
-                <CardTitle>Abwesenheiten</CardTitle>
+                <CardTitle>Absences</CardTitle>
               </CardHeader>
               <CardContent>
                 {report.absences.length === 0 ? (
-                  <p className="text-sm text-habb-muted">Keine Abwesenheiten in diesem Monat.</p>
+                  <p className="text-sm text-habb-muted">No absences in this month.</p>
                 ) : (
                   <table className="w-full text-sm">
                     <thead>
                       <tr className="border-b border-habb-line text-left text-xs uppercase tracking-wide text-habb-muted">
-                        <th className="pb-2">Typ</th>
-                        <th className="pb-2 text-right">Tage</th>
-                        <th className="pb-2 text-right">Stunden</th>
+                        <th className="pb-2">Type</th>
+                        <th className="pb-2 text-right">Days</th>
+                        <th className="pb-2 text-right">Hours</th>
                       </tr>
                     </thead>
                     <tbody className="divide-y divide-habb-line">
@@ -256,7 +256,7 @@ export default async function PayrollDashboardPage({ searchParams }: PageProps) 
                           <td className="py-2">
                             <span className="text-habb-ink">{a.label}</span>{" "}
                             <span className="text-xs text-habb-muted">
-                              ({a.isPaid ? "bezahlt" : "unbezahlt"})
+                              ({a.isPaid ? "paid" : "unpaid"})
                             </span>
                           </td>
                           <td className="py-2 text-right text-habb-ink">{a.days.toFixed(1)}</td>
@@ -271,17 +271,17 @@ export default async function PayrollDashboardPage({ searchParams }: PageProps) 
 
             <Card>
               <CardHeader>
-                <CardTitle>Ferien-Saldo {year}</CardTitle>
+                <CardTitle>Vacation balance {year}</CardTitle>
               </CardHeader>
               <CardContent className="space-y-2 text-sm">
-                <Row label="Jahresanspruch" value={`${report.vacation.entitlementDays} Tage`} />
-                <Row label="Übertrag Vorjahr" value={`${report.vacation.carriedOverDays} Tage`} />
-                <Row label="Bezogen YTD" value={`${report.vacation.takenDaysYtd} Tage`} />
-                <Row label="Geplant" value={`${report.vacation.plannedDays} Tage`} />
+                <Row label="Annual entitlement" value={`${report.vacation.entitlementDays} Days`} />
+                <Row label="Carried over from prev. year" value={`${report.vacation.carriedOverDays} Days`} />
+                <Row label="Taken YTD" value={`${report.vacation.takenDaysYtd} Days`} />
+                <Row label="Planned" value={`${report.vacation.plannedDays} Days`} />
                 <div className="mt-2 border-t border-habb-line pt-2">
                   <Row
-                    label="Restanspruch"
-                    value={`${report.vacation.remainingDays} Tage`}
+                    label="Remaining entitlement"
+                    value={`${report.vacation.remainingDays} Days`}
                     bold
                   />
                 </div>
@@ -291,7 +291,7 @@ export default async function PayrollDashboardPage({ searchParams }: PageProps) 
 
           <Card>
             <CardHeader>
-              <CardTitle>Tagesübersicht</CardTitle>
+              <CardTitle>Daily overview</CardTitle>
             </CardHeader>
             <CardContent>
               <div className="overflow-x-auto">
@@ -300,11 +300,11 @@ export default async function PayrollDashboardPage({ searchParams }: PageProps) 
                     <tr className="border-b border-habb-line text-left text-xs uppercase tracking-wide text-habb-muted">
                       <th className="px-2 py-2">Date</th>
                       <th className="px-2 py-2">Day</th>
-                      <th className="px-2 py-2 text-right">Soll</th>
-                      <th className="px-2 py-2 text-right">Gearbeitet</th>
-                      <th className="px-2 py-2 text-right">Pause</th>
-                      <th className="px-2 py-2 text-right">Saldo</th>
-                      <th className="px-2 py-2">Hinweis</th>
+                      <th className="px-2 py-2 text-right">Target</th>
+                      <th className="px-2 py-2 text-right">Worked</th>
+                      <th className="px-2 py-2 text-right">Break</th>
+                      <th className="px-2 py-2 text-right">Balance</th>
+                      <th className="px-2 py-2">Note</th>
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-habb-line">

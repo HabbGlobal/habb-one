@@ -1,16 +1,16 @@
 "use client";
 
-// Bulk-Löschen für die Personalplanung.
+// Bulk delete for personnel planning.
 //
-// UX-Pattern (aus 1 Modal alles):
-//   1. User klickt "Bulk löschen" → Modal öffnet.
-//   2. Im Modal: Bereich wählen (Woche/Monat) + Filter wählen (Auto / +Copy / Alle).
-//   3. Sobald beides gewählt ist: live `countBulkDeletableEntries`-Aufruf,
-//      zeigt "23 Einträge werden gelöscht" inkl. Aufschlüsselung.
-//   4. Roter Button "Endgültig löschen" — disabled wenn 0 Einträge.
+// UX pattern (everything from 1 modal):
+//   1. User clicks "Bulk delete" → Modal opens.
+//   2. In modal: choose scope (Week/Month) + choose filter (Auto / +Copy / All).
+//   3. Once both are chosen: live `countBulkDeletableEntries` call,
+//      shows "23 entries will be deleted" incl. breakdown.
+//   4. Red button "Delete permanently" — disabled when 0 entries.
 //
-// Damit ist es praktisch unmöglich, aus Versehen die ganze manuelle Planung
-// wegzuwischen — der User sieht IMMER die Anzahl vor dem Klick.
+// This makes it practically impossible to accidentally wipe all manual planning
+// — the user ALWAYS sees the count before clicking.
 
 import { useEffect, useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
@@ -32,32 +32,32 @@ interface CountResult {
 }
 
 interface Props {
-  /** Aktueller Anker — entweder weekStart (ISO Mo) oder ein Tag im Monat. */
+  /** Current anchor — either weekStart (ISO Mon) or a day in the month. */
   anchorDate: string;
-  /** Aktive View (steuert nur die Default-Vorbelegung). */
+  /** Active view (only controls the default pre-selection). */
   view: "month" | "week";
-  /** Optional: aktuell aktiver Bereich-Filter (Bulk löscht dann nur diesen). */
+  /** Optional: currently active area filter (bulk then only deletes this one). */
   workAreaId?: string | null;
-  /** Optional: Bereich-Name, fürs Modal. */
+  /** Optional: area name, for the modal. */
   workAreaName?: string | null;
-  /** Anzeige-Label für den aktuellen Bereich (z. B. "Mai 2026" oder "KW 18"). */
+  /** Display label for the current range (e.g. "May 2026" or "CW 18"). */
   rangeLabel?: string;
 }
 
 const FILTER_LABELS: Record<Filter, { title: string; subtitle: string; danger: boolean }> = {
   AUTO: {
-    title: "Nur Auto-Planung",
-    subtitle: "Manuell eingegebene Einträge bleiben unangetastet",
+    title: "Auto-plan only",
+    subtitle: "Manually entered entries remain untouched",
     danger: false,
   },
   AUTO_AND_COPIED: {
-    title: "Auto + aus Vormonat kopiert",
-    subtitle: "Alles, was nicht direkt vom Sekretariat eingegeben wurde",
+    title: "Auto + copied from prev. month",
+    subtitle: "Everything that was not directly entered by the secretary",
     danger: false,
   },
   ALL: {
-    title: "Alles",
-    subtitle: "Auch manuell eingegebene Einträge — nicht widerrufbar!",
+    title: "All",
+    subtitle: "Including manually entered entries — not reversible!",
     danger: true,
   },
 };
@@ -79,7 +79,7 @@ export function BulkDeleteMenu({
   const [loadingCount, setLoadingCount] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  // Anzahl live nachladen, wenn der User Bereich oder Filter ändert.
+  // Reload count live when the user changes scope or filter.
   useEffect(() => {
     if (!open) return;
     setError(null);
@@ -95,7 +95,7 @@ export function BulkDeleteMenu({
         if (!cancelled) setCount(r);
       })
       .catch((err) => {
-        if (!cancelled) setError(err instanceof Error ? err.message : "Fehler");
+        if (!cancelled) setError(err instanceof Error ? err.message : "Error");
       })
       .finally(() => {
         if (!cancelled) setLoadingCount(false);
@@ -125,10 +125,10 @@ export function BulkDeleteMenu({
         } satisfies BulkDeleteInput);
         close();
         router.refresh();
-        // Mini-Feedback (kein Toast-System in der App)
-        alert(`${r.deleted} Einträge gelöscht.`);
+        // Mini feedback (no toast system in the app)
+        alert(`${r.deleted} entries deleted.`);
       } catch (err) {
-        setError(err instanceof Error ? err.message : "Fehler beim Löschen.");
+        setError(err instanceof Error ? err.message : "Error while deleting.");
       }
     });
   };
@@ -140,7 +140,7 @@ export function BulkDeleteMenu({
     <>
       <Button variant="outline" size="sm" onClick={() => setOpen(true)}>
         <Trash2 className="mr-2 h-4 w-4" />
-        Bulk löschen
+        Bulk delete
       </Button>
 
       {open && (
@@ -157,9 +157,9 @@ export function BulkDeleteMenu({
             {/* Header */}
             <div className="flex items-center justify-between p-5 border-b">
               <div>
-                <h2 className="text-lg font-semibold">Bulk löschen</h2>
+                <h2 className="text-lg font-semibold">Bulk delete</h2>
                 <p className="text-xs text-muted-foreground mt-0.5">
-                  {rangeLabel ?? "Aktueller Bereich"}
+                  {rangeLabel ?? "Current area"}
                   {workAreaName && (
                     <>
                       {" · "}
@@ -173,7 +173,7 @@ export function BulkDeleteMenu({
                 onClick={close}
                 disabled={pending}
                 className="p-1 rounded hover:bg-habb-paper"
-                aria-label="Schliessen"
+                aria-label="Close"
               >
                 <X className="h-4 w-4" />
               </button>
@@ -184,7 +184,7 @@ export function BulkDeleteMenu({
               {/* Scope selection */}
               <div>
                 <label className="text-xs uppercase tracking-wider text-muted-foreground font-medium mb-2 block">
-                  Zeitraum
+                  Period
                 </label>
                 <div className="inline-flex rounded-md border bg-background overflow-hidden w-full">
                   <button
@@ -197,7 +197,7 @@ export function BulkDeleteMenu({
                         : "hover:bg-accent",
                     )}
                   >
-                    Aktuelle Woche
+                    Current week
                   </button>
                   <button
                     type="button"
@@ -209,7 +209,7 @@ export function BulkDeleteMenu({
                         : "hover:bg-accent",
                     )}
                   >
-                    Aktueller Monat
+                    Current month
                   </button>
                 </div>
               </div>
@@ -217,7 +217,7 @@ export function BulkDeleteMenu({
               {/* Filter selection */}
               <div>
                 <label className="text-xs uppercase tracking-wider text-muted-foreground font-medium mb-2 block">
-                  Was soll gelöscht werden?
+                  What should be deleted?
                 </label>
                 <div className="space-y-2">
                   {(Object.keys(FILTER_LABELS) as Filter[]).map((key) => {
@@ -260,21 +260,21 @@ export function BulkDeleteMenu({
                 </div>
               </div>
 
-              {/* Vorschau */}
+              {/* Preview */}
               <div>
                 <div className="text-xs uppercase tracking-wider text-muted-foreground font-medium mb-2">
-                  Vorschau
+                  Preview
                 </div>
                 {loadingCount ? (
                   <div className="text-sm text-muted-foreground">
-                    Zähle Einträge …
+                    Counting entries…
                   </div>
                 ) : error ? (
                   <div className="text-sm text-destructive">{error}</div>
                 ) : count == null ? null : count.total === 0 ? (
                   <div className="text-sm text-muted-foreground rounded-lg border bg-habb-paper px-3 py-2">
-                    Keine Einträge im gewählten Bereich passen — nichts zu
-                    löschen.
+                    No entries in the selected range match — nothing to
+                    delete.
                   </div>
                 ) : (
                   <>
@@ -291,12 +291,12 @@ export function BulkDeleteMenu({
                           filterMeta.danger ? "text-rose-900" : "text-amber-900"
                         }
                       >
-                        {count.total} Einträge werden gelöscht
+                        {count.total} entries will be deleted
                       </strong>
                       <div className="text-xs mt-0.5 text-habb-ink">
-                        im {scopeLabel}
+                        in {scopeLabel}
                         {workAreaName && (
-                          <>, nur Bereich „{workAreaName}&ldquo;</>
+                          <>, only area „{workAreaName}&ldquo;</>
                         )}
                       </div>
                     </div>
@@ -331,9 +331,9 @@ export function BulkDeleteMenu({
                 }
               >
                 {pending
-                  ? "Lösche …"
+                  ? "Deleting…"
                   : count?.total
-                    ? `${count.total} Einträge löschen`
+                    ? `Delete ${count.total} entries`
                     : "Delete"}
               </Button>
             </div>

@@ -30,8 +30,8 @@ export default async function PasskeySigninPage() {
   return (
     <OwnerAuthShell
       currentStep={2}
-      title="Mit Passkey bestätigen"
-      subtitle="Letzter Schritt: Bestätige die Anmeldung mit dem Passkey, den du auf diesem Gerät registriert hast."
+      title="Confirm with passkey"
+      subtitle="Final step: Confirm the login with the passkey you registered on this device."
     >
       <SigninClient recoveryAvailable={recoveryAvailable} />
     </OwnerAuthShell>

@@ -195,13 +195,13 @@ function AddressDialog({
               type="button"
               onClick={onClose}
               className="p-1 rounded hover:bg-accent"
-              aria-label="Schliessen"
+              aria-label="Close"
             >
               <X className="h-4 w-4" />
             </button>
           </div>
           <div className="grid grid-cols-2 gap-3">
-            <Field label="Typ">
+            <Field label="Type">
               <Select
                 value={data.type}
                 onChange={(e) =>
@@ -213,7 +213,7 @@ function AddressDialog({
                 <option value="SHIPPING">Nur Lieferung</option>
               </Select>
             </Field>
-            <Field label="Land">
+            <Field label="Country">
               <Input
                 value={data.country}
                 maxLength={2}
@@ -228,13 +228,13 @@ function AddressDialog({
                 onChange={(e) => setData({ ...data, street: e.target.value })}
               />
             </Field>
-            <Field label="PLZ">
+            <Field label="ZIP">
               <Input
                 value={data.zip}
                 onChange={(e) => setData({ ...data, zip: e.target.value })}
               />
             </Field>
-            <Field label="Ort">
+            <Field label="City">
               <Input
                 value={data.city}
                 onChange={(e) => setData({ ...data, city: e.target.value })}

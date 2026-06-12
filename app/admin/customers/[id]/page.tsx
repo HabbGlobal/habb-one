@@ -134,7 +134,7 @@ export default async function CustomerDetailPage({
             <Badge variant={customer.isActive ? "success" : "secondary"}>
               {customer.isActive ? "Active" : "Inactive"}
             </Badge>
-            {dto.archivedAt && <Badge variant="warning">Archiviert</Badge>}
+            {dto.archivedAt && <Badge variant="warning">Archived</Badge>}
             {dto.deletedAt && <Badge variant="destructive">Papierkorb</Badge>}
           </div>
         </div>
@@ -398,6 +398,6 @@ function statusLabel(s: string): string {
     COMPLETED: "Fertig",
     DELIVERED: "Geliefert",
     INVOICED: "Verrechnet",
-    CANCELLED: "Storniert",
+    CANCELLED: "Cancelled",
   }[s] ?? s;
 }

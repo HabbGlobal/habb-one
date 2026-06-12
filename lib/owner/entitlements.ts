@@ -46,49 +46,49 @@ export const MODULE_DEFAULTS: Record<TenantModule, ModuleDefault> = {
     enabled: true,
     monthlyLimit: null,
     label: "CRM",
-    description: "Kunden-Verwaltung und Kontaktdaten.",
+    description: "Customer management and contact data.",
   },
   ORDERS_QUOTES: {
     enabled: true,
     monthlyLimit: null,
-    label: "Aufträge & Offerten",
-    description: "Auftrags- und Offerten-Pipeline mit Prozessplanung.",
+    label: "Orders & Quotes",
+    description: "Order and quote pipeline with process planning.",
   },
   INVOICES_QR: {
     enabled: true,
     monthlyLimit: null,
-    label: "Rechnungen (QR-Bill)",
-    description: "Schweizer QR-Rechnungen, PDF-Export, Zahlungsabgleich.",
+    label: "Invoices (QR Bill)",
+    description: "Swiss QR invoices, PDF export, payment reconciliation.",
   },
   WORKSHOP_PLAN: {
     enabled: true,
     monthlyLimit: null,
-    label: "Werkstatt-Plan",
-    description: "Maschinen- und Bereichs-Belegungsplanung.",
+    label: "Workshop Plan",
+    description: "Machine and area allocation planning.",
   },
   STAFF_PLAN: {
     enabled: true,
     monthlyLimit: null,
-    label: "Personal-Plan",
-    description: "Schicht-Planung und Soll/Ist-Zeiten.",
+    label: "Staff Plan",
+    description: "Shift planning and target/actual hours.",
   },
   TIME_KIOSK: {
     enabled: true,
     monthlyLimit: null,
-    label: "Zeiterfassung (Kiosk)",
-    description: "Stempel-Kiosk mit Mitarbeiter-PIN auf dem Werkstatt-Tablet.",
+    label: "Time Tracking (Kiosk)",
+    description: "Clock kiosk with employee PIN on the workshop tablet.",
   },
   API_ACCESS: {
     enabled: false,
     monthlyLimit: null,
-    label: "API-Zugang",
-    description: "Externe API für Drittsysteme (kommt in Phase v2).",
+    label: "API Access",
+    description: "External API for third-party systems (coming in phase v2).",
   },
   WHITELABEL: {
     enabled: false,
     monthlyLimit: null,
     label: "Whitelabel",
-    description: "Eigenes Branding statt HABB One (Enterprise-Plan).",
+    description: "Custom branding instead of HABB One (Enterprise plan).",
   },
 };
 
@@ -123,7 +123,7 @@ export async function getEffectiveEntitlements(
     const inPlan = planSet.has(m);
     return {
       module: m,
-      // Plan ist die Basis; eine Override-Zeile gewinnt, wenn vorhanden.
+      // Plan is the basis; an override row wins if present.
       enabled: row ? row.enabled : inPlan,
       monthlyLimit: row ? row.monthlyLimit : null,
       hasOverride: !!row,

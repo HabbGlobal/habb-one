@@ -214,7 +214,7 @@ function ContactDialog({
               type="button"
               onClick={onClose}
               className="p-1 rounded hover:bg-accent"
-              aria-label="Schliessen"
+              aria-label="Close"
             >
               <X className="h-4 w-4" />
             </button>
@@ -234,14 +234,14 @@ function ContactDialog({
                 placeholder="z. B. Einkauf"
               />
             </Field>
-            <Field label="Vorname">
+            <Field label="First Name">
               <Input
                 value={data.firstName}
                 onChange={(e) => setData({ ...data, firstName: e.target.value })}
                 required
               />
             </Field>
-            <Field label="Nachname">
+            <Field label="Last Name">
               <Input
                 value={data.lastName}
                 onChange={(e) => setData({ ...data, lastName: e.target.value })}

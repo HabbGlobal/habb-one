@@ -1,10 +1,10 @@
 "use client";
 
-// Maschinen-Liste mit Inline-Bereichs-Editor.
+// Machine list with inline area editor.
 //
-// Das `workArea`-Dropdown ist DIREKT in der Tabelle editierbar — Klick
-// auf den Pill-Badge öffnet ein Dropdown, Auswahl persistiert sofort.
-// Andere Felder werden im Detail-Form (`/admin/machines/[id]`) bearbeitet.
+// The `workArea` dropdown is DIRECTLY editable in the table — clicking
+// the pill badge opens a dropdown, selection persists immediately.
+// Other fields are edited in the detail form (`/admin/machines/[id]`).
 
 import { useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
@@ -75,7 +75,7 @@ export function MachineList({ rows, areas, canWrite }: Props) {
         await setMachineWorkArea(machineId, newAreaId);
         router.refresh();
       } catch (err) {
-        setError(err instanceof Error ? err.message : "Fehler.");
+        setError(err instanceof Error ? err.message : "Error.");
       } finally {
         setSavingId(null);
       }
@@ -86,8 +86,8 @@ export function MachineList({ rows, areas, canWrite }: Props) {
     if (
       !confirm(
         isArchived
-          ? "Maschine reaktivieren?"
-          : "Maschine archivieren? Sie ist danach im Werkstatt-Plan nicht mehr buchbar.",
+          ? "Reactivate machine?"
+          : "Archive machine? It will no longer be bookable in the workshop plan.",
       )
     )
       return;
@@ -98,7 +98,7 @@ export function MachineList({ rows, areas, canWrite }: Props) {
         else await archiveMachine(machineId);
         router.refresh();
       } catch (err) {
-        setError(err instanceof Error ? err.message : "Fehler.");
+        setError(err instanceof Error ? err.message : "Error.");
       }
     });
   };
@@ -114,9 +114,9 @@ export function MachineList({ rows, areas, canWrite }: Props) {
         <TableHeader>
           <TableRow>
             <TableHead>Machine</TableHead>
-            <TableHead>Typ</TableHead>
-            <TableHead>Bereich</TableHead>
-            <TableHead>Maße / Kapazität</TableHead>
+            <TableHead>Typeeee</TableHead>
+            <TableHead>Area</TableHead>
+            <TableHead>Dimensions / Capacity</TableHead>
             <TableHead>Status</TableHead>
             <TableHead className="text-right">Action</TableHead>
           </TableRow>
@@ -146,9 +146,9 @@ export function MachineList({ rows, areas, canWrite }: Props) {
                         onChange={(e) => onChangeArea(m.id, e.target.value)}
                         disabled={pending}
                         className="w-44 h-8 text-sm"
-                        aria-label="Bereich"
+                        aria-label="Area"
                       >
-                        <option value="">— kein Bereich —</option>
+                        <option value="">— no area —</option>
                         {areas.map((a) => (
                           <option key={a.id} value={a.id}>
                             {a.name}
@@ -171,7 +171,7 @@ export function MachineList({ rows, areas, canWrite }: Props) {
                     </span>
                   ) : (
                     <span className="text-xs text-muted-foreground italic">
-                      kein Bereich
+                      no area
                     </span>
                   )}
                 </TableCell>
@@ -186,7 +186,7 @@ export function MachineList({ rows, areas, canWrite }: Props) {
                 </TableCell>
                 <TableCell>
                   {isArchived ? (
-                    <Badge variant="secondary">Archiviert</Badge>
+                    <Badge variant="secondary">Archived</Badge>
                   ) : m.isActive ? (
                     <Badge variant="success">Active</Badge>
                   ) : (
@@ -211,8 +211,8 @@ export function MachineList({ rows, areas, canWrite }: Props) {
                         onClick={() => toggleArchive(m.id, isArchived)}
                         disabled={pending}
                         className="inline-flex items-center justify-center w-7 h-7 rounded hover:bg-habb-paper"
-                        aria-label={isArchived ? "Reaktivieren" : "Archivieren"}
-                        title={isArchived ? "Reaktivieren" : "Archivieren"}
+                        aria-label={isArchived ? "Reactivate" : "Archive"}
+                        title={isArchived ? "Reactivate" : "Archive"}
                       >
                         {isArchived ? (
                           <ArchiveRestore className="h-4 w-4 text-emerald-600" />

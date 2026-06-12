@@ -20,7 +20,7 @@ const requiredNumber = (min: number, max: number) =>
     z.number().min(min).max(max)
   );
 
-/** Lockerer AHV-Check: erlaubt "756.XXXX.XXXX.XX" sowie "756XXXXXXXXXXX". */
+/** Relaxed AHV check: allows "756.XXXX.XXXX.XX" as well as "756XXXXXXXXXXX". */
 const AHV_REGEX = /^7[0-9]{2}[.]?[0-9]{4}[.]?[0-9]{4}[.]?[0-9]{2}$/;
 
 export const SKILL_CODES = [
@@ -44,9 +44,9 @@ export const employeeFormSchema = z.object({
   phone: z.string().max(40).optional().or(z.literal("")),
   preferredLanguage: z.enum(["de", "en"]).default("de"),
   isActive: z.boolean().default(true),
-  startDate: z.string().regex(/^\d{4}-\d{2}-\d{2}$/, "Eintrittsdatum fehlt"),
+  startDate: z.string().regex(/^\d{4}-\d{2}-\d{2}$/, "Start date is required"),
   endDate: z.string().optional().or(z.literal("")),
-  // ── Personalstammdaten (PR 6) ─────────────────────────────────
+  // ── Employee master data (PR 6) ─────────────────────────────────
   dateOfBirth: z.string().optional().or(z.literal("")),
   address: z.string().max(200).optional().or(z.literal("")),
   ahvNumber: z
@@ -55,9 +55,9 @@ export const employeeFormSchema = z.object({
     .or(z.literal(""))
     .refine(
       (v) => !v || AHV_REGEX.test(v),
-      "AHV-Nr. erwartet im Format 756.XXXX.XXXX.XX",
+      "AHV number expected in format 756.XXXX.XXXX.XX",
     ),
-  // ── Anstellung ────────────────────────────────────────────────
+  // ── Employment ────────────────────────────────────────────────
   employmentType: z.enum(["MONTHLY_SALARY", "HOURLY_WAGE"]),
   workloadPercent: nullableNumber(0, 100),
   weeklyTargetHours: nullableNumber(0, 80),
@@ -78,7 +78,7 @@ export const employeeFormSchema = z.object({
     })
     .optional(),
   workAreaIds: z.array(z.string().cuid()).default([]),
-  /// Kompetenzen — Skill-Code + Level + optional Cert-Date.
+  /// Skills — Skill code + Level + optional cert date.
   skills: z
     .array(
       z.object({
@@ -93,16 +93,16 @@ export const employeeFormSchema = z.object({
 export type EmployeeFormData = z.infer<typeof employeeFormSchema>;
 
 export const SKILL_LABELS_DE: Record<SkillCodeValue, string> = {
-  PREP: "Vorbereitung",
-  BLASTER: "Sandstrahlen",
-  PAINTER: "Nasslackieren",
-  POWDER_COATER: "Pulverbeschichten",
-  QC: "Qualitätskontrolle",
-  TEAM_LEAD_SKILL: "Team-Lead",
+  PREP: "Preparation",
+  BLASTER: "Sandblasting",
+  PAINTER: "Wet Painting",
+  POWDER_COATER: "Powder Coating",
+  QC: "Quality Control",
+  TEAM_LEAD_SKILL: "Team Lead",
 };
 
 export const SKILL_LEVEL_LABELS_DE: Record<SkillLevelValue, string> = {
-  BASIC: "Grundlagen",
-  EXPERIENCED: "Erfahren",
-  EXPERT: "Experte",
+  BASIC: "Basic",
+  EXPERIENCED: "Experienced",
+  EXPERT: "Expert",
 };

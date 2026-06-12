@@ -88,7 +88,7 @@ export function UserPermissionsEditor({
     start(async () => {
       try {
         await onSave(state);
-        setSuccess("Persönliche Rechte gespeichert.");
+        setSuccess("Personal permissions saved.");
         router.refresh();
         setTimeout(() => setSuccess(null), 4000);
       } catch (err) {
@@ -100,7 +100,7 @@ export function UserPermissionsEditor({
   const resetAll = () => {
     if (
       !confirm(
-        "Alle Per-User-Overrides für diesen User entfernen? Er bekommt danach nur noch die Rechte seiner Rolle.",
+        "Remove all per-user overrides for this user? They will then only get the permissions of their role.",
       )
     )
       return;
@@ -108,11 +108,11 @@ export function UserPermissionsEditor({
       try {
         await onResetAll();
         setState(normalize({}, permissionDefs));
-        setSuccess("Alle Overrides entfernt.");
+        setSuccess("All overrides removed.");
         router.refresh();
         setTimeout(() => setSuccess(null), 4000);
       } catch (err) {
-        setError(err instanceof Error ? err.message : "Fehler.");
+        setError(err instanceof Error ? err.message : "Error.");
       }
     });
   };
@@ -134,12 +134,12 @@ export function UserPermissionsEditor({
     <Card>
       <CardHeader className="flex flex-col md:flex-row md:items-center md:justify-between gap-3 space-y-0">
         <div>
-          <CardTitle className="text-base">Persönliche Rechte</CardTitle>
+          <CardTitle className="text-base">Personal Permissions</CardTitle>
           <p className="mt-1 text-xs text-muted-foreground">
-            {userLabel} · Rolle: <strong>{roleLabel}</strong>. Hier kannst du
-            für diesen User Rechte <strong>zusätzlich</strong> gewähren oder
-            der Rolle entgegen <strong>entziehen</strong>. Leer = Rolle
-            entscheidet.
+            {userLabel} · Role: <strong>{roleLabel}</strong>. Here you can
+            <strong>additionally</strong> grant permissions for this user or
+            <strong>revoke</strong> them contrary to the role. Empty = role
+            decides.
           </p>
         </div>
         <div className="flex items-center gap-2">
@@ -151,11 +151,11 @@ export function UserPermissionsEditor({
             disabled={pending}
             className="text-destructive"
           >
-            <RotateCcw className="h-4 w-4 mr-1" /> Alle entfernen
+            <RotateCcw className="h-4 w-4 mr-1" /> Remove all
           </Button>
           {dirty && (
             <Button type="button" variant="ghost" size="sm" onClick={discard} disabled={pending}>
-              Verwerfen
+              Discard
             </Button>
           )}
           <Button onClick={save} disabled={!dirty || pending} size="sm">
@@ -180,16 +180,16 @@ export function UserPermissionsEditor({
           <thead>
             <tr className="bg-habb-paper border-b">
               <th className="text-left font-medium px-3 py-2 min-w-[260px]">
-                Funktion
+                Function
               </th>
               <th className="font-medium px-3 py-2 min-w-[120px] text-center">
-                Rolle hat
+                Role has
               </th>
               <th className="font-medium px-3 py-2 min-w-[260px] text-center">
-                Persönlicher Override
+                Personal Override
               </th>
               <th className="font-medium px-3 py-2 min-w-[120px] text-center">
-                Effektiv
+                Effective
               </th>
             </tr>
           </thead>
@@ -210,9 +210,9 @@ export function UserPermissionsEditor({
         </table>
 
         <p className="mt-4 text-xs text-muted-foreground">
-          <Check className="inline h-3 w-3 text-emerald-600" /> Zusätzlich erlaubt
-          (Grant) · <X className="inline h-3 w-3 text-destructive" /> Entzogen
-          (Deny, gewinnt über die Rolle) · <Minus className="inline h-3 w-3" />
+          <Check className="inline h-3 w-3 text-emerald-600" /> Additionally granted
+          (Grant) · <X className="inline h-3 w-3 text-destructive" /> Revoked
+          (Deny, overrides the role) · <Minus className="inline h-3 w-3" />
           {" "}Default (Rolle entscheidet).
         </p>
       </CardContent>

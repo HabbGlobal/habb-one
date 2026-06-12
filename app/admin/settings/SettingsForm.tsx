@@ -54,13 +54,13 @@ export function SettingsForm({ initial }: { initial: CompanyFormData }) {
         <Field label={t("company")}>
           <Input value={data.name} onChange={(e) => update("name", e.target.value)} required />
         </Field>
-        <Field label="Adresse">
+        <Field label="Address">
           <Input value={data.address} onChange={(e) => update("address", e.target.value)} />
         </Field>
-        <Field label="Ort">
+        <Field label="City">
           <Input value={data.city} onChange={(e) => update("city", e.target.value)} />
         </Field>
-        <Field label="Land">
+        <Field label="Country">
           <Select value={data.country} onChange={(e) => update("country", e.target.value)}>
             {COUNTRY_OPTIONS.map((c) => (
               <option key={c.code} value={c.code}>
@@ -69,7 +69,7 @@ export function SettingsForm({ initial }: { initial: CompanyFormData }) {
             ))}
           </Select>
         </Field>
-        <Field label="Zeitzone">
+        <Field label="Timezone">
           <Select value={data.timezone} onChange={(e) => update("timezone", e.target.value)}>
             {TIMEZONE_OPTIONS.map((tz) => (
               <option key={tz.zone} value={tz.zone}>
@@ -88,13 +88,13 @@ export function SettingsForm({ initial }: { initial: CompanyFormData }) {
 
       <h3 className="font-semibold pt-4">{t("defaults")}</h3>
       <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
-        <Field label="Wochen-Sollstunden">
+        <Field label="Weekly target hours">
           <Input type="number" step={0.1} value={data.defaultWeeklyHours} onChange={(e) => update("defaultWeeklyHours", Number(e.target.value))} />
         </Field>
-        <Field label="Ferienanspruch (Tage)">
+        <Field label="Vacation entitlement (days)">
           <Input type="number" step={0.5} value={data.defaultVacationDaysYear} onChange={(e) => update("defaultVacationDaysYear", Number(e.target.value))} />
         </Field>
-        <Field label="Standardpause (Min.)">
+        <Field label="Default break (min)">
           <Input type="number" step={5} value={data.defaultBreakMinutes} onChange={(e) => update("defaultBreakMinutes", Number(e.target.value))} />
         </Field>
         <Field label={t("rounding")}>
@@ -119,7 +119,7 @@ export function SettingsForm({ initial }: { initial: CompanyFormData }) {
         </Field>
       </div>
 
-      {saved && <p className="text-sm text-green-700">✓ Gespeichert.</p>}
+      {saved && <p className="text-sm text-green-700">✓ Saved.</p>}
 
       <Button type="submit" disabled={pending}>{tCommon("save")}</Button>
     </form>

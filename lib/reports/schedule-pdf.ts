@@ -67,7 +67,7 @@ function drawPage(
     font,
   });
   page.drawText(
-    `Status: ${report.status}  ·  Erstellt: ${formatNow()}  ·  Von: ${exportedBy}`,
+    `Status: ${report.status}  ·  Created: ${formatNow()}  ·  By: ${exportedBy}`,
     {
       x: MARGIN,
       y: height - MARGIN - 38,
@@ -81,7 +81,7 @@ function drawPage(
   if (report.areas.length > 0) {
     let lx = MARGIN;
     const ly = height - MARGIN - 52;
-    page.drawText("Bereiche:", { x: lx, y: ly, size: 7, font });
+    page.drawText("Areas:", { x: lx, y: ly, size: 7, font });
     lx += 38;
     for (const area of report.areas) {
       const c = hexToRgb(area.colorHex);
@@ -251,14 +251,14 @@ function truncate(s: string, max: number): string {
 
 function abbrevType(type: string): string {
   return {
-    FREE: "Frei",
-    VACATION: "Ferien",
-    SICKNESS: "Krank",
-    ABSENCE: "Abw.",
-    HOLIDAY: "Feiertag",
-    COMPENSATION: "Komp.",
+    FREE: "Off",
+    VACATION: "Vac.",
+    SICKNESS: "Sick",
+    ABSENCE: "Abs.",
+    HOLIDAY: "Holiday",
+    COMPENSATION: "Comp.",
     OTHER: "—",
-    WORK: "Arbeit",
+    WORK: "Work",
   }[type] ?? type;
 }
 
@@ -302,7 +302,7 @@ function lightenHex(hex: string, mix: number) {
 }
 
 function formatNow(): string {
-  return new Date().toLocaleString("de-CH", {
+  return new Date().toLocaleString("en-GB", {
     timeZone: "Europe/Zurich",
     day: "2-digit",
     month: "2-digit",

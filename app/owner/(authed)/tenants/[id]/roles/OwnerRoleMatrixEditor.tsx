@@ -1,7 +1,7 @@
 "use client";
 
-// Owner-Wrapper um den geteilten Editor — bindet die tenantId
-// (aus URL-Params) an die Owner-Server-Actions.
+// Owner wrapper around the shared editor — binds the tenantId
+// (from URL params) to the owner server actions.
 
 import { RoleMatrixEditor as Shared, type RoleMatrixEditorProps } from "@/components/permissions/RoleMatrixEditor";
 import { ownerSaveRoleMatrix, ownerResetRoleToDefaults } from "./actions";
@@ -24,7 +24,7 @@ export function OwnerRoleMatrixEditor({ tenantId, ...rest }: Props) {
       {...rest}
       onSave={onSave}
       onResetRole={onResetRole}
-      headerHint="Änderungen wirken sofort auf alle User dieses Tenanten."
+      headerHint="Changes take effect immediately for all users of this tenant."
     />
   );
 }

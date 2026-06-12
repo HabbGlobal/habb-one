@@ -1,8 +1,7 @@
-// Deutsche Bezeichnungen für alle ERP-Domänen-Enums.
+// English labels for all ERP domain enums.
 //
-// Single source of truth für UI, PDF und Reports. Roh-Codes werden im Code
-// für Logik/DB verwendet, aber NIE direkt zum User durchgereicht — immer
-// über diese Maps.
+// Single source of truth for UI, PDF, and Reports. Raw codes are used in code
+// for logic/DB, but NEVER passed directly to the user — always via these maps.
 
 import type {
   ProcessCode,
@@ -16,90 +15,90 @@ import type {
 } from "@prisma/client";
 
 // ─────────────────────────────────────────
-// ProcessCode — Bearbeitungsschritte
+// ProcessCode — Processing Steps
 // ─────────────────────────────────────────
 
-/** Lange, sprechende Bezeichnung für UI/PDF. */
+/** Long, descriptive label for UI/PDF. */
 export const PROCESS_LABEL: Record<ProcessCode, string> = {
-  // Vorbereitung
-  DISASSEMBLY:      "Demontage / Zerlegen",
-  DEGREASE_MANUAL:  "Entfetten (manuell)",
-  CHEM_PRETREAT:    "Chemische Vorbehandlung",
-  MASKING:          "Abkleben / Maskieren",
-  MOUNTING:         "Aufhängen / Montieren",
-  // Sandstrahlen
-  BLAST_SA1:        "Sandstrahlen Sa 1 (leicht)",
-  BLAST_SA2:        "Sandstrahlen Sa 2 (gründlich)",
-  BLAST_SA25:       "Sandstrahlen Sa 2.5 (sehr gründlich)",
-  BLAST_SA3:        "Sandstrahlen Sa 3 (Reinmetall)",
-  BLAST_GLASS:      "Glasperlenstrahlen",
-  // Nasslackieren
-  WP_PRIMER:        "Grundierung auftragen",
-  WP_SANDING:       "Zwischenschliff",
-  WP_TOP_1K:        "Decklack 1K (Einkomponenten)",
-  WP_TOP_2K:        "Decklack 2K (Zweikomponenten)",
-  WP_CLEAR:         "Klarlack",
-  // Pulverbeschichtung
-  PC_APPLICATION:   "Pulver auftragen",
-  PC_CURING:        "Pulver einbrennen",
-  PC_DOUBLE:        "Zweite Pulverschicht",
-  // Nachbereitung
-  UNMASKING:        "Maskierung entfernen",
-  QUALITY_CHECK:    "Qualitätskontrolle",
-  TOUCHUP:          "Nachbesserung",
-  PACKAGING:        "Verpackung",
+  // Preparation
+  DISASSEMBLY:      "Disassembly",
+  DEGREASE_MANUAL:  "Degreasing (manual)",
+  CHEM_PRETREAT:    "Chemical Pre-treatment",
+  MASKING:          "Masking",
+  MOUNTING:         "Mounting / Hanging",
+  // Sandblasting
+  BLAST_SA1:        "Sandblasting Sa 1 (light)",
+  BLAST_SA2:        "Sandblasting Sa 2 (thorough)",
+  BLAST_SA25:       "Sandblasting Sa 2.5 (very thorough)",
+  BLAST_SA3:        "Sandblasting Sa 3 (bare metal)",
+  BLAST_GLASS:      "Glass Bead Blasting",
+  // Wet Painting
+  WP_PRIMER:        "Apply Primer",
+  WP_SANDING:       "Intermediate Sanding",
+  WP_TOP_1K:        "Top Coat 1K (single component)",
+  WP_TOP_2K:        "Top Coat 2K (two component)",
+  WP_CLEAR:         "Clear Coat",
+  // Powder Coating
+  PC_APPLICATION:   "Apply Powder",
+  PC_CURING:        "Powder Curing",
+  PC_DOUBLE:        "Second Powder Layer",
+  // Post-processing
+  UNMASKING:        "Remove Masking",
+  QUALITY_CHECK:    "Quality Control",
+  TOUCHUP:          "Touch-up",
+  PACKAGING:        "Packaging",
 };
 
-/** Kurze Variante für enge Spalten / Etiketten. */
+/** Short variant for narrow columns / labels. */
 export const PROCESS_LABEL_SHORT: Record<ProcessCode, string> = {
-  DISASSEMBLY:      "Demontage",
-  DEGREASE_MANUAL:  "Entfetten",
-  CHEM_PRETREAT:    "Chem. Vorbeh.",
-  MASKING:          "Abkleben",
-  MOUNTING:         "Aufhängen",
+  DISASSEMBLY:      "Disassembly",
+  DEGREASE_MANUAL:  "Degrease",
+  CHEM_PRETREAT:    "Chem. Pretreat",
+  MASKING:          "Masking",
+  MOUNTING:         "Mounting",
   BLAST_SA1:        "Sa 1",
   BLAST_SA2:        "Sa 2",
   BLAST_SA25:       "Sa 2.5",
   BLAST_SA3:        "Sa 3",
-  BLAST_GLASS:      "Glasperlen",
-  WP_PRIMER:        "Grundierung",
-  WP_SANDING:       "Zwischenschliff",
-  WP_TOP_1K:        "Decklack 1K",
-  WP_TOP_2K:        "Decklack 2K",
-  WP_CLEAR:         "Klarlack",
-  PC_APPLICATION:   "Pulver auftragen",
-  PC_CURING:        "Einbrennen",
-  PC_DOUBLE:        "Pulver 2. Schicht",
-  UNMASKING:        "Maskierung ab",
+  BLAST_GLASS:      "Glass Beads",
+  WP_PRIMER:        "Primer",
+  WP_SANDING:       "Sanding",
+  WP_TOP_1K:        "Top Coat 1K",
+  WP_TOP_2K:        "Top Coat 2K",
+  WP_CLEAR:         "Clear Coat",
+  PC_APPLICATION:   "Apply Powder",
+  PC_CURING:        "Curing",
+  PC_DOUBLE:        "Powder 2nd Layer",
+  UNMASKING:        "Unmask",
   QUALITY_CHECK:    "QC",
-  TOUCHUP:          "Nachbesserung",
-  PACKAGING:        "Verpacken",
+  TOUCHUP:          "Touch-up",
+  PACKAGING:        "Packaging",
 };
 
-/** Gruppierung für Gruppen-Dropdowns. */
-export const PROCESS_GROUP: Record<ProcessCode, "Vorbereitung" | "Sandstrahlen" | "Nasslackieren" | "Pulverbeschichtung" | "Nachbereitung"> = {
-  DISASSEMBLY: "Vorbereitung",
-  DEGREASE_MANUAL: "Vorbereitung",
-  CHEM_PRETREAT: "Vorbereitung",
-  MASKING: "Vorbereitung",
-  MOUNTING: "Vorbereitung",
-  BLAST_SA1: "Sandstrahlen",
-  BLAST_SA2: "Sandstrahlen",
-  BLAST_SA25: "Sandstrahlen",
-  BLAST_SA3: "Sandstrahlen",
-  BLAST_GLASS: "Sandstrahlen",
-  WP_PRIMER: "Nasslackieren",
-  WP_SANDING: "Nasslackieren",
-  WP_TOP_1K: "Nasslackieren",
-  WP_TOP_2K: "Nasslackieren",
-  WP_CLEAR: "Nasslackieren",
-  PC_APPLICATION: "Pulverbeschichtung",
-  PC_CURING: "Pulverbeschichtung",
-  PC_DOUBLE: "Pulverbeschichtung",
-  UNMASKING: "Nachbereitung",
-  QUALITY_CHECK: "Nachbereitung",
-  TOUCHUP: "Nachbereitung",
-  PACKAGING: "Nachbereitung",
+/** Grouping for group dropdowns. */
+export const PROCESS_GROUP: Record<ProcessCode, "Preparation" | "Sandblasting" | "Wet Painting" | "Powder Coating" | "Post-processing"> = {
+  DISASSEMBLY: "Preparation",
+  DEGREASE_MANUAL: "Preparation",
+  CHEM_PRETREAT: "Preparation",
+  MASKING: "Preparation",
+  MOUNTING: "Preparation",
+  BLAST_SA1: "Sandblasting",
+  BLAST_SA2: "Sandblasting",
+  BLAST_SA25: "Sandblasting",
+  BLAST_SA3: "Sandblasting",
+  BLAST_GLASS: "Sandblasting",
+  WP_PRIMER: "Wet Painting",
+  WP_SANDING: "Wet Painting",
+  WP_TOP_1K: "Wet Painting",
+  WP_TOP_2K: "Wet Painting",
+  WP_CLEAR: "Wet Painting",
+  PC_APPLICATION: "Powder Coating",
+  PC_CURING: "Powder Coating",
+  PC_DOUBLE: "Powder Coating",
+  UNMASKING: "Post-processing",
+  QUALITY_CHECK: "Post-processing",
+  TOUCHUP: "Post-processing",
+  PACKAGING: "Post-processing",
 };
 
 export function processLabel(code: ProcessCode): string {
@@ -114,12 +113,12 @@ export function processLabelShort(code: ProcessCode): string {
 // ─────────────────────────────────────────
 
 export const MACHINE_LABEL: Record<MachineType, string> = {
-  BLAST_CABIN:  "Sandstrahlkabine",
-  CHEM_BATH:    "Chemiebad",
-  PAINT_CABIN:  "Lackierkabine",
-  POWDER_CABIN: "Pulverkabine",
-  CURING_OVEN:  "Einbrennofen",
-  DRYING_OVEN:  "Trockenofen",
+  BLAST_CABIN:  "Blast Cabin",
+  CHEM_BATH:    "Chemical Bath",
+  PAINT_CABIN:  "Paint Cabin",
+  POWDER_CABIN: "Powder Cabin",
+  CURING_OVEN:  "Curing Oven",
+  DRYING_OVEN:  "Drying Oven",
 };
 
 export function machineLabel(t: MachineType | null | undefined): string {
@@ -128,16 +127,16 @@ export function machineLabel(t: MachineType | null | undefined): string {
 }
 
 // ─────────────────────────────────────────
-// SkillCode — Mitarbeiter-Qualifikation
+// SkillCode — Employee Qualification
 // ─────────────────────────────────────────
 
 export const SKILL_LABEL: Record<SkillCode, string> = {
-  PREP:            "Vor- & Nachbereitung",
-  BLASTER:         "Sandstrahler:in",
-  PAINTER:         "Lackierer:in",
-  POWDER_COATER:   "Pulverbeschichter:in",
-  QC:              "Qualitätskontrolle",
-  TEAM_LEAD_SKILL: "Teamleitung",
+  PREP:            "Preparation & Post-processing",
+  BLASTER:         "Sandblaster",
+  PAINTER:         "Painter",
+  POWDER_COATER:   "Powder Coater",
+  QC:              "Quality Control",
+  TEAM_LEAD_SKILL: "Team Lead",
 };
 
 export function skillLabel(s: SkillCode): string {
@@ -149,13 +148,13 @@ export function skillLabel(s: SkillCode): string {
 // ─────────────────────────────────────────
 
 export const MATERIAL_LABEL: Record<Material, string> = {
-  STEEL_S235:   "Stahl S235",
-  STEEL_HIGH_C: "Stahl C-reich",
-  STAINLESS:    "Edelstahl",
+  STEEL_S235:   "Steel S235",
+  STEEL_HIGH_C: "High-Carbon Steel",
+  STAINLESS:    "Stainless Steel",
   ALUMINIUM:    "Aluminium",
-  GALVANIZED:   "Verzinkter Stahl",
-  CAST_IRON:    "Gusseisen",
-  OTHER:        "Anderes Material",
+  GALVANIZED:   "Galvanized Steel",
+  CAST_IRON:    "Cast Iron",
+  OTHER:        "Other Material",
 };
 
 export function materialLabel(m: Material): string {
@@ -167,10 +166,10 @@ export function materialLabel(m: Material): string {
 // ─────────────────────────────────────────
 
 export const COMPLEXITY_LABEL: Record<Complexity, string> = {
-  SIMPLE:       "Einfach",
+  SIMPLE:       "Simple",
   NORMAL:       "Normal",
-  COMPLEX:      "Komplex",
-  VERY_COMPLEX: "Sehr komplex",
+  COMPLEX:      "Complex",
+  VERY_COMPLEX: "Very Complex",
 };
 
 export function complexityLabel(c: Complexity): string {
@@ -185,14 +184,14 @@ export const COLOR_SYSTEM_LABEL: Record<ColorSystem, string> = {
   RAL:     "RAL",
   NCS:     "NCS",
   PANTONE: "Pantone",
-  CUSTOM:  "Eigen",
+  CUSTOM:  "Custom",
 };
 
 export const GLOSS_LEVEL_LABEL: Record<GlossLevel, string> = {
   MATT:        "Matt",
-  SEMI_GLOSS:  "Seidenmatt",
-  GLOSSY:      "Glänzend",
-  HIGH_GLOSS:  "Hochglanz",
+  SEMI_GLOSS:  "Semi-Gloss",
+  GLOSSY:      "Glossy",
+  HIGH_GLOSS:  "High Gloss",
 };
 
 export function colorSystemLabel(c: ColorSystem | null | undefined): string {
@@ -210,9 +209,9 @@ export function glossLevelLabel(g: GlossLevel | null | undefined): string {
 // ─────────────────────────────────────────
 
 export const APPLICATION_AREA_LABEL = {
-  INDOOR: "Innen",
-  OUTDOOR: "Aussen",
-  BOTH: "Innen + Aussen",
+  INDOOR: "Indoor",
+  OUTDOOR: "Outdoor",
+  BOTH: "Indoor + Outdoor",
 } as const;
 
 export function applicationAreaLabel(
@@ -227,12 +226,12 @@ export function applicationAreaLabel(
 // ─────────────────────────────────────────
 
 export const STEP_STATUS_LABEL: Record<StepStatus, string> = {
-  PENDING:     "Offen",
-  SCHEDULED:   "Eingeplant",
-  IN_PROGRESS: "In Arbeit",
-  DONE:        "Erledigt",
-  BLOCKED:     "Blockiert",
-  CANCELLED:   "Storniert",
+  PENDING:     "Pending",
+  SCHEDULED:   "Scheduled",
+  IN_PROGRESS: "In Progress",
+  DONE:        "Done",
+  BLOCKED:     "Blocked",
+  CANCELLED:   "Cancelled",
 };
 
 export function stepStatusLabel(s: StepStatus): string {

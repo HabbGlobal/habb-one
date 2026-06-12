@@ -43,9 +43,9 @@ export function CustomerListFilters() {
         className="w-36"
         aria-label="Typ filtern"
       >
-        <option value="all">Alle Typen</option>
-        <option value="PRIVATE">Privat</option>
-        <option value="BUSINESS">Geschäft</option>
+        <option value="all">All Typen</option>
+        <option value="PRIVATE">Privateeee</option>
+        <option value="BUSINESS">Business</option>
       </Select>
       <Select
         value={sp.get("language") ?? "all"}
@@ -53,7 +53,7 @@ export function CustomerListFilters() {
         className="w-28"
         aria-label="Sprache filtern"
       >
-        <option value="all">Alle Sprachen</option>
+        <option value="all">All Sprachen</option>
         <option value="DE">DE</option>
         <option value="FR">FR</option>
         <option value="IT">IT</option>
@@ -65,7 +65,7 @@ export function CustomerListFilters() {
         className="w-44"
         aria-label="Offene Aufträge filtern"
       >
-        <option value="all">Alle Kunden</option>
+        <option value="all">All Kunden</option>
         <option value="yes">Mit offenen Aufträgen</option>
       </Select>
     </div>

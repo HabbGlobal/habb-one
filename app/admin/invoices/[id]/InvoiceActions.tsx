@@ -71,9 +71,9 @@ export function InvoiceActions({
     }
     const confirmMsg =
       s === "SENT"
-        ? "Rechnung versenden? Damit wird die QR-Referenz vergeben — die Rechnung ist danach unveränderlich."
+        ? "Send invoice? This will assign the QR reference — the invoice is then immutable."
         : s === "CANCELLED"
-        ? "Rechnung wirklich stornieren?"
+        ? "Really cancel invoice?"
         : null;
     if (confirmMsg && !confirm(confirmMsg)) return;
 

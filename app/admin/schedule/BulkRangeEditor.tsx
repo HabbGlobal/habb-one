@@ -24,7 +24,7 @@ type EntryType =
   | "COMPENSATION"
   | "OTHER";
 
-const WEEKDAY_LABELS = ["Mo", "Di", "Mi", "Do", "Fr", "Sa", "So"];
+const WEEKDAY_LABELS = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
 
 interface Props {
   year: number;
@@ -90,7 +90,7 @@ export function BulkRangeEditor({
   const submit = () => {
     setError(null);
     if (dates.length === 0) {
-      setError("Keine Tage ausgewählt.");
+      setError("No days selected.");
       return;
     }
     start(async () => {
@@ -111,13 +111,13 @@ export function BulkRangeEditor({
         });
         const skippedNote =
           res.skipped > 0
-            ? ` (${res.skipped} bereits vorhanden, übersprungen)`
+            ? ` (${res.skipped} already existing, skipped)`
             : "";
-        alert(`${res.written} Tage geplant${skippedNote}.`);
+        alert(`${res.written} days planned${skippedNote}.`);
         router.refresh();
         onClose();
       } catch (err) {
-        setError(err instanceof Error ? err.message : "Fehler");
+        setError(err instanceof Error ? err.message : "Error");
       }
     });
   };
@@ -132,30 +132,30 @@ export function BulkRangeEditor({
       <Card className="fixed inset-x-4 top-8 z-50 mx-auto max-w-md max-h-[90vh] overflow-y-auto">
         <CardHeader className="flex flex-row items-start justify-between gap-2 space-y-0">
           <div>
-            <CardTitle className="text-base">Bereich planen</CardTitle>
+            <CardTitle className="text-base">Plan area</CardTitle>
             <p className="text-sm text-muted-foreground">{employeeName}</p>
           </div>
           <button
             type="button"
             onClick={onClose}
             className="p-1 hover:bg-accent rounded"
-            aria-label="Schliessen"
+            aria-label="Close"
           >
             <X className="h-4 w-4" />
           </button>
         </CardHeader>
         <CardContent className="space-y-3">
           <div className="grid grid-cols-2 gap-2">
-            <Field label="Von">
+            <Field label="From">
               <Input type="date" value={from} onChange={(e) => setFrom(e.target.value)} />
             </Field>
-            <Field label="Bis">
+            <Field label="To">
               <Input type="date" value={to} onChange={(e) => setTo(e.target.value)} />
             </Field>
           </div>
 
           <div>
-            <Label>Wochentage</Label>
+            <Label>Weekdays</Label>
             <div className="mt-1 flex gap-1">
               {WEEKDAY_LABELS.map((wd, i) => (
                 <button
@@ -176,15 +176,15 @@ export function BulkRangeEditor({
             </div>
           </div>
 
-          <Field label="Typ">
+          <Field label="Type">
             <Select value={type} onChange={(e) => setType(e.target.value as EntryType)}>
-              <option value="WORK">Arbeit</option>
-              <option value="FREE">Frei</option>
-              <option value="VACATION">Ferien</option>
-              <option value="SICKNESS">Krankheit</option>
-              <option value="ABSENCE">Abwesenheit</option>
-              <option value="COMPENSATION">Kompensation</option>
-              <option value="OTHER">Sonstiges</option>
+              <option value="WORK">Work</option>
+              <option value="FREE">Off</option>
+              <option value="VACATION">Vacation</option>
+              <option value="SICKNESS">Sickness</option>
+              <option value="ABSENCE">Absence</option>
+              <option value="COMPENSATION">Compensation</option>
+              <option value="OTHER">Other</option>
             </Select>
           </Field>
 
@@ -198,7 +198,7 @@ export function BulkRangeEditor({
                     onChange={(e) => setPlannedStart(e.target.value)}
                   />
                 </Field>
-                <Field label="Ende">
+                <Field label="End">
                   <Input
                     type="time"
                     value={plannedEnd}
@@ -206,7 +206,7 @@ export function BulkRangeEditor({
                   />
                 </Field>
               </div>
-              <Field label="Pause (Min.)">
+              <Field label="Break (min)">
                 <Input
                   type="number"
                   min={0}
@@ -217,12 +217,12 @@ export function BulkRangeEditor({
                 />
               </Field>
               {areas.length > 0 && (
-                <Field label="Bereich">
+                <Field label="Area">
                   <Select
                     value={workAreaId}
                     onChange={(e) => setWorkAreaId(e.target.value)}
                   >
-                    <option value="">— kein Bereich —</option>
+                    <option value="">— no area —</option>
                     {areas.map((a) => (
                       <option key={a.id} value={a.id}>
                         {a.name}
@@ -234,7 +234,7 @@ export function BulkRangeEditor({
             </>
           )}
 
-          <Field label="Notiz">
+          <Field label="Note">
             <Textarea
               rows={2}
               value={note}
@@ -249,16 +249,16 @@ export function BulkRangeEditor({
               checked={overwrite}
               onChange={(e) => setOverwrite(e.target.checked)}
             />
-            Vorhandene Einträge überschreiben
+            Overwrite existing entries
           </label>
 
           <div className="rounded-lg border bg-muted/40 px-3 py-2 text-sm">
             {dates.length === 0 ? (
-              <span className="text-muted-foreground">Keine Tage ausgewählt.</span>
+              <span className="text-muted-foreground">No days selected.</span>
             ) : (
               <span>
-                <strong>{dates.length}</strong>Day{dates.length === 1 ? "" : "e"} werden
-                {overwrite ? " überschrieben oder" : " neu"} gesetzt.
+                <strong>{dates.length}</strong> day{dates.length === 1 ? "" : "s"} will be
+                {overwrite ? " overwritten or" : " newly"} set.
               </span>
             )}
           </div>
@@ -269,8 +269,8 @@ export function BulkRangeEditor({
             <Button type="button" variant="ghost" onClick={onClose}>Cancel</Button>
             <Button type="button" onClick={submit} disabled={pending || dates.length === 0}>
               {dates.length > 0
-                ? `${dates.length} Tag${dates.length === 1 ? "" : "e"} planen`
-                : "Planen"}
+                ? `${dates.length} day${dates.length === 1 ? "" : "s"} plan`
+                : "Plan"}
             </Button>
           </div>
         </CardContent>

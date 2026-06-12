@@ -9,13 +9,13 @@ import { KeySquare, Monitor, ShieldCheck } from "lucide-react";
 export const dynamic = "force-dynamic";
 
 /**
- * "My Profile" für den eingeloggten Owner-Account. Zeigt Stammdaten,
- * Passkeys und aktive Sessions. Schreib-Actionen:
- *   - Change password (Self-Service mit Current-PW-Check)
- *   - Alle anderen Sessions abmelden
+ * "My Profile" for the logged-in owner account. Shows master data,
+ * passkeys and active sessions. Write actions:
+ *   - Change password (self-service with current password check)
+ *   - Sign out all other sessions
  *
- * Role/Email ändern macht jemand mit OWNER_ROOT unter /owner/team —
- * Self-Service-Eskalation wäre eine Lücke.
+ * Role/email changes are done by someone with OWNER_ROOT under /owner/team —
+ * self-service escalation would be a gap.
  */
 export default async function OwnerSettingsPage() {
   const ctx = await getOwnerContext();
@@ -75,16 +75,16 @@ export default async function OwnerSettingsPage() {
           My Profile
         </h1>
         <p className="mt-1 text-sm text-habb-muted">
-          Eigene Daten, Anmeldeschlüssel und aktive Sitzungen.
+          Your data, login keys, and active sessions.
         </p>
       </header>
 
-      {/* Stammdaten — read-only */}
+      {/* Master data — read-only */}
       <section className="rounded-lg border border-habb-line bg-white">
         <div className="border-b border-habb-line px-5 py-3">
           <h2 className="text-sm font-semibold text-habb-ink">Account</h2>
           <p className="mt-0.5 text-xs text-habb-muted">
-            Name, Email und Role werden vom OWNER_ROOT verwaltet — siehe
+            Name, email, and role are managed by OWNER_ROOT — see
             Owner Team.
           </p>
         </div>
@@ -93,7 +93,7 @@ export default async function OwnerSettingsPage() {
           <FieldRow label="Email" value={account.email} />
           <FieldRow label="Role" value={account.role} mono />
           <FieldRow
-            label="Letzte Anmeldung"
+            label="Last login"
             value={
               account.lastLoginAt
                 ? account.lastLoginAt.toLocaleString("de-CH")
@@ -101,15 +101,15 @@ export default async function OwnerSettingsPage() {
             }
           />
           <FieldRow
-            label="Account seit"
+            label="Account since"
             value={account.createdAt.toLocaleDateString("de-CH")}
           />
           <FieldRow
-            label="Passkey erstmals registriert"
+            label="Passkey first registered"
             value={
               account.webauthnEnrolledAt
                 ? account.webauthnEnrolledAt.toLocaleDateString("de-CH")
-                : "noch nicht"
+                : "not yet"
             }
           />
         </dl>
@@ -120,8 +120,8 @@ export default async function OwnerSettingsPage() {
         <div className="border-b border-habb-line px-5 py-3">
           <h2 className="text-sm font-semibold text-habb-ink">Password</h2>
           <p className="mt-0.5 text-xs text-habb-muted">
-            Mindestens 12 Zeichen. WebAuthn-Passkey bleibt parallel als
-            Pflicht-Faktor — Passwort allein reicht nicht für den Login.
+            Minimum 12 characters. WebAuthn passkey remains as a
+            mandatory factor in parallel — password alone is not sufficient for login.
           </p>
         </div>
         <div className="px-5 py-4">
@@ -134,12 +134,12 @@ export default async function OwnerSettingsPage() {
         <div className="border-b border-habb-line px-5 py-3 flex items-center gap-2">
           <KeySquare className="h-4 w-4 text-habb-muted" />
           <h2 className="text-sm font-semibold text-habb-ink">
-            Anmeldeschlüssel (Passkeys)
+            Login Keys (Passkeys)
           </h2>
         </div>
         {passkeys.length === 0 ? (
           <p className="px-5 py-4 text-sm text-habb-muted">
-            Noch kein Passkey hinterlegt — wird beim nächsten Login erzwungen.
+            No passkey registered yet — will be enforced on next login.
           </p>
         ) : (
           <ul className="divide-y divide-habb-line">
@@ -147,14 +147,14 @@ export default async function OwnerSettingsPage() {
               <li key={k.id} className="px-5 py-3 flex items-center justify-between gap-3">
                 <div className="min-w-0">
                   <div className="text-sm font-medium text-habb-ink truncate">
-                    {k.label || "Unbenannter Passkey"}
+                    {k.label || "Unnamed passkey"}
                   </div>
                   <div className="text-xs text-habb-muted">
-                    {formatTransports(k.transports)} · seit{" "}
+                    {formatTransports(k.transports)} · since{" "}
                     {k.createdAt.toLocaleDateString("de-CH")}
                     {k.lastUsedAt
-                      ? ` · zuletzt ${k.lastUsedAt.toLocaleDateString("de-CH")}`
-                      : " · noch nicht benutzt"}
+                      ? ` · last used ${k.lastUsedAt.toLocaleDateString("de-CH")}`
+                      : " · not used yet"}
                   </div>
                 </div>
                 <ShieldCheck className="h-4 w-4 text-habb-success shrink-0" />
@@ -163,12 +163,12 @@ export default async function OwnerSettingsPage() {
           </ul>
         )}
         <p className="px-5 py-3 text-xs text-habb-muted border-t border-habb-line">
-          Passkey-Hinzufügen + Umbenennen folgt in einem späteren Update —
-          aktuell wird der erste Passkey beim Erst-Login erzeugt.
+          Passkey add + rename follows in a later update —
+          currently the first passkey is created on first login.
         </p>
       </section>
 
-      {/* Notfall-Zugang (TOTP) */}
+      {/* Emergency access (TOTP) */}
       <TotpRecoveryCard enrolled={!!account.totpEnrolledAt} />
 
       {/* Sessions */}
@@ -176,7 +176,7 @@ export default async function OwnerSettingsPage() {
         <div className="border-b border-habb-line px-5 py-3 flex items-center justify-between gap-3">
           <div className="flex items-center gap-2">
             <Monitor className="h-4 w-4 text-habb-muted" />
-            <h2 className="text-sm font-semibold text-habb-ink">Aktive Sitzungen</h2>
+            <h2 className="text-sm font-semibold text-habb-ink">Active Sessions</h2>
           </div>
           {otherSessionCount > 0 && (
             <RevokeOtherSessionsButton count={otherSessionCount} />
@@ -192,13 +192,13 @@ export default async function OwnerSettingsPage() {
                     {summariseUserAgent(s.userAgent)}
                     {isCurrent && (
                       <span className="rounded-full bg-habb-success/10 text-habb-success px-2 py-0.5 text-[10px] uppercase tracking-wide">
-                        diese Sitzung
+                        this session
                       </span>
                     )}
                   </div>
                   <div className="text-xs text-habb-muted">
-                    IP {s.ipAddress || "—"} · gestartet{" "}
-                    {s.createdAt.toLocaleString("de-CH")} · läuft ab{" "}
+                    IP {s.ipAddress || "—"} · started{" "}
+                    {s.createdAt.toLocaleString("de-CH")} · expires{" "}
                     {s.expiresAt.toLocaleString("de-CH")}
                   </div>
                 </div>
@@ -243,8 +243,8 @@ function formatTransports(raw: string | null): string {
     if (!Array.isArray(arr) || arr.length === 0) return "Passkey";
     return arr
       .map((t) => {
-        if (t === "internal") return "Geräte-Passkey";
-        if (t === "usb") return "USB-Sicherheitsschlüssel";
+        if (t === "internal") return "Device passkey";
+        if (t === "usb") return "USB security key";
         if (t === "nfc") return "NFC";
         if (t === "ble") return "Bluetooth";
         if (t === "hybrid") return "Hybrid (Phone)";
@@ -257,22 +257,22 @@ function formatTransports(raw: string | null): string {
 }
 
 function summariseUserAgent(ua: string | null): string {
-  if (!ua) return "Unbekanntes Gerät";
-  // Sehr leichtgewichtige Heuristik — reicht für die Owner-Konsole.
+  if (!ua) return "Unknown device";
+  // Very lightweight heuristic — sufficient for the owner console.
   if (/iPhone/i.test(ua)) return "iPhone";
   if (/iPad/i.test(ua)) return "iPad";
   if (/Android/i.test(ua)) return "Android";
   if (/Mac OS X/i.test(ua)) {
-    if (/Safari/i.test(ua) && !/Chrome/i.test(ua)) return "Safari auf macOS";
-    if (/Chrome/i.test(ua)) return "Chrome auf macOS";
-    if (/Firefox/i.test(ua)) return "Firefox auf macOS";
+    if (/Safari/i.test(ua) && !/Chrome/i.test(ua)) return "Safari on macOS";
+    if (/Chrome/i.test(ua)) return "Chrome on macOS";
+    if (/Firefox/i.test(ua)) return "Firefox on macOS";
     return "Mac";
   }
   if (/Windows/i.test(ua)) {
-    if (/Edg/i.test(ua)) return "Edge auf Windows";
-    if (/Chrome/i.test(ua)) return "Chrome auf Windows";
-    if (/Firefox/i.test(ua)) return "Firefox auf Windows";
-    return "Windows-PC";
+    if (/Edg/i.test(ua)) return "Edge on Windows";
+    if (/Chrome/i.test(ua)) return "Chrome on Windows";
+    if (/Firefox/i.test(ua)) return "Firefox on Windows";
+    return "Windows PC";
   }
   if (/Linux/i.test(ua)) return "Linux";
   return "Browser";

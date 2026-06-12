@@ -104,13 +104,11 @@ export default async function OrdersPage({
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-2xl font-semibold">Orders</h1>
-          <p className="text-sm text-muted-foreground">
-            Aufträge erfassen, bestätigen, planen und ausliefern.
-          </p>
+          <p className="text-sm text-muted-foreground">Create, confirm, plan and deliver orders.</p>
         </div>
         {hasPermission(session.user.role, "orders.write") && (
           <Button asChild>
-            <Link href="/admin/orders/new">Neuer Auftrag</Link>
+            <Link href="/admin/orders/new">New Order</Link>
           </Button>
         )}
       </div>

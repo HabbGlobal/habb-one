@@ -38,11 +38,11 @@ export function CreateOwnerButton() {
       reason: String(fd.get("reason") ?? "").trim(),
     };
     if (!payload.email || !payload.name) {
-      setError("Email und Name sind Pflicht.");
+      setError("Email and name are required.");
       return;
     }
     if (payload.reason.length < 10) {
-      setError("Begründung muss mindestens 10 Zeichen lang sein.");
+      setError("Reason must be at least 10 characters long.");
       return;
     }
     setError(null);
@@ -63,8 +63,8 @@ export function CreateOwnerButton() {
         const json = await res.json().catch(() => ({}));
         setError(
           json?.error === "EMAIL_EXISTS"
-            ? "Diese Email-Adresse existiert bereits."
-            : json?.message || "Anlegen fehlgeschlagen.",
+            ? "This email address already exists."
+            : json?.message || "Creation failed.",
         );
         return;
       }
@@ -89,7 +89,7 @@ export function CreateOwnerButton() {
         className="inline-flex items-center gap-1.5 rounded-md bg-habb-black px-3 py-2 text-xs font-medium text-white hover:bg-habb-ink"
       >
         <UserPlus className="h-3.5 w-3.5" />
-        Owner anlegen
+        Create owner
       </button>
 
       {open && !createdPwd && (
@@ -107,11 +107,11 @@ export function CreateOwnerButton() {
             className="w-full max-w-md rounded-xl border border-habb-line bg-white shadow-xl"
           >
             <header className="flex items-center justify-between border-b border-habb-line px-5 py-4">
-              <h2 className="text-sm font-semibold text-habb-ink">Neuen Owner anlegen</h2>
+              <h2 className="text-sm font-semibold text-habb-ink">Create new owner</h2>
               <button
                 type="button"
                 onClick={reset}
-                aria-label="Schliessen"
+                aria-label="Close"
                 className="text-habb-muted hover:text-habb-ink"
               >
                 <X className="h-4 w-4" />
@@ -134,13 +134,13 @@ export function CreateOwnerButton() {
               </div>
               <div>
                 <label className="block text-xs font-medium uppercase tracking-wide text-habb-muted mb-1">
-                  Begründung (Pflicht, ≥ 10 Zeichen)
+                  Reason (required, ≥ 10 characters)
                 </label>
                 <textarea
                   name="reason"
                   rows={3}
                   className="block w-full rounded-md border border-habb-line bg-white px-3 py-2 text-sm"
-                  placeholder="z.B. Neues Support-Team-Mitglied — Onboarding Ticket #4123"
+                  placeholder="e.g. New support team member — onboarding ticket #4123"
                 />
               </div>
 
@@ -162,7 +162,7 @@ export function CreateOwnerButton() {
                   className="inline-flex items-center gap-2 rounded-md bg-habb-black px-4 py-2 text-sm font-medium text-white hover:bg-habb-ink disabled:opacity-60"
                 >
                   {pending && <Loader2 className="h-3.5 w-3.5 animate-spin" />}
-                  Anlegen
+                  Create
                 </button>
               </div>
             </div>
@@ -186,9 +186,9 @@ export function CreateOwnerButton() {
             <div className="space-y-4 px-5 py-5">
               <p className="text-sm text-habb-ink">
                 Transmit the password directly to{" "}
-                <span className="font-medium">{createdPwd.email}</span>. Nach
-                Schließen ist es weg — niemand (auch nicht OWNER_ROOT) kann es
-                später wieder einsehen.
+                <span className="font-medium">{createdPwd.email}</span>. After
+                closing it is gone — nobody (not even OWNER_ROOT) can view it
+                later.
               </p>
               <div className="rounded-lg border border-habb-line bg-habb-paper px-4 py-3 flex items-center justify-between gap-3">
                 <code className="font-mono text-base text-habb-ink break-all">
@@ -204,12 +204,12 @@ export function CreateOwnerButton() {
                   ) : (
                     <Copy className="h-3.5 w-3.5" />
                   )}
-                  {copied ? "Kopiert" : "Kopieren"}
+                  {copied ? "Copied" : "Copy"}
                 </button>
               </div>
               <p className="text-xs text-habb-muted">
-                Der neue Owner wird beim ersten Login zwingend einen Passkey
-                registrieren müssen. Passwort + Passkey sind Pflicht-Faktoren.
+                The new owner will be required to register a passkey on first
+                login. Password + passkey are mandatory factors.
               </p>
               <div className="flex justify-end">
                 <button
@@ -217,7 +217,7 @@ export function CreateOwnerButton() {
                   onClick={reset}
                   className="rounded-md bg-habb-black px-4 py-2 text-sm font-medium text-white hover:bg-habb-ink"
                 >
-                  Verstanden, schliessen
+                  Understood, close
                 </button>
               </div>
             </div>
@@ -229,7 +229,7 @@ export function CreateOwnerButton() {
         open={showSudo}
         onClose={() => setShowSudo(false)}
         onSuccess={() => setShowSudo(false)}
-        actionLabel="Neuen Owner-Account anlegen"
+        actionLabel="Create new owner account"
       />
     </>
   );

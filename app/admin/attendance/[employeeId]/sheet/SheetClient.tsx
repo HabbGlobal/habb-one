@@ -1,15 +1,15 @@
 "use client";
 
-// Haupt-Client für das Stundenblatt. SAP-ähnliches Layout:
-//   Header → Tabs → Wochen-Progress → 2-Spalten (Kalender + Tageliste)
+// Main client for the timesheet. SAP-like layout:
+//   Header → Tabs → Week progress → 2-column (Calendar + Day list)
 //
-// Edit-Mode wird oben rechts mit „Zeiten erfassen / bearbeiten"
-// umgeschaltet. Im Edit-Mode bekommt jeder bearbeitbare Tag einen
-// kleinen Stift; Klick öffnet den Day-Editor.
+// Edit mode is toggled top-right with "Record / edit time".
+// In edit mode each editable day gets a small pencil; click opens the
+// Day Editor.
 //
-// Live-Lock: wenn der Mitarbeiter aktuell OPEN/ON_BREAK ist, zeigt
-// ein durchgängiger Banner oben + heute kein Edit-Button für den
-// LIVE-Tag, bis er ausgestempelt wurde.
+// Live lock: if the employee is currently OPEN/ON_BREAK, a persistent
+// banner is shown at the top + no edit button for the live day until
+// they clock out.
 
 import { useState } from "react";
 import Link from "next/link";
@@ -91,28 +91,28 @@ interface Props {
 }
 
 const WEEKDAY_LABELS_DE: Record<string, string> = {
-  MON: "Montag",
-  TUE: "Dienstag",
-  WED: "Mittwoch",
-  THU: "Donnerstag",
-  FRI: "Freitag",
-  SAT: "Samstag",
-  SUN: "Sonntag",
+  MON: "Monday",
+  TUE: "Tuesday",
+  WED: "Wednesday",
+  THU: "Thursday",
+  FRI: "Friday",
+  SAT: "Saturday",
+  SUN: "Sunday",
 };
 
 const MONTH_LABELS_DE = [
-  "Januar",
-  "Februar",
-  "März",
+  "January",
+  "February",
+  "March",
   "April",
-  "Mai",
-  "Juni",
-  "Juli",
+  "May",
+  "June",
+  "July",
   "August",
   "September",
-  "Oktober",
+  "October",
   "November",
-  "Dezember",
+  "December",
 ];
 
 function formatHmm(minutes: number): string {
@@ -173,16 +173,16 @@ export function SheetClient({
             {isLive && (
               <span className="inline-flex items-center gap-1.5 rounded-full bg-habb-success/10 px-2 py-0.5 text-xs font-semibold text-habb-success">
                 <span className="inline-block h-1.5 w-1.5 animate-pulse rounded-full bg-habb-success" />
-                {liveStatus === "ON_BREAK" ? "In Pause" : "Eingestempelt"}
+                {liveStatus === "ON_BREAK" ? "On Break" : "Clocked In"}
               </span>
             )}
           </div>
           <p className="mt-0.5 text-sm text-habb-muted">
             #{employee.employeeNumber} ·{" "}
-            {employee.employmentType === "MONTHLY_SALARY" ? "Monatslohn" : "Stundenlohn"}
+            {employee.employmentType === "MONTHLY_SALARY" ? "Monthly salary" : "Hourly wage"}
             {employee.workloadPercent ? ` · ${employee.workloadPercent}%` : ""}
             {employee.weeklyTargetHours
-              ? ` · ${employee.weeklyTargetHours} h / Woche`
+              ? ` · ${employee.weeklyTargetHours} h / week`
               : ""}
           </p>
         </div>
@@ -193,27 +193,27 @@ export function SheetClient({
             onClick={() => setEditMode(!editMode)}
           >
             <Pencil className="mr-2 h-4 w-4" />
-            {editMode ? "Bearbeitung beenden" : "Zeiten erfassen / bearbeiten"}
+            {editMode ? "End editing" : "Record / edit times"}
           </Button>
         )}
       </header>
 
-      {/* Tab-Strip (Platzhalter — Leistungen + Zeitkonten kommen später) */}
+      {/* Tab strip (placeholder — Performance + Time accounts coming later) */}
       <nav className="border-b border-habb-line">
         <ul className="-mb-px flex gap-1">
           <li>
             <span className="inline-block border-b-2 border-habb-red px-3 py-2 text-sm font-medium text-habb-ink">
-              Zeiterfassung
+              Time Tracking
             </span>
           </li>
           <li>
             <span className="inline-block px-3 py-2 text-sm text-habb-muted">
-              Leistungen <span className="ml-1 text-[10px] opacity-60">(bald)</span>
+              Performance <span className="ml-1 text-[10px] opacity-60">(soon)</span>
             </span>
           </li>
           <li>
             <span className="inline-block px-3 py-2 text-sm text-habb-muted">
-              Zeitkonten <span className="ml-1 text-[10px] opacity-60">(bald)</span>
+              Time Accounts <span className="ml-1 text-[10px] opacity-60">(soon)</span>
             </span>
           </li>
         </ul>
@@ -236,7 +236,7 @@ export function SheetClient({
       <section className="rounded-lg border border-habb-line bg-white px-4 py-3">
         <div className="flex items-baseline justify-between">
           <p className="text-xs uppercase tracking-wider text-habb-muted">
-            Woche · Erfasste Zeit / Sollzeit
+            Week · Recorded Time / Target
           </p>
           <p className="text-sm font-semibold tabular-nums text-habb-ink">
             {formatHmm(weekTotals.worked)} / {formatHmm(weekTotals.target)} h
@@ -258,7 +258,7 @@ export function SheetClient({
             <div className="flex items-center justify-between">
               <Link
                 href={`/admin/attendance/${employee.id}/sheet?y=${prevYear}&m=${prevMonth}`}
-                aria-label="Voriger Monat"
+                aria-label="Previous month"
                 className="rounded p-1 text-habb-muted hover:bg-habb-paper hover:text-habb-ink"
               >
                 <ChevronLeft className="h-4 w-4" />
@@ -268,7 +268,7 @@ export function SheetClient({
               </p>
               <Link
                 href={`/admin/attendance/${employee.id}/sheet?y=${nextYear}&m=${nextMonth}`}
-                aria-label="Nächster Monat"
+                aria-label="Next month"
                 className="rounded p-1 text-habb-muted hover:bg-habb-paper hover:text-habb-ink"
               >
                 <ChevronRight className="h-4 w-4" />
@@ -346,7 +346,7 @@ function Calendar({
 
   return (
     <div className="mt-3 grid grid-cols-7 gap-0.5 text-xs">
-      {["Mo", "Di", "Mi", "Do", "Fr", "Sa", "So"].map((w) => (
+      {["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"].map((w) => (
         <div key={w} className="text-center font-medium text-habb-muted">
           {w}
         </div>
@@ -395,22 +395,21 @@ function Legend() {
   return (
     <ul className="mt-3 space-y-1 text-[10px] text-habb-muted">
       <li className="flex items-center gap-2">
-        <span className="inline-block h-3 w-3 rounded-sm ring-2 ring-habb-red" /> Heute
+        <span className="inline-block h-3 w-3 rounded-sm ring-2 ring-habb-red" />Today</li>
+      <li className="flex items-center gap-2">
+        <span className="inline-block h-3 w-3 rounded-sm bg-habb-success/10" /> Time recorded
       </li>
       <li className="flex items-center gap-2">
-        <span className="inline-block h-3 w-3 rounded-sm bg-habb-success/10" /> Zeiten erfasst
+        <span className="inline-block h-3 w-3 rounded-sm bg-amber-100" /> Target without record
       </li>
       <li className="flex items-center gap-2">
-        <span className="inline-block h-3 w-3 rounded-sm bg-amber-100" /> Soll ohne Erfassung
+        <span className="inline-block h-3 w-3 rounded-sm bg-habb-red/10" /> Absence
       </li>
       <li className="flex items-center gap-2">
-        <span className="inline-block h-3 w-3 rounded-sm bg-habb-red/10" /> Abwesenheit
+        <span className="inline-block h-3 w-3 rounded-sm bg-blue-100" /> Holiday
       </li>
       <li className="flex items-center gap-2">
-        <span className="inline-block h-3 w-3 rounded-sm bg-blue-100" /> Feiertag
-      </li>
-      <li className="flex items-center gap-2">
-        <span className="inline-block h-3 w-3 rounded-sm bg-habb-success/20" /> Aktuell live
+        <span className="inline-block h-3 w-3 rounded-sm bg-habb-success/20" /> Currently live
       </li>
     </ul>
   );
@@ -507,7 +506,7 @@ function DayRow({
 
       <div className="divide-y divide-habb-line">
         {day.isHoliday && (
-          <Row label="Feiertag" badge={<PartyPopper className="h-3.5 w-3.5" />} note={day.holidayName} />
+          <Row label="Holiday" badge={<PartyPopper className="h-3.5 w-3.5" />} note={day.holidayName} />
         )}
         {day.absence && (
           <Row
@@ -519,15 +518,15 @@ function DayRow({
               />
             }
             note={
-              (day.absence.halfDay ? "Halber Tag" : "Abwesenheit") +
-              (day.absence.isMultiDay ? " · mehrtägig" : "")
+              (day.absence.halfDay ? "Half day" : "Absence") +
+              (day.absence.isMultiDay ? " · multi-day" : "")
             }
           />
         )}
         {workBlocks.map((b, i) => (
           <Row
             key={`w${i}`}
-            label={b.homeOffice ? "Home Office" : "Arbeitszeit"}
+            label={b.homeOffice ? "Home Office" : "Work time"}
             badge={b.homeOffice ? <Home className="h-3.5 w-3.5 text-habb-ink" /> : undefined}
             start={b.start}
             end={b.end ?? "—"}
@@ -538,7 +537,7 @@ function DayRow({
         {breakBlocks.map((b, i) => (
           <Row
             key={`b${i}`}
-            label="Pause"
+            label="Break"
             badge={<Coffee className="h-3.5 w-3.5" />}
             start={b.start}
             end={b.end ?? "—"}
@@ -547,7 +546,7 @@ function DayRow({
           />
         ))}
         {workBlocks.length === 0 && breakBlocks.length === 0 && !day.absenceLabel && !day.isHoliday && (
-          <p className="px-4 py-2 text-xs text-habb-muted">Keine Zeiten erfasst.</p>
+          <p className="px-4 py-2 text-xs text-habb-muted">No time recorded.</p>
         )}
       </div>
 
@@ -556,12 +555,12 @@ function DayRow({
           {isLiveBlocked ? (
             <span className="text-xs text-habb-warning">
               <Activity className="mr-1 inline h-3 w-3 animate-pulse" />
-              Live aktiv — bitte oben zuerst ausstempeln
+              Live active — please clock out above first
             </span>
           ) : (
             <Button size="sm" variant="ghost" onClick={onEdit}>
               <Pencil className="mr-1.5 h-3.5 w-3.5" />
-              Tag bearbeiten
+              Edit day
             </Button>
           )}
         </footer>

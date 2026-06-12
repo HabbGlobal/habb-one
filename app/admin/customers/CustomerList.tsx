@@ -12,8 +12,8 @@ import {
 } from "./actions";
 
 const TYPE_LABEL: Record<CustomerListItemDTO["type"], string> = {
-  PRIVATE: "Privat",
-  BUSINESS: "Geschäft",
+  PRIVATE: "Private",
+  BUSINESS: "Business",
 };
 
 export function CustomerList({
@@ -45,7 +45,7 @@ export function CustomerList({
       ),
     },
     {
-      header: "Typ",
+      header: "Type",
       cell: (c) => (
         <Badge variant={c.type === "BUSINESS" ? "info" : "secondary"}>
           {TYPE_LABEL[c.type]}
@@ -54,12 +54,12 @@ export function CustomerList({
       className: "w-24",
     },
     {
-      header: "Ort",
+      header: "City",
       cell: (c) => c.city ?? "—",
       className: "w-40",
     },
     {
-      header: "Sprache",
+      header: "Language",
       cell: (c) => <span className="text-xs uppercase">{c.language}</span>,
       className: "w-20",
     },

@@ -64,7 +64,7 @@ export default async function EditMachinePage({
         </div>
         <div className="flex items-center gap-2">
           {machine.archivedAt ? (
-            <Badge variant="secondary">Archiviert</Badge>
+            <Badge variant="secondary">Archived</Badge>
           ) : machine.isActive ? (
             <Badge variant="success">Active</Badge>
           ) : (

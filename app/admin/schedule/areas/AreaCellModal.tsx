@@ -99,7 +99,7 @@ export function AreaCellModal({
             type="button"
             onClick={onClose}
             className="p-1 hover:bg-accent rounded"
-            aria-label="Schliessen"
+            aria-label="Close"
           >
             <X className="h-4 w-4" />
           </button>

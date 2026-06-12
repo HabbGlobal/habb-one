@@ -2,74 +2,74 @@ import * as XLSX from "xlsx";
 import { formatHM, formatHours, type PayrollDataPoint } from "./payroll";
 
 const MONTHS = [
-  "Januar", "Februar", "März", "April", "Mai", "Juni",
-  "Juli", "August", "September", "Oktober", "November", "Dezember",
+  "January", "February", "March", "April", "May", "June",
+  "July", "August", "September", "October", "November", "December",
 ];
 
 export function payrollXlsx(report: PayrollDataPoint, exportedBy: string): Buffer {
   const wb = XLSX.utils.book_new();
   const fullName = `${report.employee.lastName} ${report.employee.firstName}`;
 
-  // ── Sheet 1: Übersicht ───────────────────────────────────────────────
+  // ── Sheet 1: Overview ────────────────────────────────────────────────
   const summary: (string | number)[][] = [
-    ["Personalabrechnung"],
+    ["Payroll"],
     [],
     ["Employee", `${fullName} (#${report.employee.employeeNumber})`],
-    ["Zeitraum", `${MONTHS[report.period.month - 1]} ${report.period.year}`],
-    ["Erstellt am", new Date().toLocaleString("de-CH", { timeZone: "Europe/Zurich" })],
-    ["Exportiert von", exportedBy],
+    ["Period", `${MONTHS[report.period.month - 1]} ${report.period.year}`],
+    ["Created at", new Date().toLocaleString("en-GB", { timeZone: "Europe/Zurich" })],
+    ["Exported by", exportedBy],
     ["Company", report.company.name],
     [],
     ["Master data"],
-    ["Geburtsdatum", fmt(report.employee.dateOfBirth)],
-    ["AHV-Nr.", report.employee.ahvNumber ?? ""],
-    ["Adresse", report.employee.address ?? ""],
+    ["Date of birth", fmt(report.employee.dateOfBirth)],
+    ["SSN", report.employee.ahvNumber ?? ""],
+    ["Address", report.employee.address ?? ""],
     ["Email", report.employee.email ?? ""],
     ["Phone", report.employee.phone ?? ""],
     [],
-    ["Anstellung"],
-    ["Anstellungsart", report.employee.employmentType === "MONTHLY_SALARY" ? "Monatslohn" : "Stundenlohn"],
-    ["Pensum (%)", report.employee.workloadPercent ?? ""],
-    ["Wochenstunden", report.employee.weeklyTargetHours?.toFixed(2) ?? ""],
-    ["Ferienanspruch (Tage/Jahr)", report.employee.annualVacationDays],
-    ["Vertragsbeginn", fmt(report.employee.startDate)],
-    ["Vertragsende", fmt(report.employee.endDate)],
+    ["Employment"],
+    ["Employment type", report.employee.employmentType === "MONTHLY_SALARY" ? "Monthly salary" : "Hourly wage"],
+    ["Workload (%)", report.employee.workloadPercent ?? ""],
+    ["Weekly hours", report.employee.weeklyTargetHours?.toFixed(2) ?? ""],
+    ["Vacation entitlement (days/year)", report.employee.annualVacationDays],
+    ["Contract start", fmt(report.employee.startDate)],
+    ["Contract end", fmt(report.employee.endDate)],
     [],
-    ["Stunden Monat"],
-    ["Soll (h)", formatHours(report.totals.targetMinutes)],
-    ["Gearbeitet (h)", formatHours(report.totals.workedMinutes)],
-    ["Pause (h)", formatHours(report.totals.breakMinutes)],
-    ["Saldo Monat (h)", formatHours(report.totals.balanceMinutes)],
-    ["Korrekturen (h)", formatHours(report.totals.adjustmentMinutes)],
-    ["Saldo kumuliert (h)", formatHours(report.totals.cumulativeBalanceMinutes)],
-    ["Anfangsbestand (h)", report.employee.initialOvertimeHours.toFixed(2)],
+    ["Monthly hours"],
+    ["Target (h)", formatHours(report.totals.targetMinutes)],
+    ["Worked (h)", formatHours(report.totals.workedMinutes)],
+    ["Break (h)", formatHours(report.totals.breakMinutes)],
+    ["Monthly balance (h)", formatHours(report.totals.balanceMinutes)],
+    ["Adjustments (h)", formatHours(report.totals.adjustmentMinutes)],
+    ["Cumulative balance (h)", formatHours(report.totals.cumulativeBalanceMinutes)],
+    ["Initial balance (h)", report.employee.initialOvertimeHours.toFixed(2)],
     [],
-    ["Ferien-Saldo"],
-    ["Jahresanspruch (Tage)", report.vacation.entitlementDays],
-    ["Übertrag Vorjahr (Tage)", report.vacation.carriedOverDays],
-    ["Bezogen YTD (Tage)", report.vacation.takenDaysYtd],
-    ["Geplant (Tage)", report.vacation.plannedDays],
-    ["Restanspruch (Tage)", report.vacation.remainingDays],
+    ["Vacation balance"],
+    ["Annual entitlement (days)", report.vacation.entitlementDays],
+    ["Carried over (days)", report.vacation.carriedOverDays],
+    ["Taken YTD (days)", report.vacation.takenDaysYtd],
+    ["Planned (days)", report.vacation.plannedDays],
+    ["Remaining (days)", report.vacation.remainingDays],
     [],
-    ["Bestätigung & Freigabe"],
-    ["Die erfassten Zeiten wurden geprüft und für korrekt befunden."],
+    ["Confirmation & approval"],
+    ["The recorded times have been reviewed and confirmed as correct."],
     [],
-    ["Ort / Datum, Unterschrift Mitarbeiter:in", ""],
-    ["Ort / Datum, Unterschrift Vorgesetzte:r", ""],
+    ["Place / date, employee signature", ""],
+    ["Place / date, supervisor signature", ""],
   ];
   XLSX.utils.book_append_sheet(wb, XLSX.utils.aoa_to_sheet(summary), "Overview");
 
-  // ── Sheet 2: Tagesübersicht ──────────────────────────────────────────
+  // ── Sheet 2: Daily overview ──────────────────────────────────────────
   const dayRows: (string | number)[][] = [
     [
       "Date",
-      "Wochentag",
-      "Soll (h:mm)",
-      "Gearbeitet (h:mm)",
-      "Pause (h:mm)",
-      "Saldo (h:mm)",
-      "Saldo kum. (h:mm)",
-      "Hinweis",
+      "Weekday",
+      "Target (h:mm)",
+      "Worked (h:mm)",
+      "Break (h:mm)",
+      "Balance (h:mm)",
+      "Cumulative balance (h:mm)",
+      "Note",
     ],
   ];
   for (let i = 0; i < report.days.length; i++) {
@@ -87,42 +87,42 @@ export function payrollXlsx(report: PayrollDataPoint, exportedBy: string): Buffe
       d.holidayName ?? d.absence?.labelDe ?? "",
     ]);
   }
-  XLSX.utils.book_append_sheet(wb, XLSX.utils.aoa_to_sheet(dayRows), "Tage");
+  XLSX.utils.book_append_sheet(wb, XLSX.utils.aoa_to_sheet(dayRows), "Days");
 
-  // ── Sheet 3: Abwesenheiten ───────────────────────────────────────────
+  // ── Sheet 3: Absences ────────────────────────────────────────────────
   const absRows: (string | number)[][] = [
-    ["Typ", "Bezahlt", "Reduziert Soll", "Tage", "Stunden"],
+    ["Type", "Paid", "Reduces target", "Days", "Hours"],
   ];
   for (const a of report.absences) {
     absRows.push([
       a.label,
-      a.isPaid ? "Ja" : "Nein",
-      a.reducesTarget ? "Ja" : "Nein",
+      a.isPaid ? "Yes" : "No",
+      a.reducesTarget ? "Yes" : "No",
       a.days,
       a.hours,
     ]);
   }
   if (report.absences.length === 0) {
-    absRows.push(["(keine Abwesenheiten in diesem Monat)", "", "", "", ""]);
+    absRows.push(["(no absences this month)", "", "", "", ""]);
   }
-  XLSX.utils.book_append_sheet(wb, XLSX.utils.aoa_to_sheet(absRows), "Abwesenheiten");
+  XLSX.utils.book_append_sheet(wb, XLSX.utils.aoa_to_sheet(absRows), "Absences");
 
-  // ── Sheet 4: Manuelle Korrekturen ────────────────────────────────────
-  const adjRows: (string | number)[][] = [["Date", "Grund", "Korrektur (h)"]];
+  // ── Sheet 4: Manual adjustments ─────────────────────────────────────
+  const adjRows: (string | number)[][] = [["Date", "Reason", "Adjustment (h)"]];
   for (const a of report.adjustments) {
     adjRows.push([a.date, a.reason, formatHours(a.minutes)]);
   }
   if (report.adjustments.length === 0) {
-    adjRows.push(["(keine Korrekturen in diesem Monat)", "", ""]);
+    adjRows.push(["(no adjustments this month)", "", ""]);
   } else {
-    adjRows.push(["Summe", "", formatHours(report.totals.adjustmentMinutes)]);
+    adjRows.push(["Total", "", formatHours(report.totals.adjustmentMinutes)]);
   }
-  XLSX.utils.book_append_sheet(wb, XLSX.utils.aoa_to_sheet(adjRows), "Korrekturen");
+  XLSX.utils.book_append_sheet(wb, XLSX.utils.aoa_to_sheet(adjRows), "Adjustments");
 
   const buf = XLSX.write(wb, { type: "buffer", bookType: "xlsx" });
   return buf as Buffer;
 }
 
 function fmt(d: Date | null): string {
-  return d ? d.toLocaleDateString("de-CH") : "";
+  return d ? d.toLocaleDateString("en-GB") : "";
 }

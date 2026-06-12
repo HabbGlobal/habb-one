@@ -1,18 +1,18 @@
-// Rollen-Definitionen für die UI: Mapping zwischen DB-Enum und deutschen
-// Anzeige-Labels. Die DB-Enum-Werte selbst sind technisch und stabil
-// (siehe `prisma/schema.prisma`); die Labels hier dürfen sich ändern,
-// ohne dass eine Migration nötig wird.
+// Role definitions for the UI: Mapping between DB enum and display labels.
+// The DB enum values themselves are technical and stable (see
+// `prisma/schema.prisma`); the labels here may change without requiring
+// a migration.
 
 import type { UserRole } from "@prisma/client";
 
 /**
- * Rollen, die im UI angezeigt und vom SUPERADMIN konfiguriert werden können.
+ * Roles that are displayed in the UI and can be configured by SUPERADMIN.
  *
- * Reihenfolge: hierarchisch von oben nach unten.
- * - SUPERADMIN: System-Administrator (immer alle Rechte, nicht editierbar)
- * - ADMIN:     CEO / Geschäftsleitung
- * - PLANNER:   Sekretärin / Backoffice
- * - EMPLOYEE:  Produktionsmitarbeiter
+ * Order: hierarchical from top to bottom.
+ * - SUPERADMIN: System administrator (always has all permissions, not editable)
+ * - ADMIN:     CEO / Management
+ * - PLANNER:   Secretary / Back office
+ * - EMPLOYEE:  Production worker
  */
 export const MANAGED_ROLES = [
   "SUPERADMIN",
@@ -23,41 +23,46 @@ export const MANAGED_ROLES = [
 
 export type ManagedRole = (typeof MANAGED_ROLES)[number];
 
-/** Rollen, deren Permissions per UI-Matrix konfigurierbar sind. */
+/** Roles whose permissions are configurable via the UI matrix. */
 export const CONFIGURABLE_ROLES = ["ADMIN", "PLANNER", "EMPLOYEE"] as const satisfies readonly ManagedRole[];
 export type ConfigurableRole = (typeof CONFIGURABLE_ROLES)[number];
 
-export const ROLE_LABELS_DE: Record<ManagedRole, string> = {
-  SUPERADMIN: "Super-Admin",
-  ADMIN: "CEO / Geschäftsleitung",
-  PLANNER: "Sekretärin",
-  EMPLOYEE: "Produktionsmitarbeiter",
+export const ROLE_LABELS: Record<ManagedRole, string> = {
+  SUPERADMIN: "Super Admin",
+  ADMIN: "CEO / Management",
+  PLANNER: "Secretary",
+  EMPLOYEE: "Production Worker",
 };
 
-export const ROLE_DESCRIPTIONS_DE: Record<ManagedRole, string> = {
+export const ROLE_DESCRIPTIONS: Record<ManagedRole, string> = {
   SUPERADMIN:
-    "System-Administrator. Hat IMMER alle Rechte und ist die einzige Rolle, die diese Matrix bearbeiten darf.",
+    "System administrator. ALWAYS has all permissions and is the only role allowed to edit this matrix.",
   ADMIN:
-    "Geschäftsleitung. Standardmässig voller operativer Zugriff (Aufträge, Offerten, Rechnungen, Personal, Berichte, Parameter).",
+    "Management. By default has full operational access (orders, quotes, invoices, personnel, reports, parameters).",
   PLANNER:
-    "Backoffice / Sekretariat. Standardmässig: Kunden, Aufträge, Offerten anlegen und planen; Rechnungen lesen; keine Parameter-Änderungen.",
+    "Back office / Secretary. By default: create and plan customers, orders, quotes; read invoices; no parameter changes.",
   EMPLOYEE:
-    "Werkstatt-Mitarbeiter. Standardmässig: nur eigene Schicht und zugewiesene Aufträge sehen; keine Backoffice-Funktionen.",
+    "Workshop employee. By default: can only see own shift and assigned orders; no back-office functions.",
 };
 
-/** Liefert das deutsche Anzeige-Label für eine UserRole, mit Fallback. */
-export function roleLabelDe(role: UserRole | string): string {
-  if (role in ROLE_LABELS_DE) return ROLE_LABELS_DE[role as ManagedRole];
-  // Legacy-Werte für Bestandsdaten:
-  if (role === "SECRETARY" || role === "TEAM_LEAD") return "Sekretärin";
-  if (role === "CUSTOMER_PORTAL") return "Kundenportal";
+/** Returns the display label for a UserRole, with fallback. */
+export function roleLabel(role: UserRole | string): string {
+  if (role in ROLE_LABELS) return ROLE_LABELS[role as ManagedRole];
+  // Legacy values for existing data:
+  if (role === "SECRETARY" || role === "TEAM_LEAD") return "Secretary";
+  if (role === "CUSTOMER_PORTAL") return "Customer Portal";
   return role;
 }
 
+// Keep old export name for backward compatibility
+export const ROLE_LABELS_DE = ROLE_LABELS;
+export const ROLE_DESCRIPTIONS_DE = ROLE_DESCRIPTIONS;
+export const roleLabelDe = roleLabel;
+
 /**
- * Mappt Legacy-Rollen auf den heutigen technischen Wert.
- * (DB enthält noch alte Datensätze; an der DB-Definition selbst ändern wir
- *  nichts, damit Postgres-konsistent bleibt.)
+ * Maps legacy roles to the current technical value.
+ * (DB still contains old records; we don't change the DB definition
+ *  itself so Postgres remains consistent.)
  */
 export function effectiveRole(
   role: UserRole,

@@ -48,7 +48,7 @@ export default async function NewOrderPage() {
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="text-2xl font-semibold">Neuer Auftrag</h1>
+        <h1 className="text-2xl font-semibold">New Order</h1>
         <p className="text-sm text-muted-foreground">
           Erfasse Kunde, Termine, Positionen und Prozessablauf — Status startet
           als <strong>Entwurf</strong>. Wird beim Bestätigen eingefroren.

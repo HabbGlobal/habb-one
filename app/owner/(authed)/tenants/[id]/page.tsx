@@ -39,15 +39,15 @@ export default async function TenantOverviewPage({
     <div className="space-y-6">
       {tenant.suspendedAt && (
         <section className="rounded-lg border border-habb-red/30 bg-habb-red/5 px-5 py-4 text-sm">
-          <p className="font-medium text-habb-red">Tenant suspendiert</p>
+          <p className="font-medium text-habb-red">Tenant suspended</p>
           <p className="mt-1 text-habb-red/90">
-            Seit {tenant.suspendedAt.toLocaleDateString("de-CH")} —{" "}
-            {tenant.suspendedReason || "(keine Begründung dokumentiert)"}
+            Since {tenant.suspendedAt.toLocaleDateString("de-CH")} —{" "}
+            {tenant.suspendedReason || "(no reason documented)"}
           </p>
           <div className="mt-3 border-t border-habb-red/20 pt-3">
             <p className="mb-2 text-xs text-habb-red/80">
-              Endgültige Löschung: entfernt diesen Tenanten samt aller Daten
-              und Userkonten unwiderruflich.
+              Permanent deletion: removes this tenant including all data
+              and user accounts irrevocably.
             </p>
             <DeleteTenantButton tenantId={tenant.id} tenantName={tenant.name} />
           </div>
@@ -71,8 +71,8 @@ export default async function TenantOverviewPage({
       />
 
       <section className="rounded-lg border border-habb-line bg-white px-5 py-3 text-xs text-habb-muted">
-        <span className="mr-3">Erstellt: {tenant.createdAt.toLocaleDateString("de-CH")}</span>
-        <span>Letzte Änderung: {tenant.updatedAt.toLocaleDateString("de-CH")}</span>
+        <span className="mr-3">Created: {tenant.createdAt.toLocaleDateString("de-CH")}</span>
+        <span>Last modified: {tenant.updatedAt.toLocaleDateString("de-CH")}</span>
       </section>
 
       <NotesEditor tenantId={tenant.id} initialNotes={tenant.internalNotes} />

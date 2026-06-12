@@ -64,8 +64,8 @@ export interface ProcessTemplate {
 export const PROCESS_TEMPLATES: ProcessTemplate[] = [
   {
     id: "powder-standard",
-    label: "Standard-Pulverbeschichtung",
-    description: "Sandstrahlen Sa 2.5 → Pulver auftragen → Aushärten — typisches Stahlteil.",
+    label: "Standard powder coating",
+    description: "Sandblasting Sa 2.5 → Powder application → Curing — typical steel part.",
     steps: [
       "DEGREASE_MANUAL",
       "BLAST_SA25",
@@ -80,8 +80,8 @@ export const PROCESS_TEMPLATES: ProcessTemplate[] = [
   },
   {
     id: "powder-double",
-    label: "Pulver — 2-Schicht",
-    description: "Zwei Pulver-Schichten mit zwei Aushärtungen.",
+    label: "Powder — 2-layer",
+    description: "Two powder layers with two curings.",
     steps: [
       "DEGREASE_MANUAL",
       "BLAST_SA25",
@@ -98,8 +98,8 @@ export const PROCESS_TEMPLATES: ProcessTemplate[] = [
   },
   {
     id: "wet-1k",
-    label: "Nasslackieren 1K",
-    description: "Sandstrahlen → Grundierung → Decklack 1K — einfache Nasslackierung.",
+    label: "Wet painting 1K",
+    description: "Sandblasting → Primer → Topcoat 1K — simple wet painting.",
     steps: [
       "DEGREASE_MANUAL",
       "BLAST_SA25",
@@ -114,8 +114,8 @@ export const PROCESS_TEMPLATES: ProcessTemplate[] = [
   },
   {
     id: "wet-2k",
-    label: "Nasslackieren 2K",
-    description: "Hochwertige 2K-Lackierung mit Klarlack.",
+    label: "Wet painting 2K",
+    description: "High-quality 2K paint with clear coat.",
     steps: [
       "DEGREASE_MANUAL",
       "BLAST_SA25",
@@ -131,14 +131,14 @@ export const PROCESS_TEMPLATES: ProcessTemplate[] = [
   },
   {
     id: "blast-only",
-    label: "Nur Sandstrahlen",
-    description: "Reine Sandstrahl-Behandlung ohne Beschichtung.",
+    label: "Sandblasting only",
+    description: "Pure sandblasting treatment without coating.",
     steps: ["BLAST_SA25", "QUALITY_CHECK", "PACKAGING"],
   },
   {
     id: "chem-blast-powder",
-    label: "Chemische Vorbehandlung + Pulver",
-    description: "Mit Phosphatierung — typisch für Aluminium und Buntmetalle.",
+    label: "Chemical pretreatment + Powder",
+    description: "With phosphating — typical for aluminium and non-ferrous metals.",
     steps: [
       "DEGREASE_MANUAL",
       "CHEM_PRETREAT",
@@ -167,7 +167,7 @@ export function expandTemplate(templateId: string): {
   waitMinutesAfter: number;
 }[] {
   const tpl = PROCESS_TEMPLATES.find((t) => t.id === templateId);
-  if (!tpl) throw new Error(`Unbekannte Vorlage: ${templateId}`);
+  if (!tpl) throw new Error(`Unknown template: ${templateId}`);
   return tpl.steps.map((code, i) => {
     const r = PROCESS_RESOURCES[code];
     return {

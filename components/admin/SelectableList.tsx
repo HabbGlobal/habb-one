@@ -117,7 +117,7 @@ export function SelectableList<T>({
               variant="outline"
               size="sm"
               disabled={isPending}
-              onClick={() => runBulk("Archiviert", bulk.archive)}
+              onClick={() => runBulk("Archived", bulk.archive)}
             >
               <Archive className="mr-2 h-4 w-4" /> Archivieren
             </Button>

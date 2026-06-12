@@ -62,7 +62,7 @@ export default async function TemplatesPage({
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-semibold">Process-Vorlagen</h1>
+          <h1 className="text-2xl font-semibold">Process Templates</h1>
           <p className="text-sm text-muted-foreground">
             Standard-Workflows für Aufträge und Offerten. Änderungen wirken
             sofort auf neue Aufträge / Offerten — bestehende bleiben unverändert.
@@ -70,7 +70,7 @@ export default async function TemplatesPage({
         </div>
         {canWrite && (
           <Button asChild>
-            <Link href="/admin/templates/new">Neue Vorlage</Link>
+            <Link href="/admin/templates/new">New Template</Link>
           </Button>
         )}
       </div>
@@ -79,9 +79,7 @@ export default async function TemplatesPage({
 
       {templates.length === 0 ? (
         <Card>
-          <CardContent className="p-6 text-center text-muted-foreground text-sm">
-            Keine Vorlagen in dieser Ansicht.
-          </CardContent>
+          <CardContent className="p-6 text-center text-muted-foreground text-sm">No templates in this view.</CardContent>
         </Card>
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 gap-3">

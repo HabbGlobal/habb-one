@@ -15,14 +15,14 @@ interface TenantRow {
 }
 
 const PLAN_OPTIONS: { value: Plan; label: string }[] = [
-  { value: "TRIAL", label: "Trial — Pilot / kostenlos" },
-  { value: "TIME_ONLY", label: "Zeiterfassung — nur Stempeluhr (CHF 29)" },
-  { value: "STARTER", label: "Starter — bis 10 Mitarbeitende" },
+  { value: "TRIAL", label: "Trial — Pilot / free" },
+  { value: "TIME_ONLY", label: "Time Tracking — only time clock (CHF 29)" },
+  { value: "STARTER", label: "Starter — up to 10 employees" },
   { value: "PRO", label: "Pro — Scheduler + Reports" },
   { value: "ENTERPRISE", label: "Enterprise — Custom + SLA" },
 ];
 
-/** Plan-Wechsel-Modal pro Tenant. Sudo + Begründung, Audit. */
+/** Plan change modal per tenant. Sudo + reason, audit. */
 export function PlanChangeAction({ tenant }: { tenant: TenantRow }) {
   const router = useRouter();
   const [open, setOpen] = useState(false);
@@ -42,11 +42,11 @@ export function PlanChangeAction({ tenant }: { tenant: TenantRow }) {
 
   function submit() {
     if (plan === tenant.plan) {
-      setError("Bitte einen anderen Plan wählen.");
+      setError("Please select a different plan.");
       return;
     }
     if (reason.trim().length < 10) {
-      setError("Begründung mit mindestens 10 Zeichen ist Pflicht.");
+      setError("Reason with at least 10 characters is required.");
       return;
     }
     setError(null);
@@ -64,7 +64,7 @@ export function PlanChangeAction({ tenant }: { tenant: TenantRow }) {
         }
       }
       if (!res.ok) {
-        setError("Plan-Wechsel fehlgeschlagen.");
+        setError("Plan change failed.");
         return;
       }
       reset();
@@ -79,7 +79,7 @@ export function PlanChangeAction({ tenant }: { tenant: TenantRow }) {
         onClick={() => setOpen(true)}
         disabled={tenant.suspended}
         className="rounded-md border border-habb-line bg-white px-2.5 py-1 text-[11px] font-medium text-habb-ink hover:bg-habb-paper disabled:opacity-50 disabled:cursor-not-allowed"
-        title={tenant.suspended ? "Suspendierte Tenanten erst reaktivieren" : "Change plan"}
+        title={tenant.suspended ? "Suspended tenants must be reactivated first" : "Change plan"}
       >
         Change plan
       </button>
@@ -105,7 +105,7 @@ export function PlanChangeAction({ tenant }: { tenant: TenantRow }) {
               <button
                 type="button"
                 onClick={reset}
-                aria-label="Schliessen"
+                aria-label="Close"
                 className="text-habb-muted hover:text-habb-ink"
               >
                 <X className="h-4 w-4" />
@@ -114,8 +114,8 @@ export function PlanChangeAction({ tenant }: { tenant: TenantRow }) {
             <div className="space-y-4 px-5 py-5">
               <p className="text-sm text-habb-muted">
                 Current plan: <span className="font-medium text-habb-ink">{tenant.plan}</span>.
-                Die plan-gesteuerten Module passen sich beim Wechsel an. Manuelle
-                Sonderfreischaltungen/-sperren und bestehende Daten bleiben unangetastet.
+                The plan-controlled modules adjust on switch. Manual
+                custom overrides and existing data remain untouched.
               </p>
 
               <div>
@@ -137,14 +137,14 @@ export function PlanChangeAction({ tenant }: { tenant: TenantRow }) {
 
               <div>
                 <label className="block text-xs font-medium uppercase tracking-wide text-habb-muted mb-1">
-                  Begründung (Pflicht, ≥ 10 Zeichen)
+                  Reason (required, ≥ 10 characters)
                 </label>
                 <textarea
                   value={reason}
                   onChange={(e) => setReason(e.target.value)}
                   rows={3}
                   className="block w-full rounded-md border border-habb-line bg-white px-3 py-2 text-sm"
-                  placeholder="z.B. Upgrade auf Pro — Vertrag #2026-014"
+                  placeholder="e.g. Upgrade to Pro — Contract #2026-014"
                 />
               </div>
 
@@ -181,7 +181,7 @@ export function PlanChangeAction({ tenant }: { tenant: TenantRow }) {
           setShowSudo(false);
           submit();
         }}
-        actionLabel={`Plan von ${tenant.name} ändern`}
+        actionLabel={`Change plan of ${tenant.name}`}
       />
     </>
   );

@@ -1,9 +1,9 @@
 "use client";
 
-// Kiosk-Lock-Timeout — wie lange bleibt das Tablet nach dem
-// Entsperren freigeschaltet, bevor es wieder den Passwort-Screen
-// verlangt? Default `0` (nie automatisch ausloggen) ist auf
-// Werkstatt-Tablets sinnvoll, die fest im Betrieb hängen.
+// Kiosk lock timeout — how long does the tablet remain unlocked after
+// entering the password before requiring the password screen again?
+// Default `0` (never auto-logout) is suitable for workshop tablets
+// that are permanently mounted in the shop.
 
 import { useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
@@ -53,7 +53,7 @@ export function KioskLockTimeoutForm({ currentMinutes }: Props) {
     } else {
       const n = Number.parseInt(customMinutes, 10);
       if (!Number.isFinite(n) || n < 1 || n > 10080) {
-        setError("Minuten müssen zwischen 1 und 10080 (7 Tage) liegen.");
+        setError("Minutes must be between 1 and 10080 (7 days).");
         return;
       }
       minutes = n;
@@ -64,8 +64,8 @@ export function KioskLockTimeoutForm({ currentMinutes }: Props) {
         await setKioskLockTimeout({ minutes });
         setSuccess(
           minutes === 0
-            ? "Auto-Logout deaktiviert — das Tablet bleibt dauerhaft eingeloggt."
-            : `Auto-Logout aktiv: ${minutes} Minuten nach letzter Aktion.`,
+            ? "Auto-logout deactivated — the tablet remains permanently logged in."
+            : `Auto-logout active: ${minutes} minutes after last action.`,
         );
         router.refresh();
         setTimeout(() => setSuccess(null), 5000);
@@ -85,15 +85,15 @@ export function KioskLockTimeoutForm({ currentMinutes }: Props) {
       <CardContent className="space-y-4">
         <div className="text-sm text-muted-foreground">
           <p>
-            Wie lange bleibt das Werkstatt-Tablet nach dem Entsperren
-            freigeschaltet, bevor es wieder das Kiosk-Passwort verlangt?
-            Jede erfolgreiche Stempel-Aktion verlängert die Zeit wieder
-            (Sliding-Window).
+            How long does the workshop tablet remain unlocked after entering the
+            password before requiring the kiosk password again?
+            Each successful clock action extends the time again
+            (sliding window).
           </p>
           <p className="mt-2">
-            Default für Habb One: <strong>Nie automatisch ausloggen</strong>
-            {" "}— sinnvoll, wenn das iPad fest in der Werkstatt hängt und
-            ohnehin physisch geschützt ist.
+            Default for Habb One: <strong>Never auto-logout</strong>
+            {" "}— suitable when the tablet is permanently mounted in the workshop and
+            is physically protected anyway.
           </p>
         </div>
 
@@ -112,12 +112,12 @@ export function KioskLockTimeoutForm({ currentMinutes }: Props) {
               <div className="flex-1">
                 <div className="font-medium flex items-center gap-2">
                   <InfinityIcon className="h-4 w-4" />
-                  Nie automatisch ausloggen
+                  Never auto-logout
                 </div>
                 <div className="text-xs text-muted-foreground mt-0.5">
-                  Tablet bleibt dauerhaft an den Mandanten gebunden,
-                  bis der Schicht-Ende-Logout-Button am Tablet gedrückt
-                  wird. Empfohlen für fest verbaute Werkstatt-Tablets.
+                  Tablet remains permanently bound to the tenant
+                  until the end-of-shift logout button on the tablet is pressed.
+                  Recommended for permanently mounted workshop tablets.
                 </div>
               </div>
             </label>
@@ -131,10 +131,10 @@ export function KioskLockTimeoutForm({ currentMinutes }: Props) {
                 className="mt-1"
               />
               <div className="flex-1">
-                <div className="font-medium">Nach einer Schicht (12 Stunden)</div>
+                <div className="font-medium">After one shift (12 hours)</div>
                 <div className="text-xs text-muted-foreground mt-0.5">
-                  Nach 12 Stunden ohne Stempel-Aktion fällt das Tablet
-                  zurück auf den Passwort-Screen.
+                  After 12 hours without a clock action the tablet
+                  falls back to the password screen.
                 </div>
               </div>
             </label>
@@ -148,14 +148,14 @@ export function KioskLockTimeoutForm({ currentMinutes }: Props) {
                 className="mt-1"
               />
               <div className="flex-1">
-                <div className="font-medium">Individuell (in Minuten)</div>
+                <div className="font-medium">Custom (in minutes)</div>
                 <div className="text-xs text-muted-foreground mt-0.5">
-                  Beliebige Dauer, 1–10080 Minuten (max. 7 Tage).
+                  Any duration, 1–10080 minutes (max. 7 days).
                 </div>
                 {mode === "custom" && (
                   <div className="mt-2 flex items-center gap-2">
                     <Label htmlFor="kiosk-timeout-custom" className="text-xs">
-                      Minuten:
+                      Minutes:
                     </Label>
                     <Input
                       id="kiosk-timeout-custom"

@@ -69,12 +69,12 @@ export default async function TenantDiagnosticsDetail({
       <section className="rounded-xl border border-habb-line bg-white">
         <div className="border-b border-habb-line px-5 py-3">
           <h2 className="text-sm font-semibold text-habb-ink">
-            Offene Findings ({findings.length})
+            Open Findings ({findings.length})
           </h2>
         </div>
         {findings.length === 0 ? (
           <p className="px-5 py-6 text-sm text-habb-muted">
-            Keine offenen Findings.
+            No open findings.
           </p>
         ) : (
           <ul className="divide-y divide-habb-line">
@@ -98,7 +98,7 @@ export default async function TenantDiagnosticsDetail({
                     </div>
                     {f.recommendation && (
                       <div className="mt-1 text-xs text-habb-ink">
-                        <strong>Empfehlung:</strong> {f.recommendation}
+                        <strong>Recommendation:</strong> {f.recommendation}
                       </div>
                     )}
                   </div>
@@ -115,7 +115,7 @@ export default async function TenantDiagnosticsDetail({
       <div className="grid gap-6 lg:grid-cols-2">
         <Panel title={`Security-Events (${secEvents.length})`}>
           {secEvents.length === 0 ? (
-            <Empty>Keine Security-Events.</Empty>
+            <Empty>No Security-Events.</Empty>
           ) : (
             secEvents.map((e) => (
               <Row
@@ -127,7 +127,7 @@ export default async function TenantDiagnosticsDetail({
             ))
           )}
         </Panel>
-        <Panel title="Letzte Diagnostics-Läufe">
+        <Panel title="Recent Diagnostic Runs">
           {runs.map((r) => (
             <Row
               key={r.id}
@@ -139,9 +139,9 @@ export default async function TenantDiagnosticsDetail({
         </Panel>
       </div>
 
-      <Panel title="Email-Benachrichtigungen">
+      <Panel title="Email Notifications">
         {emails.length === 0 ? (
-          <Empty>Keine Emails.</Empty>
+          <Empty>No emails.</Empty>
         ) : (
           emails.map((m) => (
             <Row

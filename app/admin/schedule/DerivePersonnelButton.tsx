@@ -1,15 +1,15 @@
 "use client";
 
-// Button "Personal aus Werkstatt-Plan ableiten".
+// Button "Derive personnel from workshop plan".
 //
-// UX-Flow:
-//   1. Klick → Modal öffnet, lädt sofort Vorschau (dryRun=true).
-//   2. Vorschau zeigt:
-//      - Pro Tag pro Bereich: Bedarf vs. zugewiesen
-//      - Konflikte (Bereich unterbesetzt, Maschine ohne Bereich, etc.)
-//      - Anzahl Einträge die geschrieben werden
-//   3. Optionen: Scope (Woche/Monat), "AUTO überschreiben"
-//   4. Bestätigen → Schreibvorgang.
+// UX flow:
+//   1. Click → Modal opens, immediately loads preview (dryRun=true).
+//   2. Preview shows:
+//      - Per day per area: demand vs. assigned
+//      - Conflicts (area understaffed, machine without area, etc.)
+//      - Number of entries that will be written
+//   3. Options: Scope (Week/Month), "Overwrite AUTO"
+//   4. Confirm → Write operation.
 
 import { useEffect, useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
@@ -25,11 +25,11 @@ import type { DeriveResult } from "@/lib/schedule/derive-personnel";
 type Scope = "week" | "month";
 
 interface Props {
-  /** Anker — entweder weekStart (ISO Mo) oder beliebiger Tag im Monat. */
+  /** Anchor — either weekStart (ISO Mon) or any day in the month. */
   anchorDate: string;
-  /** Aktive View — Vorbelegung für scope. */
+  /** Active view — pre-selection for scope. */
   view: "month" | "week";
-  /** Anzeige-Label des aktuellen Bereichs (z. B. "Mai 2026" / "KW 18"). */
+  /** Display label of the current range (e.g. "May 2026" / "CW 18"). */
   rangeLabel?: string;
 }
 
@@ -45,7 +45,7 @@ export function DerivePersonnelButton({ anchorDate, view, rangeLabel }: Props) {
   const [loadingPreview, setLoadingPreview] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  // Vorschau live nachladen, wenn der User Bereich oder overwrite ändert.
+  // Reload preview live when the user changes scope or overwrite.
   useEffect(() => {
     if (!open) return;
     setError(null);
@@ -61,7 +61,7 @@ export function DerivePersonnelButton({ anchorDate, view, rangeLabel }: Props) {
         if (!cancelled) setPreview(r);
       })
       .catch((err) => {
-        if (!cancelled) setError(err instanceof Error ? err.message : "Fehler");
+        if (!cancelled) setError(err instanceof Error ? err.message : "Error");
       })
       .finally(() => {
         if (!cancelled) setLoadingPreview(false);
@@ -92,9 +92,9 @@ export function DerivePersonnelButton({ anchorDate, view, rangeLabel }: Props) {
         close();
         router.refresh();
         alert(
-          `${r.written} Personalplan-Einträge geschrieben${
+          `${r.written} personnel plan entries written${
             r.conflicts.length > 0
-              ? ` · ${r.conflicts.length} Konflikt${r.conflicts.length === 1 ? "" : "e"}`
+              ? ` · ${r.conflicts.length} conflict${r.conflicts.length === 1 ? "" : "s"}`
               : ""
           }.`,
         );
@@ -111,7 +111,7 @@ export function DerivePersonnelButton({ anchorDate, view, rangeLabel }: Props) {
     <>
       <Button variant="outline" size="sm" onClick={() => setOpen(true)}>
         <UserPlus className="mr-2 h-4 w-4" />
-        Aus Werkstatt-Plan
+        From workshop plan
       </Button>
 
       {open && (
@@ -127,10 +127,10 @@ export function DerivePersonnelButton({ anchorDate, view, rangeLabel }: Props) {
           >
             <div className="flex items-center justify-between p-5 border-b">
               <div>
-                <h2 className="text-lg font-semibold">Personal aus Werkstatt-Plan</h2>
+                <h2 className="text-lg font-semibold">Personnel from workshop plan</h2>
                 <p className="text-xs text-muted-foreground mt-0.5">
-                  Erzeugt automatisch passende Personalplan-Einträge basierend auf
-                  den geplanten Aufträgen + Maschinen-Bereichen.
+                  Automatically creates matching personnel plan entries based on
+                  the planned orders + machine areas.
                 </p>
               </div>
               <button
@@ -138,7 +138,7 @@ export function DerivePersonnelButton({ anchorDate, view, rangeLabel }: Props) {
                 onClick={close}
                 disabled={pending}
                 className="p-1 rounded hover:bg-habb-paper"
-                aria-label="Schliessen"
+                aria-label="Close"
               >
                 <X className="h-4 w-4" />
               </button>
@@ -161,7 +161,7 @@ export function DerivePersonnelButton({ anchorDate, view, rangeLabel }: Props) {
                         : "hover:bg-accent",
                     )}
                   >
-                    Aktuelle Woche
+                    Current week
                   </button>
                   <button
                     type="button"
@@ -173,12 +173,12 @@ export function DerivePersonnelButton({ anchorDate, view, rangeLabel }: Props) {
                         : "hover:bg-accent",
                     )}
                   >
-                    Aktueller Monat
+                    Current month
                   </button>
                 </div>
               </div>
 
-              {/* Optionen */}
+              {/* Options */}
               <label className="flex items-center gap-2 text-sm cursor-pointer">
                 <input
                   type="checkbox"
@@ -186,21 +186,21 @@ export function DerivePersonnelButton({ anchorDate, view, rangeLabel }: Props) {
                   onChange={(e) => setOverwriteAuto(e.target.checked)}
                 />
                 <span>
-                  Bereits automatisch geplante Einträge überschreiben
+                  Overwrite already auto-planned entries
                   <span className="text-muted-foreground text-xs block">
-                    Manuelle Einträge bleiben IMMER unangetastet.
+                    Manual entries ALWAYS remain untouched.
                   </span>
                 </span>
               </label>
 
-              {/* Vorschau */}
+              {/* Preview */}
               <div>
                 <div className="text-xs uppercase tracking-wider text-muted-foreground font-medium mb-2">
-                  Vorschau
+                  Preview
                 </div>
 
                 {loadingPreview ? (
-                  <div className="text-sm text-muted-foreground">Berechne …</div>
+                  <div className="text-sm text-muted-foreground">Calculating…</div>
                 ) : error ? (
                   <div className="text-sm text-destructive rounded-lg border border-destructive bg-destructive/10 px-3 py-2">
                     {error}
@@ -226,23 +226,23 @@ export function DerivePersonnelButton({ anchorDate, view, rangeLabel }: Props) {
                         )}
                         <strong className="text-sm">
                           {totalAssignments === 0
-                            ? "Nichts zu tun — Personalplan ist bereits konsistent."
-                            : `${totalAssignments} Personalplan-Einträge werden geschrieben`}
+                            ? "Nothing to do — personnel plan is already consistent."
+                            : `${totalAssignments} personnel plan entries will be written`}
                         </strong>
                       </div>
                       {conflicts.length > 0 && (
                         <div className="text-xs mt-1 text-amber-900">
-                          {conflicts.length} Konflikt{conflicts.length === 1 ? "" : "e"} —
-                          siehe unten.
+                          {conflicts.length} conflict{conflicts.length === 1 ? "" : "s"} —
+                          see below.
                         </div>
                       )}
                     </div>
 
-                    {/* Konflikte */}
+                    {/* Conflicts */}
                     {conflicts.length > 0 && (
                       <div className="mb-3">
                         <div className="text-xs uppercase tracking-wider text-muted-foreground font-medium mb-1">
-                          Konflikte
+                          Conflicts
                         </div>
                         <ul className="space-y-1 text-sm border rounded divide-y max-h-32 overflow-y-auto">
                           {conflicts.map((c, i) => (
@@ -255,11 +255,11 @@ export function DerivePersonnelButton({ anchorDate, view, rangeLabel }: Props) {
                       </div>
                     )}
 
-                    {/* Tages-Aufschlüsselung */}
+                    {/* Breakdown by day */}
                     {preview.summaryByDate.length > 0 && (
                       <div>
                         <div className="text-xs uppercase tracking-wider text-muted-foreground font-medium mb-1">
-                          Aufschlüsselung pro Tag
+                          Breakdown by day
                         </div>
                         <ul className="space-y-1 text-sm border rounded divide-y max-h-64 overflow-y-auto">
                           {preview.summaryByDate.map((d) => (
@@ -308,9 +308,9 @@ export function DerivePersonnelButton({ anchorDate, view, rangeLabel }: Props) {
                 disabled={pending || loadingPreview || totalAssignments === 0}
               >
                 {pending
-                  ? "Speichere …"
+                  ? "Saving…"
                   : totalAssignments
-                    ? `${totalAssignments} Einträge schreiben`
+                    ? `Write ${totalAssignments} entries`
                     : "Write"}
               </Button>
             </div>

@@ -19,11 +19,11 @@ export function SuspendButtons({ tenantId, isSuspended }: Props) {
   const [pending, start] = useTransition();
 
   const action = isSuspended ? "reactivate" : "suspend";
-  const actionLabel = isSuspended ? "Reaktivieren" : "Suspendieren";
+  const actionLabel = isSuspended ? "Reactivate" : "Suspend";
 
   const submit = (reasonText: string) => {
     if (reasonText.trim().length < 10) {
-      setError("Begründung muss mindestens 10 Zeichen lang sein.");
+      setError("Reason must be at least 10 characters long.");
       return;
     }
     setError(null);
@@ -47,7 +47,7 @@ export function SuspendButtons({ tenantId, isSuspended }: Props) {
         }
       }
       const json = await res.json().catch(() => ({}));
-      setError(json?.message || "Action fehlgeschlagen.");
+      setError(json?.message || "Action failed.");
     });
   };
 
@@ -98,11 +98,11 @@ export function SuspendButtons({ tenantId, isSuspended }: Props) {
             >
               <p className="text-sm text-habb-ink">
                 {isSuspended
-                  ? "Der Tenant kann sich danach wieder am Kunden-Login anmelden."
-                  : "Der Tenant kann sich am Kunden-Login nicht mehr anmelden, bis du ihn reaktivierst."}
+                  ? "The tenant will be able to log in again at the customer login."
+                  : "The tenant will no longer be able to log in at the customer login until you reactivate them."}
               </p>
               <label className="block text-xs font-medium uppercase tracking-wide text-habb-muted">
-                Begründung (Pflicht, ≥ 10 Zeichen)
+                Reason (required, ≥ 10 characters)
               </label>
               <textarea
                 value={reason}
@@ -111,8 +111,8 @@ export function SuspendButtons({ tenantId, isSuspended }: Props) {
                 className="block w-full rounded-md border border-habb-line bg-white px-3 py-2 text-sm focus:border-habb-black focus:outline-none focus:ring-2 focus:ring-habb-red focus:ring-offset-2"
                 placeholder={
                   isSuspended
-                    ? "z.B. Klärung mit Treuhand abgeschlossen — Ticket #1234"
-                    : "z.B. Mehrfacher Zahlungsverzug — Ticket #1234"
+                    ? "e.g. Clarification with fiduciary completed — Ticket #1234"
+                    : "e.g. Repeated payment default — Ticket #1234"
                 }
               />
               {error && (

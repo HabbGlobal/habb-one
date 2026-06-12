@@ -120,8 +120,7 @@ export function AbsenceTypesEditor({ types, canWrite }: Props) {
         </p>
         {canWrite && (
           <Button onClick={openNew} size="sm">
-            <Plus className="mr-1 h-4 w-4" /> Neuer Typ
-          </Button>
+            <Plus className="mr-1 h-4 w-4" /> Neuer Type</Button>
         )}
       </div>
 
@@ -139,7 +138,7 @@ export function AbsenceTypesEditor({ types, canWrite }: Props) {
               <TableHead>Bezeichnung</TableHead>
               <TableHead>Schlüssel</TableHead>
               <TableHead>Kategorie</TableHead>
-              <TableHead className="text-center">Bezahlt</TableHead>
+              <TableHead className="text-center">Paid</TableHead>
               <TableHead className="text-center">Reduziert Soll</TableHead>
               <TableHead className="text-center">Genehmigung?</TableHead>
               <TableHead className="text-right">Actions</TableHead>

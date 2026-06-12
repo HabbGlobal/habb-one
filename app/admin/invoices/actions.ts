@@ -91,7 +91,8 @@ function calcItemTotal(qty: number, price: number, discountPct: number): number 
 // ─────────────────────────────────────────
 
 export async function createInvoice(input: unknown) {
-  const user = await requirePerm("invoices.write");
+  try {
+    const user = await requirePerm("invoices.write");
   const data = parseOrThrow(invoiceFullSchema, input);
 
   await prisma.customer.findFirstOrThrow({
@@ -158,8 +159,11 @@ export async function createInvoice(input: unknown) {
     newValue: { customerId: data.core.customerId, totalGross },
   });
 
-  revalidatePath("/admin/invoices");
-  return { id: invoiceId };
+    revalidatePath("/admin/invoices");
+    return { id: invoiceId };
+  } catch (err) {
+    return { error: err instanceof Error ? err.message : "Ein Fehler ist aufgetreten." };
+  }
 }
 
 // ─────────────────────────────────────────
@@ -350,7 +354,8 @@ export async function createInvoiceFromOrder(input: unknown) {
 // ─────────────────────────────────────────
 
 export async function updateDraftInvoice(invoiceId: string, input: unknown) {
-  const user = await requirePerm("invoices.write");
+  try {
+    const user = await requirePerm("invoices.write");
   const data = parseOrThrow(invoiceFullSchema, input);
 
   const before = await prisma.invoice.findFirstOrThrow({
@@ -407,8 +412,11 @@ export async function updateDraftInvoice(invoiceId: string, input: unknown) {
     newValue: { totalGross, itemCount: data.items.length },
   });
 
-  revalidatePath("/admin/invoices");
-  revalidatePath(`/admin/invoices/${invoiceId}`);
+    revalidatePath("/admin/invoices");
+    revalidatePath(`/admin/invoices/${invoiceId}`);
+  } catch (err) {
+    return { error: err instanceof Error ? err.message : "Ein Fehler ist aufgetreten." };
+  }
 }
 
 // ─────────────────────────────────────────

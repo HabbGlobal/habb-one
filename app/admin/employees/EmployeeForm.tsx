@@ -234,6 +234,7 @@ export function EmployeeForm({
       try {
         if (mode.kind === "create") {
           const result = await createEmployee(data);
+          if (result?.error) throw new Error(result.error);
           if (result?.pin) {
             setPin(result.pin);
           } else {
@@ -241,7 +242,8 @@ export function EmployeeForm({
             router.refresh();
           }
         } else {
-          await updateEmployee(mode.employeeId, data);
+          const result = await updateEmployee(mode.employeeId, data);
+          if (result?.error) throw new Error(result.error);
           router.push("/admin/employees");
           router.refresh();
         }

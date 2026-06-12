@@ -83,7 +83,7 @@ export function AutoPlanButton({ year, month }: { year: number; month: number })
                 type="button"
                 onClick={() => setOpen(false)}
                 className="p-1 rounded hover:bg-accent"
-                aria-label="Schliessen"
+                aria-label="Close"
               >
                 <X className="h-4 w-4" />
               </button>

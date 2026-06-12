@@ -39,7 +39,7 @@ export function NotesEditor({ tenantId, initialNotes }: NotesEditorProps) {
           setShowSudo(true);
         } else {
           setStatus("error");
-          setErrorMsg("Nicht autorisiert.");
+          setErrorMsg("Not authorized.");
         }
       } else {
         setStatus("error");
@@ -63,7 +63,7 @@ export function NotesEditor({ tenantId, initialNotes }: NotesEditorProps) {
         <textarea
           value={value}
           onChange={(e) => setValue(e.target.value)}
-          placeholder="Beobachtungen, Onboarding-Status, offene Punkte, Ansprechperson … (max 8000 Zeichen)"
+          placeholder="Observations, onboarding status, open items, contact person … (max 8000 characters)"
           rows={8}
           maxLength={8000}
           className="block w-full resize-y rounded-lg border border-habb-line bg-white px-3.5 py-3 text-sm leading-relaxed focus:border-habb-black focus:outline-none focus:ring-2 focus:ring-habb-red focus:ring-offset-2"
@@ -92,7 +92,7 @@ export function NotesEditor({ tenantId, initialNotes }: NotesEditorProps) {
           setShowSudo(false);
           save();
         }}
-        actionLabel="Internal notes speichern"
+        actionLabel="Save internal notes"
       />
     </section>
   );

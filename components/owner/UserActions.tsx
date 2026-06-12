@@ -31,14 +31,14 @@ export interface UserActionRow {
 }
 
 const ROLE_LABEL: Record<UserRole, string> = {
-  SUPERADMIN: "Super-Admin",
-  ADMIN: "CEO / Geschäftsleitung",
-  PLANNER: "Sekretariat",
-  EMPLOYEE: "Produktion",
-  CUSTOMER_PORTAL: "Kundenportal",
-  KIOSK_OPERATOR: "Werkstatt-Tablet",
-  SECRETARY: "Sekretariat (Legacy)",
-  TEAM_LEAD: "Team-Lead (Legacy)",
+  SUPERADMIN: "Super Admin",
+  ADMIN: "CEO / Management",
+  PLANNER: "Secretary",
+  EMPLOYEE: "Production",
+  CUSTOMER_PORTAL: "Customer Portal",
+  KIOSK_OPERATOR: "Workshop Tablet",
+  SECRETARY: "Secretary (Legacy)",
+  TEAM_LEAD: "Team Lead (Legacy)",
 };
 
 interface Props {
@@ -79,7 +79,7 @@ export function UserActionsMenu({ user }: Props) {
 
   const submit = (action: Action, reasonText: string) => {
     if (reasonText.trim().length < 10) {
-      setError("Begründung muss mindestens 10 Zeichen lang sein.");
+      setError("Reason must be at least 10 characters.");
       return;
     }
     setError(null);
@@ -119,30 +119,30 @@ export function UserActionsMenu({ user }: Props) {
         items={
           isDeleted
             ? [
-                // Wenn der User soft-deleted ist, ist die einzige sinnvolle
-                // Action die Wiederherstellung. Alles andere wäre ein Fehler.
+                // When user is soft-deleted, the only meaningful action is
+                // restoration. Everything else would be an error.
                 {
                   icon: RotateCcw,
-                  label: "Wiederherstellen",
+                  label: "Restore",
                   onClick: () => setOpenAction({ kind: "restore" }),
                 },
               ]
             : [
                 {
                   icon: Mail,
-                  label: "Passwort-Reset-Mail senden",
+                  label: "Send password reset email",
                   onClick: () => setOpenAction({ kind: "reset-mail" }),
                   disabled: isSuperAdmin,
                 },
                 {
                   icon: KeyRound,
-                  label: "Temporary password setzen",
+                  label: "Set temporary password",
                   onClick: () => setOpenAction({ kind: "temp-password" }),
                   disabled: isSuperAdmin,
                 },
                 {
                   icon: Shield,
-                  label: "Role ändern",
+                  label: "Change role",
                   onClick: () => setOpenAction({ kind: "role", newRole: user.role }),
                   disabled: isSuperAdmin,
                 },
@@ -372,24 +372,24 @@ function ActionModal({
   onRoleChange: (r: UserRole) => void;
 }) {
   const titleMap: Record<Action["kind"], string> = {
-    "reset-mail": "Passwort-Reset-Mail senden",
-    "temp-password": "Temporary password setzen",
-    role: "Role ändern",
-    lock: "User sperren",
-    unlock: "User entsperren",
-    delete: "User löschen",
-    restore: "User wiederherstellen",
+    "reset-mail": "Send password reset email",
+    "temp-password": "Set temporary password",
+    role: "Change role",
+    lock: "Suspend user",
+    unlock: "Unsuspend user",
+    delete: "Delete user",
+    restore: "Restore user",
   };
   const bodyMap: Record<Action["kind"], string> = {
-    "reset-mail": `Der User erhält einen Magic-Link an ${user.email}. Der Link ist 60 Min gültig.`,
+    "reset-mail": `The user will receive a magic link at ${user.email}. The link is valid for 60 minutes.`,
     "temp-password":
-      "Owner sieht das Passwort EINMAL und muss es dem User persönlich übermitteln. Bestehende Sessions werden invalidiert.",
-    role: "Sessions werden nach der Änderung invalidiert.",
-    lock: "Der User kann sich danach nicht mehr einloggen, bis Sie ihn entsperren.",
-    unlock: "Der User kann sich danach wieder einloggen.",
-    delete: "Soft-Delete: nach 30 Tagen wird der Account endgültig entfernt.",
+      "The owner sees the password ONCE and must convey it to the user in person. Existing sessions will be invalidated.",
+    role: "Sessions will be invalidated after the change.",
+    lock: "The user will not be able to log in until you unsuspend them.",
+    unlock: "The user will be able to log in again.",
+    delete: "Soft delete: after 30 days the account will be permanently removed.",
     restore:
-      "Der zuvor gelöschte Account wird wieder aktiviert. Der User kann sich anschließend wieder einloggen.",
+      "The previously deleted account will be reactivated. The user can then log in again.",
   };
 
   return (
@@ -423,7 +423,7 @@ function ActionModal({
           {action.kind === "role" && (
             <div className="space-y-1.5">
               <label className="block text-xs font-medium uppercase tracking-wide text-habb-muted">
-                Neue Role
+                New Role
               </label>
               <select
                 value={action.newRole}
@@ -437,21 +437,21 @@ function ActionModal({
                 ))}
               </select>
               {action.newRole === user.role && (
-                <p className="text-xs text-habb-muted">Keine Änderung — andere Role wählen.</p>
+                <p className="text-xs text-habb-muted">No change — select a different role.</p>
               )}
             </div>
           )}
 
           <div className="space-y-1.5">
             <label className="block text-xs font-medium uppercase tracking-wide text-habb-muted">
-              Begründung (Pflicht, ≥ 10 Zeichen)
+              Reason (required, ≥ 10 characters)
             </label>
             <textarea
               value={reason}
               onChange={(e) => setReason(e.target.value)}
               rows={3}
               className="block w-full rounded-md border border-habb-line bg-white px-3 py-2 text-sm focus:border-habb-black focus:outline-none focus:ring-2 focus:ring-habb-red focus:ring-offset-1"
-              placeholder="z.B. User-Anfrage per Phone — Ticket #1234"
+              placeholder="e.g. User request via phone — Ticket #1234"
             />
           </div>
 
@@ -519,8 +519,8 @@ function TempPasswordModal({
         </header>
         <div className="space-y-4 px-5 py-5">
           <p className="text-sm text-habb-ink">
-            Übermitteln Sie das Passwort jetzt direkt an{" "}
-            <span className="font-medium">{email}</span>. Nach Schliessen dieses Dialogs ist es weg.
+            Send the password now directly to{" "}
+            <span className="font-medium">{email}</span>. After closing this dialog it will be gone.
           </p>
           <div className="rounded-lg border border-habb-line bg-habb-paper px-4 py-3">
             <div className="flex items-center justify-between gap-3">
@@ -531,7 +531,7 @@ function TempPasswordModal({
                 className="inline-flex items-center gap-1.5 rounded-md border border-habb-line bg-white px-3 py-1.5 text-xs font-medium text-habb-ink hover:bg-habb-paper"
               >
                 {copied ? <CheckCheck className="h-3.5 w-3.5 text-habb-success" /> : <Copy className="h-3.5 w-3.5" />}
-                {copied ? "Kopiert" : "Kopieren"}
+                {copied ? "Copied" : "Copy"}
               </button>
             </div>
           </div>
@@ -544,7 +544,7 @@ function TempPasswordModal({
               onClick={onClose}
               className="inline-flex items-center rounded-md bg-habb-black px-4 py-2 text-sm font-medium text-white hover:bg-habb-ink"
             >
-              Verstanden, schliessen
+              Understood, close
             </button>
           </div>
         </div>
@@ -601,47 +601,47 @@ function dispatch(userId: string, action: Action, reason: string) {
 }
 
 function describeAction(action: Action | null, name: string): string {
-  if (!action) return "Action bestätigen";
+  if (!action) return "Confirm action";
   switch (action.kind) {
     case "reset-mail":
-      return `Passwort-Reset-Mail to ${name}`;
+      return `Password reset email to ${name}`;
     case "temp-password":
-      return `Temporary password für ${name} setzen`;
+      return `Set temporary password for ${name}`;
     case "role":
-      return `Role von ${name} ändern`;
+      return `Change role of ${name}`;
     case "lock":
-      return `${name} sperren`;
+      return `Suspend ${name}`;
     case "unlock":
-      return `${name} entsperren`;
+      return `Unsuspend ${name}`;
     case "delete":
-      return `${name} löschen (Soft-Delete)`;
+      return `Delete ${name} (soft delete)`;
     case "restore":
-      return `${name} wiederherstellen`;
+      return `Restore ${name}`;
   }
 }
 
 function labelForError(code?: string): string {
   switch (code) {
     case "NOT_FOUND":
-      return "User nicht gefunden.";
+      return "User not found.";
     case "ALREADY_LOCKED":
-      return "User ist bereits gesperrt.";
+      return "User is already suspended.";
     case "NOT_LOCKED":
-      return "User ist nicht gesperrt.";
+      return "User is not suspended.";
     case "ALREADY_DELETED":
-      return "User ist bereits gelöscht.";
+      return "User is already deleted.";
     case "NOT_DELETED":
-      return "User ist nicht gelöscht — Wiederherstellung nicht nötig.";
+      return "User is not deleted — restoration not needed.";
     case "COMPANY_SUSPENDED":
-      return "Tenant ist suspendiert — User-Wiederherstellung erst nach Reaktivieren.";
+      return "Tenant is suspended — user restoration only after reactivation.";
     case "NO_CHANGE":
-      return "Keine Änderung — andere Role wählen.";
+      return "No change — select a different role.";
     case "SUPERADMIN_PROTECTED":
-      return "Action gegen SUPERADMIN ist gesperrt.";
+      return "Action against SUPERADMIN is blocked.";
     case "INVALID":
-      return "Eingabe ungültig.";
+      return "Invalid input.";
     default:
-      return "Action fehlgeschlagen.";
+      return "Action failed.";
   }
 }
 

@@ -99,7 +99,7 @@ export function RoleMatrixEditor({
           PLANNER: Array.from(state.PLANNER),
           EMPLOYEE: Array.from(state.EMPLOYEE),
         });
-        setSuccess("Rechte-Matrix gespeichert.");
+        setSuccess("Permissions matrix saved.");
         router.refresh();
         setTimeout(() => setSuccess(null), 4000);
       } catch (err) {
@@ -109,16 +109,16 @@ export function RoleMatrixEditor({
   };
 
   const resetRole = (role: ConfigurableRole) => {
-    if (!confirm(`Rolle "${ROLE_LABELS_DE[role]}" auf Standard zurücksetzen?`)) return;
+    if (!confirm(`Reset role "${ROLE_LABELS_DE[role]}" to default?`)) return;
     start(async () => {
       try {
         await onResetRole(role);
         setState((prev) => ({ ...prev, [role]: new Set(defaults[role]) }));
-        setSuccess(`Rolle ${ROLE_LABELS_DE[role]} auf Standard zurückgesetzt.`);
+        setSuccess(`Role ${ROLE_LABELS_DE[role]} reset to defaults.`);
         router.refresh();
         setTimeout(() => setSuccess(null), 4000);
       } catch (err) {
-        setError(err instanceof Error ? err.message : "Fehler.");
+        setError(err instanceof Error ? err.message : "Error.");
       }
     });
   };
@@ -133,7 +133,7 @@ export function RoleMatrixEditor({
     <Card>
       <CardHeader className="flex flex-col md:flex-row md:items-center md:justify-between gap-3 space-y-0">
         <div>
-          <CardTitle className="text-base">Rechte-Matrix</CardTitle>
+          <CardTitle className="text-base">Permissions Matrix</CardTitle>
           {headerHint && (
             <p className="mt-1 text-xs text-muted-foreground">{headerHint}</p>
           )}
@@ -141,7 +141,7 @@ export function RoleMatrixEditor({
         <div className="flex items-center gap-2">
           {dirty && (
             <Button type="button" variant="ghost" size="sm" onClick={discard} disabled={pending}>
-              Verwerfen
+              Discard
             </Button>
           )}
           <Button onClick={save} disabled={!dirty || pending} size="sm">
@@ -166,7 +166,7 @@ export function RoleMatrixEditor({
           <thead>
             <tr className="bg-habb-paper border-b">
               <th className="text-left font-medium px-3 py-2 sticky left-0 bg-habb-paper min-w-[260px]">
-                Funktion
+                Function
               </th>
               <th className="font-medium px-3 py-2 min-w-[140px] bg-habb-paper">
                 <div className="flex items-center justify-center gap-1">
@@ -174,7 +174,7 @@ export function RoleMatrixEditor({
                   <span>{ROLE_LABELS_DE.SUPERADMIN}</span>
                 </div>
                 <div className="text-[10px] font-normal text-muted-foreground">
-                  immer alle Rechte
+                  always all permissions
                 </div>
               </th>
               {CONFIGURABLE_ROLES.map((r) => (
@@ -186,7 +186,7 @@ export function RoleMatrixEditor({
                       onClick={() => resetRole(r)}
                       className="mt-1 text-[10px] font-normal text-muted-foreground hover:text-foreground inline-flex items-center gap-1"
                       disabled={pending}
-                      title="Auf Standard-Werte zurücksetzen"
+                      title="Reset to default values"
                     >
                       <RotateCcw className="h-3 w-3" />
                       Standard
@@ -213,9 +213,9 @@ export function RoleMatrixEditor({
 
         <p className="mt-4 text-xs text-muted-foreground">
           <span className="inline-block w-3 h-3 align-middle rounded-sm bg-amber-100 border border-amber-300 mr-1"></span>
-          Gelb = abweichend vom Standard.&nbsp;&nbsp;
-          <strong>Tipp:</strong> Server-Aktionen prüfen Permissions auch
-          serverseitig — UI zeigt immer den aktuellen DB-Stand.
+          Yellow = deviates from default.&nbsp;&nbsp;
+          <strong>Tip:</strong> Server actions also check permissions
+          server-side — UI always shows the current DB state.
         </p>
       </CardContent>
     </Card>
@@ -277,7 +277,7 @@ function GroupRows({
                     checked={checked}
                     disabled={disabled}
                     onChange={() => onToggle(role, def.key)}
-                    aria-label={`${def.label} für ${ROLE_LABELS_DE[role]}`}
+                    aria-label={`${def.label} for ${ROLE_LABELS_DE[role]}`}
                   />
                 </label>
               </td>

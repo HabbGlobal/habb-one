@@ -41,15 +41,15 @@ export function OrderListFilters() {
         className="w-44"
         aria-label="Status filtern"
       >
-        <option value="all">Alle Status</option>
+        <option value="all">All Status</option>
         <option value="DRAFT">Entwurf</option>
         <option value="CONFIRMED">Bestätigt</option>
         <option value="IN_PROGRESS">In Arbeit</option>
         <option value="ON_HOLD">Pausiert</option>
-        <option value="COMPLETED">Abgeschlossen</option>
+        <option value="COMPLETED">Closed</option>
         <option value="DELIVERED">Geliefert</option>
         <option value="INVOICED">Verrechnet</option>
-        <option value="CANCELLED">Storniert</option>
+        <option value="CANCELLED">Cancelled</option>
       </Select>
       <Select
         value={sp.get("priority") ?? "all"}
@@ -57,7 +57,7 @@ export function OrderListFilters() {
         className="w-32"
         aria-label="Priorität filtern"
       >
-        <option value="all">Alle Prios</option>
+        <option value="all">All Prios</option>
         <option value="LOW">Niedrig</option>
         <option value="NORMAL">Normal</option>
         <option value="HIGH">Hoch</option>
@@ -69,8 +69,8 @@ export function OrderListFilters() {
         className="w-44"
         aria-label="Verspätet filtern"
       >
-        <option value="all">Alle Liefertermine</option>
-        <option value="yes">Nur überfällig</option>
+        <option value="all">All Liefertermine</option>
+        <option value="yes">Nur overdue</option>
       </Select>
     </div>
   );

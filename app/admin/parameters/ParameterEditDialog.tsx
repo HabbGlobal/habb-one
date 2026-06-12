@@ -118,7 +118,7 @@ export function ParameterEditDialog({
             type="button"
             onClick={onClose}
             className="p-1 rounded hover:bg-accent"
-            aria-label="Schliessen"
+            aria-label="Close"
           >
             <X className="h-4 w-4" />
           </button>

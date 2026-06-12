@@ -6,9 +6,9 @@ export default function TenantActivityStub() {
       <span className="mx-auto grid h-10 w-10 place-items-center rounded-full bg-habb-paper">
         <Activity className="h-5 w-5 text-habb-muted" />
       </span>
-      <h2 className="mt-3 text-sm font-medium text-habb-ink">Aktivitäts-Overview</h2>
+      <h2 className="mt-3 text-sm font-medium text-habb-ink">Activity Overview</h2>
       <p className="mt-1 text-xs text-habb-muted">
-        Login-Historie, API-Aufrufe und Heatmap folgen in einem späteren PR.
+        Login history, API calls, and heatmap follow in a later PR.
       </p>
     </section>
   );

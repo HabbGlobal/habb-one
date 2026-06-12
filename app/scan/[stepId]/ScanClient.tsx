@@ -1,10 +1,10 @@
 "use client";
 
-// Mobile-first Scan-UI. Zeigt Schritt-Stammdaten, aktuellen State und
-// die jeweils erlaubten Aktionen — Worker tippt Aktion + PIN ein.
+// Mobile-first Scan UI. Shows step master data, current state, and
+// the currently allowed actions — worker enters action + PIN.
 //
-// Polling: alle 5 s wird `getStepStatus` neu geholt, damit der Worker sofort
-// sieht wenn jemand anders gerade gestartet/gestoppt hat (live-verknüpft).
+// Polling: every 5s `getStepStatus` is fetched, so the worker immediately
+// sees when someone else has started/stopped (live-linked).
 
 import { useEffect, useState, useTransition } from "react";
 import { Play, Pause, Square, RotateCw, CheckCircle2, Clock, AlertTriangle } from "lucide-react";
@@ -22,10 +22,10 @@ import type { ScanState } from "@/lib/order/step-time";
 type Status = Awaited<ReturnType<typeof getStepStatus>>;
 
 const STATE_LABEL: Record<ScanState, string> = {
-  NOT_STARTED: "Bereit zum Starten",
-  RUNNING:     "Läuft",
-  PAUSED:      "Pausiert",
-  DONE:        "Erledigt",
+  NOT_STARTED: "Ready to Start",
+  RUNNING:     "Running",
+  PAUSED:      "Paused",
+  DONE:        "Done",
 };
 
 const STATE_COLOR: Record<ScanState, string> = {
@@ -39,7 +39,7 @@ const POLL_INTERVAL_MS = 5_000;
 
 function fmtDateTime(d: Date | string): string {
   const date = typeof d === "string" ? new Date(d) : d;
-  return new Intl.DateTimeFormat("de-CH", {
+  return new Intl.DateTimeFormat("en-GB", {
     day: "2-digit",
     month: "2-digit",
     hour: "2-digit",
@@ -50,16 +50,16 @@ function fmtDateTime(d: Date | string): string {
 function fmtMinutes(n: number): string {
   const h = Math.floor(n / 60);
   const m = n % 60;
-  if (h === 0) return `${m} Min`;
+  if (h === 0) return `${m} min`;
   if (m === 0) return `${h} h`;
-  return `${h} h ${m} Min`;
+  return `${h} h ${m} min`;
 }
 
 const EVENT_LABEL: Record<ProcessStepEventType, string> = {
-  START:  "Gestartet",
-  PAUSE:  "Pausiert",
-  RESUME: "Fortgesetzt",
-  END:    "Beendet",
+  START:  "Started",
+  PAUSE:  "Paused",
+  RESUME: "Resumed",
+  END:    "Ended",
 };
 
 export function ScanClient({
@@ -83,21 +83,21 @@ export function ScanClient({
   const [pin, setPin] = useState("");
   const [note, setNote] = useState("");
 
-  // Polling — alle 5 s aktualisieren
+  // Polling — refresh every 5s
   useEffect(() => {
     const handle = setInterval(async () => {
       try {
         const fresh = await getStepStatus(stepId);
         setStatus(fresh);
       } catch {
-        // Network glitch — beim nächsten Tick erneut versuchen.
+        // Network glitch — retry on next tick.
       }
     }, POLL_INTERVAL_MS);
     return () => clearInterval(handle);
   }, [stepId]);
 
-  // Lokale Live-Anzeige für laufende Schritte: jede Sekunde Re-render damit
-  // die Stoppuhr weiterläuft, ohne den Server zu belasten.
+  // Local live display for running steps: re-render every second so the
+  // stopwatch keeps running without hitting the server.
   const [tick, setTick] = useState(0);
   useEffect(() => {
     if (status.scanState !== "RUNNING") return;
@@ -110,11 +110,11 @@ export function ScanClient({
   const submitAction = () => {
     if (!pendingAction) return;
     if (!employeeNumber.trim()) {
-      setError("Mitarbeiter-Nummer eingeben.");
+      setError("Please enter employee number.");
       return;
     }
     if (!/^\d{4}$/.test(pin)) {
-      setError("PIN muss 4 Ziffern haben.");
+      setError("PIN must be 4 digits.");
       return;
     }
     setError(null);
@@ -127,19 +127,18 @@ export function ScanClient({
           action: pendingAction,
           note,
         });
-        // Persistiere Mitarbeiter-Nr. lokal damit sie beim nächsten Scan
-        // vorbelegt ist.
+        // Persist employee number locally so it's pre-filled on next scan.
         localStorage.setItem("scan.employeeNumber", employeeNumber.trim());
-        setSuccess(`„${EVENT_LABEL[pendingAction]}" erfasst.`);
+        setSuccess(`"${EVENT_LABEL[pendingAction]}" recorded.`);
         setPin("");
         setNote("");
         setPendingAction(null);
-        // Sofort neu laden
+        // Reload immediately
         const fresh = await getStepStatus(stepId);
         setStatus(fresh);
         setTimeout(() => setSuccess(null), 4_000);
       } catch (err) {
-        setError(err instanceof Error ? err.message : "Fehler beim Erfassen.");
+        setError(err instanceof Error ? err.message : "Error recording action.");
         setPin("");
       }
     });
@@ -154,7 +153,7 @@ export function ScanClient({
 
   return (
     <div className="space-y-4">
-      {/* ── Auftrags-Header ── */}
+      {/* ── Order Header ── */}
       <Card>
         <CardContent className="p-4 space-y-2">
           <div className="flex items-center justify-between">
@@ -165,17 +164,17 @@ export function ScanClient({
               <Badge variant="destructive">Express</Badge>
             )}
             {status.order.priority === "HIGH" && (
-              <Badge variant="warning">Hoch</Badge>
+              <Badge variant="warning">High</Badge>
             )}
           </div>
           <div className="text-sm font-medium">{status.order.customerDisplayName}</div>
           <div className="text-xs text-muted-foreground">
-            Liefertermin: {fmtDateTime(status.order.promisedAt)}
+            Delivery date: {fmtDateTime(status.order.promisedAt)}
           </div>
         </CardContent>
       </Card>
 
-      {/* ── Schritt-Header ── */}
+      {/* ── Step Header ── */}
       <Card>
         <CardContent className="p-4 space-y-3">
           <div>
@@ -186,7 +185,7 @@ export function ScanClient({
               {processLabel(status.step.processCode)}
             </div>
             <div className="text-xs text-muted-foreground">
-              Schritt {status.step.sequence} ·{" "}
+              Step {status.step.sequence} ·{" "}
               {machineLabel(status.step.machineTypeRequired)} ·{" "}
               {materialLabel(status.item.material)}
               {status.item.colorCode && ` · ${status.item.colorCode}`} ·{" "}
@@ -201,17 +200,17 @@ export function ScanClient({
             {STATE_LABEL[status.scanState]}
           </div>
 
-          {/* Stoppuhr / Zeitanzeige */}
+          {/* Stopwatch / Time display */}
           <div className="grid grid-cols-2 gap-2 text-sm">
             <div className="rounded-md bg-muted/30 p-2">
-              <div className="text-xs text-muted-foreground">Geschätzt</div>
+              <div className="text-xs text-muted-foreground">Estimated</div>
               <div className="font-semibold tabular-nums">
                 {fmtMinutes(status.step.estimatedMinutes)}
               </div>
             </div>
             <div className="rounded-md bg-muted/30 p-2">
               <div className="text-xs text-muted-foreground">
-                {status.scanState === "DONE" ? "Final" : "Bisher"}
+                {status.scanState === "DONE" ? "Final" : "So far"}
               </div>
               <div className="font-semibold tabular-nums flex items-center gap-1">
                 {status.scanState === "RUNNING" && (
@@ -224,7 +223,7 @@ export function ScanClient({
         </CardContent>
       </Card>
 
-      {/* ── Erfolgs-/Fehler-Meldungen ── */}
+      {/* ── Success/Error Messages ── */}
       {success && (
         <div className="rounded-lg border-2 border-emerald-300 bg-emerald-50 px-4 py-3 text-sm text-emerald-900 flex items-center gap-2">
           <CheckCircle2 className="h-5 w-5 shrink-0" /> {success}
@@ -236,7 +235,7 @@ export function ScanClient({
         </div>
       )}
 
-      {/* ── Aktionen / PIN-Form ── */}
+      {/* ── Actions / PIN Form ── */}
       {!pendingAction ? (
         <ActionButtons
           state={status.scanState}
@@ -251,17 +250,17 @@ export function ScanClient({
         <Card>
           <CardContent className="p-4 space-y-3">
             <div className="text-sm font-medium">
-              Aktion bestätigen:{" "}
+              Confirm action:{" "}
               <span className="text-primary">
                 {EVENT_LABEL[pendingAction]}
               </span>
             </div>
             <div className="space-y-1">
-              <Label className="text-xs">Mitarbeiter-Nr.</Label>
+              <Label className="text-xs">Employee No.</Label>
               <Input
                 inputMode="numeric"
                 pattern="[0-9]*"
-                placeholder="z. B. 001"
+                placeholder="e.g. 001"
                 value={employeeNumber}
                 onChange={(e) => setEmployeeNumber(e.target.value)}
                 className="text-lg"
@@ -269,7 +268,7 @@ export function ScanClient({
               />
             </div>
             <div className="space-y-1">
-              <Label className="text-xs">PIN (4-stellig)</Label>
+              <Label className="text-xs">PIN (4 digits)</Label>
               <Input
                 type="password"
                 inputMode="numeric"
@@ -284,15 +283,15 @@ export function ScanClient({
             </div>
             {(pendingAction === "PAUSE" || pendingAction === "END") && (
               <div className="space-y-1">
-                <Label className="text-xs">Bemerkung (optional)</Label>
+                <Label className="text-xs">Note (optional)</Label>
                 <Textarea
                   rows={2}
                   value={note}
                   onChange={(e) => setNote(e.target.value)}
                   placeholder={
                     pendingAction === "PAUSE"
-                      ? "z. B. Mittagspause / Pulver gewechselt"
-                      : "z. B. fertig, kontrolliert"
+                      ? "e.g. lunch break / powder change"
+                      : "e.g. finished, inspected"
                   }
                 />
               </div>
@@ -310,19 +309,19 @@ export function ScanClient({
                 disabled={pending}
                 className="flex-1"
               >
-                {pending ? "…" : "Bestätigen"}
+                {pending ? "…" : "Confirm"}
               </Button>
             </div>
           </CardContent>
         </Card>
       )}
 
-      {/* ── Event-Verlauf ── */}
+      {/* ── Event History ── */}
       {status.events.length > 0 && (
         <Card>
           <CardContent className="p-3">
             <div className="text-xs font-medium text-muted-foreground mb-2">
-              Verlauf
+              History
             </div>
             <ul className="text-sm space-y-1">
               {[...status.events].reverse().map((e) => (
@@ -372,7 +371,7 @@ function ActionButtons({
   if (state === "DONE") {
     return (
       <div className="rounded-lg border bg-card p-4 text-center text-sm text-muted-foreground">
-        Schritt ist abgeschlossen. Keine weiteren Scans möglich.
+        Step is complete. No further scans possible.
       </div>
     );
   }
@@ -385,7 +384,7 @@ function ActionButtons({
           onClick={() => onPick("START")}
           disabled={disabled}
         >
-          <Play className="h-6 w-6 mr-2" /> Starten
+          <Play className="h-6 w-6 mr-2" /> Start
         </Button>
       )}
       {state === "RUNNING" && (
@@ -397,7 +396,7 @@ function ActionButtons({
             onClick={() => onPick("PAUSE")}
             disabled={disabled}
           >
-            <Pause className="h-5 w-5 mr-2" /> Pausieren
+            <Pause className="h-5 w-5 mr-2" /> Pause
           </Button>
           <Button
             size="lg"
@@ -405,7 +404,7 @@ function ActionButtons({
             onClick={() => onPick("END")}
             disabled={disabled}
           >
-            <Square className="h-5 w-5 mr-2" /> Beenden
+            <Square className="h-5 w-5 mr-2" /> End
           </Button>
         </>
       )}
@@ -417,7 +416,7 @@ function ActionButtons({
             onClick={() => onPick("RESUME")}
             disabled={disabled}
           >
-            <RotateCw className="h-6 w-6 mr-2" /> Fortsetzen
+            <RotateCw className="h-6 w-6 mr-2" /> Resume
           </Button>
           <Button
             size="lg"
@@ -426,7 +425,7 @@ function ActionButtons({
             onClick={() => onPick("END")}
             disabled={disabled}
           >
-            <Square className="h-5 w-5 mr-2" /> Beenden
+            <Square className="h-5 w-5 mr-2" /> End
           </Button>
         </>
       )}

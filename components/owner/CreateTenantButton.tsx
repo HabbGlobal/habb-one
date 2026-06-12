@@ -43,11 +43,11 @@ export function CreateTenantButton() {
 
   const submit = () => {
     if (!companyName.trim() || !phone.trim() || !adminName.trim() || !adminEmail.trim()) {
-      setError("Firma, Phone, Admin-Name und Admin-Email sind Pflicht.");
+      setError("Company, phone, admin name, and admin email are required.");
       return;
     }
     if (reason.trim().length < 10) {
-      setError("Begründung muss mindestens 10 Zeichen lang sein.");
+      setError("Reason must be at least 10 characters long.");
       return;
     }
     setError(null);
@@ -95,8 +95,8 @@ export function CreateTenantButton() {
       setError(
         json?.message ||
           (json?.error === "EMAIL_TAKEN"
-            ? "Diese Email ist bereits vergeben."
-            : "Tenant konnte nicht angelegt werden."),
+            ? "This email is already taken."
+            : "Tenant could not be created."),
       );
     });
   };
@@ -109,7 +109,7 @@ export function CreateTenantButton() {
         className="inline-flex items-center gap-2 rounded-md bg-habb-black px-3.5 py-2 text-sm font-medium text-white hover:bg-habb-ink"
       >
         <Building2 className="h-3.5 w-3.5" />
-        Neuer Tenant
+        New Tenant
       </button>
 
       {open && (
@@ -121,7 +121,7 @@ export function CreateTenantButton() {
         >
           <div className="w-full max-w-2xl rounded-xl border border-habb-line bg-white shadow-xl">
             <header className="flex items-center justify-between border-b border-habb-line px-5 py-4">
-              <h2 className="text-sm font-semibold text-habb-ink">Neuer Tenant anlegen</h2>
+              <h2 className="text-sm font-semibold text-habb-ink">Create new tenant</h2>
               <button
                 onClick={() => setOpen(false)}
                 aria-label="Cancel"
@@ -141,7 +141,7 @@ export function CreateTenantButton() {
             >
               <Section title="Company">
                 <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
-                  <Field label="Firmenname *">
+                  <Field label="Company name *">
                     <input value={companyName} onChange={(e) => setCompanyName(e.target.value)} required className={inputCls} />
                   </Field>
                   <Field label="Phone *">
@@ -153,13 +153,13 @@ export function CreateTenantButton() {
                       className={inputCls}
                     />
                   </Field>
-                  <Field label="Adresse">
+                  <Field label="Address">
                     <input value={address} onChange={(e) => setAddress(e.target.value)} className={inputCls} />
                   </Field>
-                  <Field label="Ort">
+                  <Field label="City">
                     <input value={city} onChange={(e) => setCity(e.target.value)} className={inputCls} />
                   </Field>
-                  <Field label="Land">
+                  <Field label="Country">
                     <input
                       value={country}
                       onChange={(e) => setCountry(e.target.value.toUpperCase())}
@@ -167,7 +167,7 @@ export function CreateTenantButton() {
                       className={`${inputCls} uppercase`}
                     />
                   </Field>
-                  <Field label="Standardsprache">
+                  <Field label="Default language">
                     <select
                       value={preferredLanguage}
                       onChange={(e) => setPreferredLanguage(e.target.value)}
@@ -234,12 +234,12 @@ export function CreateTenantButton() {
                 </fieldset>
               </Section>
 
-              <Field label="Begründung (Pflicht, ≥ 10 Zeichen)">
+              <Field label="Reason (required, ≥ 10 characters)">
                 <textarea
                   value={reason}
                   onChange={(e) => setReason(e.target.value)}
                   rows={2}
-                  placeholder="z.B. Vertrag unterzeichnet — Onboarding Müller AG"
+                  placeholder="e.g. Contract signed — onboarding Müller AG"
                   className={inputCls}
                 />
               </Field>
@@ -254,8 +254,8 @@ export function CreateTenantButton() {
               )}
 
               <p className="rounded-md border border-habb-line bg-habb-paper px-3 py-2 text-xs text-habb-muted">
-                Der Tenant wird direkt aktiv geschaltet (Owner vouched). Der erste Admin
-                bekommt automatisch SUPERADMIN-Rechte für seinen Tenanten.
+                The tenant is activated immediately (owner vouched). The first admin
+                automatically gets SUPERADMIN permissions for their tenant.
               </p>
 
               <div className="flex justify-end gap-2 border-t border-habb-line pt-3">
@@ -273,7 +273,7 @@ export function CreateTenantButton() {
                   className="inline-flex items-center gap-2 rounded-md bg-habb-black px-4 py-2 text-sm font-medium text-white hover:bg-habb-ink disabled:opacity-60"
                 >
                   {pending && <Loader2 className="h-3.5 w-3.5 animate-spin" />}
-                  Anlegen
+                  Create
                 </button>
               </div>
             </form>
@@ -297,7 +297,7 @@ export function CreateTenantButton() {
           setShowSudo(false);
           submit();
         }}
-        actionLabel="Neuen Tenanten anlegen"
+        actionLabel="Create new tenant"
       />
     </>
   );
@@ -352,7 +352,7 @@ function TempPasswordModal({
     >
       <div className="w-full max-w-md rounded-xl border border-habb-line bg-white shadow-xl">
         <header className="border-b border-habb-line px-5 py-4">
-          <h2 className="text-sm font-semibold text-habb-ink">Tenant angelegt — Admin-Passwort</h2>
+          <h2 className="text-sm font-semibold text-habb-ink">Tenant created — Admin password</h2>
         </header>
         <div className="space-y-4 px-5 py-5">
           <p className="text-sm text-habb-ink">
@@ -368,7 +368,7 @@ function TempPasswordModal({
                 className="inline-flex items-center gap-1.5 rounded-md border border-habb-line bg-white px-3 py-1.5 text-xs font-medium text-habb-ink hover:bg-habb-paper"
               >
                 {copied ? <CheckCheck className="h-3.5 w-3.5 text-habb-success" /> : <Copy className="h-3.5 w-3.5" />}
-                {copied ? "Kopiert" : "Kopieren"}
+                {copied ? "Copied" : "Copy"}
               </button>
             </div>
           </div>
@@ -381,7 +381,7 @@ function TempPasswordModal({
               onClick={onClose}
               className="rounded-md bg-habb-black px-4 py-2 text-sm font-medium text-white hover:bg-habb-ink"
             >
-              Verstanden, schliessen
+              Understood, close
             </button>
           </div>
         </div>
@@ -409,7 +409,7 @@ function MailResultModal({
       <div className="w-full max-w-md rounded-xl border border-habb-line bg-white shadow-xl">
         <header className="border-b border-habb-line px-5 py-4">
           <h2 className="text-sm font-semibold text-habb-ink">
-            Tenant angelegt — Magic-Link {delivered ? "versendet" : "fehlgeschlagen"}
+            Tenant created — Magic link {delivered ? "sent" : "failed"}
           </h2>
         </header>
         <div className="space-y-3 px-5 py-5 text-sm">
@@ -419,8 +419,8 @@ function MailResultModal({
             </p>
           ) : (
             <p className="text-habb-red">
-              Mail delivery to <span className="font-medium">{email}</span> failed. Du
-              kannst aus der User-Liste &quot;Passwort-Reset-Mail senden&quot; erneut auslösen.
+              Mail delivery to <span className="font-medium">{email}</span> failed. You
+              can trigger &quot;send password reset mail&quot; again from the user list.
             </p>
           )}
           <div className="flex justify-end">

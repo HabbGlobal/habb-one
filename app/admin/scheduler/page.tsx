@@ -212,7 +212,7 @@ export default async function SchedulerPage({
             </Link>
           </Button>
           <Button asChild variant="outline" size="sm">
-            <Link href={`/admin/scheduler?week=${today}`}>Heute</Link>
+            <Link href={`/admin/scheduler?week=${today}`}>Today</Link>
           </Button>
           <Button asChild variant="outline" size="sm">
             <Link href={`/admin/scheduler?week=${nextWeek}`}>

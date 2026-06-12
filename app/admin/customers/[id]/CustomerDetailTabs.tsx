@@ -8,7 +8,7 @@ const TABS = [
   { key: "addresses", label: "Adressen" },
   { key: "contacts", label: "Kontakte" },
   { key: "orders", label: "Orders" },
-  { key: "quotes", label: "Offerten" },
+  { key: "quotes", label: "Quotes" },
   { key: "invoices", label: "Invoices" },
   { key: "stats", label: "Statistik" },
   { key: "activity", label: "Aktivität" },

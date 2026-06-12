@@ -21,12 +21,12 @@ const TABS: ReadonlyArray<{
 }> = [
   {
     key: "open",
-    label: "Offen",
+    label: "Open",
     filter: { status: { in: ["DRAFT", "SENT", "OVERDUE"] as InvoiceStatus[] } },
   },
-  { key: "paid", label: "Bezahlt", filter: { status: "PAID" } },
-  { key: "cancelled", label: "Storniert", filter: { status: "CANCELLED" } },
-  { key: "all", label: "Alle", filter: {} },
+  { key: "paid", label: "Paid", filter: { status: "PAID" } },
+  { key: "cancelled", label: "Cancelled", filter: { status: "CANCELLED" } },
+  { key: "all", label: "All", filter: {} },
 ];
 
 export default async function InvoicesPage({
@@ -83,13 +83,11 @@ export default async function InvoicesPage({
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-2xl font-semibold">Invoices</h1>
-          <p className="text-sm text-muted-foreground">
-            Schweizer QR-Rechnungen erstellen, versenden und Zahlungen erfassen.
-          </p>
+          <p className="text-sm text-muted-foreground">Create and send Swiss QR invoices, and record payments.</p>
         </div>
         {hasPermission(session.user.role, "invoices.write") && (
           <Button asChild>
-            <Link href="/admin/invoices/new">Neue Rechnung</Link>
+            <Link href="/admin/invoices/new">New Invoice</Link>
           </Button>
         )}
       </div>

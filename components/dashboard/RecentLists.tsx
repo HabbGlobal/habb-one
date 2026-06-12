@@ -15,7 +15,7 @@ const ORDER_STATUS_LABEL: Record<string, string> = {
   COMPLETED: "Fertig",
   DELIVERED: "Geliefert",
   INVOICED: "Verrechnet",
-  CANCELLED: "Storniert",
+  CANCELLED: "Cancelled",
 };
 
 type BadgeVariant = "default" | "secondary" | "success" | "warning" | "info" | "destructive";
@@ -34,9 +34,9 @@ const ORDER_STATUS_VARIANT: Record<string, BadgeVariant> = {
 const INVOICE_STATUS_LABEL: Record<string, string> = {
   DRAFT: "Entwurf",
   SENT: "Versendet",
-  PAID: "Bezahlt",
+  PAID: "Paid",
   OVERDUE: "Überfällig",
-  CANCELLED: "Storniert",
+  CANCELLED: "Cancelled",
 };
 
 const INVOICE_STATUS_VARIANT: Record<string, BadgeVariant> = {
@@ -63,8 +63,7 @@ export function RecentOrdersCard({ rows }: { rows: RecentOrder[] }) {
         <Link
           href="/admin/orders"
           className="text-xs text-habb-ink hover:text-habb-red font-medium transition-colors"
-        >
-          Alle ansehen →
+        >All ansehen →
         </Link>
       </CardHeader>
       <CardContent className="px-0">
@@ -112,8 +111,7 @@ export function RecentInvoicesCard({ rows }: { rows: RecentInvoice[] }) {
         <Link
           href="/admin/invoices"
           className="text-xs text-habb-ink hover:text-habb-red font-medium transition-colors"
-        >
-          Alle ansehen →
+        >All ansehen →
         </Link>
       </CardHeader>
       <CardContent className="px-0">

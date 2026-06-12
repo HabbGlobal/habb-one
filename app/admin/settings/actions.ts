@@ -13,8 +13,8 @@ const schema = z.object({
   name: z.string().min(1),
   address: z.string().optional().or(z.literal("")),
   city: z.string().optional().or(z.literal("")),
-  country: z.string().refine(isKnownCountry, { message: "Unbekanntes Land." }),
-  timezone: z.string().refine(isKnownTimezone, { message: "Unbekannte Zeitzone." }),
+  country: z.string().refine(isKnownCountry, { message: "Unknown country." }),
+  timezone: z.string().refine(isKnownTimezone, { message: "Unknown timezone." }),
   defaultWeeklyHours: z.coerce.number().min(0).max(80),
   defaultVacationDaysYear: z.coerce.number().min(0).max(60),
   defaultBreakMinutes: z.coerce.number().int().min(0).max(180),
@@ -70,30 +70,30 @@ const ALLOWED_LOGO_MIMES = ["image/png", "image/jpeg", "image/jpg"] as const;
 const MAX_LOGO_BYTES = 1_000_000; // 1 MB — locker für PNG/JPG
 
 /**
- * Logo der Firma setzen. `dataBase64` ist der Bild-Body als Base64
- * (der File-Reader auf der Client-Seite liefert `data:...;base64,XXX`).
- * Wir speichern den raw Bytes-Buffer + MimeType in der Company-Row.
+ * Set the company logo. `dataBase64` is the image body as Base64
+ * (the file reader on the client side delivers `data:...;base64,XXX`).
+ * We store the raw bytes buffer + MimeType in the Company row.
  */
 export async function setCompanyLogo(input: {
   mimeType: string;
   dataBase64: string;
 }) {
   const session = await auth();
-  if (!session?.user) throw new Error("Nicht angemeldet.");
+  if (!session?.user) throw new Error("Not logged in.");
   if (!hasPermission(session.user.role, "settings.write")) {
-    throw new Error("Keine Berechtigung 'Edit settings'.");
+    throw new Error("No permission 'Edit settings'.");
   }
 
   if (!ALLOWED_LOGO_MIMES.includes(input.mimeType as (typeof ALLOWED_LOGO_MIMES)[number])) {
-    throw new Error("Nur PNG oder JPG erlaubt.");
+    throw new Error("Only PNG or JPG allowed.");
   }
-  // Strip data-URL prefix wenn mitgeschickt
+  // Strip data-URL prefix if included
   const base64 = input.dataBase64.replace(/^data:[^;]+;base64,/, "");
   const buf = Buffer.from(base64, "base64");
-  if (buf.length === 0) throw new Error("Bild-Daten leer.");
+  if (buf.length === 0) throw new Error("Image data empty.");
   if (buf.length > MAX_LOGO_BYTES) {
     throw new Error(
-      `Bild zu groß (${(buf.length / 1024).toFixed(0)} KB) — max. 1 MB.`,
+      `Image too large (${(buf.length / 1024).toFixed(0)} KB) — max. 1 MB.`,
     );
   }
 
@@ -112,7 +112,7 @@ export async function setCompanyLogo(input: {
     entityType: "Company",
     entityId: session.user.companyId,
     newValue: { logoSet: true, mimeType: input.mimeType, sizeBytes: buf.length },
-    reason: "Firmenlogo hochgeladen",
+    reason: "Company logo uploaded",
   });
 
   revalidatePath("/admin/settings");
@@ -121,9 +121,9 @@ export async function setCompanyLogo(input: {
 
 export async function clearCompanyLogo() {
   const session = await auth();
-  if (!session?.user) throw new Error("Nicht angemeldet.");
+  if (!session?.user) throw new Error("Not logged in.");
   if (!hasPermission(session.user.role, "settings.write")) {
-    throw new Error("Keine Berechtigung 'Edit settings'.");
+    throw new Error("No permission 'Edit settings'.");
   }
 
   await prisma.company.update({
@@ -137,7 +137,7 @@ export async function clearCompanyLogo() {
     action: "UPDATE",
     entityType: "Company",
     entityId: session.user.companyId,
-    reason: "Firmenlogo entfernt",
+    reason: "Company logo removed",
   });
 
   revalidatePath("/admin/settings");
@@ -145,19 +145,19 @@ export async function clearCompanyLogo() {
 }
 
 // ─────────────────────────────────────────
-// Kiosk-Passwort setzen / entfernen
+// Kiosk password set / remove
 // ─────────────────────────────────────────
 
 const kioskPasswordSchema = z.object({
-  password: z.string().min(4, "Mindestens 4 Zeichen.").max(100),
+  password: z.string().min(4, "At least 4 characters.").max(100),
 });
 
-/** Setzt oder ändert das Kiosk-Passwort der eigenen Firma. */
+/** Sets or changes the kiosk password of the own company. */
 export async function setKioskPassword(input: unknown) {
   const session = await auth();
-  if (!session?.user) throw new Error("Nicht angemeldet.");
+  if (!session?.user) throw new Error("Not logged in.");
   if (!hasPermission(session.user.role, "settings.write")) {
-    throw new Error("Keine Berechtigung 'Edit settings'.");
+    throw new Error("No permission 'Edit settings'.");
   }
 
   const data = kioskPasswordSchema.parse(input);
@@ -174,35 +174,35 @@ export async function setKioskPassword(input: unknown) {
     action: "UPDATE",
     entityType: "Company",
     entityId: session.user.companyId,
-    reason: "Kiosk-Passwort gesetzt/geändert",
+    reason: "Kiosk password set/changed",
   });
 
   revalidatePath("/admin/settings");
 }
 
 // ─────────────────────────────────────────
-// Kiosk-Lock-Timeout (Auto-Logout) pro Mandant
+// Kiosk lock timeout (auto-logout) per tenant
 // ─────────────────────────────────────────
 
 const kioskLockTimeoutSchema = z.object({
-  // 0 = nie ablaufen. > 0 = Minuten Inaktivität bis Auto-Logout.
-  // Obergrenze: 7 Tage = 10080 min — alles drüber soll explizit „nie"
-  // sein, sonst gäbe es keinen klaren Unterschied zum Cookie-Maximum.
+  // 0 = never expire. > 0 = minutes of inactivity until auto-logout.
+  // Upper limit: 7 days = 10080 min — anything above should explicitly be "never",
+  // otherwise there's no clear distinction from the cookie maximum.
   minutes: z.coerce.number().int().min(0).max(10080),
 });
 
 /**
- * Setzt die Auto-Logout-Dauer des Kiosk-Lock für die eigene Firma.
- * `0` = niemals ausloggen (Werkstatt-Tablet bleibt dauerhaft gebunden,
- * Default). Werte > 0 = Minuten bis das Tablet zurück auf den
- * Passwort-Screen fällt (Sliding-Window: jede erfolgreiche Stempel-
- * Aktion verlängert wieder).
+ * Sets the auto-logout duration of the kiosk lock for the own company.
+ * `0` = never log out (workshop tablet stays permanently bound,
+ * default). Values > 0 = minutes until the tablet falls back to the
+ * password screen (sliding window: each successful clock action
+ * extends again).
  */
 export async function setKioskLockTimeout(input: unknown) {
   const session = await auth();
-  if (!session?.user) throw new Error("Nicht angemeldet.");
+  if (!session?.user) throw new Error("Not logged in.");
   if (!hasPermission(session.user.role, "settings.write")) {
-    throw new Error("Keine Berechtigung 'Edit settings'.");
+    throw new Error("No permission 'Edit settings'.");
   }
 
   const data = kioskLockTimeoutSchema.parse(input);
@@ -227,20 +227,20 @@ export async function setKioskLockTimeout(input: unknown) {
     newValue: { kioskLockTimeoutMinutes: data.minutes },
     reason:
       data.minutes === 0
-        ? "Kiosk-Auto-Logout deaktiviert (nie ausloggen)"
-        : `Kiosk-Auto-Logout auf ${data.minutes} Minuten gesetzt`,
+        ? "Kiosk auto-logout disabled (never log out)"
+        : `Kiosk auto-logout set to ${data.minutes} minutes`,
   });
 
   revalidatePath("/admin/settings");
 }
 
-/** Entfernt das Kiosk-Passwort. Danach ist `/kiosk` wieder offen — nur
- *  sinnvoll wenn die App nicht öffentlich erreichbar ist. */
+/** Removes the kiosk password. After that `/kiosk` is open again — only
+ *  useful when the app is not publicly accessible. */
 export async function clearKioskPassword() {
   const session = await auth();
-  if (!session?.user) throw new Error("Nicht angemeldet.");
+  if (!session?.user) throw new Error("Not logged in.");
   if (!hasPermission(session.user.role, "settings.write")) {
-    throw new Error("Keine Berechtigung.");
+    throw new Error("No permission.");
   }
 
   await prisma.company.update({
@@ -254,7 +254,7 @@ export async function clearKioskPassword() {
     action: "UPDATE",
     entityType: "Company",
     entityId: session.user.companyId,
-    reason: "Kiosk-Passwort entfernt",
+    reason: "Kiosk password removed",
   });
 
   revalidatePath("/admin/settings");

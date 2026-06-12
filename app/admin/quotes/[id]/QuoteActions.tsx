@@ -183,7 +183,7 @@ export function QuoteActions({
               disabled={pending}
             >Cancel</Button>
             <Button onClick={onConvert} size="sm" disabled={pending}>
-              {pending ? "Wandle um …" : "Auftrag erzeugen"}
+              {pending ? "Converting…" : "Create order"}
             </Button>
           </div>
         </div>

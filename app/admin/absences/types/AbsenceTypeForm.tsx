@@ -215,7 +215,7 @@ export function AbsenceTypeForm({ open, onOpenChange, initial }: Props) {
                 id="isPaid"
                 checked={data.isPaid}
                 onChange={(v) => setData({ ...data, isPaid: v })}
-                label="Bezahlt"
+                label="Paid"
                 hint="Lohnzahlung läuft weiter (z. B. Ferien, Krankheit)."
               />
               <CheckboxField

@@ -46,7 +46,8 @@ function explainPrismaError(err: unknown): string | null {
 }
 
 export async function createEmployee(input: unknown) {
-  const user = await requireAdmin();
+  try {
+    const user = await requireAdmin();
   const data = parseOrThrow(employeeFormSchema, input);
   const pin = generatePin();
   const pinHash = await hashPin(pin);
@@ -114,12 +115,16 @@ export async function createEmployee(input: unknown) {
     newValue: { firstName: data.firstName, lastName: data.lastName, employeeNumber: data.employeeNumber },
   });
 
-  revalidatePath("/admin/employees");
-  return { id: employee.id, pin };
+    revalidatePath("/admin/employees");
+    return { id: employee.id, pin };
+  } catch (err) {
+    return { error: err instanceof Error ? err.message : "Ein Fehler ist aufgetreten." };
+  }
 }
 
 export async function updateEmployee(id: string, input: unknown) {
-  const user = await requireAdmin();
+  try {
+    const user = await requireAdmin();
   const data = parseOrThrow(employeeFormSchema, input);
 
   const before = await prisma.employee.findUniqueOrThrow({ where: { id } });
@@ -208,8 +213,11 @@ export async function updateEmployee(id: string, input: unknown) {
     },
   });
 
-  revalidatePath("/admin/employees");
-  revalidatePath(`/admin/employees/${id}`);
+    revalidatePath("/admin/employees");
+    revalidatePath(`/admin/employees/${id}`);
+  } catch (err) {
+    return { error: err instanceof Error ? err.message : "Ein Fehler ist aufgetreten." };
+  }
 }
 
 export async function resetEmployeePin(id: string) {
