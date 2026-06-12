@@ -1,14 +1,14 @@
 "use client";
 
-// Linke Admin-Sidebar mit logischer Gruppierung, Active-Highlight und
-// mobiler Hamburger-Drawer-Variante.
+// Left admin sidebar with logical grouping, active highlight and
+// mobile hamburger-drawer variant.
 //
-// Server-seitige Daten (User-Name, Company-Name, Übersetzungen) werden vom
-// Parent-Server-Component (AdminShell) als Props injiziert — wir bleiben
-// als Client-Component schlank.
+// Server-side data (username, company name, translations) are injected
+// as props from the parent server component (AdminShell) — we keep
+// this client component lean.
 //
-// Permission-Filtering: jeder NavItem kann eine `requiredPerm` haben.
-// Items, deren Permission der User nicht hat, werden ausgeblendet.
+// Permission filtering: each NavItem can have a `requiredPerm`.
+// Items whose permission the user lacks are hidden.
 
 import { useState } from "react";
 import Link from "next/link";
@@ -38,7 +38,6 @@ import {
   type LucideIcon,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { LanguageSwitcher } from "@/components/LanguageSwitcher";
 import { LogoutButton } from "@/components/LogoutButton";
 
 interface NavItem {
@@ -63,45 +62,45 @@ const NAV_GROUPS: NavGroup[] = [
     items: [{ href: "/admin", label: "Dashboard", icon: LayoutDashboard }],
   },
   {
-    title: "Vertrieb",
+    title: "Sales",
     items: [
-      { href: "/admin/customers", label: "Kunden", icon: Users, requiredPerm: "customers.read", requiredModule: "CRM" },
-      { href: "/admin/quotes", label: "Offerten", icon: FileText, requiredPerm: "quotes.read", requiredModule: "ORDERS_QUOTES" },
-      { href: "/admin/orders", label: "Aufträge", icon: ClipboardList, requiredPerm: "orders.read", requiredModule: "ORDERS_QUOTES" },
-      { href: "/admin/invoices", label: "Rechnungen", icon: Receipt, requiredPerm: "invoices.read", requiredModule: "INVOICES_QR" },
+      { href: "/admin/customers", label: "Customers", icon: Users, requiredPerm: "customers.read", requiredModule: "CRM" },
+      { href: "/admin/quotes", label: "Quotes", icon: FileText, requiredPerm: "quotes.read", requiredModule: "ORDERS_QUOTES" },
+      { href: "/admin/orders", label: "Orders", icon: ClipboardList, requiredPerm: "orders.read", requiredModule: "ORDERS_QUOTES" },
+      { href: "/admin/invoices", label: "Invoices", icon: Receipt, requiredPerm: "invoices.read", requiredModule: "INVOICES_QR" },
     ],
   },
   {
-    title: "Werkstatt",
+    title: "Workshop",
     items: [
-      { href: "/admin/scheduler", label: "Werkstatt-Plan", icon: CalendarRange, requiredPerm: "schedule.read", requiredModule: "WORKSHOP_PLAN" },
-      { href: "/admin/machines", label: "Maschinen", icon: Cog, requiredPerm: "machines.read", requiredModule: "WORKSHOP_PLAN" },
-      { href: "/admin/areas", label: "Bereiche", icon: LayoutGrid, requiredPerm: "settings.read", requiredModule: "WORKSHOP_PLAN" },
-      { href: "/admin/templates", label: "Process-Vorlagen", icon: Workflow, requiredPerm: "templates.read", requiredModule: "ORDERS_QUOTES" },
+      { href: "/admin/scheduler", label: "Workshop Plan", icon: CalendarRange, requiredPerm: "schedule.read", requiredModule: "WORKSHOP_PLAN" },
+      { href: "/admin/machines", label: "Machines", icon: Cog, requiredPerm: "machines.read", requiredModule: "WORKSHOP_PLAN" },
+      { href: "/admin/areas", label: "Areas", icon: LayoutGrid, requiredPerm: "settings.read", requiredModule: "WORKSHOP_PLAN" },
+      { href: "/admin/templates", label: "Process Templates", icon: Workflow, requiredPerm: "templates.read", requiredModule: "ORDERS_QUOTES" },
     ],
   },
   {
-    title: "Personal",
+    title: "Staff",
     items: [
-      { href: "/admin/employees", label: "Mitarbeiter", icon: Users, requiredPerm: "employees.read" },
-      { href: "/admin/attendance", label: "Anwesenheit", icon: Activity, requiredPerm: "attendance.read", requiredModule: "TIME_KIOSK" },
-      { href: "/admin/schedule", label: "Personal-Plan", icon: CalendarDays, requiredPerm: "schedule.read", requiredModule: "STAFF_PLAN" },
-      { href: "/admin/time-entries", label: "Zeiterfassung", icon: Clock, requiredPerm: "timeEntries.read", requiredModule: "TIME_KIOSK" },
-      { href: "/admin/absences", label: "Abwesenheiten", icon: Plane, requiredPerm: "absences.read" },
-      { href: "/admin/holidays", label: "Feiertage", icon: PartyPopper, requiredPerm: "settings.read" },
+      { href: "/admin/employees", label: "Employees", icon: Users, requiredPerm: "employees.read" },
+      { href: "/admin/attendance", label: "Attendance", icon: Activity, requiredPerm: "attendance.read", requiredModule: "TIME_KIOSK" },
+      { href: "/admin/schedule", label: "Staff Plan", icon: CalendarDays, requiredPerm: "schedule.read", requiredModule: "STAFF_PLAN" },
+      { href: "/admin/time-entries", label: "Time Entries", icon: Clock, requiredPerm: "timeEntries.read", requiredModule: "TIME_KIOSK" },
+      { href: "/admin/absences", label: "Absences", icon: Plane, requiredPerm: "absences.read" },
+      { href: "/admin/holidays", label: "Holidays", icon: PartyPopper, requiredPerm: "settings.read" },
     ],
   },
   {
-    title: "Auswertung",
-    items: [{ href: "/admin/reports", label: "Berichte", icon: BarChart3, requiredPerm: "reports.export" }],
+    title: "Reports",
+    items: [{ href: "/admin/reports", label: "Reports", icon: BarChart3, requiredPerm: "reports.export" }],
   },
   {
     title: "System",
     items: [
-      { href: "/admin/parameters", label: "Parameter", icon: SlidersHorizontal, requiredPerm: "parameters.read" },
-      { href: "/admin/settings", label: "Einstellungen", icon: Settings, requiredPerm: "settings.read" },
-      { href: "/admin/audit", label: "Audit-Log", icon: ScrollText, requiredPerm: "audit.read" },
-      { href: "/admin/roles", label: "Rollen & Rechte", icon: ShieldCheck, superAdminOnly: true },
+      { href: "/admin/parameters", label: "Parameters", icon: SlidersHorizontal, requiredPerm: "parameters.read" },
+      { href: "/admin/settings", label: "Settings", icon: Settings, requiredPerm: "settings.read" },
+      { href: "/admin/audit", label: "Audit Log", icon: ScrollText, requiredPerm: "audit.read" },
+      { href: "/admin/roles", label: "Roles & Permissions", icon: ShieldCheck, superAdminOnly: true },
     ],
   },
 ];
@@ -109,14 +108,14 @@ const NAV_GROUPS: NavGroup[] = [
 interface Props {
   companyLabel: string;
   appName: string;
-  /** URL zum Firmen-Logo (z. B. /api/company/logo?v=…) oder null. */
+  /** URL to the company logo (e.g. /api/company/logo?v=…) or null. */
   logoUrl?: string | null;
   userName: string | null;
   userRole: string | null;
   userRoleLabel: string | null;
-  /** Effektive Permissions des aktuellen Users (vom Server berechnet). */
+  /** Effective permissions for the current user (computed server-side). */
   permissions: string[];
-  /** Im Plan des Mandanten enthaltene Module (vom Server berechnet). */
+  /** Modules included in the tenant's plan (computed server-side). */
   enabledModules: string[];
 }
 
@@ -139,8 +138,8 @@ export function AdminSidebar({
   const visibleGroups = NAV_GROUPS.map((group) => ({
     ...group,
     items: group.items.filter((item) => {
-      // Modul-Gate gilt für ALLE Rollen — der Plan ist mandantenweit,
-      // auch SUPERADMIN kann ein nicht gebuchtes Modul nicht nutzen.
+      // Module gate applies to ALL roles — the plan is tenant-wide;
+      // even SUPERADMIN cannot use a module that isn't subscribed.
       if (item.requiredModule && !moduleSet.has(item.requiredModule)) {
         return false;
       }
@@ -153,7 +152,7 @@ export function AdminSidebar({
 
   return (
     <>
-      {/* Mobile-Header (nur < md sichtbar) */}
+      {/* Mobile header (visible only on < md) */}
       <div className="md:hidden fixed top-0 left-0 right-0 z-30 bg-white border-b border-habb-line px-4 py-2 flex items-center justify-between">
         <Link href="/admin" className="flex items-center gap-2 min-w-0">
           {logoUrl ? (
@@ -174,7 +173,7 @@ export function AdminSidebar({
           type="button"
           onClick={() => setMobileOpen(true)}
           className="p-1 rounded text-habb-ink hover:bg-habb-paper"
-          aria-label="Menü öffnen"
+          aria-label="Open menu"
         >
           <Menu className="h-5 w-5" />
         </button>
@@ -228,13 +227,13 @@ export function AdminSidebar({
             type="button"
             onClick={() => setMobileOpen(false)}
             className="md:hidden p-1 rounded hover:bg-white/10"
-            aria-label="Menü schliessen"
+            aria-label="Close menu"
           >
             <X className="h-4 w-4" />
           </button>
         </div>
 
-        {/* Nav (scrollbar) */}
+        {/* Nav (scrollable) */}
         <nav className="flex-1 overflow-y-auto py-3 px-2 space-y-4">
           {visibleGroups.map((group, gi) => (
             <div key={gi}>
@@ -270,7 +269,7 @@ export function AdminSidebar({
           ))}
         </nav>
 
-        {/* Footer: User + Sprache + Logout */}
+        {/* Footer: User + Logout */}
         {userName && (
           <div className="px-5 py-3 border-t border-white/10">
             <div className="text-sm font-medium text-white truncate">{userName}</div>
@@ -279,10 +278,7 @@ export function AdminSidebar({
             </div>
           </div>
         )}
-        <div className="bg-white text-habb-ink border-t border-white/10 px-3 py-3 flex items-center gap-2">
-          <div className="flex-1">
-            <LanguageSwitcher />
-          </div>
+        <div className="bg-white text-habb-ink border-t border-white/10 px-3 py-3 flex items-center justify-end gap-2">
           <LogoutButton />
         </div>
       </aside>
@@ -291,9 +287,9 @@ export function AdminSidebar({
 }
 
 /**
- * Match-Logik: ein Item ist aktiv, wenn der aktuelle Pfad damit beginnt.
- * Dashboard ("/admin") matcht nur exakt — sonst würde es bei jedem Unter-
- * Pfad mitleuchten.
+ * Active match logic: an item is active when the current path starts with it.
+ * Dashboard ("/admin") only matches exactly — otherwise it would light up
+ * on every sub-path.
  */
 function isActive(pathname: string, href: string): boolean {
   if (href === "/admin") return pathname === "/admin";

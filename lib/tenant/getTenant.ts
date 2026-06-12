@@ -13,13 +13,13 @@ const DEMO_SLUG_TO_NAME: Record<string, string> = {
 /**
  * Resolve the active tenant for the current request, in this order:
  *   1. explicit `?tenant=<slug>` query parameter
- *   2. subdomain of the request host (e.g. `tschannen.habb.ch` → `tschannen`)
+ *   2. subdomain of the request host (e.g. `tschannen.HABB Global (PVT) LTD` → `tschannen`)
  *
  * Returns `null` when no tenant can be identified. The login page renders fine
  * without one — the "Mandant: …" hint simply disappears.
  *
  * TODO(multi-tenant): once Company has a real `slug` column and the SaaS rolls
- * out on `*.habb.ch`, replace `DEMO_SLUG_TO_NAME` with a Prisma lookup and add
+ * out on `*.HABB Global (PVT) LTD`, replace `DEMO_SLUG_TO_NAME` with a Prisma lookup and add
  * caching. Kept minimal here so the login page can ship without a schema bump.
  */
 export async function getTenantFromRequest(

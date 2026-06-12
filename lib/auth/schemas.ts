@@ -1,8 +1,8 @@
 import { z } from "zod";
 
 export const adminLoginSchema = z.object({
-  email: z.string().trim().email("Bitte geben Sie eine gültige E-Mail-Adresse ein."),
-  password: z.string().min(1, "Bitte geben Sie Ihr Passwort ein."),
+  email: z.string().trim().email("Please enter a valid email address."),
+  password: z.string().min(1, "Please enter your password."),
   rememberMe: z.boolean().optional().default(false),
 });
 

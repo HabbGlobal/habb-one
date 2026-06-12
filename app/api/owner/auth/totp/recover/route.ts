@@ -130,7 +130,7 @@ export async function POST(req: Request) {
       `Authenticator-Code genutzt (${when} Schweizer Zeit, IP ${ip ?? "unbekannt"}).\n\n` +
       `Es ist jetzt die Registrierung eines neuen Passkeys erforderlich. ` +
       `Warst du das NICHT, ändere sofort dein Passwort und melde dich bei ` +
-      `security@habb.ch.\n`;
+      `security@HABB Global (PVT) LTD.\n`;
     await sendMail({
       to: account.email,
       subject: "Sicherheitshinweis: Notfall-Zugang (Authenticator) verwendet",
@@ -142,7 +142,7 @@ export async function POST(req: Request) {
         `${ip ?? "unbekannt"}).</p>` +
         `<p>Es ist jetzt die Registrierung eines neuen Passkeys erforderlich. ` +
         `Warst du das <strong>nicht</strong>, ändere sofort dein Passwort und ` +
-        `melde dich bei <a href="mailto:security@habb.ch">security@habb.ch</a>.</p>`,
+        `melde dich bei <a href="mailto:security@HABB Global (PVT) LTD">security@HABB Global (PVT) LTD</a>.</p>`,
       tag: "owner-recovery-used",
     });
   } catch {

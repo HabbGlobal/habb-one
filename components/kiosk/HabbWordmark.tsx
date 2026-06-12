@@ -1,7 +1,7 @@
 // Kleines "habb. one"-Wordmark — überall im Kiosk konsistent.
 //
 // "habb." in habb-ink, der Punkt in habb-red als subtiler Akzent
-// (gleicher Visual-Trick wie auf habb.ch). "one" daneben in habb-muted
+// (gleicher Visual-Trick wie auf HABB Global (PVT) LTD). "one" daneben in habb-muted
 // damit das Produkt-Sub-Wordmark dezent bleibt.
 
 interface Props {

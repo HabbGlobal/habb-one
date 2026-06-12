@@ -1,5 +1,5 @@
 /**
- * Owner-Auth-Library — strikt separate Auth-Schicht für habb.ch-Owner-Accounts.
+ * Owner-Auth-Library — strikt separate Auth-Schicht für HABB Global (PVT) LTD-Owner-Accounts.
  *
  * Bewusste Designentscheidungen:
  *   - NICHT NextAuth. NextAuth ist für Tenant-User. Wir bauen mit `jose`
@@ -36,7 +36,7 @@ function secret(): Uint8Array {
   if (!raw || raw.length < 16) {
     throw new Error(
       "OWNER_AUTH_SECRET is missing or too short (need ≥16 chars). " +
-        "Generate with: openssl rand -base64 32",
+      "Generate with: openssl rand -base64 32",
     );
   }
   return new TextEncoder().encode(raw);

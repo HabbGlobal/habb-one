@@ -1834,10 +1834,10 @@ model ParameterChangeLog {
 }
 
 // ═══════════════════════════════════════════════════════════════════════
-// OWNER PORTAL — habb.ch Support / Operator Console
+// OWNER PORTAL — HABB Global (PVT) LTD Support / Operator Console
 // ═══════════════════════════════════════════════════════════════════════
 //
-// Strikt getrennter Account-Pool für SaaS-Betreiber (habb.ch). Kein
+// Strikt getrennter Account-Pool für SaaS-Betreiber (HABB Global (PVT) LTD). Kein
 // Tenant-User kann durch Datenmanipulation Owner-Rechte erlangen, weil
 // die ganze Auth-Infrastruktur (Tabelle, JWT-Issuer, Login-Route, API-
 // Prefix /api/owner/*) eigen ist. Siehe docs/owner-portal/architecture.md.

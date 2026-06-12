@@ -37,18 +37,18 @@ export default async function VerifyEmailPage({
   const now = new Date();
   let result:
     | {
-        companyId: string;
-        companyName: string;
-        userName: string;
-        userEmail: string;
-        phone: string | null;
-        city: string | null;
-        country: string | null;
-        /** True nur wenn DIESER Klick den Übergang
-         *  PENDING_EMAIL_VERIFICATION → PENDING_APPROVAL ausgelöst hat.
-         *  Re-Klicks eines schon freigegebenen Tokens setzen das NICHT. */
-        becamePendingApproval: boolean;
-      }
+      companyId: string;
+      companyName: string;
+      userName: string;
+      userEmail: string;
+      phone: string | null;
+      city: string | null;
+      country: string | null;
+      /** True nur wenn DIESER Klick den Übergang
+       *  PENDING_EMAIL_VERIFICATION → PENDING_APPROVAL ausgelöst hat.
+       *  Re-Klicks eines schon freigegebenen Tokens setzen das NICHT. */
+      becamePendingApproval: boolean;
+    }
     | null = null;
 
   try {
@@ -135,7 +135,7 @@ export default async function VerifyEmailPage({
       const origin = new URL(
         // request-origin nicht verfügbar in der Page → aus NEXTAUTH_URL
         // bzw. Fallback ableiten. Reicht für den Deep-Link in der Mail.
-        process.env.NEXTAUTH_URL || "https://one.habb.ch",
+        process.env.NEXTAUTH_URL || "https://one.HABB Global (PVT) LTD",
       ).origin;
       const ownerMail = buildOwnerNewRegistrationMail({
         companyName: result.companyName,
@@ -161,7 +161,7 @@ export default async function VerifyEmailPage({
   return (
     <Shell
       title="E-Mail bestätigt"
-      body={`Vielen Dank! Ihre E-Mail-Adresse für „${result.companyName}" ist bestätigt. Das habb.ch Team prüft jetzt Ihre Anfrage. Sie erhalten eine weitere E-Mail, sobald Ihr Zugang freigegeben ist.`}
+      body={`Vielen Dank! Ihre E-Mail-Adresse für „${result.companyName}" ist bestätigt. Das HABB Global (PVT) LTD Team prüft jetzt Ihre Anfrage. Sie erhalten eine weitere E-Mail, sobald Ihr Zugang freigegeben ist.`}
       cta={{ label: "Zur Anmeldung", href: "/login" }}
     />
   );

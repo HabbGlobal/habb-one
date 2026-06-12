@@ -54,11 +54,10 @@ export default async function OnboardingPage() {
       </header>
 
       <section
-        className={`mt-8 rounded-lg border px-5 py-4 ${
-          rejected
+        className={`mt-8 rounded-lg border px-5 py-4 ${rejected
             ? "border-habb-red/30 bg-habb-red/5"
             : "border-habb-warning/30 bg-habb-warning/5"
-        }`}
+          }`}
       >
         <div className="flex items-start gap-3">
           {rejected ? (
@@ -74,7 +73,7 @@ export default async function OnboardingPage() {
                 </h2>
                 <p className="mt-1 text-sm text-habb-red/90">
                   {company.registrationRejectionReason ??
-                    "Das habb.ch Team hat Ihre Anfrage nicht freigegeben. Bei Fragen: support@habb.ch."}
+                    "Das HABB Global (PVT) LTD Team hat Ihre Anfrage nicht freigegeben. Bei Fragen: support@HABB Global (PVT) LTD."}
                 </p>
               </>
             ) : pendingApproval ? (
@@ -94,7 +93,7 @@ export default async function OnboardingPage() {
                 </h2>
                 <p className="mt-1 text-sm text-habb-warning">
                   Bitte klicken Sie den Link in der Bestätigungsmail. Sobald Ihre E-Mail
-                  verifiziert ist, prüft das habb.ch Team Ihre Anfrage.
+                  verifiziert ist, prüft das HABB Global (PVT) LTD Team Ihre Anfrage.
                 </p>
               </>
             ) : null}

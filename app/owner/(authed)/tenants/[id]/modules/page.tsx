@@ -3,7 +3,7 @@ import { prisma } from "@/lib/prisma";
 import { EntitlementsList, type EntitlementRow } from "@/components/owner/EntitlementsList";
 import { getEffectiveEntitlements, MODULE_DEFAULTS } from "@/lib/owner/entitlements";
 import { PlanChangeAction } from "@/components/owner/PlanChangeAction";
-import { PLANS, formatChf } from "@/lib/pricing/plans";
+import { PLANS, formatUsd } from "@/lib/pricing/plans";
 import { Check } from "lucide-react";
 
 export const dynamic = "force-dynamic";
@@ -63,10 +63,10 @@ export default async function TenantModulesPage({
               {planSpec?.label ?? tenant.plan}
               <span className="ml-2 text-sm font-normal text-habb-muted">
                 {planSpec
-                  ? planSpec.priceCHF === null
-                    ? "auf Anfrage"
-                    : `${formatChf(planSpec.priceCHF)} / Mt.`
-                  : ""}
+                  ? planSpec.priceUSD === null
+                    ? "On Request"
+                    : `${formatUsd(planSpec.priceUSD)} / mo`
+                  : "Unknown Plan"}
               </span>
             </p>
           </div>

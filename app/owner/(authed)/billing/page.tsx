@@ -3,25 +3,25 @@ import { prisma } from "@/lib/prisma";
 import { PlanBadge } from "@/components/owner/Badges";
 import { PlanChangeAction } from "@/components/owner/PlanChangeAction";
 import { CreditCard, TrendingUp, Building2 } from "lucide-react";
-import { PLANS } from "@/lib/pricing/plans";
+import { PLANS, formatUsd } from "@/lib/pricing/plans";
 
 export const dynamic = "force-dynamic";
 
 // Preise + Tagline kommen aus lib/pricing/plans.ts — Single Source of
 // Truth zwischen öffentlicher Pricing-Seite und Owner-Konsole.
-// Enterprise hat priceCHF === null ("Auf Anfrage") und zählt damit nicht
+// Enterprise hat priceUSD === null ("Auf Anfrage") und zählt damit nicht
 // zur MRR-Schätzung — individuelle Verträge müsste der Owner separat
 // erfassen.
-const PLAN_PRICE_CHF: Record<string, number | null> = Object.fromEntries(
-  PLANS.map((p) => [p.key, p.priceCHF]),
+const planPrices = new Map<string, number | null>(
+  PLANS.map((p) => [p.key, p.priceUSD]),
 );
 const PLAN_NOTE: Record<string, string> = Object.fromEntries(
   PLANS.map((p) => [p.key, p.tagline]),
 );
 function formatPlanPrice(plan: string): string {
-  const p = PLAN_PRICE_CHF[plan];
+  const p = planPrices.get(plan);
   if (p === null || p === undefined) return "Auf Anfrage";
-  return `CHF ${p.toLocaleString("de-CH")}`;
+  return formatUsd(p);
 }
 
 export default async function BillingPage() {
@@ -49,7 +49,7 @@ export default async function BillingPage() {
 
   const totalMRR = tenants
     .filter((t) => !t.suspendedAt)
-    .reduce((sum, t) => sum + (PLAN_PRICE_CHF[t.plan] ?? 0), 0);
+    .reduce((sum, t) => sum + (planPrices.get(t.plan) ?? 0), 0);
   const enterpriseActive = tenants.filter(
     (t) => !t.suspendedAt && t.plan === "ENTERPRISE",
   ).length;
@@ -64,7 +64,7 @@ export default async function BillingPage() {
         <p className="mt-1 text-sm text-habb-muted">
           {tenants.length} aktive Mandanten · indikatives MRR{" "}
           <span className="font-semibold text-habb-ink">
-            CHF {totalMRR.toLocaleString("de-CH")}
+            {formatUsd(totalMRR)}
           </span>
           {" "}/ Monat
         </p>
@@ -83,7 +83,7 @@ export default async function BillingPage() {
         {PLANS.map((p) => p.key).map((plan) => {
           const list = byPlan.get(plan) ?? [];
           const active = list.filter((t) => !t.suspendedAt);
-          const priceVal = PLAN_PRICE_CHF[plan];
+          const priceVal = planPrices.get(plan);
           const isCustom = priceVal === null;
           const planMRR = isCustom ? null : active.length * (priceVal ?? 0);
           return (
@@ -109,7 +109,7 @@ export default async function BillingPage() {
               </p>
               {planMRR !== null ? (
                 <p className="mt-1 text-sm font-medium tabular-nums text-habb-success">
-                  CHF {planMRR.toLocaleString("de-CH")} MRR
+                  {formatUsd(planMRR)} MRR
                 </p>
               ) : (
                 <p className="mt-1 text-sm font-medium text-habb-muted">
@@ -191,11 +191,11 @@ export default async function BillingPage() {
         <p className="text-sm text-habb-ink">
           Aktive Mandanten kombiniert:{" "}
           <span className="font-semibold tabular-nums">
-            CHF {totalMRR.toLocaleString("de-CH")}
+            {formatUsd(totalMRR)}
           </span>{" "}
           / Monat. Jährliches Run-Rate:{" "}
           <span className="font-semibold tabular-nums text-habb-success">
-            CHF {(totalMRR * 12).toLocaleString("de-CH")}
+            {formatUsd(totalMRR * 12)}
           </span>
           .
         </p>

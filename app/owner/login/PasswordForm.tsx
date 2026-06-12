@@ -96,10 +96,10 @@ export function PasswordForm() {
       <p className="text-center text-xs text-habb-muted">
         Bei Verdacht auf Missbrauch:{" "}
         <a
-          href="mailto:security@habb.ch"
+          href="mailto:security@HABB Global (PVT) LTD"
           className="text-habb-ink underline-offset-2 hover:underline"
         >
-          security@habb.ch
+          security@HABB Global (PVT) LTD
         </a>
       </p>
     </form>

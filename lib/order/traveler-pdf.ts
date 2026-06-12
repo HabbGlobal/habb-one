@@ -29,7 +29,7 @@ interface BuildArgs {
     logoMimeType?: string | null;
   };
   order: OrderDetailDTO;
-  /** Basis-URL der App (z. B. "https://one.habb.ch") — Scan-Link wird zu
+  /** Basis-URL der App (z. B. "https://one.HABB Global (PVT) LTD") — Scan-Link wird zu
    *  `<base>/scan/<stepId>`. Falls nicht gesetzt, fällt auf relative URL zurück. */
   appBaseUrl?: string;
 }
@@ -239,8 +239,8 @@ export async function travelerPdf(args: BuildArgs): Promise<Uint8Array> {
   page.drawText(
     safe(
       "Werkstatt-Laufzettel — bitte mit dem Werkstück mitführen. " +
-        "Beim Beginn jedes Schritts: QR scannen -> Starten. " +
-        "Beim Beenden: QR scannen -> Beenden.",
+      "Beim Beginn jedes Schritts: QR scannen -> Starten. " +
+      "Beim Beenden: QR scannen -> Beenden.",
     ),
     {
       x: 40,

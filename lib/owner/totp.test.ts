@@ -30,7 +30,7 @@ describe("base32 + secret", () => {
 
 describe("otpauth URI", () => {
   it("enthält Secret, Issuer und SHA1/6/30", () => {
-    const uri = buildOtpauthUri("JBSWY3DPEHPK3PXP", "admin@habb.ch");
+    const uri = buildOtpauthUri("JBSWY3DPEHPK3PXP", "admin@HABB Global (PVT) LTD");
     expect(uri).toContain("otpauth://totp/");
     expect(uri).toContain("secret=JBSWY3DPEHPK3PXP");
     expect(uri).toContain("algorithm=SHA1");

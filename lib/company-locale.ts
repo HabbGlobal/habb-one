@@ -1,28 +1,28 @@
-// Geteilte Auswahl-Optionen für Land + Zeitzone eines Mandanten.
-// Client-safe (nur Konstanten) — von Owner- und Kunden-Formularen genutzt.
+// Shared selection options for a tenant's country and timezone.
+// Client-safe (constants only) — used by owner and customer forms.
 
 export interface CountryOption {
   code: string; // ISO-3166 alpha-2
   label: string;
 }
 
-/** Auswählbare Länder. Schweiz-Fokus + Sri Lanka. */
+/** Selectable countries. Switzerland-focused + Sri Lanka. */
 export const COUNTRY_OPTIONS: ReadonlyArray<CountryOption> = [
-  { code: "CH", label: "Schweiz" },
+  { code: "CH", label: "Switzerland" },
   { code: "FL", label: "Liechtenstein" },
-  { code: "DE", label: "Deutschland" },
-  { code: "AT", label: "Österreich" },
+  { code: "DE", label: "Germany" },
+  { code: "AT", label: "Austria" },
   { code: "LK", label: "Sri Lanka" },
 ];
 
 export interface TimezoneOption {
-  zone: string; // IANA-Zeitzone
+  zone: string; // IANA timezone
   label: string;
 }
 
-/** Auswählbare Zeitzonen — wird funktional in die Zeitberechnung verdrahtet. */
+/** Selectable timezones — wired into time calculations. */
 export const TIMEZONE_OPTIONS: ReadonlyArray<TimezoneOption> = [
-  { zone: "Europe/Zurich", label: "Europe/Zurich (Schweiz, UTC+1/+2)" },
+  { zone: "Europe/Zurich", label: "Europe/Zurich (Switzerland, UTC+1/+2)" },
   { zone: "Asia/Colombo", label: "Asia/Colombo (Sri Lanka, UTC+5:30)" },
 ];
 

@@ -45,7 +45,7 @@ export default async function UpgradePage({
       </h1>
       <p className="mt-3 text-sm text-habb-muted">
         Euer aktueller Plan ist <strong>{planLabel}</strong>. Dieses Modul ist
-        darin nicht enthalten und daher gesperrt. Wende dich an das habb.ch-Team,
+        darin nicht enthalten und daher gesperrt. Wende dich an das HABB Global (PVT) LTD-Team,
         um euren Plan zu erweitern — die Freischaltung erfolgt sofort.
       </p>
       <div className="mt-8 flex items-center justify-center gap-3">
@@ -56,7 +56,7 @@ export default async function UpgradePage({
           Zurück zum Dashboard
         </Link>
         <a
-          href="mailto:support@habb.ch?subject=Plan-Erweiterung"
+          href="mailto:support@HABB Global (PVT) LTD?subject=Plan-Erweiterung"
           className="inline-flex items-center justify-center rounded-lg bg-habb-black px-5 py-2.5 text-sm font-medium text-white hover:bg-habb-ink"
         >
           Plan erweitern

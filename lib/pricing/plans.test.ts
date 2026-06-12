@@ -8,9 +8,9 @@ function plan(key: string): PlanSpec {
 }
 
 describe("TIME_ONLY-Paket (Zeiterfassung, CHF 29)", () => {
-  it("existiert mit Preis 29 und Label Zeiterfassung", () => {
+  it("finds TIME_ONLY correctly", () => {
     const p = plan("TIME_ONLY");
-    expect(p.priceCHF).toBe(29);
+    expect(p.priceUSD).toBe(29);
     expect(p.label).toBe("Zeiterfassung");
   });
 
@@ -25,7 +25,10 @@ describe("TIME_ONLY-Paket (Zeiterfassung, CHF 29)", () => {
     const idxStarter = PLANS.findIndex((p) => p.key === "STARTER");
     expect(idxTime).toBeGreaterThanOrEqual(0);
     expect(idxTime).toBeLessThan(idxStarter);
-    expect(plan("TIME_ONLY").priceCHF!).toBeLessThan(plan("STARTER").priceCHF!);
+  });
+
+  it("has monotonic pricing", () => {
+    expect(plan("TIME_ONLY").priceUSD!).toBeLessThan(plan("STARTER").priceUSD!);
   });
 });
 

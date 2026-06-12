@@ -4,7 +4,7 @@ import { isOwnerPortalEnabled } from "@/lib/owner/feature-flag";
 import { OwnerTopBanner } from "@/components/owner/TopBanner";
 
 export const metadata: Metadata = {
-  title: "habb.ch Owner Console",
+  title: "HABB Global (PVT) LTD Owner Console",
   robots: { index: false, follow: false },
 };
 

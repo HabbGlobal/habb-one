@@ -1,11 +1,11 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { RegisterForm } from "./RegisterForm";
-import { PLANS, formatChf } from "@/lib/pricing/plans";
+import { PLANS, type PlanKey, formatUsd } from "@/lib/pricing/plans";
 
 export const metadata: Metadata = {
-  title: "Registrieren — HABB One",
-  description: "Eröffnen Sie ein HABB One-Konto für Ihre Werkstatt. Freigabe durch das habb.ch Team folgt manuell.",
+  title: "Register — HABB One",
+  description: "Create a HABB One account for your workshop. Manual approval by the HABB Global (PVT) LTD team will follow.",
   robots: { index: false, follow: false },
 };
 
@@ -24,14 +24,13 @@ export default async function RegisterPage({
       <div className="mx-auto w-full max-w-2xl px-6 py-12">
         <header>
           <Link href="/" className="text-sm font-semibold tracking-tight">
-            habb<span className="text-habb-red">.ch</span>
+            HABB One
           </Link>
           <h1 className="mt-6 text-2xl font-semibold tracking-tight text-habb-black sm:text-3xl">
-            HABB One-Konto anlegen
+            Create a HABB One account
           </h1>
           <p className="mt-2 text-sm text-habb-muted">
-            Ihre Daten werden geprüft, danach geben wir den Zugang manuell frei. Die Eröffnung
-            kostet nichts und Sie verpflichten sich zu nichts.
+            Your details will be reviewed, after which we will manually grant access. Registration is free and you are not committing to anything.
           </p>
         </header>
 
@@ -40,23 +39,22 @@ export default async function RegisterPage({
             <div className="flex flex-wrap items-center justify-between gap-3">
               <div className="min-w-0">
                 <p className="text-[10px] uppercase tracking-[0.18em] text-habb-muted">
-                  Gewählter Plan
+                  Selected Plan
                 </p>
-                <p className="mt-0.5 text-sm font-semibold text-habb-ink">
-                  {selectedPlan.label} —{" "}
-                  {selectedPlan.priceCHF === null
-                    ? "Auf Anfrage (individueller Vertrag)"
-                    : selectedPlan.priceCHF === 0
-                      ? "14 Tage gratis"
-                      : `${formatChf(selectedPlan.priceCHF)} / Monat inkl. MWST`}
-                </p>
+                <div className="text-sm text-habb-muted">
+                  {selectedPlan.priceUSD === null
+                    ? "Custom contracts"
+                    : selectedPlan.priceUSD === 0
+                      ? "14 days free"
+                      : `${formatUsd(selectedPlan.priceUSD)} / month incl. VAT`}
+                </div>
                 <p className="mt-0.5 text-xs text-habb-muted">{selectedPlan.tagline}</p>
               </div>
               <Link
                 href="/pricing"
                 className="text-xs text-habb-ink underline-offset-2 hover:underline whitespace-nowrap"
               >
-                Plan ändern →
+                Change plan →
               </Link>
             </div>
           </section>
@@ -67,13 +65,13 @@ export default async function RegisterPage({
         </div>
 
         <p className="mt-10 border-t border-habb-line pt-6 text-center text-sm text-habb-muted">
-          Schon ein Konto?{" "}
+          Already have an account?{" "}
           <Link href="/login" className="text-habb-ink underline-offset-2 hover:underline">
-            Anmelden
+            Sign in
           </Link>
           <span className="mx-2">·</span>
           <Link href="/pricing" className="hover:text-habb-ink hover:underline">
-            Preise
+            Pricing
           </Link>
         </p>
       </div>

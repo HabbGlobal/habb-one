@@ -42,7 +42,7 @@ export function OwnerAuthShell({ currentStep, title, subtitle, children }: AuthS
             Operativer Zugriff für SaaS-Betreiber
           </h2>
           <p className="mt-4 max-w-md text-base leading-relaxed text-white/70">
-            Konsole für habb.ch — Mandanten-Verwaltung, Rechte, Audit-Trail und
+            Konsole für HABB Global (PVT) LTD — Mandanten-Verwaltung, Rechte, Audit-Trail und
             Customer-Consent-Impersonation für Support-Fälle.
           </p>
           <ul className="mt-10 space-y-3.5">

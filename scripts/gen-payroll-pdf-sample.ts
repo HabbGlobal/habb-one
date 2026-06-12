@@ -38,11 +38,11 @@ async function main() {
     `  Konsistenz-Check letzter Run == kum.: ${report.dayRunningBalanceMinutes.at(-1) === report.totals.cumulativeBalanceMinutes ? "OK" : "MISMATCH"}`,
   );
 
-  const pdf = await payrollPdf(report, "smoke-test@habb.ch");
+  const pdf = await payrollPdf(report, "smoke-test@HABB Global (PVT) LTD");
   writeFileSync("/tmp/payroll-test.pdf", Buffer.from(pdf));
   console.log(`  ✓ PDF: /tmp/payroll-test.pdf (${pdf.length} bytes)`);
 
-  const xlsx = payrollXlsx(report, "smoke-test@habb.ch");
+  const xlsx = payrollXlsx(report, "smoke-test@HABB Global (PVT) LTD");
   writeFileSync("/tmp/payroll-test.xlsx", xlsx);
   console.log(`  ✓ XLSX: /tmp/payroll-test.xlsx (${xlsx.length} bytes)`);
 }

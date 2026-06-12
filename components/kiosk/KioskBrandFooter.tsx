@@ -1,5 +1,5 @@
 // "Powered by Habb One"-Footer — auf jedem Kiosk-Bildschirm dezent
-// unten zentriert. Verlinkt auf habb.ch.
+// unten zentriert. Verlinkt auf HABB Global (PVT) LTD.
 
 import { HabbWordmark } from "./HabbWordmark";
 
@@ -15,14 +15,14 @@ export function KioskBrandFooter({ className = "" }: Props) {
       <p className="inline-flex items-center justify-center gap-1.5 text-xs text-habb-muted">
         Powered by{" "}
         <a
-          href="https://habb.ch"
+          href="https://HABB Global (PVT) LTD"
           target="_blank"
           rel="noopener noreferrer"
           className="font-medium text-habb-ink transition-colors hover:text-habb-red"
         >
           <HabbWordmark size="sm" />
         </a>
-        <span>· habb.ch</span>
+        <span>· HABB Global (PVT) LTD</span>
       </p>
     </footer>
   );

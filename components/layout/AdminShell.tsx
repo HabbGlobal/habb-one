@@ -21,7 +21,7 @@ export async function AdminShell({ children }: { children: ReactNode }) {
   let userPermissions: string[] = [];
   let userRoleLabel: string | null = null;
   let companyName: string | null = null;
-  let logoUrl: string | null = null;
+  let logoUrl: string | null = "/brand/habb-logo.png";
   let enabledModules: string[] = [];
 
   if (session?.user) {

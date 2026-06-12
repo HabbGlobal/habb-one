@@ -1,4 +1,4 @@
-// Bootstrap-Script für den ersten Owner-Account des SaaS-Betreibers habb.ch.
+// Bootstrap-Script für den ersten Owner-Account des SaaS-Betreibers HABB Global (PVT) LTD.
 //
 // WICHTIG: Owner-Accounts sind technisch und prozessual streng von Tenant-Usern
 // getrennt. Sie leben in der `OwnerAccount`-Tabelle, nicht in `User`. Ein
@@ -6,7 +6,7 @@
 //
 // Verwendung:
 //   pnpm tsx scripts/create-owner.ts \
-//     --email marco@habb.ch \
+//     --email marco@HABB Global (PVT) LTD \
 //     --name "Marco Habermacher" \
 //     --password "<starkes-passwort>" \
 //     --role OWNER_ROOT

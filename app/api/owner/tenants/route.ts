@@ -110,7 +110,7 @@ export async function POST(req: Request) {
       resetUrl,
       expiresAt,
       initiatedByName: guard.ctx.name,
-      initiatedByLabel: "habb.ch Support",
+      initiatedByLabel: "HABB Global (PVT) LTD Support",
     });
     try {
       const result = await sendMail({

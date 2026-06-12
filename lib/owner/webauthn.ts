@@ -24,7 +24,7 @@ import type {
 } from "@simplewebauthn/server";
 import { prisma } from "@/lib/prisma";
 
-const RP_NAME = "habb.ch Owner Console";
+const RP_NAME = "HABB Global (PVT) LTD Owner Console";
 
 /**
  * Proxy-sichere Origin-Ableitung für die WebAuthn-Ceremonies.
@@ -32,7 +32,7 @@ const RP_NAME = "habb.ch Owner Console";
  * Hinter Vercel bzw. Cloudflare-proxied DNS ist `new URL(req.url).origin`
  * NICHT die Adresse aus der Browser-Adresszeile, sondern der interne/
  * kanonische Host (z. B. *.vercel.app). Daraus abgeleitet stimmt die
- * RP-ID dann nicht mit der tatsächlichen Domain (one.habb.ch) überein
+ * RP-ID dann nicht mit der tatsächlichen Domain (one.HABB Global (PVT) LTD) überein
  * und der Browser bricht die Passkey-Registrierung mit SecurityError ab.
  * Wir nehmen darum die `x-forwarded-*`-Header — das, was der Client
  * wirklich benutzt hat. Fällt sauber auf req.url zurück (lokal/Tests).

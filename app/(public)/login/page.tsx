@@ -3,7 +3,6 @@ import Link from "next/link";
 import { getTranslations } from "next-intl/server";
 import { BrandPanel } from "@/components/auth/BrandPanel";
 import { TrustFooter } from "@/components/auth/TrustFooter";
-import { AuthLanguagePill } from "@/components/auth/AuthLanguagePill";
 import { AdminLoginForm } from "@/components/auth/AdminLoginForm";
 import { getTenantFromRequest } from "@/lib/tenant/getTenant";
 
@@ -34,10 +33,6 @@ export default async function LoginPage({
       <BrandPanel tenant={tenant} />
 
       <section className="relative flex flex-col px-6 py-10 sm:px-10 lg:px-16 lg:py-12">
-        <div className="flex justify-end">
-          <AuthLanguagePill />
-        </div>
-
         <div className="mx-auto flex w-full max-w-sm flex-1 flex-col justify-center pt-8 lg:pt-0">
           <header className="mb-8">
             <h2 className="text-2xl font-semibold tracking-[-0.01em] text-habb-black">
@@ -65,12 +60,12 @@ export default async function LoginPage({
           />
 
           <p className="mt-6 text-center text-sm text-habb-muted">
-            Noch kein Konto?{" "}
+            No account yet?{" "}
             <Link
               href="/register"
               className="font-medium text-habb-ink underline-offset-2 hover:underline"
             >
-              HABB One für Ihre Firma anfragen
+              Request HABB One for your company
             </Link>
           </p>
           <p className="mt-2 text-center text-xs text-habb-muted">
@@ -78,7 +73,7 @@ export default async function LoginPage({
               href="/pricing"
               className="underline-offset-2 hover:text-habb-ink hover:underline"
             >
-              Preise und Module ansehen →
+              View pricing and modules →
             </Link>
           </p>
 

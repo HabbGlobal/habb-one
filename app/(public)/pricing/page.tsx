@@ -14,15 +14,15 @@ import {
   MODULES,
   PLANS,
   PRICING_VAT_RATE,
-  formatChf,
+  formatUsd,
   type PlanSpec,
 } from "@/lib/pricing/plans";
 import type { TenantModule } from "@prisma/client";
 
 export const metadata: Metadata = {
-  title: "Preise — HABB One",
+  title: "Pricing — HABB One",
   description:
-    "Transparente Preise für HABB One — die Schweizer ERP-Suite für Werkstätten. CRM, Aufträge, Rechnungen mit QR-Bill, Werkstatt-Plan und Personalabrechnung in einem.",
+    "Transparent pricing for HABB One — the ERP suite for workshops. CRM, orders, invoices with QR-Bill, workshop plan, and payroll in one.",
   robots: { index: true, follow: true },
 };
 
@@ -38,24 +38,23 @@ export default function PricingPage() {
         <BackgroundGeometry />
         <div className="relative mx-auto max-w-6xl px-6 pt-16 pb-12 text-center sm:pt-24">
           <p className="text-xs font-medium uppercase tracking-[0.2em] text-habb-muted">
-            Preise · Stand 2026
+            Pricing · As of 2026
           </p>
           <h1 className="mt-4 text-4xl font-semibold tracking-[-0.02em] text-habb-black sm:text-5xl">
-            Eine Software, fünf Stufen.
+            One software, five levels.
           </h1>
           <p className="mx-auto mt-4 max-w-2xl text-base text-habb-muted sm:text-lg">
-            HABB One bringt CRM, Aufträge, Rechnungen mit QR-Bill, Werkstatt-Plan
-            und Personalabrechnung in einer Schweizer Plattform zusammen. Klare
-            Preise — Schweizer Hosting — kein Trick.
+            HABB One brings CRM, orders, invoices with QR-Bill, workshop plan
+            and payroll together in a modern platform. Clear pricing — secure hosting — no tricks.
           </p>
           <p className="mt-3 text-xs text-habb-muted">
-            Alle Preise inkl. {PRICING_VAT_RATE.toFixed(1)}% MWST · keine versteckten Gebühren ·
-            jederzeit monatlich kündbar
+            All prices incl. {PRICING_VAT_RATE.toFixed(1)}% VAT · no hidden fees ·
+            cancelable monthly at any time
           </p>
         </div>
       </section>
 
-      {/* ─── Plan-Karten ───────────────────────────────────────── */}
+      {/* ─── Plan Cards ───────────────────────────────────────── */}
       <section className="mx-auto max-w-6xl px-6 pt-10 pb-16">
         <div className="grid grid-cols-1 items-stretch gap-6 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5">
           {PLANS.map((plan) => (
@@ -64,15 +63,15 @@ export default function PricingPage() {
         </div>
       </section>
 
-      {/* ─── Modul-Vergleichstabelle ───────────────────────────── */}
+      {/* ─── Module Comparison Table ───────────────────────────── */}
       <section className="bg-habb-paper border-y border-habb-line">
         <div className="mx-auto max-w-6xl px-6 py-16">
           <div className="text-center mb-10">
             <p className="text-xs font-medium uppercase tracking-[0.2em] text-habb-muted">
-              Detail-Vergleich
+              Detailed Comparison
             </p>
             <h2 className="mt-3 text-3xl font-semibold tracking-tight text-habb-black">
-              Was ist in welchem Plan dabei?
+              What is included in each plan?
             </h2>
           </div>
 
@@ -81,7 +80,7 @@ export default function PricingPage() {
               <thead className="bg-habb-paper">
                 <tr>
                   <th className="px-5 py-4 text-left text-xs font-semibold uppercase tracking-wide text-habb-muted">
-                    Modul
+                    Module
                   </th>
                   {PLANS.map((p) => (
                     <th
@@ -138,19 +137,19 @@ export default function PricingPage() {
                 </tr>
                 <tr>
                   <td className="px-5 py-4 text-xs font-semibold uppercase tracking-wide text-habb-muted">
-                    Preis / Monat
+                    Price / Month
                   </td>
                   {PLANS.map((plan) => (
                     <td key={plan.key} className="px-3 py-4 text-center">
                       <div className="font-semibold text-habb-ink">
-                        {plan.priceCHF === null
-                          ? "Auf Anfrage"
-                          : plan.priceCHF === 0
-                            ? "CHF 0"
-                            : formatChf(plan.priceCHF)}
+                        {plan.priceUSD === null
+                          ? "On request"
+                          : plan.priceUSD === 0
+                            ? "$0"
+                            : formatUsd(plan.priceUSD)}
                       </div>
                       <div className="text-[10px] text-habb-muted">
-                        {plan.priceCHF === null ? "individuelle Verträge" : "inkl. MWST"}
+                        {plan.priceUSD === null ? "custom contracts" : "incl. VAT"}
                       </div>
                     </td>
                   ))}
@@ -167,7 +166,7 @@ export default function PricingPage() {
                             : "inline-flex items-center gap-1 rounded-md border border-habb-line bg-white px-3 py-1.5 text-xs font-medium text-habb-ink hover:bg-habb-paper"
                         }
                       >
-                        Wählen
+                        Select
                       </Link>
                     </td>
                   ))}
@@ -178,23 +177,23 @@ export default function PricingPage() {
         </div>
       </section>
 
-      {/* ─── Trust-Streifen ────────────────────────────────────── */}
+      {/* ─── Trust Section ────────────────────────────────────── */}
       <section className="mx-auto max-w-6xl px-6 py-14">
         <div className="grid grid-cols-1 gap-6 md:grid-cols-3">
           <TrustItem
             icon={MapPin}
-            title="Schweizer Hosting"
-            text="Daten in Zürich (Supabase eu-central-2). DSG-konform, kein Drittland-Transfer."
+            title="Secure Hosting"
+            text="Data is stored securely. GDPR-compliant, no third-country transfers."
           />
           <TrustItem
             icon={ShieldCheck}
             title="Audit + 2FA"
-            text="Jede Aktion auditiert, Login mit OTP per E-Mail, Owner-Zugriff nur mit Consent."
+            text="Every action audited, login with OTP via email, owner access only with consent."
           />
           <TrustItem
             icon={Headphones}
-            title="Echter Support"
-            text="Persönlich erreichbar — keine Chatbots. Mo–Fr 8–17 Uhr (CET)."
+            title="Real Support"
+            text="Personally available — no chatbots. Mon–Fri 8am–5pm (CET)."
           />
         </div>
       </section>
@@ -203,40 +202,35 @@ export default function PricingPage() {
       <section className="bg-habb-paper border-t border-habb-line">
         <div className="mx-auto max-w-3xl px-6 py-16">
           <h2 className="text-3xl font-semibold tracking-tight text-habb-black text-center">
-            Häufige Fragen
+            Frequently Asked Questions
           </h2>
           <div className="mt-10 space-y-6">
-            <Faq q="Wie funktioniert die 14-tägige Trial-Phase?">
-              Du registrierst dich, wir richten innerhalb von 24 Stunden deinen
-              Mandanten ein. Trial schaltet alle Funktionen frei. Nach 14 Tagen
-              wechselt der Plan automatisch auf <strong>Starter</strong> —
-              vorher kannst du jederzeit upgraden oder kündigen, ohne Kosten.
+            <Faq q="How does the 14-day trial phase work?">
+              You register, and we set up your tenant within 24 hours. The trial
+              unlocks all features. After 14 days, the plan automatically switches
+              to <strong>Starter</strong> — you can upgrade or cancel at any time beforehand, free of charge.
             </Faq>
-            <Faq q="Welche MWST ist enthalten?">
-              Alle Preise auf dieser Seite verstehen sich inkl. der schweizerischen
-              MWST von {PRICING_VAT_RATE.toFixed(1)}%. Geschäftskunden mit
-              MwSt-Nummer erhalten eine Rechnung mit ausgewiesener MWST.
+            <Faq q="What VAT is included?">
+              All prices on this page include the VAT of {PRICING_VAT_RATE.toFixed(1)}%.
+              Business customers with a VAT number receive an invoice with VAT stated.
             </Faq>
-            <Faq q="Kann ich später den Plan wechseln?">
-              Ja, jederzeit. Upgrade ist sofort wirksam (nächste Abrechnung
-              anteilig), Downgrade greift zum Ende der Vertragsperiode. Deine
-              Daten bleiben in jedem Fall erhalten.
+            <Faq q="Can I change my plan later?">
+              Yes, at any time. Upgrades are effective immediately (prorated on the next bill),
+              downgrades take effect at the end of the contract period. Your data is preserved in any case.
             </Faq>
-            <Faq q="Wo werden die Daten gespeichert?">
-              In Zürich (Schweiz), auf Supabase Postgres mit täglichen Backups.
-              Wir geben keine Daten an Dritte weiter, der Owner-Zugriff im
-              Support-Fall erfordert eine explizite Bestätigung per E-Mail-Code
-              durch dich.
+            <Faq q="Where is the data stored?">
+              On secure servers with daily backups.
+              We do not share data with third parties; owner access for support
+              requires explicit confirmation via an email code from you.
             </Faq>
-            <Faq q="Was passiert mit der QR-Rechnung?">
-              HABB One generiert den Schweizer QR-Zahlteil direkt im Rechnungs-PDF
-              — kompatibel mit allen Schweizer Banken. Du brauchst nur deine
-              QR-IBAN in den Firmen-Einstellungen.
+            <Faq q="What about the QR bill?">
+              HABB One generates the QR payment part directly in the invoice PDF
+              — compatible with all major banks. You only need your QR-IBAN in the company settings.
             </Faq>
-            <Faq q="Gibt es eine Integration mit Bexio, Abacus oder AbaNinja?">
-              Ja, im Enterprise-Plan via API-Zugang. Wir synchronisieren Kunden
-              und Rechnungen mit Bexio, Abacus und AbaNinja in beide Richtungen.
-              Status-Webhooks gehen bei Auftragsänderungen raus.
+            <Faq q="Is there an integration with Bexio, Abacus, or AbaNinja?">
+              Yes, in the Enterprise plan via API access. We synchronize customers
+              and invoices with Bexio, Abacus, and AbaNinja in both directions.
+              Status webhooks go out upon order changes.
             </Faq>
           </div>
         </div>
@@ -245,21 +239,21 @@ export default function PricingPage() {
       {/* ─── Final CTA ─────────────────────────────────────────── */}
       <section className="mx-auto max-w-3xl px-6 py-20 text-center">
         <h2 className="text-3xl font-semibold tracking-tight text-habb-black sm:text-4xl">
-          Bereit, deine Werkstatt zu digitalisieren?
+          Ready to digitize your workshop?
         </h2>
         <p className="mt-3 text-base text-habb-muted">
-          14 Tage kostenlos testen — Setup in 24 Stunden — keine Kreditkarte nötig.
+          Try for 14 days free — Setup in 24 hours — no credit card required.
         </p>
         <Link
           href="/register"
           className="mt-8 inline-flex items-center gap-2 rounded-md bg-habb-black px-6 py-3 text-sm font-medium text-white hover:bg-habb-ink"
         >
-          Trial starten <ArrowRight className="h-4 w-4" />
+          Start Trial <ArrowRight className="h-4 w-4" />
         </Link>
         <p className="mt-4 text-xs text-habb-muted">
-          Schon Kunde?{" "}
+          Already a customer?{" "}
           <Link href="/login" className="text-habb-ink underline-offset-2 hover:underline">
-            Hier anmelden
+            Login here
           </Link>
         </p>
       </section>
@@ -270,7 +264,7 @@ export default function PricingPage() {
 }
 
 // ─────────────────────────────────────────────────────────────
-// Komponenten
+// Components
 // ─────────────────────────────────────────────────────────────
 
 function PlanCard({ plan }: { plan: PlanSpec }) {
@@ -285,7 +279,7 @@ function PlanCard({ plan }: { plan: PlanSpec }) {
       {plan.featured && (
         <span className="absolute -top-3 left-1/2 -translate-x-1/2 inline-flex items-center gap-1 rounded-full bg-habb-black px-3 py-1 text-[10px] font-semibold uppercase tracking-wider text-white">
           <Sparkles className="h-3 w-3" />
-          Beliebt
+          Popular
         </span>
       )}
 
@@ -293,18 +287,18 @@ function PlanCard({ plan }: { plan: PlanSpec }) {
         {plan.label}
       </h3>
       <div className="mt-3 flex items-baseline gap-1.5">
-        {plan.priceCHF === null ? (
-          // Enterprise: kein fester Listenpreis, individuelle Verträge
+        {plan.priceUSD === null ? (
+          // Enterprise: no fixed list price, custom contracts
           <span className="text-3xl font-semibold tracking-tight text-habb-black">
-            Auf Anfrage
+            On Request
           </span>
         ) : (
           <>
-            <span className="text-sm font-medium text-habb-muted">CHF</span>
+            <span className="text-sm font-medium text-habb-muted">$</span>
             <span className="text-4xl font-semibold tracking-tight text-habb-black tabular-nums">
-              {plan.priceCHF}
+              {plan.priceUSD}
             </span>
-            <span className="text-sm text-habb-muted">/ Mt.</span>
+            <span className="text-sm text-habb-muted">/ mo</span>
           </>
         )}
       </div>
@@ -312,7 +306,7 @@ function PlanCard({ plan }: { plan: PlanSpec }) {
         <p className="mt-1 text-xs text-habb-muted">{plan.priceNote}</p>
       ) : (
         <p className="mt-1 text-xs text-habb-muted">
-          inkl. {PRICING_VAT_RATE.toFixed(1)}% MWST
+          incl. {PRICING_VAT_RATE.toFixed(1)}% VAT
         </p>
       )}
 
@@ -336,11 +330,11 @@ function PlanCard({ plan }: { plan: PlanSpec }) {
               : "inline-flex w-full items-center justify-center gap-2 rounded-md border border-habb-line bg-white px-4 py-2.5 text-sm font-medium text-habb-ink hover:bg-habb-paper"
           }
         >
-          {plan.priceCHF === null
-            ? "Anfragen"
-            : plan.priceCHF === 0
-              ? "Trial starten"
-              : "Plan wählen"}
+          {plan.priceUSD === null
+            ? "Request"
+            : plan.priceUSD === 0
+              ? "Start Trial"
+              : "Select Plan"}
           <ArrowRight className="h-4 w-4" />
         </Link>
       </div>
@@ -389,27 +383,27 @@ function PublicHeader() {
         <Link href="/" className="flex items-center gap-2">
           <Image
             src="/brand/habb-logo.png"
-            alt="habb.ch"
+            alt="HABB One"
             width={32}
             height={32}
             className="h-8 w-auto"
           />
           <span className="text-base font-semibold tracking-tight">
-            habb<span className="text-habb-red">.ch</span>
+            HABB One
           </span>
         </Link>
         <nav className="flex items-center gap-4 text-sm">
           <Link href="/pricing" className="font-medium text-habb-ink">
-            Preise
+            Pricing
           </Link>
           <Link href="/login" className="text-habb-muted hover:text-habb-ink">
-            Anmelden
+            Login
           </Link>
           <Link
             href="/register"
             className="hidden sm:inline-flex items-center gap-1 rounded-md bg-habb-black px-3 py-1.5 text-xs font-medium text-white hover:bg-habb-ink"
           >
-            Trial starten
+            Start Trial
           </Link>
         </nav>
       </div>
@@ -421,10 +415,10 @@ function PublicFooter() {
   return (
     <footer className="border-t border-habb-line bg-habb-paper">
       <div className="mx-auto flex max-w-6xl flex-wrap items-center justify-between gap-3 px-6 py-6 text-xs text-habb-muted">
-        <span>© {new Date().getFullYear()} habb.ch — HABB One ERP</span>
-        <span>Schweizer Hosting · Datenhaltung Zürich</span>
+        <span>© {new Date().getFullYear()} HABB One ERP</span>
+        <span>Product By HABB Global (PVT) LTD</span>
         <Link href="/login" className="hover:text-habb-ink">
-          Kundenbereich
+          Customer Area
         </Link>
       </div>
     </footer>

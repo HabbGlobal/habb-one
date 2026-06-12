@@ -1,4 +1,4 @@
-# HABB One — Owner Portal (habb.ch Support Console)
+# HABB One — Owner Portal (HABB Global (PVT) LTD Support Console)
 
 Architektur-Notiz zur Owner-Portal-Infrastruktur. Dieses Dokument deckt
 **Phase 0 (Foundation)** ab — DB-Schema, Auth-Trennung, Mail-Wrapper, Feature-
@@ -6,14 +6,14 @@ Flag. UI, Login-Flow, Impersonation und alles weitere folgt in PR 1 – 4.
 
 ## Mission
 
-habb.ch betreibt HABB One als Multi-Tenant-SaaS. Das Owner-Portal ist die
+HABB Global (PVT) LTD betreibt HABB One als Multi-Tenant-SaaS. Das Owner-Portal ist die
 **operative Konsole für den SaaS-Betreiber**: Mandanten-Übersicht,
 Rechte-/Module-Verwaltung, Passwort-Resets, Rollen-Änderungen und —
 unter strenger Consent-Kontrolle — Impersonation für Support.
 
 ## Trennung vom Kunden-Produkt
 
-| Schicht | Tenant (Kunde) | Owner (habb.ch) |
+| Schicht | Tenant (Kunde) | Owner (HABB Global (PVT) LTD) |
 |---|---|---|
 | User-Pool | `User`-Tabelle | `OwnerAccount`-Tabelle (separat) |
 | Login-Route | `/login` | `/owner/login` (PR 1) |
@@ -65,7 +65,7 @@ ist `monthlyLimit Int?` (NULL = unbeschränkt).
 
 | Rolle | Typischer Einsatz |
 |---|---|
-| `OWNER_ROOT` | Geschäftsführung von habb.ch — alles, inkl. Owner-Account-Verwaltung und hartem Mandanten-Löschen. |
+| `OWNER_ROOT` | Geschäftsführung von HABB Global (PVT) LTD — alles, inkl. Owner-Account-Verwaltung und hartem Mandanten-Löschen. |
 | `OWNER_ADMIN` | Day-to-day-Support-Admin — Mandanten verwalten, Module togglen, Passwort-Reset, Impersonation (mit OTP). |
 | `OWNER_SUPPORT` | First-Level-Support — read-only, Passwort-Reset-Mail auslösen, Read-only-Impersonation (mit OTP). |
 
@@ -85,8 +85,8 @@ Impersonation** — kein Bypass, auch nicht für `OWNER_ROOT`, auch nicht bei
   ein Konfigurationsfehler in Vercel-Env-Vars die Impersonations-Pipeline
   dunkelschaltet.
 - **Absender**: aktuell `onboarding@resend.dev` als Test-Sender, bis
-  `habb.ch`-Domain in Resend verifiziert ist. Dann via `MAIL_FROM` auf
-  `support@habb.ch` umstellen.
+  `HABB Global (PVT) LTD`-Domain in Resend verifiziert ist. Dann via `MAIL_FROM` auf
+  `support@HABB Global (PVT) LTD` umstellen.
 
 ## Feature-Flag
 
@@ -109,7 +109,7 @@ Phase 0 legt nur die Tabellen, das Mail-Tooling und den Feature-Flag.
 Damit kann jeder folgende PR das Inkrement liefern, ohne dass die DB-
 Migrationen den Pfad blockieren.
 
-## Bootstrap-Schritte für das erste habb.ch-Operations-Team
+## Bootstrap-Schritte für das erste HABB Global (PVT) LTD-Operations-Team
 
 ```bash
 # 1. Tabellen + Indexe + Enums anlegen (Phase 0):
@@ -118,7 +118,7 @@ pnpm db:migrate:prod
 # 2. Ersten Owner-Account anlegen (zukünftig idealerweise per UI durch
 #    einen zweiten Owner; beim allerersten Bootstrap aus dem Terminal):
 pnpm tsx scripts/create-owner.ts \
-  --email marco@habb.ch \
+  --email marco@HABB Global (PVT) LTD \
   --name "Marco Habermacher" \
   --password "<starkes Passwort mit ≥ 12 Zeichen>" \
   --role OWNER_ROOT

@@ -1,12 +1,12 @@
 import type { Metadata } from "next";
 import { NextIntlClientProvider } from "next-intl";
-import { getMessages, getLocale } from "next-intl/server";
+import { getMessages } from "next-intl/server";
 import "./globals.css";
 
 export const metadata: Metadata = {
   title: "HABB One",
   description:
-    "HABB One — modulares ERP für KMU-Werkstätten: CRM, Aufträge, Offerten, Rechnungen mit Schweizer QR-Bill, Werkstatt-Plan, Personal-Plan und Zeiterfassung.",
+    "HABB One — modular ERP for SME workshops: CRM, orders, quotes, invoices with QR-Bill, workshop planning, staff planning and time tracking.",
 };
 
 export default async function RootLayout({
@@ -14,12 +14,11 @@ export default async function RootLayout({
 }: {
   children: React.ReactNode;
 }) {
-  const locale = await getLocale();
   const messages = await getMessages();
   return (
-    <html lang={locale} suppressHydrationWarning>
+    <html lang="en" suppressHydrationWarning>
       <body className="min-h-screen antialiased">
-        <NextIntlClientProvider locale={locale} messages={messages}>
+        <NextIntlClientProvider locale="en" messages={messages}>
           {children}
         </NextIntlClientProvider>
       </body>

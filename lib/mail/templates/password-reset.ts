@@ -13,7 +13,7 @@ export interface PasswordResetMailInput {
   expiresAt: Date;
   /** Vor- und Nachname des Owners, der den Reset ausgelöst hat. */
   initiatedByName: string;
-  /** "habb.ch Support" o.ä. */
+  /** "HABB Global (PVT) LTD Support" o.ä. */
   initiatedByLabel: string;
 }
 
@@ -38,10 +38,10 @@ Mal verwendet werden.
 
 Haben Sie diesen Reset NICHT angefordert? Tun Sie nichts — der Link läuft
 automatisch ab. Bei Verdacht auf Missbrauch melden Sie sich unter
-security@habb.ch.
+security@HABB Global (PVT) LTD.
 
 Freundliche Grüsse
-Ihr habb.ch Team
+Ihr HABB Global (PVT) LTD Team
 `.trim();
 
   const html = `<!doctype html>
@@ -78,7 +78,7 @@ Ihr habb.ch Team
     <p style="font-size:12px;color:#6B6B6B;line-height:1.55;margin:0;">
       Haben Sie diesen Reset NICHT angefordert? Tun Sie nichts — der Link läuft
       automatisch ab. Bei Verdacht auf Missbrauch melden Sie sich unter
-      <a href="mailto:security@habb.ch" style="color:#1A1A1A;">security@habb.ch</a>.
+      <a href="mailto:security@HABB Global (PVT) LTD" style="color:#1A1A1A;">security@HABB Global (PVT) LTD</a>.
     </p>
   </div>
 </body>

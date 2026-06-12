@@ -23,13 +23,11 @@ export function RegisterForm({ plan }: { plan?: string }) {
       phone: String(form.get("phone") ?? "").trim(),
       address: String(form.get("address") ?? "").trim() || undefined,
       city: String(form.get("city") ?? "").trim() || undefined,
-      country: String(form.get("country") ?? "CH").trim().toUpperCase(),
+      country: String(form.get("country") ?? "US").trim().toUpperCase(),
       adminName: String(form.get("adminName") ?? "").trim(),
       adminEmail: String(form.get("adminEmail") ?? "").trim().toLowerCase(),
       password: String(form.get("password") ?? ""),
-      preferredLanguage: String(form.get("preferredLanguage") ?? "de"),
-      // Auf der Preisseite gewählter Plan — Server validiert streng gegen
-      // die Pricing-Definition; undefined => Default-Plan.
+      preferredLanguage: String(form.get("preferredLanguage") ?? "en"),
       plan: plan || undefined,
     };
 
@@ -45,7 +43,7 @@ export function RegisterForm({ plan }: { plan?: string }) {
         return;
       }
       const json = await res.json().catch(() => ({}));
-      setError(json?.message || "Registrierung fehlgeschlagen. Bitte erneut versuchen.");
+      setError(json?.message || "Registration failed. Please try again.");
     });
   };
 
@@ -56,20 +54,20 @@ export function RegisterForm({ plan }: { plan?: string }) {
           <CheckCircle2 className="mt-0.5 h-5 w-5 text-habb-success" />
           <div>
             <h2 className="text-base font-semibold text-habb-black">
-              Bestätigungs-Mail unterwegs
+              Confirmation email sent
             </h2>
             <p className="mt-1.5 text-sm text-habb-ink">
-              Wir haben eine Mail an <span className="font-medium">{success.maskedEmail}</span>{" "}
-              geschickt. Bitte klicken Sie auf den Link, um Ihre E-Mail-Adresse zu bestätigen.
+              We have sent an email to <span className="font-medium">{success.maskedEmail}</span>.
+              Please click the link to confirm your email address.
             </p>
             {!success.mailDelivered && (
               <p className="mt-3 text-xs text-habb-warning">
-                Hinweis: der Mail-Versand wurde noch nicht bestätigt. Falls Sie keine Mail
-                erhalten, prüfen Sie den Spam-Ordner oder melden sich bei support@habb.ch.
+                Note: Email delivery has not yet been confirmed. If you do not receive an email,
+                check your spam folder or contact support@HABB Global (PVT) LTD.
               </p>
             )}
             <p className="mt-3 text-xs text-habb-muted">
-              Nach der Bestätigung prüft das habb.ch Team Ihre Anfrage und gibt Ihren Zugang frei.
+              After confirmation, the HABB Global (PVT) LTD team will review your request and grant access.
             </p>
           </div>
         </div>
@@ -79,31 +77,31 @@ export function RegisterForm({ plan }: { plan?: string }) {
 
   return (
     <form onSubmit={onSubmit} className="space-y-6" noValidate>
-      <Section title="Firma">
-        <Field label="Firmenname *">
+      <Section title="Company">
+        <Field label="Company Name *">
           <input name="companyName" required minLength={2} className={inputCls} />
         </Field>
-        <Field label="Telefonnummer *">
+        <Field label="Phone Number *">
           <input
             name="phone"
             type="tel"
             required
             minLength={6}
-            placeholder="+41 79 123 45 67"
+            placeholder="+1 234 567 8900"
             className={inputCls}
           />
         </Field>
-        <Field label="Adresse">
+        <Field label="Address">
           <input name="address" className={inputCls} />
         </Field>
         <div className="grid grid-cols-2 gap-4">
-          <Field label="Ort">
+          <Field label="City">
             <input name="city" className={inputCls} />
           </Field>
-          <Field label="Land">
+          <Field label="Country">
             <input
               name="country"
-              defaultValue="CH"
+              defaultValue="US"
               maxLength={3}
               className={`${inputCls} uppercase`}
             />
@@ -115,7 +113,7 @@ export function RegisterForm({ plan }: { plan?: string }) {
         <Field label="Name *">
           <input name="adminName" required minLength={2} className={inputCls} />
         </Field>
-        <Field label="E-Mail *">
+        <Field label="Email *">
           <input
             name="adminEmail"
             type="email"
@@ -125,7 +123,7 @@ export function RegisterForm({ plan }: { plan?: string }) {
             className={inputCls}
           />
         </Field>
-        <Field label="Passwort *">
+        <Field label="Password *">
           <div className="relative">
             <input
               name="password"
@@ -138,19 +136,16 @@ export function RegisterForm({ plan }: { plan?: string }) {
             <button
               type="button"
               onClick={() => setShowPwd((v) => !v)}
-              aria-label={showPwd ? "Passwort verbergen" : "Passwort anzeigen"}
+              aria-label={showPwd ? "Hide password" : "Show password"}
               className="absolute inset-y-0 right-0 grid w-12 place-items-center text-habb-muted hover:text-habb-ink"
             >
               {showPwd ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
             </button>
           </div>
-          <p className="mt-1 text-xs text-habb-muted">Mindestens 8 Zeichen.</p>
+          <p className="mt-1 text-xs text-habb-muted">At least 8 characters.</p>
         </Field>
-        <Field label="Sprache">
-          <select name="preferredLanguage" defaultValue="de" className={inputCls}>
-            <option value="de">Deutsch</option>
-            <option value="fr">Français</option>
-            <option value="it">Italiano</option>
+        <Field label="Language">
+          <select name="preferredLanguage" defaultValue="en" className={inputCls}>
             <option value="en">English</option>
           </select>
         </Field>
@@ -171,12 +166,12 @@ export function RegisterForm({ plan }: { plan?: string }) {
         className="inline-flex w-full items-center justify-center gap-2 rounded-lg bg-habb-black px-5 py-3.5 text-base font-medium text-white hover:bg-habb-ink disabled:opacity-60"
       >
         {pending && <Loader2 className="h-4 w-4 animate-spin" />}
-        Konto anlegen
+        Create account
       </button>
 
       <p className="text-center text-xs text-habb-muted">
-        Mit dem Anlegen bestätigen Sie, dass die angegebenen Daten korrekt sind. Die Freigabe
-        erfolgt manuell durch das habb.ch Team innert weniger Werktage.
+        By creating an account, you confirm that the provided information is correct. 
+        Approval is done manually by the HABB Global (PVT) LTD team within a few business days.
       </p>
     </form>
   );

@@ -22,7 +22,7 @@ import {
 
 const STEP_SECONDS = 30;
 const DIGITS = 6;
-const ISSUER = "habb.ch Owner Console";
+const ISSUER = "HABB Global (PVT) LTD Owner Console";
 
 // ─── Base32 (RFC 4648, ohne Padding) ──────────────────────────────────
 const B32 = "ABCDEFGHIJKLMNOPQRSTUVWXYZ234567";

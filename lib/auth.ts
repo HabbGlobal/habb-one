@@ -209,7 +209,7 @@ export const authMiddleware = nextAuthInstance.auth;
 /**
  * Tenant-Session-Auflöser mit Impersonation-Override.
  *
- * Wenn der eingeloggte habb.ch-Owner gerade einen `habb-impersonation`-
+ * Wenn der eingeloggte HABB Global (PVT) LTD-Owner gerade einen `habb-impersonation`-
  * Cookie gesetzt hat (gültiges JWT + offene `ImpersonationSession`-Row),
  * geben wir eine Session-Struktur zurück, die so aussieht, als wäre der
  * Owner als targetUser angemeldet. Damit funktionieren die ~127

@@ -52,7 +52,7 @@ export interface SendMailInput {
   subject: string;
   html: string;
   text: string;
-  /** Optional Reply-To (z.B. die persönliche habb.ch-Adresse des Owners). */
+  /** Optional Reply-To (z.B. die persönliche HABB Global (PVT) LTD-Adresse des Owners). */
   replyTo?: string;
   /** Logischer Tag — wird in den Mail-Headern als `X-HABB-Tag` mitgegeben. */
   tag?: string;
@@ -69,7 +69,7 @@ function assertNotProdDevLog(): void {
   if (process.env.NODE_ENV === "production" && devLogOnly) {
     throw new Error(
       "[mail] MAIL_DEV_LOG_ONLY must not be enabled in production. " +
-        "Refusing to silently drop a customer mail.",
+      "Refusing to silently drop a customer mail.",
     );
   }
 }

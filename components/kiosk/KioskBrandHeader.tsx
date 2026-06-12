@@ -39,7 +39,7 @@ export function KioskBrandHeader({
   // was hier nicht funktioniert (Kiosk = anonym, fest auf eine Firma).
   const logoSrc = hasLogo
     ? `/api/kiosk/company/${encodeURIComponent(companyId)}/logo?v=${encodeURIComponent(logoVersion ?? companyId)}`
-    : null;
+    : "/brand/habb-logo.png";
 
   return (
     <header

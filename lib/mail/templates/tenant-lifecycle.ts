@@ -31,8 +31,8 @@ function shell(title: string, bodyHtml: string): string {
     ${bodyHtml}
     <hr style="border:none;border-top:1px solid #E7E5E4;margin:24px 0;" />
     <p style="font-size:12px;color:#6B6B6B;line-height:1.55;margin:0;">
-      Bei Fragen: <a href="mailto:support@habb.ch" style="color:#1A1A1A;">support@habb.ch</a>.
-      Verdacht auf Missbrauch: <a href="mailto:security@habb.ch" style="color:#1A1A1A;">security@habb.ch</a>.
+      Bei Fragen: <a href="mailto:support@HABB Global (PVT) LTD" style="color:#1A1A1A;">support@HABB Global (PVT) LTD</a>.
+      Verdacht auf Missbrauch: <a href="mailto:security@HABB Global (PVT) LTD" style="color:#1A1A1A;">security@HABB Global (PVT) LTD</a>.
     </p>
   </div>
 </body>
@@ -65,7 +65,7 @@ ${input.verifyUrl}
 
 Der Link ist bis ${expires} (Schweizer Zeit) gültig.
 
-Nach der Bestätigung prüft das habb.ch Team Ihre Anfrage und gibt Ihren
+Nach der Bestätigung prüft das HABB Global (PVT) LTD Team Ihre Anfrage und gibt Ihren
 Zugang frei. Sie erhalten dann eine weitere E-Mail.
 
 Haben Sie sich NICHT registriert? Tun Sie nichts — der Link läuft ab.
@@ -90,7 +90,7 @@ Haben Sie sich NICHT registriert? Tun Sie nichts — der Link läuft ab.
       Gültig bis ${escapeHtml(expires)} (Schweizer Zeit).
     </p>
     <p style="font-size:13px;color:#6B6B6B;line-height:1.55;margin:0 0 16px 0;">
-      Nach der Bestätigung prüft das habb.ch Team Ihre Anfrage und gibt Ihren
+      Nach der Bestätigung prüft das HABB Global (PVT) LTD Team Ihre Anfrage und gibt Ihren
       Zugang frei. Sie erhalten dann eine weitere Nachricht.
     </p>
   `,
@@ -119,7 +119,7 @@ Profil bearbeiten. Alle anderen Funktionen sind erst nach der Freigabe
 zugänglich.
 
 Freundliche Grüsse
-Ihr habb.ch Team
+Ihr HABB Global (PVT) LTD Team
 `.trim();
 
   const html = shell(
@@ -163,7 +163,7 @@ HABB One vollständig nutzen.
 Anmeldung: ${input.loginUrl}
 
 Freundliche Grüsse
-Ihr habb.ch Team
+Ihr HABB Global (PVT) LTD Team
 `.trim();
 
   const html = shell(
@@ -205,10 +205,10 @@ freigeben.
 
 Begründung: ${input.reason}
 
-Bei Rückfragen wenden Sie sich gerne an support@habb.ch.
+Bei Rückfragen wenden Sie sich gerne an support@HABB Global (PVT) LTD.
 
 Freundliche Grüsse
-Ihr habb.ch Team
+Ihr HABB Global (PVT) LTD Team
 `.trim();
 
   const html = shell(
@@ -225,7 +225,7 @@ Ihr habb.ch Team
       <strong>Begründung:</strong> ${escapeHtml(input.reason)}
     </p>
     <p style="line-height:1.55;margin:0 0 16px 0;">
-      Bei Rückfragen: <a href="mailto:support@habb.ch" style="color:#1A1A1A;">support@habb.ch</a>.
+      Bei Rückfragen: <a href="mailto:support@HABB Global (PVT) LTD" style="color:#1A1A1A;">support@HABB Global (PVT) LTD</a>.
     </p>
   `,
   );

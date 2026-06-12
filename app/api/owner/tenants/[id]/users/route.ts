@@ -125,7 +125,7 @@ export async function POST(req: Request, { params }: { params: Promise<{ id: str
       resetUrl,
       expiresAt,
       initiatedByName: guard.ctx.name,
-      initiatedByLabel: "habb.ch Support",
+      initiatedByLabel: "HABB Global (PVT) LTD Support",
     });
     try {
       const result = await sendMail({

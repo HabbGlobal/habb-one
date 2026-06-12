@@ -150,7 +150,7 @@ export function KioskLockScreen({ appName, companyLabel, companies }: Props) {
 
         <div className="mt-6 text-center">
           <a
-            href="https://habb.ch"
+            href="https://HABB Global (PVT) LTD"
             target="_blank"
             rel="noopener noreferrer"
             className="inline-flex items-center gap-1.5 text-xs text-habb-muted hover:text-habb-ink"

@@ -1,7 +1,7 @@
 {
   "app": {
     "name": "HABB One",
-    "company": "Tschannen Spritzwerk AG"
+    "company": "HABB Global (PVT) LTD"
   },
   "common": {
     "save": "Save",
@@ -72,20 +72,20 @@
     "capsLockOn": "Caps Lock is on.",
     "tenantLabel": "Tenant",
     "metaTitle": "HABB One — Sign in",
-    "metaDescription": "HABB One sign-in — administration and time tracking for Swiss SME workshops.",
-    "brandSubline": "The modular ERP for Swiss SME workshops.",
-    "feature1": "Quote to Swiss QR invoice",
+    "metaDescription": "HABB One sign-in — administration and time tracking for SME workshops.",
+    "brandSubline": "The modular ERP for SME workshops.",
+    "feature1": "Quote to QR invoice",
     "feature2": "Time tracking with personal PIN",
     "feature3": "Workshop and staff planning",
-    "feature4": "Data hosted in Switzerland",
-    "trustHosted": "Hosted in Switzerland",
+    "feature4": "Secure data hosting",
+    "trustHosted": "Securely Hosted",
     "trustCompliance": "FADP / GDPR",
     "trustEncryption": "TLS 1.3",
-    "swissCrossTooltip": "Hosted & supported in Switzerland",
+    "swissCrossTooltip": "Securely hosted & supported",
     "languageDe": "DE",
     "languageEn": "EN",
-    "providerLine": "Provided by habb.ch",
-    "copyright": "© {year} habb.ch"
+    "providerLine": "Product By HABB Global (PVT) LTD",
+    "copyright": "© {year} HABB One"
   },
   "kiosk": {
     "title": "Time Tracking",

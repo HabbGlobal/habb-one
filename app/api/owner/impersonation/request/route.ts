@@ -112,7 +112,7 @@ export async function POST(req: Request) {
   const mail = buildImpersonationConsentMail({
     recipientName: target.name,
     ownerName: guard.ctx.name,
-    ownerLabel: "habb.ch Support",
+    ownerLabel: "HABB Global (PVT) LTD Support",
     otp,
     reason: parsed.data.reason,
     ticketRef: parsed.data.ticketRef ?? null,

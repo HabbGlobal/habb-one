@@ -23,7 +23,7 @@ export async function BrandPanel({ tenant }: BrandPanelProps) {
       <div className="relative z-10 flex items-center gap-3">
         <Image
           src="/brand/habb-logo.png"
-          alt="habb.ch – Anbieter von HABB One"
+          alt="HABB Global (PVT) LTD – Anbieter von HABB One"
           width={48}
           height={48}
           priority
@@ -31,7 +31,7 @@ export async function BrandPanel({ tenant }: BrandPanelProps) {
           className="h-10 w-auto lg:h-12"
         />
         <span className="text-sm font-medium tracking-tight text-habb-muted">
-          habb<span className="text-habb-red">.ch</span>
+          HABB One
         </span>
       </div>
 
@@ -63,7 +63,6 @@ export async function BrandPanel({ tenant }: BrandPanelProps) {
       </div>
 
       <div className="relative z-10 mt-12 hidden items-center gap-3 text-xs text-habb-muted lg:mt-0 lg:flex">
-        <SwissCrossDetail title={t("swissCrossTooltip")} />
         <span>
           {t("providerLine")} ·{" "}
           {t("copyright", { year: new Date().getFullYear() })}
@@ -73,20 +72,7 @@ export async function BrandPanel({ tenant }: BrandPanelProps) {
   );
 }
 
-function SwissCrossDetail({ title }: { title: string }) {
-  return (
-    <span
-      title={title}
-      className="grid h-8 w-8 place-items-center rounded-sm bg-habb-red text-white"
-      aria-hidden="true"
-    >
-      <svg viewBox="0 0 32 32" className="h-5 w-5" role="presentation">
-        <rect x="13" y="6" width="6" height="20" fill="currentColor" />
-        <rect x="6" y="13" width="20" height="6" fill="currentColor" />
-      </svg>
-    </span>
-  );
-}
+
 
 function BackgroundGeometry() {
   return (

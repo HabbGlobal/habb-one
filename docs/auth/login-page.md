@@ -1,6 +1,6 @@
 # Login-Seite (`/login`)
 
-Markenstarke, fokussierte Anmeldung für **HABB One** — bereitgestellt von habb.ch.
+Markenstarke, fokussierte Anmeldung für **HABB One** — bereitgestellt von HABB Global (PVT) LTD.
 Light-only, Schweizer Zurückhaltung: Schwarz/Weiss-Grundlage, Schweizer Rot nur als Akzent (Fokus-Ring, Akzentbalken, „.ch" im Wortmark).
 
 ## Scope
@@ -75,7 +75,7 @@ Tailwind-Farb-Scale `habb.*` in `tailwind.config.ts`. So nutzbar als:
 `getTenantFromRequest(searchTenant)` in `lib/tenant/getTenant.ts`:
 
 1. **URL-Parameter** `?tenant=<slug>` (heute genutzt für Bookmarks/QR-Codes).
-2. **Subdomain** des Request-Hosts als Fallback (nur produktiv auf `*.habb.ch`,
+2. **Subdomain** des Request-Hosts als Fallback (nur produktiv auf `*.HABB Global (PVT) LTD`,
    nicht auf `*.vercel.app` und nicht in lokaler/Preview-Umgebung).
 3. Demo-Mapping `tschannen → Tschannen Spritzwerk AG` (hart codiert bis es eine
    echte `Company.slug`-Spalte gibt — TODO im Code markiert).

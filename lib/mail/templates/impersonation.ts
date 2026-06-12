@@ -10,7 +10,7 @@ export interface ImpersonationConsentMailInput {
   recipientName: string;
   /** Anzeigename des Owners, der die Anfrage gestellt hat. */
   ownerName: string;
-  /** "habb.ch Support" o.ä. */
+  /** "HABB Global (PVT) LTD Support" o.ä. */
   ownerLabel: string;
   /** Klartext-OTP — geht NIRGENDS sonst hin als in diese Mail. */
   otp: string;
@@ -53,7 +53,7 @@ So funktioniert es:
   1. ${input.ownerName} ruft Sie an oder schreibt Ihnen.
   2. Geben Sie den Code NUR DIESER Person und NUR dann durch, wenn Sie sicher
      sind, dass Sie wirklich mit ${input.ownerLabel} sprechen.
-  3. ${input.ownerName} tippt den Code in der habb.ch-Konsole ein, danach
+  3. ${input.ownerName} tippt den Code in der HABB Global (PVT) LTD-Konsole ein, danach
      beginnt die Sitzung. Sie sehen während der Sitzung selbst einen
      "Support unterstützt gerade"-Banner in der App.
   4. Jede Aktion wird protokolliert; nach ${input.durationMinutes} Minuten

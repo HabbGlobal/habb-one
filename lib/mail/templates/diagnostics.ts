@@ -8,7 +8,7 @@
 
 import type { Severity } from "@/lib/diagnostics/types";
 
-const APP_URL = process.env.NEXTAUTH_URL || "https://one.habb.ch";
+const APP_URL = process.env.NEXTAUTH_URL || "https://one.HABB Global (PVT) LTD";
 const DASH = `${APP_URL}/owner/diagnostics`;
 
 function escapeHtml(s: string): string {

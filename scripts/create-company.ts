@@ -145,15 +145,15 @@ async function main() {
     requiresApproval: boolean;
     colorHex: string;
   }> = [
-    { key: "vacation",      labelDe: "Ferien",                    labelEn: "Vacation",                  category: "VACATION",     isPaid: true,  reducesTarget: true,  countsAsWorked: false, requiresApproval: true,  colorHex: "#2563eb" },
-    { key: "sickness",      labelDe: "Krankheit",                 labelEn: "Sickness",                  category: "SICKNESS",     isPaid: true,  reducesTarget: true,  countsAsWorked: false, requiresApproval: false, colorHex: "#9333ea" },
-    { key: "accident",      labelDe: "Unfall",                    labelEn: "Accident",                  category: "ACCIDENT",     isPaid: true,  reducesTarget: true,  countsAsWorked: false, requiresApproval: false, colorHex: "#dc2626" },
-    { key: "military",      labelDe: "Militär/Zivilschutz",       labelEn: "Military / civil protection", category: "MILITARY",   isPaid: true,  reducesTarget: true,  countsAsWorked: false, requiresApproval: false, colorHex: "#65a30d" },
-    { key: "doctor",        labelDe: "Arzttermin",                labelEn: "Doctor visit",              category: "DOCTOR",       isPaid: true,  reducesTarget: false, countsAsWorked: true,  requiresApproval: false, colorHex: "#059669" },
-    { key: "unpaid",        labelDe: "Unbezahlt",                 labelEn: "Unpaid leave",              category: "UNPAID",       isPaid: false, reducesTarget: true,  countsAsWorked: false, requiresApproval: true,  colorHex: "#6b7280" },
-    { key: "compensation",  labelDe: "Kompensation/Zeitausgleich", labelEn: "Compensation",            category: "COMPENSATION", isPaid: true,  reducesTarget: true,  countsAsWorked: false, requiresApproval: false, colorHex: "#0891b2" },
-    { key: "other",         labelDe: "Sonstiges",                 labelEn: "Other",                     category: "OTHER",        isPaid: false, reducesTarget: false, countsAsWorked: false, requiresApproval: false, colorHex: "#a3a3a3" },
-  ];
+      { key: "vacation", labelDe: "Ferien", labelEn: "Vacation", category: "VACATION", isPaid: true, reducesTarget: true, countsAsWorked: false, requiresApproval: true, colorHex: "#2563eb" },
+      { key: "sickness", labelDe: "Krankheit", labelEn: "Sickness", category: "SICKNESS", isPaid: true, reducesTarget: true, countsAsWorked: false, requiresApproval: false, colorHex: "#9333ea" },
+      { key: "accident", labelDe: "Unfall", labelEn: "Accident", category: "ACCIDENT", isPaid: true, reducesTarget: true, countsAsWorked: false, requiresApproval: false, colorHex: "#dc2626" },
+      { key: "military", labelDe: "Militär/Zivilschutz", labelEn: "Military / civil protection", category: "MILITARY", isPaid: true, reducesTarget: true, countsAsWorked: false, requiresApproval: false, colorHex: "#65a30d" },
+      { key: "doctor", labelDe: "Arzttermin", labelEn: "Doctor visit", category: "DOCTOR", isPaid: true, reducesTarget: false, countsAsWorked: true, requiresApproval: false, colorHex: "#059669" },
+      { key: "unpaid", labelDe: "Unbezahlt", labelEn: "Unpaid leave", category: "UNPAID", isPaid: false, reducesTarget: true, countsAsWorked: false, requiresApproval: true, colorHex: "#6b7280" },
+      { key: "compensation", labelDe: "Kompensation/Zeitausgleich", labelEn: "Compensation", category: "COMPENSATION", isPaid: true, reducesTarget: true, countsAsWorked: false, requiresApproval: false, colorHex: "#0891b2" },
+      { key: "other", labelDe: "Sonstiges", labelEn: "Other", category: "OTHER", isPaid: false, reducesTarget: false, countsAsWorked: false, requiresApproval: false, colorHex: "#a3a3a3" },
+    ];
 
   // 4) Atomar erstellen: Company + User + AbsenceTypes in einer Transaktion
   const passwordHash = await bcrypt.hash(args.adminPassword, 10);
@@ -216,7 +216,7 @@ async function main() {
   console.log("─────────────────────────────────────────────────────");
   console.log(" LOGIN");
   console.log("─────────────────────────────────────────────────────");
-  console.log(`  URL:       https://one.habb.ch/login`);
+  console.log(`  URL:       https://one.HABB Global (PVT) LTD/login`);
   console.log(`  E-Mail:    ${args.adminEmail}`);
   console.log(`  Passwort:  ${args.adminPassword}`);
   console.log("");
