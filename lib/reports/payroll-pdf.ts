@@ -65,12 +65,12 @@ export async function payrollPdf(
   let yLeft = y;
   let yRight = y;
 
-  yLeft = drawSection(page, col1X, yLeft, "Stammdaten", bold);
+  yLeft = drawSection(page, col1X, yLeft, "Master data", bold);
   yLeft = drawKV(page, col1X, colWidth, yLeft, "Geburtsdatum", fmt(report.employee.dateOfBirth), font, bold);
   yLeft = drawKV(page, col1X, colWidth, yLeft, "AHV-Nr.", report.employee.ahvNumber ?? "—", font, bold);
   yLeft = drawKV(page, col1X, colWidth, yLeft, "Adresse", report.employee.address ?? "—", font, bold);
-  yLeft = drawKV(page, col1X, colWidth, yLeft, "E-Mail", report.employee.email ?? "—", font, bold);
-  yLeft = drawKV(page, col1X, colWidth, yLeft, "Telefon", report.employee.phone ?? "—", font, bold);
+  yLeft = drawKV(page, col1X, colWidth, yLeft, "Email", report.employee.email ?? "—", font, bold);
+  yLeft = drawKV(page, col1X, colWidth, yLeft, "Phone", report.employee.phone ?? "—", font, bold);
 
   yRight = drawSection(page, col2X, yRight, "Anstellung", bold);
   yRight = drawKV(
@@ -203,8 +203,8 @@ export async function payrollPdf(
   // ── Tagesliste ──────────────────────────────────────────────────────
   y = drawSection(page, MARGIN, y, "Tagesübersicht", bold);
   const cols = [
-    { label: "Datum", width: 64 },
-    { label: "Tag", width: 34 },
+    { label: "Date", width: 64 },
+    { label: "Day", width: 34 },
     { label: "Soll", width: 52, right: true },
     { label: "Gearb.", width: 62, right: true },
     { label: "Pause", width: 50, right: true },

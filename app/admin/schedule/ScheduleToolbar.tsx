@@ -131,9 +131,7 @@ export function ScheduleToolbar({
             "px-3 py-1.5 text-sm",
             view === "month" ? "bg-primary text-primary-foreground" : "hover:bg-accent"
           )}
-        >
-          Monat
-        </button>
+        >Month</button>
         <button
           type="button"
           onClick={() => switchView("week")}
@@ -141,9 +139,7 @@ export function ScheduleToolbar({
             "px-3 py-1.5 text-sm border-l",
             view === "week" ? "bg-primary text-primary-foreground" : "hover:bg-accent"
           )}
-        >
-          Woche
-        </button>
+        >Week</button>
       </div>
 
       <Button asChild variant="outline" size="sm">

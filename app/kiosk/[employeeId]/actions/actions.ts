@@ -6,7 +6,7 @@
 // wird, kann ein Nachfolger im Werkstatt-Tablet via Browser-Forward/Back
 // auf die Actions-Seite des vorigen Mitarbeiters zurück navigieren —
 // die Session-Cookie ist 10 Min sliding gültig. Diese Action wird vom
-// "Zurück"-Button aufgerufen und sorgt dafür, dass der Cookie SOFORT weg
+// "Back"-Button aufgerufen und sorgt dafür, dass der Cookie SOFORT weg
 // ist; in Kombination mit `Cache-Control: no-store` (Middleware) und
 // einem clientseitigen `pageshow`-Listener (BackGuard) ist Replay nicht
 // mehr möglich.

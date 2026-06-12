@@ -70,7 +70,7 @@ export function KioskLockTimeoutForm({ currentMinutes }: Props) {
         router.refresh();
         setTimeout(() => setSuccess(null), 5000);
       } catch (err) {
-        setError(err instanceof Error ? err.message : "Fehler beim Speichern.");
+        setError(err instanceof Error ? err.message : "Error while saving.");
       }
     });
   };
@@ -186,7 +186,7 @@ export function KioskLockTimeoutForm({ currentMinutes }: Props) {
 
           <div className="flex justify-end pt-2 border-t">
             <Button type="submit" disabled={pending}>
-              {pending ? "Speichern …" : "Speichern"}
+              {pending ? "Saving..." : "Save"}
             </Button>
           </div>
         </form>

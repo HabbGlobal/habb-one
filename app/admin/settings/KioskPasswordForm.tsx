@@ -51,7 +51,7 @@ export function KioskPasswordForm({ hasKioskPassword }: Props) {
         router.refresh();
         setTimeout(() => setSuccess(null), 5000);
       } catch (err) {
-        setError(err instanceof Error ? err.message : "Fehler beim Speichern.");
+        setError(err instanceof Error ? err.message : "Error while saving.");
       }
     });
   };
@@ -115,7 +115,7 @@ export function KioskPasswordForm({ hasKioskPassword }: Props) {
           <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
             <div className="space-y-1">
               <Label>
-                {hasKioskPassword ? "Neues Passwort" : "Passwort"}
+                {hasKioskPassword ? "Neues Passwort" : "Password"}
               </Label>
               <Input
                 type="password"
@@ -162,7 +162,7 @@ export function KioskPasswordForm({ hasKioskPassword }: Props) {
             )}
             <Button type="submit" disabled={pending || !pw}>
               {pending
-                ? "Speichern …"
+                ? "Saving..."
                 : hasKioskPassword
                   ? "Passwort ändern"
                   : "Passwort setzen"}

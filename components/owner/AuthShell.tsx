@@ -8,13 +8,13 @@ interface AuthShellProps {
 }
 
 const STEPS: { n: 1 | 2; label: string }[] = [
-  { n: 1, label: "E-Mail" },
+  { n: 1, label: "Email" },
   { n: 2, label: "Passkey" },
 ];
 
 const TRUST_BULLETS = [
   { icon: KeySquare, label: "WebAuthn / Passkey-Pflicht für jede Anmeldung" },
-  { icon: FileSearch, label: "Jede Aktion wird audited — append-only" },
+  { icon: FileSearch, label: "Jede Action wird audited — append-only" },
   { icon: MapPin, label: "Datenhaltung in der EU (Zürich-Region)" },
   { icon: ShieldCheck, label: "Strikt getrennt vom Kunden-Login" },
 ];
@@ -39,10 +39,10 @@ export function OwnerAuthShell({ currentStep, title, subtitle, children }: AuthS
             Owner Console
           </p>
           <h2 className="mt-12 text-4xl font-semibold tracking-[-0.02em]">
-            Operativer Zugriff für SaaS-Betreiber
+            Operationaler Zugriff für SaaS-Betreiber
           </h2>
           <p className="mt-4 max-w-md text-base leading-relaxed text-white/70">
-            Konsole für HABB Global (PVT) LTD — Mandanten-Verwaltung, Rechte, Audit-Trail und
+            Konsole für HABB Global (PVT) LTD — Tenanten-Verwaltung, Rechte, Audit-Trail und
             Customer-Consent-Impersonation für Support-Fälle.
           </p>
           <ul className="mt-10 space-y-3.5">

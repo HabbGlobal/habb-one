@@ -195,9 +195,7 @@ export function CompanyLogoForm({ hasLogo, logoVersion }: Props) {
                 setPreviewUrl(null);
               }}
               disabled={pending}
-            >
-              Abbrechen
-            </Button>
+            >Cancel</Button>
           )}
           <Button
             type="button"

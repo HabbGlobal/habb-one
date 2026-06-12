@@ -51,16 +51,14 @@ export default async function TenantDiagnosticsDetail({
           href="/owner/diagnostics"
           className="inline-flex items-center gap-1.5 text-sm text-habb-muted hover:text-habb-ink"
         >
-          <ArrowLeft className="h-4 w-4" /> Zurück zur Übersicht
-        </Link>
+          <ArrowLeft className="h-4 w-4" />Back to overview</Link>
         <h1 className="mt-2 text-2xl font-semibold tracking-tight text-habb-black">
           {company.name}
         </h1>
         {snap && (
-          <p className="mt-1 text-sm text-habb-muted">
-            Status <strong className="text-habb-ink">{snap.status}</strong> ·
+          <p className="mt-1 text-sm text-habb-muted">Status<strong className="text-habb-ink">{snap.status}</strong> ·
             Score <strong className="text-habb-ink">{snap.score}</strong> ·
-            Letzte Prüfung{" "}
+            Last check{" "}
             {snap.lastCheckedAt
               ? snap.lastCheckedAt.toLocaleString("de-CH")
               : "—"}
@@ -129,7 +127,7 @@ export default async function TenantDiagnosticsDetail({
             ))
           )}
         </Panel>
-        <Panel title="Letzte Diagnose-Läufe">
+        <Panel title="Letzte Diagnostics-Läufe">
           {runs.map((r) => (
             <Row
               key={r.id}
@@ -141,9 +139,9 @@ export default async function TenantDiagnosticsDetail({
         </Panel>
       </div>
 
-      <Panel title="E-Mail-Benachrichtigungen">
+      <Panel title="Email-Benachrichtigungen">
         {emails.length === 0 ? (
-          <Empty>Keine E-Mails.</Empty>
+          <Empty>Keine Emails.</Empty>
         ) : (
           emails.map((m) => (
             <Row

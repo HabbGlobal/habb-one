@@ -95,7 +95,7 @@ export function KioskLockScreen({ appName, companyLabel, companies }: Props) {
             <form onSubmit={submit} className="space-y-4">
               {companies.length > 1 && (
                 <div className="space-y-1">
-                  <Label htmlFor="company">Firma</Label>
+                  <Label htmlFor="company">Company</Label>
                   <select
                     id="company"
                     value={companyId}

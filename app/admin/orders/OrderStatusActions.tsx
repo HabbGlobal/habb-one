@@ -104,8 +104,7 @@ export function OrderStatusActions({
 
   if (allowedNext.length === 0) {
     return (
-      <p className="text-sm text-muted-foreground italic">
-        Status <strong>{statusLabel(currentStatus)}</strong> ist final — keine
+      <p className="text-sm text-muted-foreground italic">Status<strong>{statusLabel(currentStatus)}</strong> ist final — keine
         weiteren Übergänge möglich.
       </p>
     );
@@ -156,9 +155,7 @@ export function OrderStatusActions({
                 setTarget(null);
                 setComment("");
               }}
-            >
-              Abbrechen
-            </Button>
+            >Cancel</Button>
             <Button
               size="sm"
               disabled={pending || comment.trim().length < 3}

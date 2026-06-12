@@ -246,7 +246,7 @@ export function EmployeeForm({
           router.refresh();
         }
       } catch (err) {
-        setError(err instanceof Error ? err.message : "Fehler beim Speichern");
+        setError(err instanceof Error ? err.message : "Error while saving");
       }
     });
   };
@@ -342,7 +342,7 @@ export function EmployeeForm({
               placeholder="Strasse Nr., PLZ Ort"
             />
           </Field>
-          <Field label="Telefon">
+          <Field label="Phone">
             <Input
               type="tel"
               value={data.phone}
@@ -536,9 +536,7 @@ export function EmployeeForm({
             }}
             disabled={data.skills.length >= SKILL_CODES.length}
           >
-            <Plus className="mr-2 h-4 w-4" />
-            Hinzufügen
-          </Button>
+            <Plus className="mr-2 h-4 w-4" />Add</Button>
         </CardHeader>
         <CardContent className="space-y-3">
           {data.skills.length === 0 && (
@@ -605,7 +603,7 @@ export function EmployeeForm({
                     onClick={() =>
                       update("skills", data.skills.filter((_, i) => i !== idx))
                     }
-                    title="Entfernen"
+                    title="Remove"
                   >
                     <Trash2 className="h-4 w-4 text-destructive" />
                   </Button>

@@ -8,7 +8,7 @@ export const dynamic = "force-dynamic";
 const PAGE_SIZE = 50;
 
 /**
- * Globaler Owner-Audit-Log mit serverseitiger Filterung über URL-Parameter.
+ * Globaler Owner-Audit Log mit serverseitiger Filterung über URL-Parameter.
  * Append-only: jeder Lookup ist read-only — keine Mutationen hier.
  */
 export default async function AuditLogPage({
@@ -69,12 +69,12 @@ export default async function AuditLogPage({
   return (
     <div className="space-y-6">
       <header>
-        <p className="text-xs uppercase tracking-[0.18em] text-habb-muted">Plattform</p>
+        <p className="text-xs uppercase tracking-[0.18em] text-habb-muted">Platform</p>
         <h1 className="mt-1 text-2xl font-semibold tracking-tight text-habb-black">
-          Audit-Log
+          Audit Log
         </h1>
         <p className="mt-1 text-sm text-habb-muted">
-          {total.toLocaleString("de-CH")} Einträge gesamt · Seite {pageNum} von{" "}
+          {total.toLocaleString("de-CH")} entries gesamt · Seite {pageNum} von{" "}
           {totalPages.toLocaleString("de-CH")}
         </p>
       </header>
@@ -85,7 +85,7 @@ export default async function AuditLogPage({
         className="rounded-lg border border-habb-line bg-white p-4 grid grid-cols-1 gap-3 md:grid-cols-5 md:items-end"
       >
         <label className="space-y-1 text-xs">
-          <span className="block uppercase tracking-wide text-habb-muted">Aktion</span>
+          <span className="block uppercase tracking-wide text-habb-muted">Action</span>
           <select
             name="action"
             defaultValue={sp.action ?? ""}
@@ -100,7 +100,7 @@ export default async function AuditLogPage({
           </select>
         </label>
         <label className="space-y-1 text-xs">
-          <span className="block uppercase tracking-wide text-habb-muted">Owner-E-Mail</span>
+          <span className="block uppercase tracking-wide text-habb-muted">Owner-Email</span>
           <input
             name="owner"
             defaultValue={sp.owner ?? ""}
@@ -109,7 +109,7 @@ export default async function AuditLogPage({
           />
         </label>
         <label className="space-y-1 text-xs">
-          <span className="block uppercase tracking-wide text-habb-muted">Mandant</span>
+          <span className="block uppercase tracking-wide text-habb-muted">Tenant</span>
           <input
             name="tenant"
             defaultValue={sp.tenant ?? ""}
@@ -156,7 +156,7 @@ export default async function AuditLogPage({
       <section className="rounded-lg border border-habb-line bg-white">
         {events.length === 0 ? (
           <p className="px-5 py-16 text-center text-sm text-habb-muted">
-            Keine Einträge für die aktuelle Auswahl.
+            Keine entries für die aktuelle Auswahl.
           </p>
         ) : (
           <ul className="divide-y divide-habb-line">
@@ -205,9 +205,7 @@ export default async function AuditLogPage({
 
         {totalPages > 1 && (
           <footer className="flex items-center justify-between border-t border-habb-line px-5 py-3 text-sm">
-            <PageLink sp={sp} target={pageNum - 1} disabled={pageNum <= 1}>
-              ← Zurück
-            </PageLink>
+            <PageLink sp={sp} target={pageNum - 1} disabled={pageNum <= 1}>← Back</PageLink>
             <span className="text-xs text-habb-muted">
               Seite {pageNum} von {totalPages}
             </span>

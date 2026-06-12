@@ -53,7 +53,7 @@ export function QuoteList({ rows }: { rows: QuoteListItemDTO[] }) {
       <TableHeader>
         <TableRow>
           <TableHead className="w-32">Nr.</TableHead>
-          <TableHead>Kunde</TableHead>
+          <TableHead>Customer</TableHead>
           <TableHead className="w-28">Status</TableHead>
           <TableHead className="w-28">Erstellt</TableHead>
           <TableHead className="w-28">Gültig bis</TableHead>
@@ -92,8 +92,8 @@ export function QuoteList({ rows }: { rows: QuoteListItemDTO[] }) {
               <Link
                 href={`/admin/quotes/${q.id}`}
                 className="inline-flex items-center justify-center h-8 w-8 rounded hover:bg-accent transition"
-                aria-label="Bearbeiten"
-                title="Bearbeiten"
+                aria-label="Edit"
+                title="Edit"
               >
                 <Pencil className="h-4 w-4" />
               </Link>

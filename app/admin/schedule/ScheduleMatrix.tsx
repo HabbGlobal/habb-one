@@ -99,9 +99,7 @@ export function ScheduleMatrix({
       <table className="w-full text-xs border-separate border-spacing-0">
         <thead className="sticky top-0 z-10 bg-card">
           <tr>
-            <th className="text-left p-2 border-b min-w-[180px] sticky left-0 bg-card">
-              Mitarbeiter
-            </th>
+            <th className="text-left p-2 border-b min-w-[180px] sticky left-0 bg-card">Employee</th>
             {days.map((d) => {
               const day = Number(d.date.slice(8, 10));
               const holidayName = holidayMap[d.date];

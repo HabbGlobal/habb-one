@@ -58,9 +58,9 @@ export default async function OwnerDiagnosticsPage() {
     }),
   ]);
 
-  // Immer ALLE aktiven Mandanten anzeigen — Snapshot optional. Ohne
+  // Immer ALLE aktiven Tenanten anzeigen — Snapshot optional. Ohne
   // bisherigen Lauf: Status "unknown / noch nie geprüft", aber Zeile
-  // (mit "Prüfen") ist da → kein Henne-Ei-Problem vor dem ersten Cron.
+  // (mit "Check") ist da → kein Henne-Ei-Problem vor dem ersten Cron.
   const byStatus = { healthy: 0, warning: 0, critical: 0, unknown: 0 };
   let scoreSum = 0;
   let scored = 0;
@@ -101,13 +101,13 @@ export default async function OwnerDiagnosticsPage() {
       <header className="flex items-start justify-between gap-4">
         <div>
           <p className="text-xs uppercase tracking-[0.18em] text-habb-muted">
-            Plattform · Operations
+            Platform · Operations
           </p>
           <h1 className="mt-1 text-2xl font-semibold tracking-tight text-habb-black">
-            Diagnose &amp; Security-Monitoring
+            Diagnostics &amp; Security-Monitoring
           </h1>
           <p className="mt-1 text-sm text-habb-muted">
-            Stündliche automatische Prüfung aller Mandanten · regelbasiert,
+            Stündliche automatische Prüfung aller Tenanten · regelbasiert,
             ohne externe KI.
           </p>
         </div>
@@ -116,7 +116,7 @@ export default async function OwnerDiagnosticsPage() {
 
       {/* KPI Cards */}
       <div className="grid grid-cols-2 gap-3 md:grid-cols-4">
-        <Kpi label="Mandanten" value={companies.length} />
+        <Kpi label="Tenants" value={companies.length} />
         <Kpi label="Healthy" value={byStatus.healthy} tone="success" />
         <Kpi label="Warning" value={byStatus.warning} tone="warning" />
         <Kpi label="Critical" value={byStatus.critical} tone="danger" />
@@ -130,12 +130,12 @@ export default async function OwnerDiagnosticsPage() {
         <Kpi label="Offene Findings" value={openTotal} />
         <Kpi label="Ø Health-Score" value={avgScore} />
         <Kpi
-          label="E-Mails (24h)"
+          label="Emails (24h)"
           value={emails24}
           icon={<Mail className="h-4 w-4" />}
         />
         <Kpi
-          label="E-Mail-Fehler (24h)"
+          label="Email-Fehler (24h)"
           value={emailsFailed24}
           tone={emailsFailed24 > 0 ? "danger" : undefined}
         />
@@ -157,13 +157,13 @@ export default async function OwnerDiagnosticsPage() {
       <section className="rounded-xl border border-habb-line bg-white">
         <div className="border-b border-habb-line px-5 py-3">
           <h2 className="text-sm font-semibold text-habb-ink">
-            Mandanten-Health
+            Tenanten-Health
           </h2>
         </div>
         <TenantTable tenants={tenants} />
       </section>
 
-      {/* Security + E-Mail Ansicht */}
+      {/* Security + Email Ansicht */}
       <div className="grid gap-6 lg:grid-cols-2">
         <ListCard
           title="Security-Events (zuletzt)"
@@ -172,13 +172,13 @@ export default async function OwnerDiagnosticsPage() {
           rows={recentSec.map((e) => ({
             key: e.id,
             primary: `${e.eventType} · ${e.severity}`,
-            secondary: `${e.company?.name ?? "Plattform"} · Risk ${e.riskScore} · ${e.detectedAt.toLocaleString("de-CH")}`,
+            secondary: `${e.company?.name ?? "Platform"} · Risk ${e.riskScore} · ${e.detectedAt.toLocaleString("de-CH")}`,
           }))}
         />
         <ListCard
-          title="E-Mail-Benachrichtigungen (zuletzt)"
+          title="Email-Benachrichtigungen (zuletzt)"
           icon={<Mail className="h-4 w-4 text-habb-muted" />}
-          empty="Keine E-Mails."
+          empty="Keine Emails."
           rows={recentEmails.map((m) => ({
             key: m.id,
             primary: `${m.subject}`,

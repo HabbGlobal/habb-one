@@ -8,7 +8,7 @@ import { ShieldCheck, ShieldOff, KeySquare } from "lucide-react";
 export const dynamic = "force-dynamic";
 
 const ROLE_LABEL: Record<string, string> = {
-  OWNER_ROOT: "Root (Vollzugriff)",
+  OWNER_ROOT: "Root (Full access)",
   OWNER_ADMIN: "Admin",
   OWNER_SUPPORT: "Support",
 };
@@ -21,7 +21,7 @@ const ROLE_BADGE: Record<string, string> = {
 
 export default async function OwnerTeamPage() {
   const ctx = await getOwnerContext();
-  // OWNER_ROOT-only Seite: andere Rollen werden auf das Dashboard
+  // OWNER_ROOT-only Seite: andere Rolen werden auf das Dashboard
   // umgeleitet. Die Sidebar versteckt den Link ohnehin schon.
   if (!ctx) redirect("/owner/login");
   if (ctx.role !== "OWNER_ROOT") redirect("/owner");
@@ -45,9 +45,9 @@ export default async function OwnerTeamPage() {
     <div className="space-y-6">
       <header className="flex flex-wrap items-end justify-between gap-4">
         <div>
-          <p className="text-xs uppercase tracking-[0.18em] text-habb-muted">Plattform</p>
+          <p className="text-xs uppercase tracking-[0.18em] text-habb-muted">Platform</p>
           <h1 className="mt-1 text-2xl font-semibold tracking-tight text-habb-black">
-            Owner-Team
+            Owner Team
           </h1>
           <p className="mt-1 text-sm text-habb-muted">
             {owners.filter((o) => o.isActive).length} aktive Owner-Accounts ·{" "}
@@ -61,12 +61,12 @@ export default async function OwnerTeamPage() {
         <table className="min-w-full divide-y divide-habb-line text-sm">
           <thead className="bg-habb-paper text-left text-xs font-medium uppercase tracking-wide text-habb-muted">
             <tr>
-              <th className="px-5 py-3">Name / E-Mail</th>
-              <th className="px-5 py-3">Rolle</th>
+              <th className="px-5 py-3">Name / Email</th>
+              <th className="px-5 py-3">Role</th>
               <th className="px-5 py-3">Status</th>
               <th className="px-5 py-3">Passkey</th>
               <th className="px-5 py-3">Letzter Login</th>
-              <th className="px-5 py-3 text-right">Aktion</th>
+              <th className="px-5 py-3 text-right">Action</th>
             </tr>
           </thead>
           <tbody className="divide-y divide-habb-line">
@@ -97,8 +97,7 @@ export default async function OwnerTeamPage() {
                   <td className="px-5 py-3">
                     {o.isActive ? (
                       <span className="inline-flex items-center gap-1 text-habb-success text-xs">
-                        <ShieldCheck className="h-3.5 w-3.5" /> Aktiv
-                      </span>
+                        <ShieldCheck className="h-3.5 w-3.5" />Active</span>
                     ) : (
                       <span className="inline-flex items-center gap-1 text-habb-muted text-xs">
                         <ShieldOff className="h-3.5 w-3.5" /> Deaktiviert
@@ -124,7 +123,7 @@ export default async function OwnerTeamPage() {
                   <td className="px-5 py-3 text-right">
                     {isSelf ? (
                       <span className="text-xs text-habb-muted">
-                        Eigene Aktionen unter &bdquo;Mein Profil&ldquo;
+                        Eigene Actionen unter &bdquo;My Profile&ldquo;
                       </span>
                     ) : (
                       <OwnerTeamActions
@@ -148,8 +147,8 @@ export default async function OwnerTeamPage() {
 
       <p className="text-xs text-habb-muted">
         Owner-Account-Verwaltung ist ausschließlich OWNER_ROOT erlaubt. Jede
-        Aktion (Anlegen, Rollen-Wechsel, Deaktivieren, 2FA zurücksetzen)
-        verlangt Sudo + Begründung und wird im Audit-Log eingetragen.
+        Action (Anlegen, Rolen-Wechsel, Deactivate, 2FA zurücksetzen)
+        verlangt Sudo + Begründung und wird im Audit Log eingetragen.
       </p>
     </div>
   );

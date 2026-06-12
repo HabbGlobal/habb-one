@@ -133,7 +133,7 @@ export function BulkDeleteMenu({
     });
   };
 
-  const scopeLabel = scope === "week" ? "Woche" : "Monat";
+  const scopeLabel = scope === "week" ? "Week" : "Month";
   const filterMeta = FILTER_LABELS[filter];
 
   return (
@@ -322,9 +322,7 @@ export function BulkDeleteMenu({
 
             {/* Footer */}
             <div className="flex justify-end gap-2 p-5 border-t bg-habb-paper rounded-b-xl">
-              <Button variant="ghost" onClick={close} disabled={pending}>
-                Abbrechen
-              </Button>
+              <Button variant="ghost" onClick={close} disabled={pending}>Cancel</Button>
               <Button
                 variant="destructive"
                 onClick={confirm}
@@ -336,7 +334,7 @@ export function BulkDeleteMenu({
                   ? "Lösche …"
                   : count?.total
                     ? `${count.total} Einträge löschen`
-                    : "Löschen"}
+                    : "Delete"}
               </Button>
             </div>
           </div>

@@ -103,7 +103,7 @@ export function RoleMatrixEditor({
         router.refresh();
         setTimeout(() => setSuccess(null), 4000);
       } catch (err) {
-        setError(err instanceof Error ? err.message : "Fehler beim Speichern.");
+        setError(err instanceof Error ? err.message : "Error while saving.");
       }
     });
   };
@@ -146,7 +146,7 @@ export function RoleMatrixEditor({
           )}
           <Button onClick={save} disabled={!dirty || pending} size="sm">
             <Save className="h-4 w-4 mr-1" />
-            {pending ? "Speichern …" : "Alles speichern"}
+            {pending ? "Saving..." : "Save all"}
           </Button>
         </div>
       </CardHeader>

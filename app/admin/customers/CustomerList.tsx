@@ -32,7 +32,7 @@ export function CustomerList({
       className: "w-32",
     },
     {
-      header: "Kunde",
+      header: "Customer",
       cell: (c) => (
         <div>
           <div className="font-medium">{c.displayName}</div>
@@ -64,7 +64,7 @@ export function CustomerList({
       className: "w-20",
     },
     {
-      header: "Aufträge",
+      header: "Orders",
       cell: (c) =>
         c.openOrdersCount > 0 ? (
           <Badge variant="warning">{c.openOrdersCount} offen</Badge>
@@ -79,7 +79,7 @@ export function CustomerList({
       header: "Status",
       cell: (c) => (
         <Badge variant={c.isActive ? "success" : "secondary"}>
-          {c.isActive ? "Aktiv" : "Inaktiv"}
+          {c.isActive ? "Active" : "Inactive"}
         </Badge>
       ),
       className: "w-24",

@@ -30,7 +30,7 @@ export function RevokeOtherSessionsButton({ count }: { count: number }) {
         setError(
           data?.error === "WRONG_PASSWORD"
             ? "Passwort ist falsch."
-            : "Aktion fehlgeschlagen.",
+            : "Action fehlgeschlagen.",
         );
         return;
       }
@@ -47,7 +47,7 @@ export function RevokeOtherSessionsButton({ count }: { count: number }) {
         className="inline-flex items-center gap-1.5 rounded-md border border-habb-line bg-white px-3 py-1.5 text-xs font-medium text-habb-ink hover:bg-habb-paper"
       >
         <LogOut className="h-3.5 w-3.5" />
-        Andere Sitzungen beenden ({count})
+        End other sessions ({count})
       </button>
 
       {open && (
@@ -57,7 +57,7 @@ export function RevokeOtherSessionsButton({ count }: { count: number }) {
             className="w-full max-w-sm rounded-lg border border-habb-line bg-white p-5 shadow-lg"
           >
             <h3 className="text-base font-semibold text-habb-black">
-              Andere Sitzungen beenden
+              End other sessions
             </h3>
             <p className="mt-1 text-sm text-habb-muted">
               Bestätige mit deinem aktuellen Passwort. Alle {count} anderen
@@ -65,7 +65,7 @@ export function RevokeOtherSessionsButton({ count }: { count: number }) {
             </p>
 
             <label className="mt-4 block text-xs font-medium uppercase tracking-wide text-habb-muted">
-              Aktuelles Passwort
+              Current password
             </label>
             <input
               type="password"
@@ -85,16 +85,14 @@ export function RevokeOtherSessionsButton({ count }: { count: number }) {
                 type="button"
                 onClick={() => setOpen(false)}
                 className="rounded-md border border-habb-line bg-white px-3 py-1.5 text-xs font-medium text-habb-muted hover:text-habb-ink"
-              >
-                Abbrechen
-              </button>
+              >Cancel</button>
               <button
                 type="submit"
                 disabled={pending}
                 className="inline-flex items-center gap-1.5 rounded-md bg-habb-red px-3 py-1.5 text-xs font-medium text-white hover:bg-habb-red-dark disabled:opacity-60"
               >
                 {pending && <Loader2 className="h-3.5 w-3.5 animate-spin" />}
-                Sitzungen beenden
+                End sessions
               </button>
             </div>
           </form>

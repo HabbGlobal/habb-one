@@ -7,13 +7,13 @@ interface SudoPromptProps {
   open: boolean;
   onClose: () => void;
   onSuccess: () => void;
-  /** Aktion, die gleich ausgeführt wird — wird als Kontext angezeigt. */
+  /** Action, die gleich ausgeführt wird — wird als Kontext angezeigt. */
   actionLabel: string;
 }
 
 /**
  * Step-up Auth Modal. Owner gibt sein Passwort nochmal ein; bei Erfolg
- * läuft `onSuccess()` und die ursprüngliche destruktive Aktion kann
+ * läuft `onSuccess()` und die ursprüngliche destruktive Action kann
  * wiederholt werden (Server gewährt jetzt Sudo).
  *
  * Wirft Fokus-Trap nicht aktiv ein — die Modal-Komponente ist klein,
@@ -74,14 +74,14 @@ export function SudoPromptModal({ open, onClose, onSuccess, actionLabel }: SudoP
           </span>
           <div className="flex-1">
             <h2 id="sudo-prompt-title" className="text-sm font-semibold text-habb-ink">
-              Step-up Bestätigung
+              Step-up confirmation
             </h2>
             <p className="text-xs text-habb-muted">{actionLabel}</p>
           </div>
           <button
             type="button"
             onClick={onClose}
-            aria-label="Abbrechen"
+            aria-label="Cancel"
             className="text-habb-muted hover:text-habb-ink"
           >
             <X className="h-4 w-4" />
@@ -90,7 +90,7 @@ export function SudoPromptModal({ open, onClose, onSuccess, actionLabel }: SudoP
 
         <form onSubmit={onSubmit} className="space-y-4 px-5 py-5" noValidate>
           <p className="text-sm text-habb-ink">
-            Bitte gib dein Owner-Passwort erneut ein. Der Sudo-Modus bleibt anschliessend 5 Minuten aktiv.
+            Please re-enter your owner password. Sudo mode will remain active for 5 minutes.
           </p>
           <input
             ref={inputRef}
@@ -113,16 +113,14 @@ export function SudoPromptModal({ open, onClose, onSuccess, actionLabel }: SudoP
               type="button"
               onClick={onClose}
               className="rounded-md border border-habb-line bg-white px-4 py-2 text-sm font-medium text-habb-ink hover:bg-habb-paper"
-            >
-              Abbrechen
-            </button>
+            >Cancel</button>
             <button
               type="submit"
               disabled={pending}
               className="inline-flex items-center gap-2 rounded-md bg-habb-black px-4 py-2 text-sm font-medium text-white hover:bg-habb-ink disabled:opacity-60"
             >
               {pending && <Loader2 className="h-3.5 w-3.5 animate-spin" />}
-              Bestätigen
+              Confirm
             </button>
           </div>
         </form>

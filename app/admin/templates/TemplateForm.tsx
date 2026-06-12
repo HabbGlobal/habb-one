@@ -254,7 +254,7 @@ export function TemplateForm({
                 </Select>
               </div>
               <div className="col-span-2">
-                <Label className="text-xs">Maschine</Label>
+                <Label className="text-xs">Machine</Label>
                 <Select
                   value={s.machineTypeRequired ?? ""}
                   onChange={(e) =>
@@ -289,7 +289,7 @@ export function TemplateForm({
                   type="button"
                   onClick={() => removeStep(idx)}
                   className="p-1 rounded hover:bg-destructive/10 text-destructive"
-                  aria-label="Entfernen"
+                  aria-label="Remove"
                 >
                   <Trash2 className="h-3 w-3" />
                 </button>
@@ -314,11 +314,9 @@ export function TemplateForm({
       )}
 
       <div className="flex justify-end gap-2 pt-2 border-t">
-        <Button variant="ghost" onClick={() => router.back()} disabled={pending}>
-          Abbrechen
-        </Button>
+        <Button variant="ghost" onClick={() => router.back()} disabled={pending}>Cancel</Button>
         <Button onClick={submit} disabled={pending || !label.trim()}>
-          {pending ? "Speichern …" : mode === "create" ? "Vorlage anlegen" : "Speichern"}
+          {pending ? "Saving..." : mode === "create" ? "Vorlage anlegen" : "Save"}
         </Button>
       </div>
     </div>

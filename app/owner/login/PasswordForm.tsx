@@ -27,7 +27,7 @@ export function PasswordForm() {
         const json = (await res.json()) as { next: "enroll" | "signin" };
         router.push(json.next === "enroll" ? "/owner/enroll-passkey" : "/owner/login/passkey");
       } else {
-        setError("E-Mail oder Passwort ist nicht korrekt.");
+        setError("Email oder Passwort ist nicht korrekt.");
       }
     });
   };
@@ -35,9 +35,7 @@ export function PasswordForm() {
   return (
     <form onSubmit={onSubmit} className="space-y-5" noValidate>
       <div className="space-y-2">
-        <label htmlFor="owner-email" className="block text-sm font-medium text-habb-ink">
-          E-Mail
-        </label>
+        <label htmlFor="owner-email" className="block text-sm font-medium text-habb-ink">Email</label>
         <input
           id="owner-email"
           name="email"
@@ -51,9 +49,7 @@ export function PasswordForm() {
       </div>
 
       <div className="space-y-2">
-        <label htmlFor="owner-password" className="block text-sm font-medium text-habb-ink">
-          Passwort
-        </label>
+        <label htmlFor="owner-password" className="block text-sm font-medium text-habb-ink">Password</label>
         <div className="relative">
           <input
             id="owner-password"

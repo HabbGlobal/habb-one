@@ -78,7 +78,7 @@ export function MachineForm({ initial, areas, mode }: Props) {
           router.refresh();
         }
       } catch (err) {
-        setError(err instanceof Error ? err.message : "Fehler beim Speichern.");
+        setError(err instanceof Error ? err.message : "Error while saving.");
       }
     });
   };
@@ -93,7 +93,7 @@ export function MachineForm({ initial, areas, mode }: Props) {
     <form onSubmit={submit} className="space-y-4">
       <Card>
         <CardHeader>
-          <CardTitle className="text-base">Stammdaten</CardTitle>
+          <CardTitle className="text-base">Master data</CardTitle>
         </CardHeader>
         <CardContent className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div className="space-y-1 md:col-span-2">
@@ -148,7 +148,7 @@ export function MachineForm({ initial, areas, mode }: Props) {
               value={data.isActive ? "1" : "0"}
               onChange={(e) => update("isActive", e.target.value === "1")}
             >
-              <option value="1">Aktiv</option>
+              <option value="1">Active</option>
               <option value="0">Inaktiv (kann nicht eingeplant werden)</option>
             </Select>
           </div>
@@ -229,15 +229,15 @@ export function MachineForm({ initial, areas, mode }: Props) {
 
       <div className="flex justify-end gap-2 pt-2 border-t">
         <Button asChild variant="ghost" type="button">
-          <Link href="/admin/machines">Abbrechen</Link>
+          <Link href="/admin/machines">Cancel</Link>
         </Button>
         <Button type="submit" disabled={pending}>
           <Save className="h-4 w-4 mr-1" />
           {pending
-            ? "Speichern …"
+            ? "Saving..."
             : mode.kind === "create"
               ? "Anlegen"
-              : "Speichern"}
+              : "Save"}
         </Button>
       </div>
     </form>

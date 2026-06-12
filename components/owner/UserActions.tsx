@@ -120,7 +120,7 @@ export function UserActionsMenu({ user }: Props) {
           isDeleted
             ? [
                 // Wenn der User soft-deleted ist, ist die einzige sinnvolle
-                // Aktion die Wiederherstellung. Alles andere wäre ein Fehler.
+                // Action die Wiederherstellung. Alles andere wäre ein Fehler.
                 {
                   icon: RotateCcw,
                   label: "Wiederherstellen",
@@ -136,32 +136,32 @@ export function UserActionsMenu({ user }: Props) {
                 },
                 {
                   icon: KeyRound,
-                  label: "Temporäres Passwort setzen",
+                  label: "Temporary password setzen",
                   onClick: () => setOpenAction({ kind: "temp-password" }),
                   disabled: isSuperAdmin,
                 },
                 {
                   icon: Shield,
-                  label: "Rolle ändern",
+                  label: "Role ändern",
                   onClick: () => setOpenAction({ kind: "role", newRole: user.role }),
                   disabled: isSuperAdmin,
                 },
                 isLocked
                   ? {
                       icon: Unlock,
-                      label: "Entsperren",
+                      label: "Unsuspend",
                       onClick: () => setOpenAction({ kind: "unlock" }),
                     }
                   : {
                       icon: Lock,
-                      label: "Sperren",
+                      label: "Suspend",
                       onClick: () => setOpenAction({ kind: "lock" }),
                       disabled: isSuperAdmin,
                     },
                 { separator: true },
                 {
                   icon: Trash2,
-                  label: "Löschen (Soft-Delete)",
+                  label: "Delete (soft delete)",
                   onClick: () => setOpenAction({ kind: "delete" }),
                   disabled: isSuperAdmin,
                   destructive: true,
@@ -286,9 +286,7 @@ function ActionsDropdown({ items }: { items: MenuItemDef[] }) {
         aria-expanded={open}
         onClick={() => setOpen((v) => !v)}
         className="rounded-md border border-habb-line bg-white px-3 py-1.5 text-xs font-medium text-habb-ink hover:bg-habb-paper"
-      >
-        Aktionen
-      </button>
+      >Actions</button>
 
       {open && mounted && pos
         ? createPortal(
@@ -375,8 +373,8 @@ function ActionModal({
 }) {
   const titleMap: Record<Action["kind"], string> = {
     "reset-mail": "Passwort-Reset-Mail senden",
-    "temp-password": "Temporäres Passwort setzen",
-    role: "Rolle ändern",
+    "temp-password": "Temporary password setzen",
+    role: "Role ändern",
     lock: "User sperren",
     unlock: "User entsperren",
     delete: "User löschen",
@@ -404,7 +402,7 @@ function ActionModal({
       <div className="w-full max-w-md rounded-xl border border-habb-line bg-white shadow-xl">
         <header className="flex items-center justify-between border-b border-habb-line px-5 py-4">
           <h2 className="text-sm font-semibold text-habb-ink">{titleMap[action.kind]}</h2>
-          <button onClick={onClose} aria-label="Abbrechen" className="text-habb-muted hover:text-habb-ink">
+          <button onClick={onClose} aria-label="Cancel" className="text-habb-muted hover:text-habb-ink">
             <X className="h-4 w-4" />
           </button>
         </header>
@@ -425,7 +423,7 @@ function ActionModal({
           {action.kind === "role" && (
             <div className="space-y-1.5">
               <label className="block text-xs font-medium uppercase tracking-wide text-habb-muted">
-                Neue Rolle
+                Neue Role
               </label>
               <select
                 value={action.newRole}
@@ -439,7 +437,7 @@ function ActionModal({
                 ))}
               </select>
               {action.newRole === user.role && (
-                <p className="text-xs text-habb-muted">Keine Änderung — andere Rolle wählen.</p>
+                <p className="text-xs text-habb-muted">Keine Änderung — andere Role wählen.</p>
               )}
             </div>
           )}
@@ -453,7 +451,7 @@ function ActionModal({
               onChange={(e) => setReason(e.target.value)}
               rows={3}
               className="block w-full rounded-md border border-habb-line bg-white px-3 py-2 text-sm focus:border-habb-black focus:outline-none focus:ring-2 focus:ring-habb-red focus:ring-offset-1"
-              placeholder="z.B. User-Anfrage per Telefon — Ticket #1234"
+              placeholder="z.B. User-Anfrage per Phone — Ticket #1234"
             />
           </div>
 
@@ -471,9 +469,7 @@ function ActionModal({
               type="button"
               onClick={onClose}
               className="rounded-md border border-habb-line bg-white px-4 py-2 text-sm font-medium text-habb-ink hover:bg-habb-paper"
-            >
-              Abbrechen
-            </button>
+            >Cancel</button>
             <button
               type="submit"
               disabled={pending || (action.kind === "role" && action.newRole === user.role)}
@@ -484,7 +480,7 @@ function ActionModal({
               }
             >
               {pending && <Loader2 className="h-3.5 w-3.5 animate-spin" />}
-              Bestätigen
+              Confirm
             </button>
           </div>
         </form>
@@ -519,7 +515,7 @@ function TempPasswordModal({
     >
       <div className="w-full max-w-md rounded-xl border border-habb-line bg-white shadow-xl">
         <header className="border-b border-habb-line px-5 py-4">
-          <h2 className="text-sm font-semibold text-habb-ink">Temporäres Passwort</h2>
+          <h2 className="text-sm font-semibold text-habb-ink">Temporary password</h2>
         </header>
         <div className="space-y-4 px-5 py-5">
           <p className="text-sm text-habb-ink">
@@ -540,7 +536,7 @@ function TempPasswordModal({
             </div>
           </div>
           <p className="text-xs text-habb-muted">
-            Der User wird beim nächsten Login zwingend ein neues Passwort setzen müssen.
+            User will be forced to set a new password on next login.
           </p>
           <div className="flex justify-end">
             <button
@@ -605,14 +601,14 @@ function dispatch(userId: string, action: Action, reason: string) {
 }
 
 function describeAction(action: Action | null, name: string): string {
-  if (!action) return "Aktion bestätigen";
+  if (!action) return "Action bestätigen";
   switch (action.kind) {
     case "reset-mail":
-      return `Passwort-Reset-Mail an ${name}`;
+      return `Passwort-Reset-Mail to ${name}`;
     case "temp-password":
-      return `Temporäres Passwort für ${name} setzen`;
+      return `Temporary password für ${name} setzen`;
     case "role":
-      return `Rolle von ${name} ändern`;
+      return `Role von ${name} ändern`;
     case "lock":
       return `${name} sperren`;
     case "unlock":
@@ -637,15 +633,15 @@ function labelForError(code?: string): string {
     case "NOT_DELETED":
       return "User ist nicht gelöscht — Wiederherstellung nicht nötig.";
     case "COMPANY_SUSPENDED":
-      return "Mandant ist suspendiert — User-Wiederherstellung erst nach Reaktivieren.";
+      return "Tenant ist suspendiert — User-Wiederherstellung erst nach Reaktivieren.";
     case "NO_CHANGE":
-      return "Keine Änderung — andere Rolle wählen.";
+      return "Keine Änderung — andere Role wählen.";
     case "SUPERADMIN_PROTECTED":
-      return "Aktion gegen SUPERADMIN ist gesperrt.";
+      return "Action gegen SUPERADMIN ist gesperrt.";
     case "INVALID":
       return "Eingabe ungültig.";
     default:
-      return "Aktion fehlgeschlagen.";
+      return "Action fehlgeschlagen.";
   }
 }
 

@@ -29,8 +29,8 @@ export interface EmployeeRow {
 const labels = {
   monthly: "Monatslohn",
   hourly: "Stundenlohn",
-  active: "Aktiv",
-  inactive: "Inaktiv",
+  active: "Active",
+  inactive: "Inactive",
 };
 
 export function EmployeeList({

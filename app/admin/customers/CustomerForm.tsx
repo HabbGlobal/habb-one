@@ -244,7 +244,7 @@ export function CustomerForm({ initial, mode }: Props) {
           router.refresh();
         }
       } catch (err) {
-        setError(err instanceof Error ? err.message : "Fehler beim Speichern");
+        setError(err instanceof Error ? err.message : "Error while saving");
         requestAnimationFrame(() => {
           summaryRef.current?.scrollIntoView({ behavior: "smooth", block: "center" });
         });
@@ -283,7 +283,7 @@ export function CustomerForm({ initial, mode }: Props) {
 
       <Card>
         <CardHeader>
-          <CardTitle>Stammdaten</CardTitle>
+          <CardTitle>Master data</CardTitle>
         </CardHeader>
         <CardContent className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <Field label="Typ">
@@ -300,8 +300,8 @@ export function CustomerForm({ initial, mode }: Props) {
               value={data.isActive ? "1" : "0"}
               onChange={(e) => update("isActive", e.target.value === "1")}
             >
-              <option value="1">Aktiv</option>
-              <option value="0">Inaktiv</option>
+              <option value="1">Active</option>
+              <option value="0">Inactive</option>
             </Select>
           </Field>
           <Field
@@ -443,7 +443,7 @@ export function CustomerForm({ initial, mode }: Props) {
                   aria-invalid={!!fieldErrors.contactLastName}
                 />
               </Field>
-              <Field label="E-Mail" error={fieldErrors.contactEmail}>
+              <Field label="Email" error={fieldErrors.contactEmail}>
                 <Input
                   type="email"
                   value={data.contactEmail ?? ""}
@@ -452,7 +452,7 @@ export function CustomerForm({ initial, mode }: Props) {
                   aria-invalid={!!fieldErrors.contactEmail}
                 />
               </Field>
-              <Field label="Telefon" error={fieldErrors.contactPhone}>
+              <Field label="Phone" error={fieldErrors.contactPhone}>
                 <Input
                   value={data.contactPhone ?? ""}
                   onChange={(e) => update("contactPhone", e.target.value)}
@@ -508,11 +508,9 @@ export function CustomerForm({ initial, mode }: Props) {
 
       <div className="flex gap-2">
         <Button type="submit" disabled={pending}>
-          {isEdit ? "Speichern" : "Kunde anlegen"}
+          {isEdit ? "Save" : "Kunde anlegen"}
         </Button>
-        <Button type="button" variant="ghost" onClick={() => router.back()}>
-          Abbrechen
-        </Button>
+        <Button type="button" variant="ghost" onClick={() => router.back()}>Cancel</Button>
       </div>
     </form>
   );

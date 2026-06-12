@@ -113,8 +113,8 @@ function AddressRow({
             type="button"
             onClick={onEdit}
             className="p-1.5 rounded hover:bg-accent"
-            title="Bearbeiten"
-            aria-label="Bearbeiten"
+            title="Edit"
+            aria-label="Edit"
           >
             <Pencil className="h-3.5 w-3.5" />
           </button>
@@ -123,8 +123,8 @@ function AddressRow({
             disabled={pending}
             onClick={onDelete}
             className="p-1.5 rounded text-muted-foreground hover:text-destructive hover:bg-destructive/10"
-            title="Löschen"
-            aria-label="Löschen"
+            title="Delete"
+            aria-label="Delete"
           >
             <Trash2 className="h-3.5 w-3.5" />
           </button>
@@ -258,12 +258,8 @@ function AddressDialog({
           </label>
           {error && <p className="text-sm text-destructive">{error}</p>}
           <div className="flex justify-end gap-2 pt-2">
-            <Button variant="ghost" onClick={onClose}>
-              Abbrechen
-            </Button>
-            <Button onClick={submit} disabled={pending}>
-              Speichern
-            </Button>
+            <Button variant="ghost" onClick={onClose}>Cancel</Button>
+            <Button onClick={submit} disabled={pending}>Save</Button>
           </div>
         </CardContent>
       </Card>

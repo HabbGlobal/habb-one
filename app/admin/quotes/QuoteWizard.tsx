@@ -429,7 +429,7 @@ export function QuoteWizard({ mode, customers, templates, processResources, init
           router.push(`/admin/quotes/${initial.quoteId}`);
         }
       } catch (err) {
-        setError(err instanceof Error ? err.message : "Fehler beim Speichern.");
+        setError(err instanceof Error ? err.message : "Error while saving.");
       }
     });
   };
@@ -513,7 +513,7 @@ export function QuoteWizard({ mode, customers, templates, processResources, init
                 type="button"
                 onClick={() => removeItem(idx)}
                 className="p-1 rounded hover:bg-destructive/10 text-destructive"
-                aria-label="Entfernen"
+                aria-label="Remove"
               >
                 <Trash2 className="h-4 w-4" />
               </button>
@@ -842,7 +842,7 @@ export function QuoteWizard({ mode, customers, templates, processResources, init
                           </Select>
                         </div>
                         <div className="col-span-2">
-                          <Label className="text-xs">Maschine</Label>
+                          <Label className="text-xs">Machine</Label>
                           <Select
                             value={s.machineTypeRequired ?? ""}
                             onChange={(e) =>
@@ -947,11 +947,9 @@ export function QuoteWizard({ mode, customers, templates, processResources, init
           Snapshot-Friere ab <strong>Versendet</strong>.
         </p>
         <div className="flex gap-2">
-          <Button variant="ghost" onClick={() => router.back()} disabled={pending}>
-            Abbrechen
-          </Button>
+          <Button variant="ghost" onClick={() => router.back()} disabled={pending}>Cancel</Button>
           <Button onClick={submit} disabled={pending || !customerId}>
-            {pending ? "Speichern …" : mode === "create" ? "Offerte anlegen" : "Speichern"}
+            {pending ? "Saving..." : mode === "create" ? "Offerte anlegen" : "Save"}
           </Button>
         </div>
       </div>

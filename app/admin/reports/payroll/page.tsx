@@ -81,7 +81,7 @@ export default async function PayrollDashboardPage({ searchParams }: PageProps) 
 
       <form className="rounded-lg border border-habb-line bg-white px-5 py-4" method="GET">
         <div className="grid grid-cols-1 gap-3 sm:grid-cols-[2fr_1fr_1fr_auto]">
-          <Field label="Mitarbeiter">
+          <Field label="Employee">
             <select
               name="employeeId"
               defaultValue={employeeId ?? ""}
@@ -94,7 +94,7 @@ export default async function PayrollDashboardPage({ searchParams }: PageProps) 
               ))}
             </select>
           </Field>
-          <Field label="Monat">
+          <Field label="Month">
             <select name="month" defaultValue={month} className={inputCls}>
               {months.map((m, i) => (
                 <option key={m} value={i + 1}>
@@ -103,7 +103,7 @@ export default async function PayrollDashboardPage({ searchParams }: PageProps) 
               ))}
             </select>
           </Field>
-          <Field label="Jahr">
+          <Field label="Year">
             <select name="year" defaultValue={year} className={inputCls}>
               {years.map((y) => (
                 <option key={y} value={y}>
@@ -159,8 +159,8 @@ export default async function PayrollDashboardPage({ searchParams }: PageProps) 
                 <Row label="Geburtsdatum" value={fmtDate(report.employee.dateOfBirth)} />
                 <Row label="AHV-Nr." value={report.employee.ahvNumber || "—"} />
                 <Row label="Adresse" value={report.employee.address || "—"} />
-                <Row label="E-Mail" value={report.employee.email || "—"} />
-                <Row label="Telefon" value={report.employee.phone || "—"} />
+                <Row label="Email" value={report.employee.email || "—"} />
+                <Row label="Phone" value={report.employee.phone || "—"} />
               </CardContent>
             </Card>
 
@@ -298,8 +298,8 @@ export default async function PayrollDashboardPage({ searchParams }: PageProps) 
                 <table className="min-w-full text-sm">
                   <thead>
                     <tr className="border-b border-habb-line text-left text-xs uppercase tracking-wide text-habb-muted">
-                      <th className="px-2 py-2">Datum</th>
-                      <th className="px-2 py-2">Tag</th>
+                      <th className="px-2 py-2">Date</th>
+                      <th className="px-2 py-2">Day</th>
                       <th className="px-2 py-2 text-right">Soll</th>
                       <th className="px-2 py-2 text-right">Gearbeitet</th>
                       <th className="px-2 py-2 text-right">Pause</th>

@@ -204,9 +204,7 @@ export function ParameterEditDialog({
               Default
             </Button>
             <div className="flex gap-2">
-              <Button variant="ghost" onClick={onClose}>
-                Abbrechen
-              </Button>
+              <Button variant="ghost" onClick={onClose}>Cancel</Button>
               <Button
                 onClick={submit}
                 disabled={

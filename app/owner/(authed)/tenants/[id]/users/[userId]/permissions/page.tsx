@@ -38,7 +38,7 @@ export default async function OwnerUserPermissionsPage({
   });
   if (!user || user.companyId !== tenantId) notFound();
 
-  // Effektive Permissions der Rolle (Default + Tenant-Override)
+  // Effektive Permissions der Role (Default + Tenant-Override)
   const matrix = await loadPermissionMatrix(tenantId);
   const eff = effectiveRole(user.role);
   const rolePermissions = new Set<Permission>(matrix[eff] ?? []);
@@ -69,8 +69,8 @@ export default async function OwnerUserPermissionsPage({
           Persönliche Rechte — {user.name || user.email}
         </h2>
         <p className="text-xs text-habb-muted mt-0.5">
-          {user.email} · Rolle: <strong>{roleLabelDe(user.role)}</strong> ·
-          Mandant: <strong>{tenant.name}</strong>
+          {user.email} · Role: <strong>{roleLabelDe(user.role)}</strong> ·
+          Tenant: <strong>{tenant.name}</strong>
           {user.deletedAt && (
             <span className="ml-2 inline-block rounded-full bg-amber-100 px-2 py-0.5 text-amber-900">
               gelöscht
@@ -83,7 +83,7 @@ export default async function OwnerUserPermissionsPage({
         <div className="rounded-lg border border-habb-line bg-habb-paper px-4 py-3 text-sm text-habb-ink">
           <strong>SUPERADMIN</strong> hat per Design immer alle Rechte —
           Per-User-Overrides sind hier nicht zulässig. Wenn du Rechte
-          einschränken willst, ändere bitte zuerst die Rolle des Users.
+          einschränken willst, ändere bitte zuerst die Role des Users.
         </div>
       ) : user.deletedAt ? (
         <div className="rounded-lg border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-900">

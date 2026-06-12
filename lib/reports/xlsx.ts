@@ -10,7 +10,7 @@ export function monthlyXlsx(report: {
 
   // Summary sheet
   const summaryRows: (string | number)[][] = [
-    ["Firma", report.company.name],
+    ["Company", report.company.name],
     ["Zeitraum", `${report.period.from} – ${report.period.to}`],
     ["Erstellt am", new Date().toISOString().slice(0, 16).replace("T", " ")],
     ["Exportiert von", exportedBy],
@@ -27,12 +27,12 @@ export function monthlyXlsx(report: {
       formatMin(e.totals.balanceMinutes),
     ]);
   }
-  XLSX.utils.book_append_sheet(wb, XLSX.utils.aoa_to_sheet(summaryRows), "Übersicht");
+  XLSX.utils.book_append_sheet(wb, XLSX.utils.aoa_to_sheet(summaryRows), "Overview");
 
   // One detail sheet per employee
   for (const e of report.employees) {
     const rows: (string | number)[][] = [
-      ["Datum", "Wochentag", "Soll (h)", "Gearbeitet (h)", "Pause (h)", "Saldo (h)", "Hinweis"],
+      ["Date", "Wochentag", "Soll (h)", "Gearbeitet (h)", "Pause (h)", "Saldo (h)", "Hinweis"],
     ];
     for (const d of e.days) {
       rows.push([

@@ -4,12 +4,12 @@ import { useState } from "react";
 import { cn } from "@/lib/utils";
 
 const TABS = [
-  { key: "master", label: "Stammdaten" },
+  { key: "master", label: "Master data" },
   { key: "addresses", label: "Adressen" },
   { key: "contacts", label: "Kontakte" },
-  { key: "orders", label: "Aufträge" },
+  { key: "orders", label: "Orders" },
   { key: "quotes", label: "Offerten" },
-  { key: "invoices", label: "Rechnungen" },
+  { key: "invoices", label: "Invoices" },
   { key: "stats", label: "Statistik" },
   { key: "activity", label: "Aktivität" },
 ] as const;

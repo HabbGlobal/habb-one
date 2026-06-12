@@ -53,7 +53,7 @@ export async function invoicePdf(args: InvoicePdfArgs): Promise<Uint8Array> {
   // ─────────────────────────────────────────
   if (!company.qrIban) {
     // Kein QR-IBAN konfiguriert — Hinweis statt QR-Bill
-    page.drawText(safe("⚠ Keine QR-IBAN in den Firmen-Einstellungen — bitte ergänzen."), {
+    page.drawText(safe("⚠ No QR-IBAN in company settings — please add."), {
       x: 5 * MM,
       y: 50,
       size: 9,
@@ -123,7 +123,7 @@ function drawInvoiceHeader(
   }
 
   // Titel + Rechnungs-Nr.
-  page.drawText("Rechnung", {
+  page.drawText("Invoice", {
     x: 5 * MM, y: height - 50 * MM,
     size: 18, font: fontBold,
   });
@@ -159,9 +159,9 @@ function drawInvoiceHeader(
   const metaX = width - 75 * MM;
   const meta: Array<[string, string]> = [
     ["Rechnungs-Nr.", invoice.invoiceNumber],
-    ["Datum", fmtDate(invoice.issuedAt)],
+    ["Date", fmtDate(invoice.issuedAt)],
     ["Fällig am", fmtDate(invoice.dueAt)],
-    ...(invoice.orderId ? [["Auftrag", "siehe Beilage"] as [string, string]] : []),
+    ...(invoice.orderId ? [["Order", "siehe Beilage"] as [string, string]] : []),
   ];
   for (const [k, v] of meta) {
     page.drawText(safe(k), {

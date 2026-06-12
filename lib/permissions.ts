@@ -96,28 +96,28 @@ export const PERMISSION_DEFINITIONS: ReadonlyArray<PermissionDefinition> = [
   { key: "customers.read", group: "CRM", label: "Kunden ansehen" },
   { key: "customers.write", group: "CRM", label: "Kunden bearbeiten" },
   // Aufträge
-  { key: "orders.read", group: "Aufträge", label: "Aufträge ansehen" },
-  { key: "orders.write", group: "Aufträge", label: "Aufträge erstellen/bearbeiten" },
-  { key: "orders.confirm", group: "Aufträge", label: "Aufträge bestätigen" },
-  { key: "orders.cancel", group: "Aufträge", label: "Aufträge stornieren" },
+  { key: "orders.read", group: "Orders", label: "Aufträge ansehen" },
+  { key: "orders.write", group: "Orders", label: "Aufträge erstellen/bearbeiten" },
+  { key: "orders.confirm", group: "Orders", label: "Aufträge bestätigen" },
+  { key: "orders.cancel", group: "Orders", label: "Aufträge stornieren" },
   // Offerten
   { key: "quotes.read", group: "Offerten", label: "Offerten ansehen" },
   { key: "quotes.write", group: "Offerten", label: "Offerten erstellen/bearbeiten" },
   { key: "quotes.send", group: "Offerten", label: "Offerten versenden" },
   // Rechnungen
-  { key: "invoices.read", group: "Rechnungen", label: "Rechnungen ansehen" },
-  { key: "invoices.write", group: "Rechnungen", label: "Rechnungen erstellen/bearbeiten" },
-  { key: "invoices.markPaid", group: "Rechnungen", label: "Rechnung als bezahlt markieren" },
+  { key: "invoices.read", group: "Invoices", label: "Rechnungen ansehen" },
+  { key: "invoices.write", group: "Invoices", label: "Rechnungen erstellen/bearbeiten" },
+  { key: "invoices.markPaid", group: "Invoices", label: "Rechnung als bezahlt markieren" },
   // Maschinen / Vorlagen
   { key: "machines.read", group: "Werkstatt", label: "Maschinen ansehen" },
   { key: "machines.write", group: "Werkstatt", label: "Maschinen bearbeiten" },
   { key: "templates.read", group: "Werkstatt", label: "Process-Vorlagen ansehen" },
   { key: "templates.write", group: "Werkstatt", label: "Process-Vorlagen bearbeiten" },
   // Berichte
-  { key: "reports.export", group: "Berichte", label: "Berichte exportieren" },
+  { key: "reports.export", group: "Reports", label: "Berichte exportieren" },
   // System
-  { key: "settings.read", group: "System", label: "Einstellungen ansehen" },
-  { key: "settings.write", group: "System", label: "Einstellungen bearbeiten" },
+  { key: "settings.read", group: "System", label: "View settings" },
+  { key: "settings.write", group: "System", label: "Edit settings" },
   { key: "audit.read", group: "System", label: "Audit-Log ansehen" },
   { key: "parameters.read", group: "System", label: "Parameter ansehen" },
   { key: "parameters.write", group: "System", label: "Parameter ändern" },

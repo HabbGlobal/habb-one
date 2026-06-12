@@ -118,7 +118,7 @@ export function SigninClient({
           <p className="text-xs text-habb-muted">
             Gib den 6-stelligen Code aus deiner Authenticator-App ein. Danach
             musst du sofort einen neuen Passkey registrieren — der Notfall-Code
-            allein gewährt keinen Zugang.
+            allein gewährt no Zugang.
           </p>
           <input
             inputMode="numeric"
@@ -142,16 +142,12 @@ export function SigninClient({
             type="button"
             onClick={() => setRecoveryOpen(false)}
             className="block w-full text-center text-xs text-habb-muted hover:text-habb-ink"
-          >
-            Abbrechen — zurück zum Passkey
-          </button>
+          >Cancel — back to passkey</button>
         </div>
       )}
 
       <p className="text-center text-xs text-habb-muted">
-        <a href="/owner/login" className="text-habb-ink underline-offset-2 hover:underline">
-          Zurück zum Login
-        </a>
+        <a href="/owner/login" className="text-habb-ink underline-offset-2 hover:underline">Back to login</a>
       </p>
     </div>
   );

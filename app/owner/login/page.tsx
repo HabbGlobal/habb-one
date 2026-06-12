@@ -10,8 +10,8 @@ export default async function OwnerLoginPage() {
   return (
     <OwnerAuthShell
       currentStep={1}
-      title="Anmelden"
-      subtitle="E-Mail und Passwort. Anschliessend Passkey-Bestätigung."
+      title="Sign in"
+      subtitle="Email und Passwort. Anschliessend Passkey-Bestätigung."
     >
       <PasswordForm />
     </OwnerAuthShell>

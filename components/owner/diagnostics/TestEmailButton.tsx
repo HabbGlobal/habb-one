@@ -14,7 +14,7 @@ export function TestEmailButton() {
         method: "POST",
       });
       if (res.ok) {
-        setMsg("Test-E-Mail gesendet.");
+        setMsg("Test-Email gesendet.");
         return;
       }
       const j = await res.json().catch(() => ({}));
@@ -40,7 +40,7 @@ export function TestEmailButton() {
         ) : (
           <Mail className="h-4 w-4" />
         )}
-        Test-E-Mail
+        Test-Email
       </button>
       {msg && <span className="text-xs text-habb-muted">{msg}</span>}
     </div>

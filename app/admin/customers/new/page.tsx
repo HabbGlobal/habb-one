@@ -18,9 +18,7 @@ export default async function NewCustomerPage() {
         <Link
           href="/admin/customers"
           className="text-sm text-muted-foreground hover:underline"
-        >
-          ← Zurück
-        </Link>
+        >← Back</Link>
       </div>
       <CustomerForm initial={DEFAULT_CUSTOMER_FORM} mode={{ kind: "create" }} />
     </div>

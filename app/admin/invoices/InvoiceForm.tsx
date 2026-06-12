@@ -293,7 +293,7 @@ export function InvoiceForm({ mode, customers, defaults, initial }: Props) {
                   type="button"
                   onClick={() => removeItem(idx)}
                   className="p-1 rounded hover:bg-destructive/10 text-destructive"
-                  aria-label="Entfernen"
+                  aria-label="Remove"
                 >
                   <Trash2 className="h-3 w-3" />
                 </button>
@@ -340,11 +340,9 @@ export function InvoiceForm({ mode, customers, defaults, initial }: Props) {
       )}
 
       <div className="flex justify-end gap-2 pt-2 border-t">
-        <Button variant="ghost" onClick={() => router.back()} disabled={pending}>
-          Abbrechen
-        </Button>
+        <Button variant="ghost" onClick={() => router.back()} disabled={pending}>Cancel</Button>
         <Button onClick={submit} disabled={pending || !customerId}>
-          {pending ? "Speichern …" : mode === "create" ? "Rechnung anlegen" : "Speichern"}
+          {pending ? "Saving..." : mode === "create" ? "Rechnung anlegen" : "Save"}
         </Button>
       </div>
     </div>

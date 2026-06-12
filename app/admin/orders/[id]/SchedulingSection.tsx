@@ -192,8 +192,8 @@ export function SchedulingSection({
               <tr>
                 <th className="text-left px-2 py-1.5 w-12">#</th>
                 <th className="text-left px-2 py-1.5">Schritt</th>
-                <th className="text-left px-2 py-1.5">Maschine</th>
-                <th className="text-left px-2 py-1.5">Tag</th>
+                <th className="text-left px-2 py-1.5">Machine</th>
+                <th className="text-left px-2 py-1.5">Day</th>
                 <th className="text-left px-2 py-1.5">Zeit</th>
                 <th className="text-right px-2 py-1.5 w-16"></th>
               </tr>

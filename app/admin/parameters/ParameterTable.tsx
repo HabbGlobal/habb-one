@@ -153,7 +153,7 @@ export function ParameterTable({
                         <th>Aktuell</th>
                         <th>Default</th>
                         <th>Letzte Änderung</th>
-                        <th>Aktionen</th>
+                        <th>Actions</th>
                       </tr>
                     </thead>
                     <tbody className="divide-y">

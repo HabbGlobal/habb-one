@@ -142,7 +142,7 @@ export function AbsenceTypesEditor({ types, canWrite }: Props) {
               <TableHead className="text-center">Bezahlt</TableHead>
               <TableHead className="text-center">Reduziert Soll</TableHead>
               <TableHead className="text-center">Genehmigung?</TableHead>
-              <TableHead className="text-right">Aktionen</TableHead>
+              <TableHead className="text-right">Actions</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>

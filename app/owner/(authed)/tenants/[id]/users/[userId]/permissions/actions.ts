@@ -45,7 +45,7 @@ export async function ownerSaveUserPermissions(input: SaveOwnerUserPermissionsIn
   });
   if (!user) throw new Error("User nicht gefunden.");
   if (user.companyId !== data.tenantId) {
-    throw new Error("User gehört nicht zu diesem Mandanten.");
+    throw new Error("User gehört nicht zu diesem Tenanten.");
   }
   if (user.deletedAt) {
     throw new Error("User ist gelöscht.");
@@ -116,7 +116,7 @@ const resetSchema = z.object({
   userId: z.string().min(1),
 });
 
-/** Löscht alle Per-User-Overrides eines Users (kein Eintrag → Rolle entscheidet). */
+/** Löscht alle Per-User-Overrides eines Users (kein Eintrag → Role entscheidet). */
 export async function ownerResetUserPermissions(input: z.input<typeof resetSchema>) {
   const guard = await requireOwner({ minRole: "OWNER_ADMIN" });
   if (!guard.ok) throw new Error("FORBIDDEN");
@@ -130,7 +130,7 @@ export async function ownerResetUserPermissions(input: z.input<typeof resetSchem
   });
   if (!user) throw new Error("User nicht gefunden.");
   if (user.companyId !== data.tenantId) {
-    throw new Error("User gehört nicht zu diesem Mandanten.");
+    throw new Error("User gehört nicht zu diesem Tenanten.");
   }
 
   const before = await prisma.userPermission.findMany({

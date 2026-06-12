@@ -24,7 +24,7 @@ export function monthlyCsv(report: {
   const rowHeader = [
     "Mitarbeiter-Nr",
     "Name",
-    "Datum",
+    "Date",
     "Wochentag",
     "Soll (h)",
     "Gearbeitet (h)",

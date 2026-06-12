@@ -110,8 +110,8 @@ export default async function TemplatesPage({
                   <Link
                     href={`/admin/templates/${t.id}`}
                     className="inline-flex items-center justify-center h-8 w-8 rounded hover:bg-accent transition shrink-0"
-                    aria-label="Bearbeiten"
-                    title="Bearbeiten"
+                    aria-label="Edit"
+                    title="Edit"
                   >
                     <Pencil className="h-4 w-4" />
                   </Link>

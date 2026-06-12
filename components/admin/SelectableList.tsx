@@ -135,8 +135,7 @@ export function SelectableList<T>({
                 )
               }
             >
-              <Trash2 className="mr-2 h-4 w-4" /> Löschen
-            </Button>
+              <Trash2 className="mr-2 h-4 w-4" />Delete</Button>
           )}
           {view !== "active" && bulk.restore && (
             <Button
@@ -238,8 +237,8 @@ export function SelectableList<T>({
                     <Link
                       href={editHref(row)}
                       className="inline-flex items-center justify-center h-8 w-8 rounded hover:bg-accent transition"
-                      aria-label="Bearbeiten"
-                      title="Bearbeiten"
+                      aria-label="Edit"
+                      title="Edit"
                     >
                       <Pencil className="h-4 w-4" />
                     </Link>

@@ -43,7 +43,7 @@ export function CreateTenantButton() {
 
   const submit = () => {
     if (!companyName.trim() || !phone.trim() || !adminName.trim() || !adminEmail.trim()) {
-      setError("Firma, Telefon, Admin-Name und Admin-E-Mail sind Pflicht.");
+      setError("Firma, Phone, Admin-Name und Admin-Email sind Pflicht.");
       return;
     }
     if (reason.trim().length < 10) {
@@ -95,8 +95,8 @@ export function CreateTenantButton() {
       setError(
         json?.message ||
           (json?.error === "EMAIL_TAKEN"
-            ? "Diese E-Mail ist bereits vergeben."
-            : "Mandant konnte nicht angelegt werden."),
+            ? "Diese Email ist bereits vergeben."
+            : "Tenant konnte nicht angelegt werden."),
       );
     });
   };
@@ -109,7 +109,7 @@ export function CreateTenantButton() {
         className="inline-flex items-center gap-2 rounded-md bg-habb-black px-3.5 py-2 text-sm font-medium text-white hover:bg-habb-ink"
       >
         <Building2 className="h-3.5 w-3.5" />
-        Neuer Mandant
+        Neuer Tenant
       </button>
 
       {open && (
@@ -121,10 +121,10 @@ export function CreateTenantButton() {
         >
           <div className="w-full max-w-2xl rounded-xl border border-habb-line bg-white shadow-xl">
             <header className="flex items-center justify-between border-b border-habb-line px-5 py-4">
-              <h2 className="text-sm font-semibold text-habb-ink">Neuer Mandant anlegen</h2>
+              <h2 className="text-sm font-semibold text-habb-ink">Neuer Tenant anlegen</h2>
               <button
                 onClick={() => setOpen(false)}
-                aria-label="Abbrechen"
+                aria-label="Cancel"
                 className="text-habb-muted hover:text-habb-ink"
               >
                 <X className="h-4 w-4" />
@@ -139,12 +139,12 @@ export function CreateTenantButton() {
               className="max-h-[70vh] space-y-5 overflow-y-auto px-5 py-5"
               noValidate
             >
-              <Section title="Firma">
+              <Section title="Company">
                 <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
                   <Field label="Firmenname *">
                     <input value={companyName} onChange={(e) => setCompanyName(e.target.value)} required className={inputCls} />
                   </Field>
-                  <Field label="Telefon *">
+                  <Field label="Phone *">
                     <input
                       value={phone}
                       onChange={(e) => setPhone(e.target.value)}
@@ -187,7 +187,7 @@ export function CreateTenantButton() {
                   <Field label="Name *">
                     <input value={adminName} onChange={(e) => setAdminName(e.target.value)} required className={inputCls} />
                   </Field>
-                  <Field label="E-Mail *">
+                  <Field label="Email *">
                     <input
                       type="email"
                       value={adminEmail}
@@ -198,9 +198,7 @@ export function CreateTenantButton() {
                   </Field>
                 </div>
                 <fieldset className="mt-3 space-y-2">
-                  <legend className="text-xs font-medium uppercase tracking-wide text-habb-muted">
-                    Passwort
-                  </legend>
+                  <legend className="text-xs font-medium uppercase tracking-wide text-habb-muted">Password</legend>
                   <label className="flex cursor-pointer items-start gap-2.5 rounded-lg border border-habb-line p-3 hover:bg-habb-paper">
                     <input
                       type="radio"
@@ -211,9 +209,9 @@ export function CreateTenantButton() {
                       className="mt-0.5"
                     />
                     <span className="text-sm text-habb-ink">
-                      <span className="font-medium">Magic-Link an Admin senden</span>
+                      <span className="font-medium">Send magic link to admin</span>
                       <span className="block text-xs text-habb-muted">
-                        Admin erhält Reset-Mail (1h gültig), setzt Passwort selbst.
+                        Admin receives reset mail (valid 1h), sets password themselves.
                       </span>
                     </span>
                   </label>
@@ -227,9 +225,9 @@ export function CreateTenantButton() {
                       className="mt-0.5"
                     />
                     <span className="text-sm text-habb-ink">
-                      <span className="font-medium">Temporäres Passwort generieren</span>
+                      <span className="font-medium">Generate temporary password</span>
                       <span className="block text-xs text-habb-muted">
-                        Wird einmalig angezeigt. Du übermittelst es persönlich.
+                        Shown once. You transmit it personally.
                       </span>
                     </span>
                   </label>
@@ -256,8 +254,8 @@ export function CreateTenantButton() {
               )}
 
               <p className="rounded-md border border-habb-line bg-habb-paper px-3 py-2 text-xs text-habb-muted">
-                Der Mandant wird direkt aktiv geschaltet (Owner vouched). Der erste Admin
-                bekommt automatisch SUPERADMIN-Rechte für seinen Mandanten.
+                Der Tenant wird direkt aktiv geschaltet (Owner vouched). Der erste Admin
+                bekommt automatisch SUPERADMIN-Rechte für seinen Tenanten.
               </p>
 
               <div className="flex justify-end gap-2 border-t border-habb-line pt-3">
@@ -268,9 +266,7 @@ export function CreateTenantButton() {
                     reset();
                   }}
                   className="rounded-md border border-habb-line bg-white px-4 py-2 text-sm font-medium text-habb-ink hover:bg-habb-paper"
-                >
-                  Abbrechen
-                </button>
+                >Cancel</button>
                 <button
                   type="submit"
                   disabled={pending}
@@ -301,7 +297,7 @@ export function CreateTenantButton() {
           setShowSudo(false);
           submit();
         }}
-        actionLabel="Neuen Mandanten anlegen"
+        actionLabel="Neuen Tenanten anlegen"
       />
     </>
   );
@@ -356,12 +352,12 @@ function TempPasswordModal({
     >
       <div className="w-full max-w-md rounded-xl border border-habb-line bg-white shadow-xl">
         <header className="border-b border-habb-line px-5 py-4">
-          <h2 className="text-sm font-semibold text-habb-ink">Mandant angelegt — Admin-Passwort</h2>
+          <h2 className="text-sm font-semibold text-habb-ink">Tenant angelegt — Admin-Passwort</h2>
         </header>
         <div className="space-y-4 px-5 py-5">
           <p className="text-sm text-habb-ink">
-            Übermittle das Passwort jetzt direkt an <span className="font-medium">{email}</span>.
-            Nach Schliessen ist es weg.
+            Transmit the password directly to <span className="font-medium">{email}</span>.
+            After closing it is gone.
           </p>
           <div className="rounded-lg border border-habb-line bg-habb-paper px-4 py-3">
             <div className="flex items-center justify-between gap-3">
@@ -377,7 +373,7 @@ function TempPasswordModal({
             </div>
           </div>
           <p className="text-xs text-habb-muted">
-            Der Admin muss beim ersten Login ein neues Passwort setzen.
+            Admin must set a new password on first login.
           </p>
           <div className="flex justify-end">
             <button
@@ -413,17 +409,17 @@ function MailResultModal({
       <div className="w-full max-w-md rounded-xl border border-habb-line bg-white shadow-xl">
         <header className="border-b border-habb-line px-5 py-4">
           <h2 className="text-sm font-semibold text-habb-ink">
-            Mandant angelegt — Magic-Link {delivered ? "versendet" : "fehlgeschlagen"}
+            Tenant angelegt — Magic-Link {delivered ? "versendet" : "fehlgeschlagen"}
           </h2>
         </header>
         <div className="space-y-3 px-5 py-5 text-sm">
           {delivered ? (
             <p className="text-habb-ink">
-              Mail an <span className="font-medium">{email}</span> ist raus. Link ist 1h gültig.
+              Mail to <span className="font-medium">{email}</span> is sent. Link is valid for 1h.
             </p>
           ) : (
             <p className="text-habb-red">
-              Mail-Versand an <span className="font-medium">{email}</span> ist fehlgeschlagen. Du
+              Mail delivery to <span className="font-medium">{email}</span> failed. Du
               kannst aus der User-Liste &quot;Passwort-Reset-Mail senden&quot; erneut auslösen.
             </p>
           )}

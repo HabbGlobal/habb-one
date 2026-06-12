@@ -14,9 +14,7 @@ export default async function NewAreaPage() {
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <h1 className="text-2xl font-semibold">Neuer Bereich</h1>
-        <Link href="/admin/areas" className="text-sm text-muted-foreground hover:underline">
-          ← Zurück
-        </Link>
+        <Link href="/admin/areas" className="text-sm text-muted-foreground hover:underline">← Back</Link>
       </div>
       <Card>
         <CardHeader>

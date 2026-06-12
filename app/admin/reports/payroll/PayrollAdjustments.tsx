@@ -129,7 +129,7 @@ export function PayrollAdjustments({
             className="grid grid-cols-1 gap-3 rounded-md border border-habb-line bg-habb-paper/50 p-3 sm:grid-cols-[130px_130px_110px_1fr_auto]"
           >
             <div className="space-y-1">
-              <Label className="text-xs">Datum</Label>
+              <Label className="text-xs">Date</Label>
               <Input type="date" value={date} onChange={(e) => setDate(e.target.value)} required />
             </div>
             <div className="space-y-1">
@@ -167,7 +167,7 @@ export function PayrollAdjustments({
             </div>
             <div className="flex items-end gap-2">
               <Button type="submit" size="sm" disabled={pending}>
-                {pending ? "…" : "Speichern"}
+                {pending ? "…" : "Save"}
               </Button>
               <Button
                 type="button"
@@ -178,9 +178,7 @@ export function PayrollAdjustments({
                   setError(null);
                 }}
                 disabled={pending}
-              >
-                Abbrechen
-              </Button>
+              >Cancel</Button>
             </div>
           </form>
         )}
@@ -191,7 +189,7 @@ export function PayrollAdjustments({
           <table className="w-full text-sm">
             <thead>
               <tr className="border-b border-habb-line text-left text-xs uppercase tracking-wide text-habb-muted">
-                <th className="pb-2">Datum</th>
+                <th className="pb-2">Date</th>
                 <th className="pb-2">Grund</th>
                 <th className="pb-2 text-right">Korrektur</th>
                 {canEdit && <th className="pb-2"></th>}

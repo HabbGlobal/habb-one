@@ -64,7 +64,7 @@ export function TenantTable({ tenants }: { tenants: Row[] }) {
           <input
             value={q}
             onChange={(e) => setQ(e.target.value)}
-            placeholder="Mandant suchen…"
+            placeholder="Tenant suchen…"
             className="rounded-md border border-habb-line bg-white py-1.5 pl-8 pr-3 text-sm focus:outline-none focus:ring-2 focus:ring-habb-red"
           />
         </div>
@@ -73,7 +73,7 @@ export function TenantTable({ tenants }: { tenants: Row[] }) {
           onChange={(e) => setStatusFilter(e.target.value)}
           className="rounded-md border border-habb-line bg-white px-2 py-1.5 text-sm"
         >
-          <option value="all">Alle Status</option>
+          <option value="all">All statuses</option>
           <option value="critical">Critical</option>
           <option value="warning">Warning</option>
           <option value="healthy">Healthy</option>
@@ -88,13 +88,13 @@ export function TenantTable({ tenants }: { tenants: Row[] }) {
         <table className="min-w-full divide-y divide-habb-line text-sm">
           <thead className="bg-habb-paper text-left text-xs uppercase tracking-wide text-habb-muted">
             <tr>
-              <th className="px-5 py-2.5">Mandant</th>
+              <th className="px-5 py-2.5">Tenant</th>
               <th className="px-3 py-2.5">Status</th>
               <th className="px-3 py-2.5">Score</th>
-              <th className="px-3 py-2.5">Krit.</th>
+              <th className="px-3 py-2.5">Crit.</th>
               <th className="px-3 py-2.5">Warn.</th>
               <th className="px-3 py-2.5">Security</th>
-              <th className="px-3 py-2.5">Letzte Prüfung</th>
+              <th className="px-3 py-2.5">Last check</th>
               <th className="px-3 py-2.5"></th>
             </tr>
           </thead>
@@ -137,9 +137,7 @@ export function TenantTable({ tenants }: { tenants: Row[] }) {
                       href={`/owner/diagnostics/${t.companyId}`}
                       className="inline-flex items-center gap-1.5 rounded-md bg-habb-black px-2.5 py-1 text-xs font-medium text-white hover:bg-habb-ink"
                     >
-                      <Eye className="h-3.5 w-3.5" />
-                      Details
-                    </Link>
+                      <Eye className="h-3.5 w-3.5" />Details</Link>
                     <button
                       type="button"
                       onClick={() => recheck(t.companyId)}
@@ -151,7 +149,7 @@ export function TenantTable({ tenants }: { tenants: Row[] }) {
                       ) : (
                         <RefreshCw className="h-3.5 w-3.5" />
                       )}
-                      Prüfen
+                      Check
                     </button>
                   </div>
                 </td>
@@ -163,7 +161,7 @@ export function TenantTable({ tenants }: { tenants: Row[] }) {
                   colSpan={8}
                   className="px-5 py-6 text-center text-sm text-habb-muted"
                 >
-                  Keine Mandanten.
+                  Keine Tenanten.
                 </td>
               </tr>
             )}

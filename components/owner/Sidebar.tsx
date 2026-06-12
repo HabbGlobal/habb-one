@@ -17,23 +17,23 @@ interface NavItem {
   href: string;
   label: string;
   icon: typeof LayoutDashboard;
-  /** Sichtbar nur für mindestens diese Rolle. */
+  /** Sichtbar nur für mindestens diese Role. */
   minRole?: OwnerRole;
 }
 
 const NAV_PRIMARY: NavItem[] = [
   { href: "/owner", label: "Dashboard", icon: LayoutDashboard },
-  { href: "/owner/tenants", label: "Mandanten", icon: Building2 },
-  { href: "/owner/registrations", label: "Registrierungen", icon: Inbox },
-  { href: "/owner/audit", label: "Audit-Log", icon: ClipboardList },
-  { href: "/owner/diagnostics", label: "Diagnose", icon: ShieldAlert },
+  { href: "/owner/tenants", label: "Tenants", icon: Building2 },
+  { href: "/owner/registrations", label: "Registrations", icon: Inbox },
+  { href: "/owner/audit", label: "Audit Log", icon: ClipboardList },
+  { href: "/owner/diagnostics", label: "Diagnostics", icon: ShieldAlert },
   { href: "/owner/system", label: "System", icon: Activity },
 ];
 
 const NAV_SECONDARY: NavItem[] = [
-  { href: "/owner/team", label: "Owner-Team", icon: Users2, minRole: "OWNER_ROOT" },
+  { href: "/owner/team", label: "Owner Team", icon: Users2, minRole: "OWNER_ROOT" },
   { href: "/owner/billing", label: "Billing", icon: CreditCard },
-  { href: "/owner/settings", label: "Mein Profil", icon: SettingsIcon },
+  { href: "/owner/settings", label: "My Profile", icon: SettingsIcon },
 ];
 
 const ROLE_ORDER: Record<OwnerRole, number> = {
@@ -59,8 +59,8 @@ export function OwnerSidebar({
     <aside className="flex w-60 shrink-0 flex-col bg-habb-ink text-white">
       <div className="px-5 pt-6 pb-4">
         <Link href="/owner" className="flex items-center gap-2 text-base font-semibold tracking-tight">
-          <span>habb</span>
-          <span className="text-habb-red">.ch</span>
+          <span>HABB</span>
+          <span className="text-habb-red"> One</span>
         </Link>
         <p className="mt-0.5 text-[11px] uppercase tracking-[0.18em] text-white/50">
           Owner
@@ -68,13 +68,13 @@ export function OwnerSidebar({
       </div>
 
       <nav className="flex flex-1 flex-col gap-1 px-3">
-        <SidebarSection label="Operativ">
+        <SidebarSection label="Operational">
           {NAV_PRIMARY.filter((n) => visible(n, role)).map((item) => (
             <SidebarLink key={item.href} item={item} />
           ))}
         </SidebarSection>
 
-        <SidebarSection label="Plattform">
+        <SidebarSection label="Platform">
           {NAV_SECONDARY.filter((n) => visible(n, role)).map((item) => (
             <SidebarLink key={item.href} item={item} />
           ))}

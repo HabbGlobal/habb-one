@@ -1,6 +1,6 @@
 "use server";
 
-// Owner-Server-Actions für die Role-Matrix eines beliebigen Mandanten.
+// Owner-Server-Actions für die Role-Matrix eines beliebigen Tenanten.
 // Spiegelt `app/admin/roles/actions.ts`, läuft aber unter Owner-Auth
 // (`requireOwner({ minRole: "OWNER_ADMIN" })`) und schreibt in
 // `OwnerAuditLog` statt `AuditLog`.
@@ -28,7 +28,7 @@ export type SaveOwnerMatrixInput = z.input<typeof bulkSchema>;
 
 /**
  * Owner-Variante: speichert die komplette Role-Matrix eines bestimmten
- * Mandanten (tenantId aus URL-Params). Erfordert OWNER_ADMIN.
+ * Tenanten (tenantId aus URL-Params). Erfordert OWNER_ADMIN.
  */
 export async function ownerSaveRoleMatrix(input: SaveOwnerMatrixInput) {
   const guard = await requireOwner({ minRole: "OWNER_ADMIN" });
@@ -37,12 +37,12 @@ export async function ownerSaveRoleMatrix(input: SaveOwnerMatrixInput) {
 
   const data = bulkSchema.parse(input);
 
-  // Existiert der Mandant?
+  // Existiert der Tenant?
   const tenant = await prisma.company.findUnique({
     where: { id: data.tenantId },
     select: { id: true, name: true },
   });
-  if (!tenant) throw new Error("Mandant nicht gefunden.");
+  if (!tenant) throw new Error("Tenant nicht gefunden.");
 
   // Validate permissions
   for (const role of CONFIGURABLE_ROLES) {
@@ -54,7 +54,7 @@ export async function ownerSaveRoleMatrix(input: SaveOwnerMatrixInput) {
     }
   }
 
-  // Vorzustand für Audit-Log einsammeln
+  // Vorzustand für Audit Log einsammeln
   const before = await prisma.rolePermission.findMany({
     where: {
       companyId: data.tenantId,
@@ -123,7 +123,7 @@ const resetSchema = z.object({
   role: z.enum(CONFIGURABLE_ROLES),
 });
 
-/** Setzt die Matrix einer Rolle wieder auf den statischen Default zurück. */
+/** Setzt die Matrix einer Role wieder auf den statischen Default zurück. */
 export async function ownerResetRoleToDefaults(input: z.input<typeof resetSchema>) {
   const guard = await requireOwner({ minRole: "OWNER_ADMIN" });
   if (!guard.ok) throw new Error("FORBIDDEN");
@@ -135,7 +135,7 @@ export async function ownerResetRoleToDefaults(input: z.input<typeof resetSchema
     where: { id: data.tenantId },
     select: { id: true, name: true },
   });
-  if (!tenant) throw new Error("Mandant nicht gefunden.");
+  if (!tenant) throw new Error("Tenant nicht gefunden.");
 
   const before = await prisma.rolePermission.findMany({
     where: { companyId: data.tenantId, role: data.role as UserRole },
@@ -155,7 +155,7 @@ export async function ownerResetRoleToDefaults(input: z.input<typeof resetSchema
     targetCompanyId: data.tenantId,
     payloadBefore: { role: data.role, overrides: before } as Prisma.InputJsonValue,
     payloadAfter: { role: data.role, reset: true } as Prisma.InputJsonValue,
-    reason: `Rolle ${data.role} bei ${tenant.name} auf Default zurückgesetzt`,
+    reason: `Role ${data.role} bei ${tenant.name} auf Default zurückgesetzt`,
   });
 
   revalidatePath(`/owner/tenants/${data.tenantId}/roles`);

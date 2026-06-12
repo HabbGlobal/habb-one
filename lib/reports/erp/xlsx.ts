@@ -46,8 +46,8 @@ export async function calcAccuracyXlsx(
 
   const ws = wb.addWorksheet("Kalkulation");
   ws.columns = [
-    { header: "Auftrag", key: "orderNumber", width: 18 },
-    { header: "Kunde", key: "customerName", width: 32 },
+    { header: "Order", key: "orderNumber", width: 18 },
+    { header: "Customer", key: "customerName", width: 32 },
     { header: "Status", key: "status", width: 14 },
     { header: "Liefertermin", key: "promisedAt", width: 14 },
     { header: "Pos.", key: "itemCount", width: 6 },
@@ -120,7 +120,7 @@ export async function machineUtilizationXlsx(
 
   const ws = wb.addWorksheet("Maschinen-Auslastung");
   ws.columns = [
-    { header: "Maschine", key: "machineName", width: 28 },
+    { header: "Machine", key: "machineName", width: 28 },
     { header: "Typ", key: "machineType", width: 18 },
     { header: "Verfügbar (h)", key: "available", width: 14 },
     { header: "Gebucht (h)", key: "booked", width: 14 },

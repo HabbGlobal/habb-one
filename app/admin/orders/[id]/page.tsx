@@ -483,7 +483,7 @@ export default async function OrderDetailPage({
                     <span className="col-span-1">#</span>
                     <span className="col-span-3">Prozess</span>
                     <span className="col-span-1">MA</span>
-                    <span className="col-span-1">Maschine</span>
+                    <span className="col-span-1">Machine</span>
                     <span className="col-span-1 text-right">Schätz.</span>
                     <span className="col-span-1 text-right">Ist</span>
                     <span className="col-span-1 text-right">Verr.</span>

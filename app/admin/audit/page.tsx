@@ -46,7 +46,7 @@ export default async function AuditPage() {
                   <TableCell className="whitespace-nowrap text-xs">
                     {formatDateTimeLocal(l.createdAt)}
                   </TableCell>
-                  <TableCell>{l.user?.name ?? (l.employeeId ? "Mitarbeiter" : "System")}</TableCell>
+                  <TableCell>{l.user?.name ?? (l.employeeId ? "Employee" : "System")}</TableCell>
                   <TableCell>{l.action}</TableCell>
                   <TableCell>
                     {l.entityType}{" "}

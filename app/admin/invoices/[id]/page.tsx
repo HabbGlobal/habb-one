@@ -171,9 +171,7 @@ export default async function InvoiceDetailPage({
             <AlertTriangle className="h-5 w-5 shrink-0 mt-0.5" />
             <div>
               Keine QR-IBAN konfiguriert. Bitte unter{" "}
-              <Link href="/admin/settings" className="underline">
-                Einstellungen
-              </Link>{" "}
+              <Link href="/admin/settings" className="underline">Settings</Link>{" "}
               eintragen, sonst kann die Rechnung nicht versendet werden.
             </div>
           </CardContent>
@@ -183,7 +181,7 @@ export default async function InvoiceDetailPage({
       {/* Quick Facts */}
       <Card>
         <CardContent className="p-4 grid grid-cols-2 md:grid-cols-5 gap-4 text-sm">
-          <Fact label="Datum" value={fmtDate(dto.issuedAt)} />
+          <Fact label="Date" value={fmtDate(dto.issuedAt)} />
           <Fact
             label="Fällig am"
             value={fmtDate(dto.dueAt)}

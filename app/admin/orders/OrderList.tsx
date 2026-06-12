@@ -75,7 +75,7 @@ export function OrderList({
       className: "w-32",
     },
     {
-      header: "Kunde",
+      header: "Customer",
       cell: (o) => <div className="font-medium">{o.customerDisplayName}</div>,
     },
     {

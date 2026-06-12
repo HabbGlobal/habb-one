@@ -16,7 +16,7 @@ export const dynamic = "force-dynamic";
 
 /**
  * System-Health-Dashboard für den Owner. Liefert Live-Counts und
- * Indikatoren, wie es der Plattform geht. Bewusst keine externen
+ * Indikatoren, wie es der Platform geht. Bewusst keine externen
  * Pings (uptime check, etc.) — wenn diese Seite überhaupt rendert,
  * läuft der App-Server. DB-Health kommt indirekt aus den Queries.
  */
@@ -80,12 +80,10 @@ export default async function SystemPage() {
   return (
     <div className="space-y-6">
       <header>
-        <p className="text-xs uppercase tracking-[0.18em] text-habb-muted">Plattform</p>
-        <h1 className="mt-1 text-2xl font-semibold tracking-tight text-habb-black">
-          System
-        </h1>
+        <p className="text-xs uppercase tracking-[0.18em] text-habb-muted">Platform</p>
+        <h1 className="mt-1 text-2xl font-semibold tracking-tight text-habb-black">System</h1>
         <p className="mt-1 text-sm text-habb-muted">
-          Live-Status der HABB One-Plattform. Letzte Aktualisierung:{" "}
+          Live-Status der HABB One-Platform. Letzte Aktualisierung:{" "}
           {now.toLocaleString("de-CH")}
         </p>
       </header>
@@ -116,13 +114,13 @@ export default async function SystemPage() {
         />
       </section>
 
-      {/* Plattform-Zahlen */}
+      {/* Platform-Zahlen */}
       <section>
         <h2 className="text-xs uppercase tracking-[0.18em] text-habb-muted mb-3">
           Reichweite
         </h2>
         <div className="grid grid-cols-2 gap-4 lg:grid-cols-4">
-          <Metric label="Aktive Mandanten" value={tenantsActive} icon={Building2} />
+          <Metric label="Aktive Tenanten" value={tenantsActive} icon={Building2} />
           <Metric
             label="Pending / Suspended"
             value={tenantsPending + tenantsSuspended}
@@ -142,7 +140,7 @@ export default async function SystemPage() {
         <div className="grid grid-cols-2 gap-4 lg:grid-cols-4">
           <Metric label="Aufträge dieser Monat" value={ordersThisMonth} icon={ClipboardList} />
           <Metric label="Offene Rechnungen" value={invoicesOpenCount} icon={ClipboardList} />
-          <Metric label="Audit-Einträge total" value={auditCount} icon={Activity} />
+          <Metric label="Audit-entries total" value={auditCount} icon={Activity} />
           <Metric
             label="Aktive Impersonations"
             value={impersonationActive}
@@ -169,7 +167,7 @@ export default async function SystemPage() {
 
       <p className="text-xs text-habb-muted">
         Werte sind serverseitig zur Render-Zeit gezogen. Bei Anomalien (z.B.
-        viele OTP-Fehlversuche oder fehlgeschlagene Mails) den Audit-Log
+        viele OTP-Fehlversuche oder fehlgeschlagene Mails) den Audit Log
         prüfen.
       </p>
     </div>

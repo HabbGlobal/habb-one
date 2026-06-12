@@ -79,9 +79,9 @@ export function PlanChangeAction({ tenant }: { tenant: TenantRow }) {
         onClick={() => setOpen(true)}
         disabled={tenant.suspended}
         className="rounded-md border border-habb-line bg-white px-2.5 py-1 text-[11px] font-medium text-habb-ink hover:bg-habb-paper disabled:opacity-50 disabled:cursor-not-allowed"
-        title={tenant.suspended ? "Suspendierte Mandanten erst reaktivieren" : "Plan ändern"}
+        title={tenant.suspended ? "Suspendierte Tenanten erst reaktivieren" : "Change plan"}
       >
-        Plan ändern
+        Change plan
       </button>
 
       {open && (
@@ -100,7 +100,7 @@ export function PlanChangeAction({ tenant }: { tenant: TenantRow }) {
           >
             <header className="flex items-center justify-between border-b border-habb-line px-5 py-4">
               <h2 className="text-sm font-semibold text-habb-ink">
-                Plan ändern — {tenant.name}
+                Change plan — {tenant.name}
               </h2>
               <button
                 type="button"
@@ -113,14 +113,14 @@ export function PlanChangeAction({ tenant }: { tenant: TenantRow }) {
             </header>
             <div className="space-y-4 px-5 py-5">
               <p className="text-sm text-habb-muted">
-                Aktueller Plan: <span className="font-medium text-habb-ink">{tenant.plan}</span>.
+                Current plan: <span className="font-medium text-habb-ink">{tenant.plan}</span>.
                 Die plan-gesteuerten Module passen sich beim Wechsel an. Manuelle
                 Sonderfreischaltungen/-sperren und bestehende Daten bleiben unangetastet.
               </p>
 
               <div>
                 <label className="block text-xs font-medium uppercase tracking-wide text-habb-muted mb-1">
-                  Neuer Plan
+                  New plan
                 </label>
                 <select
                   value={plan}
@@ -159,16 +159,14 @@ export function PlanChangeAction({ tenant }: { tenant: TenantRow }) {
                   type="button"
                   onClick={reset}
                   className="rounded-md border border-habb-line bg-white px-4 py-2 text-sm font-medium text-habb-ink hover:bg-habb-paper"
-                >
-                  Abbrechen
-                </button>
+                >Cancel</button>
                 <button
                   type="submit"
                   disabled={pending}
                   className="inline-flex items-center gap-2 rounded-md bg-habb-black px-4 py-2 text-sm font-medium text-white hover:bg-habb-ink disabled:opacity-60"
                 >
                   {pending && <Loader2 className="h-3.5 w-3.5 animate-spin" />}
-                  Plan wechseln
+                  Switch plan
                 </button>
               </div>
             </div>

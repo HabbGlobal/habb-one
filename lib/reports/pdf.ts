@@ -49,7 +49,7 @@ export async function monthlyPdf(report: ReportInput, exportedBy: string): Promi
 
   // Summary page
   let { page, top } = addPage(`Übersicht ${monthLabels[report.period.month - 1]} ${report.period.year}`);
-  const headers = ["Nr", "Mitarbeiter", "Soll", "Gearbeitet", "Pause", "Saldo"];
+  const headers = ["Nr", "Employee", "Soll", "Gearbeitet", "Pause", "Saldo"];
   const cols = [40, 80, 290, 360, 430, 490];
   headers.forEach((h, i) => page.drawText(h, { x: cols[i], y: top, size: 10, font: fontBold }));
   top -= 14;
@@ -70,7 +70,7 @@ export async function monthlyPdf(report: ReportInput, exportedBy: string): Promi
   // One page per employee with daily details
   for (const e of report.employees) {
     let p = addPage(`${e.lastName} ${e.firstName} (${e.employeeNumber})`);
-    const detailHeaders = ["Datum", "Tag", "Soll", "Gearb.", "Pause", "Saldo", "Hinweis"];
+    const detailHeaders = ["Date", "Day", "Soll", "Gearb.", "Pause", "Saldo", "Hinweis"];
     const detailCols = [40, 110, 160, 210, 260, 310, 360];
     detailHeaders.forEach((h, i) =>
       p.page.drawText(h, { x: detailCols[i], y: p.top, size: 10, font: fontBold })

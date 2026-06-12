@@ -195,7 +195,7 @@ export function DayEditor({ employeeId, day, absenceTypes, open, onClose }: Prop
         onClose();
         router.refresh();
       } catch (err) {
-        setError(err instanceof Error ? err.message : "Speichern fehlgeschlagen.");
+        setError(err instanceof Error ? err.message : "Save failed.");
       }
     });
   };
@@ -423,11 +423,9 @@ export function DayEditor({ employeeId, day, absenceTypes, open, onClose }: Prop
             </div>
 
             <div className="flex justify-end gap-2">
-              <Button type="button" variant="ghost" onClick={onClose} disabled={pending}>
-                Abbrechen
-              </Button>
+              <Button type="button" variant="ghost" onClick={onClose} disabled={pending}>Cancel</Button>
               <Button type="submit" disabled={pending}>
-                {pending ? "Speichern …" : "Speichern"}
+                {pending ? "Saving..." : "Save"}
               </Button>
             </div>
           </form>

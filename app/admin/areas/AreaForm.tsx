@@ -115,10 +115,8 @@ export function AreaForm({
       </div>
       {error && <p className="text-sm text-destructive">{error}</p>}
       <div className="flex gap-2 pt-2">
-        <Button type="submit" disabled={pending}>Speichern</Button>
-        <Button type="button" variant="ghost" onClick={() => router.back()}>
-          Abbrechen
-        </Button>
+        <Button type="submit" disabled={pending}>Save</Button>
+        <Button type="button" variant="ghost" onClick={() => router.back()}>Cancel</Button>
       </div>
     </form>
   );

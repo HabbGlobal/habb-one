@@ -100,7 +100,7 @@ export default async function CalculationReportPage({
 
       {/* Summen-Karten */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
-        <SummaryCard label="Aufträge" value={String(report.rows.length)} />
+        <SummaryCard label="Orders" value={String(report.rows.length)} />
         <SummaryCard
           label="Schätzung"
           value={fmtMin(report.totals.estimatedMinutes)}
@@ -138,8 +138,8 @@ export default async function CalculationReportPage({
               <table className="w-full text-sm">
                 <thead className="bg-muted/40 border-b text-xs uppercase tracking-wider text-muted-foreground">
                   <tr>
-                    <th className="text-left px-3 py-2">Auftrag</th>
-                    <th className="text-left px-3 py-2">Kunde</th>
+                    <th className="text-left px-3 py-2">Order</th>
+                    <th className="text-left px-3 py-2">Customer</th>
                     <th className="text-left px-3 py-2">Termin</th>
                     <th className="text-right px-3 py-2">Schätz.</th>
                     <th className="text-right px-3 py-2">Ist</th>

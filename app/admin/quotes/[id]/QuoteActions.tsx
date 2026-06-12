@@ -181,9 +181,7 @@ export function QuoteActions({
               size="sm"
               onClick={() => setShowConvert(false)}
               disabled={pending}
-            >
-              Abbrechen
-            </Button>
+            >Cancel</Button>
             <Button onClick={onConvert} size="sm" disabled={pending}>
               {pending ? "Wandle um …" : "Auftrag erzeugen"}
             </Button>

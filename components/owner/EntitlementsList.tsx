@@ -12,7 +12,7 @@ export interface EntitlementRow {
   enabled: boolean;
   monthlyLimit: number | null;
   hasOverride: boolean;
-  /** Gehört dieses Modul zum aktuellen Plan des Mandanten? */
+  /** Gehört dieses Modul zum aktuellen Plan des Tenanten? */
   inPlan: boolean;
 }
 
@@ -70,19 +70,19 @@ export function EntitlementsList({ tenantId, initial }: EntitlementsListProps) {
         }
       }
       const json = await res.json().catch(() => ({}));
-      setError(json?.message || "Speichern fehlgeschlagen.");
+      setError(json?.message || "Save failed.");
     });
   };
 
   return (
     <section className="rounded-lg border border-habb-line bg-white">
       <header className="border-b border-habb-line px-5 py-3">
-        <h2 className="text-sm font-medium text-habb-ink">Module & Limits</h2>
+        <h2 className="text-sm font-medium text-habb-ink">Modules & Limits</h2>
         <p className="mt-0.5 text-xs text-habb-muted">
-          Standardmäßig bestimmt der <strong>Plan</strong> die Module. Ein Plan-Wechsel
+          By default, the <strong>Plan</strong> die Module. Ein Plan-Wechsel
           aktiviert/deaktiviert sie automatisch. Hier kannst du einzelne Module zusätzlich
           manuell übersteuern — diese Sonderfälle <strong>bleiben auch bei einem
-          Plan-Wechsel erhalten</strong>. Änderungen wirken sofort und werden auditiert.
+          Plan-Wechsel erhalten</strong>. Changes take effect immediately and are audited.
         </p>
       </header>
 
@@ -102,7 +102,7 @@ export function EntitlementsList({ tenantId, initial }: EntitlementsListProps) {
                   <p className="mt-0.5 text-xs text-habb-muted">{def.description}</p>
                   <p className="mt-1.5 text-xs text-habb-ink">
                     <span className={row.enabled ? "text-habb-success" : "text-habb-red"}>
-                      {row.enabled ? "Aktiv" : "Deaktiviert"}
+                      {row.enabled ? "Active" : "Deaktiviert"}
                     </span>
                     <span className="mx-2 text-habb-muted">·</span>
                     <span className="text-habb-muted">
@@ -120,9 +120,7 @@ export function EntitlementsList({ tenantId, initial }: EntitlementsListProps) {
                     }}
                     disabled={isPending}
                     className="rounded-md border border-habb-line bg-white px-3 py-1.5 text-xs font-medium text-habb-ink hover:bg-habb-paper"
-                  >
-                    Bearbeiten
-                  </button>
+                  >Edit</button>
                 )}
               </div>
 
@@ -176,7 +174,7 @@ export function EntitlementsList({ tenantId, initial }: EntitlementsListProps) {
  * Zeigt die Herkunft des effektiven Modul-Zustands:
  *   - "Plan": kommt aus dem Plan, keine manuelle Abweichung
  *   - "Manuell +/−": Override weicht vom Plan ab (zusätzlich frei / gesperrt)
- *   - "Nicht im Plan": weder im Plan noch manuell aktiviert
+ *   - "Not in plan": weder im Plan noch manuell aktiviert
  */
 function ProvenanceBadge({ row }: { row: EntitlementRow }) {
   const deviates = row.hasOverride && row.enabled !== row.inPlan;
@@ -196,7 +194,7 @@ function ProvenanceBadge({ row }: { row: EntitlementRow }) {
   }
   return (
     <span className="rounded-full border border-habb-line bg-habb-paper px-1.5 text-[10px] uppercase tracking-wide text-habb-muted">
-      Nicht im Plan
+      Not in plan
     </span>
   );
 }
@@ -239,12 +237,12 @@ function EntitlementForm({
           onChange={(e) => setEnabled(e.target.checked)}
           className="h-4 w-4 rounded border-habb-line"
         />
-        Modul aktiviert
+        Module activated
       </label>
 
       <div className="space-y-1.5">
         <span className="block text-xs font-medium uppercase tracking-wide text-habb-muted">
-          Limit / Monat
+          Limit / month
         </span>
         <div className="flex items-center gap-2">
           <select
@@ -253,7 +251,7 @@ function EntitlementForm({
             className="rounded-md border border-habb-line bg-white px-2 py-1.5 text-sm"
           >
             <option value="unlimited">Unlimited</option>
-            <option value="limited">Wert setzen …</option>
+            <option value="limited">Set value ...</option>
           </select>
           {limitMode === "limited" && (
             <input
@@ -295,16 +293,13 @@ function EntitlementForm({
           onClick={onCancel}
           className="inline-flex items-center gap-1.5 rounded-md border border-habb-line bg-white px-3 py-1.5 text-sm font-medium text-habb-ink hover:bg-habb-paper"
         >
-          <X className="h-3.5 w-3.5" /> Abbrechen
-        </button>
+          <X className="h-3.5 w-3.5" />Cancel</button>
         <button
           type="submit"
           disabled={pending}
           className="inline-flex items-center gap-2 rounded-md bg-habb-black px-4 py-1.5 text-sm font-medium text-white hover:bg-habb-ink disabled:opacity-60"
         >
-          {pending ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Save className="h-3.5 w-3.5" />}
-          Speichern
-        </button>
+          {pending ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Save className="h-3.5 w-3.5" />}Save</button>
       </div>
     </form>
   );

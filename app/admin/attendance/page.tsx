@@ -99,7 +99,7 @@ export default async function AttendancePage() {
       {/* Mitarbeiter-Liste */}
       <section className="rounded-xl border border-habb-line bg-white">
         <div className="border-b border-habb-line px-5 py-3">
-          <h2 className="text-sm font-semibold">Mitarbeiter</h2>
+          <h2 className="text-sm font-semibold">Employee</h2>
         </div>
         {snapshot.employees.length === 0 ? (
           <p className="px-5 py-6 text-sm text-habb-muted">

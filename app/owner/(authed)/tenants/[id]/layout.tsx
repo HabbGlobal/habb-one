@@ -8,9 +8,9 @@ import { ChevronLeft } from "lucide-react";
 export const dynamic = "force-dynamic";
 
 const TABS = [
-  { href: "", label: "Übersicht" },
+  { href: "", label: "Overview" },
   { href: "/modules", label: "Module" },
-  { href: "/roles", label: "Rollen & Rechte" },
+  { href: "/roles", label: "Rolen & Rechte" },
   { href: "/users", label: "User" },
   { href: "/activity", label: "Aktivität" },
   { href: "/billing", label: "Billing" },
@@ -48,7 +48,7 @@ export default async function TenantDetailLayout({
           className="inline-flex items-center gap-1 text-xs text-habb-muted hover:text-habb-ink"
         >
           <ChevronLeft className="h-3 w-3" />
-          Mandanten-Liste
+          Tenanten-Liste
         </Link>
 
         <div className="mt-3 flex flex-wrap items-start justify-between gap-4">

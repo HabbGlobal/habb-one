@@ -39,15 +39,15 @@ export default async function TenantOverviewPage({
     <div className="space-y-6">
       {tenant.suspendedAt && (
         <section className="rounded-lg border border-habb-red/30 bg-habb-red/5 px-5 py-4 text-sm">
-          <p className="font-medium text-habb-red">Mandant suspendiert</p>
+          <p className="font-medium text-habb-red">Tenant suspendiert</p>
           <p className="mt-1 text-habb-red/90">
             Seit {tenant.suspendedAt.toLocaleDateString("de-CH")} —{" "}
             {tenant.suspendedReason || "(keine Begründung dokumentiert)"}
           </p>
           <div className="mt-3 border-t border-habb-red/20 pt-3">
             <p className="mb-2 text-xs text-habb-red/80">
-              Endgültige Löschung: entfernt diesen Mandanten samt aller Daten
-              und Benutzerkonten unwiderruflich.
+              Endgültige Löschung: entfernt diesen Tenanten samt aller Daten
+              und Userkonten unwiderruflich.
             </p>
             <DeleteTenantButton tenantId={tenant.id} tenantName={tenant.name} />
           </div>

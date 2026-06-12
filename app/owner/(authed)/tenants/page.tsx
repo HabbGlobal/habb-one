@@ -15,7 +15,7 @@ export default async function TenantsListPage({ searchParams }: PageProps) {
   const { q } = await searchParams;
   const search = q?.trim() ?? "";
 
-  // Aktive Mandanten: registriert, freigegeben, NICHT suspendiert.
+  // Aktive Tenanten: registriert, freigegeben, NICHT suspendiert.
   // Suspendierte landen unter /owner/tenants/archive.
   const baseWhere = {
     registrationStatus: "ACTIVE" as const,
@@ -59,10 +59,10 @@ export default async function TenantsListPage({ searchParams }: PageProps) {
     <div className="space-y-6">
       <header className="flex flex-wrap items-end justify-between gap-4">
         <div>
-          <p className="text-xs uppercase tracking-[0.18em] text-habb-muted">Plattform</p>
-          <h1 className="mt-1 text-2xl font-semibold tracking-tight text-habb-black">Mandanten</h1>
+          <p className="text-xs uppercase tracking-[0.18em] text-habb-muted">Platform</p>
+          <h1 className="mt-1 text-2xl font-semibold tracking-tight text-habb-black">Tenants</h1>
           <p className="mt-1 text-sm text-habb-muted">
-            {tenants.length} aktive{tenants.length === 1 ? "r" : ""} Mandant
+            {tenants.length} aktive{tenants.length === 1 ? "r" : ""} Tenant
             {tenants.length === 1 ? "" : "en"}
             {search ? ` für „${search}"` : ""}
           </p>
@@ -75,7 +75,7 @@ export default async function TenantsListPage({ searchParams }: PageProps) {
               <input
                 name="q"
                 defaultValue={search}
-                placeholder="Mandant oder Ort suchen…"
+                placeholder="Tenant oder Ort suchen…"
                 className="w-72 rounded-lg border border-habb-line bg-white py-2.5 pl-9 pr-3 text-sm focus:border-habb-black focus:outline-none focus:ring-2 focus:ring-habb-red focus:ring-offset-1"
               />
             </div>
@@ -103,21 +103,21 @@ export default async function TenantsListPage({ searchParams }: PageProps) {
         <table className="min-w-full divide-y divide-habb-line text-sm">
           <thead className="bg-habb-paper text-left text-xs font-medium uppercase tracking-wide text-habb-muted">
             <tr>
-              <th scope="col" className="px-5 py-3">Mandant</th>
+              <th scope="col" className="px-5 py-3">Tenant</th>
               <th scope="col" className="px-5 py-3">Plan</th>
               <th scope="col" className="px-5 py-3">Status</th>
               <th scope="col" className="px-5 py-3">User</th>
               <th scope="col" className="px-5 py-3">Mitarbeitende</th>
               <th scope="col" className="px-5 py-3">Erstellt</th>
               <th scope="col" className="px-5 py-3">Letzter Login</th>
-              <th scope="col" className="px-5 py-3 text-right">Aktion</th>
+              <th scope="col" className="px-5 py-3 text-right">Action</th>
             </tr>
           </thead>
           <tbody className="divide-y divide-habb-line">
             {tenants.length === 0 && (
               <tr>
                 <td colSpan={8} className="px-5 py-12 text-center text-sm text-habb-muted">
-                  Keine aktiven Mandanten gefunden.
+                  Keine aktiven Tenanten gefunden.
                 </td>
               </tr>
             )}
@@ -165,7 +165,7 @@ export default async function TenantsListPage({ searchParams }: PageProps) {
       </div>
 
       <p className="text-xs text-habb-muted">
-        Filter (Plan, Status, &quot;nur problematische&quot;) und Bulk-Aktionen folgen in PR&nbsp;2.1.
+        Filter (Plan, Status, &quot;nur problematische&quot;) und Bulk-Actionen folgen in PR&nbsp;2.1.
       </p>
     </div>
   );

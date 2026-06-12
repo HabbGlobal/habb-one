@@ -56,7 +56,7 @@ export function CreateUserButton({ tenantId, tenantName }: Props) {
 
   const submit = () => {
     if (!email.trim() || !name.trim()) {
-      setError("E-Mail und Name sind Pflicht.");
+      setError("Email und Name sind Pflicht.");
       return;
     }
     if (reason.trim().length < 10) {
@@ -104,7 +104,7 @@ export function CreateUserButton({ tenantId, tenantName }: Props) {
       setError(
         json?.message ||
           (json?.error === "EMAIL_TAKEN"
-            ? "Diese E-Mail ist bereits vergeben."
+            ? "Diese Email ist bereits vergeben."
             : "User konnte nicht angelegt werden."),
       );
     });
@@ -136,7 +136,7 @@ export function CreateUserButton({ tenantId, tenantName }: Props) {
               </div>
               <button
                 onClick={() => setOpen(false)}
-                aria-label="Abbrechen"
+                aria-label="Cancel"
                 className="text-habb-muted hover:text-habb-ink"
               >
                 <X className="h-4 w-4" />
@@ -151,7 +151,7 @@ export function CreateUserButton({ tenantId, tenantName }: Props) {
               className="space-y-4 px-5 py-5"
               noValidate
             >
-              <Field label="E-Mail *">
+              <Field label="Email *">
                 <input
                   type="email"
                   value={email}
@@ -175,7 +175,7 @@ export function CreateUserButton({ tenantId, tenantName }: Props) {
               </Field>
 
               <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-                <Field label="Rolle">
+                <Field label="Role">
                   <select
                     value={role}
                     onChange={(e) => setRole(e.target.value as UserRole)}
@@ -204,9 +204,7 @@ export function CreateUserButton({ tenantId, tenantName }: Props) {
               </div>
 
               <fieldset className="space-y-2">
-                <legend className="text-xs font-medium uppercase tracking-wide text-habb-muted">
-                  Passwort
-                </legend>
+                <legend className="text-xs font-medium uppercase tracking-wide text-habb-muted">Password</legend>
                 <label className="flex cursor-pointer items-start gap-2.5 rounded-lg border border-habb-line p-3 hover:bg-habb-paper">
                   <input
                     type="radio"
@@ -217,9 +215,9 @@ export function CreateUserButton({ tenantId, tenantName }: Props) {
                     className="mt-0.5"
                   />
                   <span className="text-sm text-habb-ink">
-                    <span className="font-medium">Magic-Link an User senden</span>
+                    <span className="font-medium">Send magic link to user</span>
                     <span className="block text-xs text-habb-muted">
-                      User erhält Mail mit Reset-Link (1h gültig) und setzt das Passwort selbst.
+                      User receives mail with reset link (valid 1h) and sets password themselves.
                     </span>
                   </span>
                 </label>
@@ -233,9 +231,9 @@ export function CreateUserButton({ tenantId, tenantName }: Props) {
                     className="mt-0.5"
                   />
                   <span className="text-sm text-habb-ink">
-                    <span className="font-medium">Temporäres Passwort generieren</span>
+                    <span className="font-medium">Generate temporary password</span>
                     <span className="block text-xs text-habb-muted">
-                      Wird einmalig angezeigt. Du übermittelst es persönlich.
+                      Shown once. You transmit it personally.
                     </span>
                   </span>
                 </label>
@@ -268,9 +266,7 @@ export function CreateUserButton({ tenantId, tenantName }: Props) {
                     reset();
                   }}
                   className="rounded-md border border-habb-line bg-white px-4 py-2 text-sm font-medium text-habb-ink hover:bg-habb-paper"
-                >
-                  Abbrechen
-                </button>
+                >Cancel</button>
                 <button
                   type="submit"
                   disabled={pending}
@@ -345,12 +341,12 @@ function TempPasswordModal({
     >
       <div className="w-full max-w-md rounded-xl border border-habb-line bg-white shadow-xl">
         <header className="border-b border-habb-line px-5 py-4">
-          <h2 className="text-sm font-semibold text-habb-ink">User angelegt — temporäres Passwort</h2>
+          <h2 className="text-sm font-semibold text-habb-ink">User created — temporary password</h2>
         </header>
         <div className="space-y-4 px-5 py-5">
           <p className="text-sm text-habb-ink">
-            Übermittle das Passwort jetzt direkt an <span className="font-medium">{email}</span>.
-            Nach Schliessen ist es weg.
+            Transmit the password directly to <span className="font-medium">{email}</span>.
+            After closing it is gone.
           </p>
           <div className="rounded-lg border border-habb-line bg-habb-paper px-4 py-3">
             <div className="flex items-center justify-between gap-3">
@@ -370,7 +366,7 @@ function TempPasswordModal({
             </div>
           </div>
           <p className="text-xs text-habb-muted">
-            Der User muss beim ersten Login ein neues Passwort setzen.
+            User must set a new password on first login.
           </p>
           <div className="flex justify-end">
             <button
@@ -412,13 +408,13 @@ function MailResultModal({
         <div className="space-y-3 px-5 py-5 text-sm">
           {delivered ? (
             <p className="text-habb-ink">
-              Mail an <span className="font-medium">{email}</span> ist raus. Der Link ist 1 Stunde
+              Mail to <span className="font-medium">{email}</span> ist raus. Der Link ist 1 Stunde
               gültig.
             </p>
           ) : (
             <>
               <p className="text-habb-red">
-                Mail-Versand an <span className="font-medium">{email}</span> ist fehlgeschlagen.
+                Mail delivery to <span className="font-medium">{email}</span> failed.
               </p>
               <p className="text-habb-muted">
                 Der User wurde trotzdem angelegt. Du kannst aus der User-Liste &quot;Passwort-Reset-Mail

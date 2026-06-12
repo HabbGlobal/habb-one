@@ -437,7 +437,7 @@ export async function qrLabelPdf(args: BuildArgs): Promise<Uint8Array> {
   });
 
   // Kunde
-  page.drawText("Kunde", { x: 20, y: A6.h - 130, size: 8, font, color: rgb(0.5, 0.5, 0.5) });
+  page.drawText("Customer", { x: 20, y: A6.h - 130, size: 8, font, color: rgb(0.5, 0.5, 0.5) });
   page.drawText(order.customerDisplayName.slice(0, 40), {
     x: 20,
     y: A6.h - 144,

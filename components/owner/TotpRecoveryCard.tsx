@@ -67,11 +67,11 @@ export function TotpRecoveryCard({ enrolled }: { enrolled: boolean }) {
         </span>
         <div className="min-w-0 flex-1">
           <p className="text-sm font-semibold text-habb-ink">
-            Notfall-Zugang (Authenticator-App)
+            Emergency access (Authenticator app)
           </p>
           <p className="mt-1 text-sm text-habb-muted">
             Reiner Wiederherstellungs-Faktor gegen Aussperren. Der Passkey
-            bleibt Pflicht — ein TOTP-Code gewährt <strong>keinen</strong>{" "}
+            bleibt Pflicht — ein TOTP-Code gewährt <strong>no</strong>{" "}
             Portalzugang, sondern erzwingt nur die Registrierung eines neuen
             Passkeys.
           </p>
@@ -79,7 +79,7 @@ export function TotpRecoveryCard({ enrolled }: { enrolled: boolean }) {
           {enrolled && !setup && (
             <div className="mt-3 flex flex-wrap items-center gap-3">
               <span className="inline-flex items-center gap-1.5 rounded-full bg-habb-success/10 px-3 py-1 text-xs font-medium text-habb-success">
-                <ShieldCheck className="h-3.5 w-3.5" /> Eingerichtet
+                <ShieldCheck className="h-3.5 w-3.5" /> Configured
               </span>
               <button
                 type="button"
@@ -87,15 +87,14 @@ export function TotpRecoveryCard({ enrolled }: { enrolled: boolean }) {
                 disabled={pending}
                 className="inline-flex items-center gap-1.5 rounded-md border border-habb-line px-3 py-1.5 text-xs font-medium text-habb-ink hover:bg-habb-paper disabled:opacity-60"
               >
-                <Trash2 className="h-3.5 w-3.5" /> Entfernen
-              </button>
+                <Trash2 className="h-3.5 w-3.5" />Remove</button>
               <button
                 type="button"
                 onClick={begin}
                 disabled={pending}
                 className="text-xs text-habb-muted underline-offset-2 hover:text-habb-ink hover:underline disabled:opacity-60"
               >
-                Neu einrichten
+                Set up new
               </button>
             </div>
           )}
@@ -108,7 +107,7 @@ export function TotpRecoveryCard({ enrolled }: { enrolled: boolean }) {
               className="mt-3 inline-flex items-center gap-2 rounded-md bg-habb-black px-4 py-2 text-xs font-medium text-white hover:bg-habb-ink disabled:opacity-60"
             >
               {pending ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : null}
-              Notfall-Zugang einrichten
+              Set up emergency access
             </button>
           )}
 
@@ -131,7 +130,7 @@ export function TotpRecoveryCard({ enrolled }: { enrolled: boolean }) {
                 {setup.secret}
               </p>
               <p className="text-xs text-habb-muted">
-                2. Gib zur Bestätigung den aktuellen 6-stelligen Code ein:
+                2. Enter the current 6-digit code to confirm:
               </p>
               <input
                 inputMode="numeric"
@@ -150,7 +149,7 @@ export function TotpRecoveryCard({ enrolled }: { enrolled: boolean }) {
                   className="inline-flex flex-1 items-center justify-center gap-2 rounded-md bg-habb-black px-4 py-2 text-xs font-medium text-white hover:bg-habb-ink disabled:opacity-60"
                 >
                   {pending ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : null}
-                  Bestätigen & aktivieren
+                  Confirm & aktivieren
                 </button>
                 <button
                   type="button"
@@ -159,9 +158,7 @@ export function TotpRecoveryCard({ enrolled }: { enrolled: boolean }) {
                     setCode("");
                   }}
                   className="rounded-md border border-habb-line px-4 py-2 text-xs font-medium text-habb-ink hover:bg-white"
-                >
-                  Abbrechen
-                </button>
+                >Cancel</button>
               </div>
             </div>
           )}

@@ -33,7 +33,7 @@ export function HolidayEditForm({
             router.push("/admin/holidays");
             router.refresh();
           } catch (err) {
-            setError(err instanceof Error ? err.message : "Fehler beim Speichern");
+            setError(err instanceof Error ? err.message : "Error while saving");
           }
         });
       }}

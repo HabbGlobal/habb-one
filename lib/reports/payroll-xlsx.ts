@@ -14,18 +14,18 @@ export function payrollXlsx(report: PayrollDataPoint, exportedBy: string): Buffe
   const summary: (string | number)[][] = [
     ["Personalabrechnung"],
     [],
-    ["Mitarbeiter", `${fullName} (#${report.employee.employeeNumber})`],
+    ["Employee", `${fullName} (#${report.employee.employeeNumber})`],
     ["Zeitraum", `${MONTHS[report.period.month - 1]} ${report.period.year}`],
     ["Erstellt am", new Date().toLocaleString("de-CH", { timeZone: "Europe/Zurich" })],
     ["Exportiert von", exportedBy],
-    ["Firma", report.company.name],
+    ["Company", report.company.name],
     [],
-    ["Stammdaten"],
+    ["Master data"],
     ["Geburtsdatum", fmt(report.employee.dateOfBirth)],
     ["AHV-Nr.", report.employee.ahvNumber ?? ""],
     ["Adresse", report.employee.address ?? ""],
-    ["E-Mail", report.employee.email ?? ""],
-    ["Telefon", report.employee.phone ?? ""],
+    ["Email", report.employee.email ?? ""],
+    ["Phone", report.employee.phone ?? ""],
     [],
     ["Anstellung"],
     ["Anstellungsart", report.employee.employmentType === "MONTHLY_SALARY" ? "Monatslohn" : "Stundenlohn"],
@@ -57,12 +57,12 @@ export function payrollXlsx(report: PayrollDataPoint, exportedBy: string): Buffe
     ["Ort / Datum, Unterschrift Mitarbeiter:in", ""],
     ["Ort / Datum, Unterschrift Vorgesetzte:r", ""],
   ];
-  XLSX.utils.book_append_sheet(wb, XLSX.utils.aoa_to_sheet(summary), "Übersicht");
+  XLSX.utils.book_append_sheet(wb, XLSX.utils.aoa_to_sheet(summary), "Overview");
 
   // ── Sheet 2: Tagesübersicht ──────────────────────────────────────────
   const dayRows: (string | number)[][] = [
     [
-      "Datum",
+      "Date",
       "Wochentag",
       "Soll (h:mm)",
       "Gearbeitet (h:mm)",
@@ -108,7 +108,7 @@ export function payrollXlsx(report: PayrollDataPoint, exportedBy: string): Buffe
   XLSX.utils.book_append_sheet(wb, XLSX.utils.aoa_to_sheet(absRows), "Abwesenheiten");
 
   // ── Sheet 4: Manuelle Korrekturen ────────────────────────────────────
-  const adjRows: (string | number)[][] = [["Datum", "Grund", "Korrektur (h)"]];
+  const adjRows: (string | number)[][] = [["Date", "Grund", "Korrektur (h)"]];
   for (const a of report.adjustments) {
     adjRows.push([a.date, a.reason, formatHours(a.minutes)]);
   }

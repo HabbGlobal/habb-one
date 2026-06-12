@@ -9,12 +9,12 @@ import { KeySquare, Monitor, ShieldCheck } from "lucide-react";
 export const dynamic = "force-dynamic";
 
 /**
- * "Mein Profil" für den eingeloggten Owner-Account. Zeigt Stammdaten,
- * Passkeys und aktive Sessions. Schreib-Aktionen:
- *   - Passwort ändern (Self-Service mit Current-PW-Check)
+ * "My Profile" für den eingeloggten Owner-Account. Zeigt Stammdaten,
+ * Passkeys und aktive Sessions. Schreib-Actionen:
+ *   - Change password (Self-Service mit Current-PW-Check)
  *   - Alle anderen Sessions abmelden
  *
- * Rolle/Email ändern macht jemand mit OWNER_ROOT unter /owner/team —
+ * Role/Email ändern macht jemand mit OWNER_ROOT unter /owner/team —
  * Self-Service-Eskalation wäre eine Lücke.
  */
 export default async function OwnerSettingsPage() {
@@ -70,9 +70,9 @@ export default async function OwnerSettingsPage() {
   return (
     <div className="max-w-3xl space-y-8">
       <header>
-        <p className="text-xs uppercase tracking-[0.18em] text-habb-muted">Plattform</p>
+        <p className="text-xs uppercase tracking-[0.18em] text-habb-muted">Platform</p>
         <h1 className="mt-1 text-2xl font-semibold tracking-tight text-habb-black">
-          Mein Profil
+          My Profile
         </h1>
         <p className="mt-1 text-sm text-habb-muted">
           Eigene Daten, Anmeldeschlüssel und aktive Sitzungen.
@@ -84,14 +84,14 @@ export default async function OwnerSettingsPage() {
         <div className="border-b border-habb-line px-5 py-3">
           <h2 className="text-sm font-semibold text-habb-ink">Account</h2>
           <p className="mt-0.5 text-xs text-habb-muted">
-            Name, E-Mail und Rolle werden vom OWNER_ROOT verwaltet — siehe
-            Owner-Team.
+            Name, Email und Role werden vom OWNER_ROOT verwaltet — siehe
+            Owner Team.
           </p>
         </div>
         <dl className="grid grid-cols-1 gap-x-8 gap-y-3 px-5 py-4 text-sm sm:grid-cols-2">
           <FieldRow label="Name" value={account.name} />
-          <FieldRow label="E-Mail" value={account.email} />
-          <FieldRow label="Rolle" value={account.role} mono />
+          <FieldRow label="Email" value={account.email} />
+          <FieldRow label="Role" value={account.role} mono />
           <FieldRow
             label="Letzte Anmeldung"
             value={
@@ -115,10 +115,10 @@ export default async function OwnerSettingsPage() {
         </dl>
       </section>
 
-      {/* Passwort ändern */}
+      {/* Change password */}
       <section className="rounded-lg border border-habb-line bg-white">
         <div className="border-b border-habb-line px-5 py-3">
-          <h2 className="text-sm font-semibold text-habb-ink">Passwort</h2>
+          <h2 className="text-sm font-semibold text-habb-ink">Password</h2>
           <p className="mt-0.5 text-xs text-habb-muted">
             Mindestens 12 Zeichen. WebAuthn-Passkey bleibt parallel als
             Pflicht-Faktor — Passwort allein reicht nicht für den Login.

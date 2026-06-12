@@ -102,9 +102,7 @@ export function ScheduleExportButton({
                         : "bg-background hover:bg-accent"
                     }`}
                     onClick={() => setMode("week")}
-                  >
-                    Woche
-                  </button>
+                  >Week</button>
                 </div>
               </div>
 

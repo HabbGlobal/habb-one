@@ -34,7 +34,7 @@ export default async function TenantRolesPage({
   if (!tenant) notFound();
 
   // Aktuelle Matrix laden (Defaults ∪ DB-Overrides). Wichtig: HIER
-  // gezielt FÜR diesen Mandanten — nicht für die laufende Owner-Session.
+  // gezielt FÜR diesen Tenanten — nicht für die laufende Owner-Session.
   const matrix = await loadPermissionMatrix(tenant.id);
 
   // Override-Zeilen separat laden für die "abweichend"-Markierung +
@@ -85,9 +85,9 @@ export default async function TenantRolesPage({
           <ShieldCheck className="h-6 w-6 text-habb-ink" />
         </div>
         <div>
-          <h2 className="text-lg font-semibold">Rollen &amp; Rechte</h2>
+          <h2 className="text-lg font-semibold">Rolen &amp; Rechte</h2>
           <p className="text-sm text-muted-foreground mt-1 max-w-3xl">
-            Lege fest, welche Rolle bei <strong>{tenant.name}</strong> welche
+            Lege fest, welche Role bei <strong>{tenant.name}</strong> welche
             Funktionen sehen und ausführen darf.
             {" "}
             <strong className="ml-0">Super-Admin</strong> hat immer alle Rechte
@@ -99,7 +99,7 @@ export default async function TenantRolesPage({
 
       <Card>
         <CardHeader>
-          <CardTitle className="text-base">Rollen-Übersicht</CardTitle>
+          <CardTitle className="text-base">Rolen-Overview</CardTitle>
         </CardHeader>
         <CardContent>
           <ul className="grid grid-cols-1 md:grid-cols-2 gap-3 text-sm">
@@ -143,7 +143,7 @@ export default async function TenantRolesPage({
         </CardHeader>
         <CardContent>
           <p className="text-sm text-muted-foreground mb-3">
-            Einzelne User können von der Rollen-Matrix abweichen — zusätzliche
+            Einzelne User können von der Rolen-Matrix abweichen — zusätzliche
             Rechte erhalten oder welche entzogen bekommen. Verwaltung pro User
             auf der Tab <Link href={`/owner/tenants/${tenant.id}/users`} className="underline">User</Link>.
           </p>

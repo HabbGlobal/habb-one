@@ -31,5 +31,5 @@ export function lifecycleFilter(view: LifecycleView) {
 }
 
 export function lifecycleLabel(view: LifecycleView): string {
-  return { active: "Aktiv", archived: "Archiv", deleted: "Papierkorb" }[view];
+  return { active: "Active", archived: "Archiv", deleted: "Papierkorb" }[view];
 }

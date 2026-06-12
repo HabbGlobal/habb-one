@@ -132,7 +132,7 @@ export default async function CustomerDetailPage({
               {TYPE_LABEL[customer.type]}
             </Badge>
             <Badge variant={customer.isActive ? "success" : "secondary"}>
-              {customer.isActive ? "Aktiv" : "Inaktiv"}
+              {customer.isActive ? "Active" : "Inactive"}
             </Badge>
             {dto.archivedAt && <Badge variant="warning">Archiviert</Badge>}
             {dto.deletedAt && <Badge variant="destructive">Papierkorb</Badge>}
@@ -141,9 +141,7 @@ export default async function CustomerDetailPage({
         <Link
           href="/admin/customers"
           className="text-sm text-muted-foreground hover:underline"
-        >
-          ← Zurück
-        </Link>
+        >← Back</Link>
       </div>
 
       <CustomerDetailTabs

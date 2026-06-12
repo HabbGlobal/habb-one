@@ -51,7 +51,7 @@ export function RegistrationActions({ companyId, companyName }: Props) {
         }
       }
       const json = await res.json().catch(() => ({}));
-      setError(json?.message || "Aktion fehlgeschlagen.");
+      setError(json?.message || "Action fehlgeschlagen.");
       setPendingAction(null);
     });
   };
@@ -70,7 +70,7 @@ export function RegistrationActions({ companyId, companyName }: Props) {
           ) : (
             <Check className="h-3.5 w-3.5" />
           )}
-          Freigeben
+          Approve
         </button>
         <button
           type="button"
@@ -79,7 +79,7 @@ export function RegistrationActions({ companyId, companyName }: Props) {
           className="inline-flex items-center gap-1.5 rounded-md border border-habb-red/30 bg-habb-red/5 px-3 py-1.5 text-xs font-medium text-habb-red hover:bg-habb-red/10 disabled:opacity-60"
         >
           <X className="h-3.5 w-3.5" />
-          Ablehnen
+          Reject
         </button>
       </div>
 
@@ -97,7 +97,7 @@ export function RegistrationActions({ companyId, companyName }: Props) {
               </h2>
               <button
                 onClick={() => setRejectOpen(false)}
-                aria-label="Abbrechen"
+                aria-label="Cancel"
                 className="text-habb-muted hover:text-habb-ink"
               >
                 <X className="h-4 w-4" />
@@ -116,7 +116,7 @@ export function RegistrationActions({ companyId, companyName }: Props) {
               noValidate
             >
               <p className="text-sm text-habb-ink">
-                Begründung wird dem Antragsteller per Mail mitgeteilt.
+                Reason will be sent to applicant via email.
               </p>
               <textarea
                 value={reason}
@@ -138,16 +138,14 @@ export function RegistrationActions({ companyId, companyName }: Props) {
                   type="button"
                   onClick={() => setRejectOpen(false)}
                   className="rounded-md border border-habb-line bg-white px-4 py-2 text-sm font-medium text-habb-ink hover:bg-habb-paper"
-                >
-                  Abbrechen
-                </button>
+                >Cancel</button>
                 <button
                   type="submit"
                   disabled={pending}
                   className="inline-flex items-center gap-2 rounded-md bg-habb-red px-4 py-2 text-sm font-medium text-white hover:bg-habb-red-dark disabled:opacity-60"
                 >
                   {pending && <Loader2 className="h-3.5 w-3.5 animate-spin" />}
-                  Ablehnen
+                  Reject
                 </button>
               </div>
             </form>

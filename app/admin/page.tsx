@@ -396,7 +396,7 @@ export default async function AdminDashboardPage() {
                   <TableHead>Status</TableHead>
                   <TableHead>Seit</TableHead>
                   <TableHead className="text-right">Heute</TableHead>
-                  <TableHead className="text-right">Woche</TableHead>
+                  <TableHead className="text-right">Week</TableHead>
                   <TableHead className="text-right">Saldo</TableHead>
                 </TableRow>
               </TableHeader>

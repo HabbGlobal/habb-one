@@ -77,7 +77,7 @@ const bulkSchema = z.object({
 export type SaveMatrixInput = z.input<typeof bulkSchema>;
 
 /**
- * Speichert die ganze Matrix in einem Rutsch (UI klickt "Speichern" einmal).
+ * Speichert die ganze Matrix in einem Rutsch (UI klickt "Save" einmal).
  * Strategie:
  *  - Pro (role, perm) berechnen wir den gewünschten Override-Eintrag.
  *  - Bestehende Overrides werden via deleteMany gelöscht und dann

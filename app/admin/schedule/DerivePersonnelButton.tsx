@@ -99,7 +99,7 @@ export function DerivePersonnelButton({ anchorDate, view, rangeLabel }: Props) {
           }.`,
         );
       } catch (err) {
-        setError(err instanceof Error ? err.message : "Fehler beim Speichern.");
+        setError(err instanceof Error ? err.message : "Error while saving.");
       }
     });
   };
@@ -302,9 +302,7 @@ export function DerivePersonnelButton({ anchorDate, view, rangeLabel }: Props) {
             </div>
 
             <div className="flex justify-end gap-2 p-5 border-t bg-habb-paper rounded-b-xl">
-              <Button variant="ghost" onClick={close} disabled={pending}>
-                Abbrechen
-              </Button>
+              <Button variant="ghost" onClick={close} disabled={pending}>Cancel</Button>
               <Button
                 onClick={confirm}
                 disabled={pending || loadingPreview || totalAssignments === 0}
@@ -313,7 +311,7 @@ export function DerivePersonnelButton({ anchorDate, view, rangeLabel }: Props) {
                   ? "Speichere …"
                   : totalAssignments
                     ? `${totalAssignments} Einträge schreiben`
-                    : "Schreiben"}
+                    : "Write"}
               </Button>
             </div>
           </div>

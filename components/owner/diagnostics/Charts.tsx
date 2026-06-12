@@ -41,7 +41,7 @@ export function DiagnosticsCharts({
 
   return (
     <div className="grid gap-4 lg:grid-cols-3">
-      <ChartCard title="Mandantenstatus">
+      <ChartCard title="Tenantenstatus">
         <ResponsiveContainer width="100%" height={220}>
           <PieChart>
             <Pie

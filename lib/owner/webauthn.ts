@@ -24,7 +24,7 @@ import type {
 } from "@simplewebauthn/server";
 import { prisma } from "@/lib/prisma";
 
-const RP_NAME = "HABB Global (PVT) LTD Owner Console";
+const RP_NAME = "HABB One Owner Console";
 
 /**
  * Proxy-sichere Origin-Ableitung für die WebAuthn-Ceremonies.

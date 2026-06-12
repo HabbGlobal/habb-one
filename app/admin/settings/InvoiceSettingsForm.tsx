@@ -162,7 +162,7 @@ export function InvoiceSettingsForm({ initial }: { initial: Initial }) {
       <div className="flex justify-end pt-2 border-t">
         <Button onClick={submit} disabled={pending || (qrIban !== "" && !ibanValid)}>
           <Save className="h-4 w-4 mr-1" />
-          {pending ? "Speichern …" : "Banking speichern"}
+          {pending ? "Saving..." : "Banking speichern"}
         </Button>
       </div>
     </div>

@@ -145,9 +145,7 @@ export function AutoPlanButton({ year, month }: { year: number; month: number })
                   {error && <p className="text-sm text-destructive">{error}</p>}
 
                   <div className="flex justify-end gap-2 pt-2">
-                    <Button type="button" variant="ghost" onClick={() => setOpen(false)}>
-                      Abbrechen
-                    </Button>
+                    <Button type="button" variant="ghost" onClick={() => setOpen(false)}>Cancel</Button>
                     <Button type="button" onClick={run} disabled={pending}>
                       Jetzt planen
                     </Button>

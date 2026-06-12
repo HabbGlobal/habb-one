@@ -94,7 +94,7 @@ export function AbsenceTypeForm({ open, onOpenChange, initial }: Props) {
         onOpenChange(false);
         router.refresh();
       } catch (err) {
-        setError(err instanceof Error ? err.message : "Speichern fehlgeschlagen.");
+        setError(err instanceof Error ? err.message : "Save failed.");
       }
     });
   };
@@ -253,11 +253,9 @@ export function AbsenceTypeForm({ open, onOpenChange, initial }: Props) {
                 variant="ghost"
                 onClick={() => onOpenChange(false)}
                 disabled={pending}
-              >
-                Abbrechen
-              </Button>
+              >Cancel</Button>
               <Button type="submit" disabled={pending}>
-                {pending ? "Speichern …" : isEdit ? "Speichern" : "Anlegen"}
+                {pending ? "Saving..." : isEdit ? "Save" : "Anlegen"}
               </Button>
             </div>
           </form>

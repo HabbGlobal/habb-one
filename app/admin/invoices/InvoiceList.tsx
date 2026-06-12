@@ -53,9 +53,9 @@ export function InvoiceList({ rows }: { rows: InvoiceListItemDTO[] }) {
       <TableHeader>
         <TableRow>
           <TableHead className="w-32">Nr.</TableHead>
-          <TableHead>Kunde</TableHead>
+          <TableHead>Customer</TableHead>
           <TableHead className="w-28">Status</TableHead>
-          <TableHead className="w-24">Datum</TableHead>
+          <TableHead className="w-24">Date</TableHead>
           <TableHead className="w-24">Fällig</TableHead>
           <TableHead className="w-16">Mahn.</TableHead>
           <TableHead className="w-32 text-right">Betrag (Brutto)</TableHead>
@@ -101,8 +101,8 @@ export function InvoiceList({ rows }: { rows: InvoiceListItemDTO[] }) {
               <Link
                 href={`/admin/invoices/${i.id}`}
                 className="inline-flex items-center justify-center h-8 w-8 rounded hover:bg-accent transition"
-                aria-label="Bearbeiten"
-                title="Bearbeiten"
+                aria-label="Edit"
+                title="Edit"
               >
                 <Pencil className="h-4 w-4" />
               </Link>

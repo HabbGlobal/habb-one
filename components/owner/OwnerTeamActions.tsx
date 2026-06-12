@@ -23,7 +23,7 @@ type Action =
   | { kind: "reset-2fa" };
 
 /**
- * Per-Row-Aktionen für Owner-Team. Rolle ändern, Disable/Enable,
+ * Per-Row-Actionen für Owner Team. Role ändern, Disable/Enable,
  * 2FA-Reset (zwingt Passkey-Neuregistrierung beim nächsten Login).
  * Alles verlangt Sudo + Begründung.
  */
@@ -73,20 +73,18 @@ export function OwnerTeamActions({ owner }: { owner: OwnerRow }) {
         <PillButton
           icon={Shield}
           onClick={() => setOpen({ kind: "role", newRole: owner.role as OwnerRole })}
-        >
-          Rolle
-        </PillButton>
+        >Role</PillButton>
         {owner.isActive ? (
           <PillButton
             icon={Lock}
             destructive
             onClick={() => setOpen({ kind: "disable" })}
           >
-            Deaktivieren
+            Deactivate
           </PillButton>
         ) : (
           <PillButton icon={Unlock} onClick={() => setOpen({ kind: "enable" })}>
-            Aktivieren
+            Activate
           </PillButton>
         )}
         {owner.hasPasskeys && (
@@ -178,13 +176,13 @@ function ActionModal({
   onRoleChange: (r: OwnerRole) => void;
 }) {
   const titles: Record<Action["kind"], string> = {
-    role: "Rolle ändern",
+    role: "Role ändern",
     disable: "Owner deaktivieren",
     enable: "Owner aktivieren",
     "reset-2fa": "2FA zurücksetzen",
   };
   const bodies: Record<Action["kind"], string> = {
-    role: "Bestehende Sessions werden invalidiert. Neue Rolle gilt beim nächsten Login.",
+    role: "Bestehende Sessions werden invalidiert. Neue Role gilt beim nächsten Login.",
     disable:
       "Der Owner kann sich nicht mehr anmelden. Bestehende Sessions werden NICHT automatisch beendet — falls nötig, separat killen.",
     enable: "Der Owner kann sich wieder anmelden.",
@@ -228,7 +226,7 @@ function ActionModal({
           {action.kind === "role" && (
             <div>
               <label className="block text-xs font-medium uppercase tracking-wide text-habb-muted mb-1">
-                Neue Rolle
+                Neue Role
               </label>
               <select
                 value={action.newRole}
@@ -237,7 +235,7 @@ function ActionModal({
               >
                 <option value="OWNER_SUPPORT">Support (Read-only mit Consent)</option>
                 <option value="OWNER_ADMIN">Admin (Tenants verwalten)</option>
-                <option value="OWNER_ROOT">Root (Vollzugriff)</option>
+                <option value="OWNER_ROOT">Root (Full access)</option>
               </select>
             </div>
           )}
@@ -269,9 +267,7 @@ function ActionModal({
               type="button"
               onClick={onClose}
               className="rounded-md border border-habb-line bg-white px-4 py-2 text-sm font-medium text-habb-ink hover:bg-habb-paper"
-            >
-              Abbrechen
-            </button>
+            >Cancel</button>
             <button
               type="submit"
               disabled={
@@ -285,7 +281,7 @@ function ActionModal({
               }
             >
               {pending && <Loader2 className="h-3.5 w-3.5 animate-spin" />}
-              Bestätigen
+              Confirm
             </button>
           </div>
         </div>
@@ -324,10 +320,10 @@ function dispatch(ownerId: string, action: Action, reason: string) {
 }
 
 function describe(action: Action | null, name: string): string {
-  if (!action) return "Aktion bestätigen";
+  if (!action) return "Action bestätigen";
   switch (action.kind) {
     case "role":
-      return `Rolle von ${name} ändern`;
+      return `Role von ${name} ändern`;
     case "disable":
       return `${name} deaktivieren`;
     case "enable":
@@ -342,16 +338,16 @@ function labelError(code?: string): string {
     case "NOT_FOUND":
       return "Owner nicht gefunden.";
     case "ROOT_PROTECTED":
-      return "Aktion gegen OWNER_ROOT ist gesperrt.";
+      return "Action gegen OWNER_ROOT ist gesperrt.";
     case "SELF_PROTECTED":
-      return "Aktion gegen eigenen Account ist nicht erlaubt.";
+      return "Action gegen eigenen Account ist nicht erlaubt.";
     case "NO_CHANGE":
       return "Keine Änderung.";
     case "EMAIL_EXISTS":
-      return "Diese E-Mail-Adresse existiert bereits.";
+      return "Diese Email-Adresse existiert bereits.";
     case "INVALID":
       return "Eingabe ungültig.";
     default:
-      return "Aktion fehlgeschlagen.";
+      return "Action fehlgeschlagen.";
   }
 }

@@ -475,7 +475,7 @@ export function OrderWizard({
           router.push(`/admin/orders/${initial.orderId}`);
         }
       } catch (err) {
-        setError(err instanceof Error ? err.message : "Fehler beim Speichern.");
+        setError(err instanceof Error ? err.message : "Error while saving.");
       }
     });
   };
@@ -976,7 +976,7 @@ export function OrderWizard({
                           </Select>
                         </div>
                         <div className="col-span-2">
-                          <Label className="text-xs">Maschine</Label>
+                          <Label className="text-xs">Machine</Label>
                           <Select
                             value={s.machineTypeRequired ?? ""}
                             onChange={(e) =>
@@ -1047,11 +1047,9 @@ export function OrderWizard({
             variant="ghost"
             onClick={() => router.back()}
             disabled={pending}
-          >
-            Abbrechen
-          </Button>
+          >Cancel</Button>
           <Button onClick={submit} disabled={pending || !customerId}>
-            {pending ? "Speichern …" : mode === "create" ? "Auftrag anlegen" : "Speichern"}
+            {pending ? "Saving..." : mode === "create" ? "Auftrag anlegen" : "Save"}
           </Button>
         </div>
       </div>

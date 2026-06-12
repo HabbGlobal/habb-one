@@ -11,7 +11,7 @@ interface PageProps {
 }
 
 /**
- * Archiv suspendierter Mandanten. Identische Spalten wie die aktive Liste,
+ * Archiv suspendierter Tenanten. Identische Spalten wie die aktive Liste,
  * zusätzlich "Suspendiert seit" und Grund. Reaktivieren passiert auf der
  * Detail-Seite (Komponente `SuspendButtons`).
  */
@@ -53,12 +53,12 @@ export default async function ArchivedTenantsPage({ searchParams }: PageProps) {
     <div className="space-y-6">
       <header className="flex flex-wrap items-end justify-between gap-4">
         <div>
-          <p className="text-xs uppercase tracking-[0.18em] text-habb-muted">Plattform</p>
+          <p className="text-xs uppercase tracking-[0.18em] text-habb-muted">Platform</p>
           <h1 className="mt-1 text-2xl font-semibold tracking-tight text-habb-black">
-            Mandanten · Archiv
+            Tenanten · Archiv
           </h1>
           <p className="mt-1 text-sm text-habb-muted">
-            {tenants.length} suspendierte{tenants.length === 1 ? "r" : ""} Mandant
+            {tenants.length} suspendierte{tenants.length === 1 ? "r" : ""} Tenant
             {tenants.length === 1 ? "" : "en"}
             {search ? ` für „${search}"` : ""}
           </p>
@@ -70,7 +70,7 @@ export default async function ArchivedTenantsPage({ searchParams }: PageProps) {
             <input
               name="q"
               defaultValue={search}
-              placeholder="Mandant oder Ort suchen…"
+              placeholder="Tenant oder Ort suchen…"
               className="w-72 rounded-lg border border-habb-line bg-white py-2.5 pl-9 pr-3 text-sm focus:border-habb-black focus:outline-none focus:ring-2 focus:ring-habb-red focus:ring-offset-1"
             />
           </div>
@@ -96,21 +96,21 @@ export default async function ArchivedTenantsPage({ searchParams }: PageProps) {
         <table className="min-w-full divide-y divide-habb-line text-sm">
           <thead className="bg-habb-paper text-left text-xs font-medium uppercase tracking-wide text-habb-muted">
             <tr>
-              <th scope="col" className="px-5 py-3">Mandant</th>
+              <th scope="col" className="px-5 py-3">Tenant</th>
               <th scope="col" className="px-5 py-3">Plan</th>
               <th scope="col" className="px-5 py-3">Status</th>
               <th scope="col" className="px-5 py-3">Suspendiert seit</th>
               <th scope="col" className="px-5 py-3">Grund</th>
               <th scope="col" className="px-5 py-3">User</th>
               <th scope="col" className="px-5 py-3">Mitarbeitende</th>
-              <th scope="col" className="px-5 py-3 text-right">Aktion</th>
+              <th scope="col" className="px-5 py-3 text-right">Action</th>
             </tr>
           </thead>
           <tbody className="divide-y divide-habb-line">
             {tenants.length === 0 && (
               <tr>
                 <td colSpan={8} className="px-5 py-12 text-center text-sm text-habb-muted">
-                  Keine suspendierten Mandanten im Archiv.
+                  Keine suspendierten Tenanten im Archiv.
                 </td>
               </tr>
             )}
@@ -154,7 +154,7 @@ export default async function ArchivedTenantsPage({ searchParams }: PageProps) {
       </div>
 
       <p className="text-xs text-habb-muted">
-        Reaktivieren auf der Mandanten-Detail-Seite über &quot;Reaktivieren&quot; — mit Sudo + Begründung,
+        Reaktivieren auf der Tenanten-Detail-Seite über &quot;Reaktivieren&quot; — mit Sudo + Begründung,
         Audit-Eintrag wird automatisch geschrieben.
       </p>
     </div>

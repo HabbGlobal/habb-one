@@ -88,7 +88,7 @@ export function StammdatenForm({ initial }: Props) {
         }
       }
       const json = await res.json().catch(() => ({}));
-      setError(json?.message || "Speichern fehlgeschlagen.");
+      setError(json?.message || "Save failed.");
     });
   };
 
@@ -96,17 +96,15 @@ export function StammdatenForm({ initial }: Props) {
     return (
       <section className="rounded-lg border border-habb-line bg-white">
         <header className="flex items-center justify-between border-b border-habb-line px-5 py-3">
-          <h2 className="text-sm font-medium text-habb-ink">Stammdaten</h2>
+          <h2 className="text-sm font-medium text-habb-ink">Master data</h2>
           <div className="flex items-center gap-3">
-            {savedFlash && <span className="text-xs text-habb-success">Gespeichert</span>}
+            {savedFlash && <span className="text-xs text-habb-success">Saved</span>}
             <button
               type="button"
               onClick={() => setEditing(true)}
               className="inline-flex items-center gap-1.5 rounded-md border border-habb-line bg-white px-3 py-1.5 text-xs font-medium text-habb-ink hover:bg-habb-paper"
             >
-              <Pencil className="h-3.5 w-3.5" />
-              Bearbeiten
-            </button>
+              <Pencil className="h-3.5 w-3.5" />Edit</button>
           </div>
         </header>
         <dl className="grid grid-cols-1 gap-x-8 gap-y-3 px-5 py-4 sm:grid-cols-2">
@@ -138,7 +136,7 @@ export function StammdatenForm({ initial }: Props) {
         className="rounded-lg border border-habb-line bg-white"
       >
         <header className="flex items-center justify-between border-b border-habb-line px-5 py-3">
-          <h2 className="text-sm font-medium text-habb-ink">Stammdaten bearbeiten</h2>
+          <h2 className="text-sm font-medium text-habb-ink">Edit master data</h2>
         </header>
 
         <div className="grid grid-cols-1 gap-x-6 gap-y-4 px-5 py-4 sm:grid-cols-2">
@@ -286,17 +284,13 @@ export function StammdatenForm({ initial }: Props) {
             disabled={pending}
             className="inline-flex items-center gap-1.5 rounded-md border border-habb-line bg-white px-3 py-1.5 text-sm font-medium text-habb-ink hover:bg-habb-paper"
           >
-            <X className="h-3.5 w-3.5" />
-            Abbrechen
-          </button>
+            <X className="h-3.5 w-3.5" />Cancel</button>
           <button
             type="submit"
             disabled={pending}
             className="inline-flex items-center gap-2 rounded-md bg-habb-black px-4 py-1.5 text-sm font-medium text-white hover:bg-habb-ink disabled:opacity-60"
           >
-            {pending ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Save className="h-3.5 w-3.5" />}
-            Speichern
-          </button>
+            {pending ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Save className="h-3.5 w-3.5" />}Save</button>
         </footer>
       </form>
 

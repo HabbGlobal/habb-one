@@ -184,7 +184,7 @@ export async function quotePdf(args: BuildArgs): Promise<Uint8Array> {
   const meta: Array<[string, string]> = [
     ["Offerte-Nr.", quote.quoteNumber],
     ["Status", statusLabel(quote.status)],
-    ["Datum", fmtDate(quote.createdAt)],
+    ["Date", fmtDate(quote.createdAt)],
     ["Gültig bis", fmtDate(quote.validUntil)],
   ];
   for (const [k, v] of meta) {

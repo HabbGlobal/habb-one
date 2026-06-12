@@ -33,7 +33,7 @@ export default async function TenantModulesPage({
 
   return (
     <div className="space-y-6">
-      {/* ── Plan-Steuerung: Plan wechseln → Module folgen automatisch ── */}
+      {/* ── Plan-Steuerung: Switch plan → Module folgen automatisch ── */}
       <section className="rounded-lg border border-habb-line bg-white">
         <header className="flex flex-wrap items-start justify-between gap-3 border-b border-habb-line px-5 py-3">
           <div>

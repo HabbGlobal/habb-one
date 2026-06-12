@@ -43,7 +43,7 @@ export function NotesEditor({ tenantId, initialNotes }: NotesEditorProps) {
         }
       } else {
         setStatus("error");
-        setErrorMsg("Speichern fehlgeschlagen.");
+        setErrorMsg("Save failed.");
       }
     });
   };
@@ -53,10 +53,10 @@ export function NotesEditor({ tenantId, initialNotes }: NotesEditorProps) {
       <header className="flex items-center justify-between border-b border-habb-line px-5 py-3">
         <h2 className="flex items-center gap-2 text-sm font-medium text-habb-ink">
           <FileText className="h-4 w-4 text-habb-muted" />
-          Interne Notizen <span className="text-xs font-normal text-habb-muted">— nur Owner sichtbar</span>
+          Internal notes <span className="text-xs font-normal text-habb-muted">— visible only to Owner</span>
         </h2>
         {status === "saved" && (
-          <span className="text-xs text-habb-success">Gespeichert</span>
+          <span className="text-xs text-habb-success">Saved</span>
         )}
       </header>
       <div className="space-y-3 px-5 py-4">
@@ -81,9 +81,7 @@ export function NotesEditor({ tenantId, initialNotes }: NotesEditorProps) {
             disabled={!dirty || pending}
             className="inline-flex items-center gap-2 rounded-md bg-habb-black px-4 py-2 text-sm font-medium text-white hover:bg-habb-ink disabled:opacity-60"
           >
-            {pending ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Save className="h-3.5 w-3.5" />}
-            Speichern
-          </button>
+            {pending ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Save className="h-3.5 w-3.5" />}Save</button>
         </div>
       </div>
 
@@ -94,7 +92,7 @@ export function NotesEditor({ tenantId, initialNotes }: NotesEditorProps) {
           setShowSudo(false);
           save();
         }}
-        actionLabel="Interne Notizen speichern"
+        actionLabel="Internal notes speichern"
       />
     </section>
   );

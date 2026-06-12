@@ -47,7 +47,7 @@ export function SuspendButtons({ tenantId, isSuspended }: Props) {
         }
       }
       const json = await res.json().catch(() => ({}));
-      setError(json?.message || "Aktion fehlgeschlagen.");
+      setError(json?.message || "Action fehlgeschlagen.");
     });
   };
 
@@ -77,13 +77,12 @@ export function SuspendButtons({ tenantId, isSuspended }: Props) {
         >
           <div className="w-full max-w-md rounded-xl border border-habb-line bg-white shadow-xl">
             <header className="flex items-center justify-between border-b border-habb-line px-5 py-4">
-              <h2 className="text-sm font-semibold text-habb-ink">
-                Mandant {actionLabel.toLowerCase()}
+              <h2 className="text-sm font-semibold text-habb-ink">Tenant{actionLabel.toLowerCase()}
               </h2>
               <button
                 type="button"
                 onClick={() => setOpen(false)}
-                aria-label="Abbrechen"
+                aria-label="Cancel"
                 className="text-habb-muted hover:text-habb-ink"
               >
                 <X className="h-4 w-4" />
@@ -99,8 +98,8 @@ export function SuspendButtons({ tenantId, isSuspended }: Props) {
             >
               <p className="text-sm text-habb-ink">
                 {isSuspended
-                  ? "Der Mandant kann sich danach wieder am Kunden-Login anmelden."
-                  : "Der Mandant kann sich am Kunden-Login nicht mehr anmelden, bis du ihn reaktivierst."}
+                  ? "Der Tenant kann sich danach wieder am Kunden-Login anmelden."
+                  : "Der Tenant kann sich am Kunden-Login nicht mehr anmelden, bis du ihn reaktivierst."}
               </p>
               <label className="block text-xs font-medium uppercase tracking-wide text-habb-muted">
                 Begründung (Pflicht, ≥ 10 Zeichen)
@@ -129,9 +128,7 @@ export function SuspendButtons({ tenantId, isSuspended }: Props) {
                   type="button"
                   onClick={() => setOpen(false)}
                   className="rounded-md border border-habb-line bg-white px-4 py-2 text-sm font-medium text-habb-ink hover:bg-habb-paper"
-                >
-                  Abbrechen
-                </button>
+                >Cancel</button>
                 <button
                   type="submit"
                   disabled={pending}
@@ -142,7 +139,7 @@ export function SuspendButtons({ tenantId, isSuspended }: Props) {
                   }
                 >
                   {pending && <Loader2 className="h-3.5 w-3.5 animate-spin" />}
-                  Bestätigen
+                  Confirm
                 </button>
               </div>
             </form>
@@ -157,7 +154,7 @@ export function SuspendButtons({ tenantId, isSuspended }: Props) {
           setShowSudo(false);
           submit(reason);
         }}
-        actionLabel={`Mandant ${actionLabel.toLowerCase()}`}
+        actionLabel={`Tenant ${actionLabel.toLowerCase()}`}
       />
     </>
   );

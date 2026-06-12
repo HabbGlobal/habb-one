@@ -113,12 +113,12 @@ export function MachineList({ rows, areas, canWrite }: Props) {
       <Table>
         <TableHeader>
           <TableRow>
-            <TableHead>Maschine</TableHead>
+            <TableHead>Machine</TableHead>
             <TableHead>Typ</TableHead>
             <TableHead>Bereich</TableHead>
             <TableHead>Maße / Kapazität</TableHead>
             <TableHead>Status</TableHead>
-            <TableHead className="text-right">Aktion</TableHead>
+            <TableHead className="text-right">Action</TableHead>
           </TableRow>
         </TableHeader>
         <TableBody>
@@ -188,9 +188,9 @@ export function MachineList({ rows, areas, canWrite }: Props) {
                   {isArchived ? (
                     <Badge variant="secondary">Archiviert</Badge>
                   ) : m.isActive ? (
-                    <Badge variant="success">Aktiv</Badge>
+                    <Badge variant="success">Active</Badge>
                   ) : (
-                    <Badge variant="warning">Inaktiv</Badge>
+                    <Badge variant="warning">Inactive</Badge>
                   )}
                 </TableCell>
                 <TableCell className="text-right">
@@ -199,8 +199,8 @@ export function MachineList({ rows, areas, canWrite }: Props) {
                       <Link
                         href={`/admin/machines/${m.id}`}
                         className="inline-flex items-center justify-center w-7 h-7 rounded hover:bg-habb-paper"
-                        aria-label="Bearbeiten"
-                        title="Bearbeiten"
+                        aria-label="Edit"
+                        title="Edit"
                       >
                         <Pencil className="h-4 w-4 text-muted-foreground" />
                       </Link>

@@ -53,7 +53,7 @@ export default async function MachinesPage({
             <Cog className="h-6 w-6 text-habb-ink" />
           </div>
           <div>
-            <h1 className="text-2xl font-semibold">Maschinen</h1>
+            <h1 className="text-2xl font-semibold">Machines</h1>
             <p className="text-sm text-muted-foreground mt-1">
               Werkstatt-Anlagen + Zuordnung zu Bereichen für die automatische
               Personalplanung.

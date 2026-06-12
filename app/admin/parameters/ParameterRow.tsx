@@ -68,8 +68,8 @@ export function ParameterRow({ param, canWrite, onShowHistory }: Props) {
                 type="button"
                 onClick={() => setEditing(true)}
                 className="p-1.5 rounded hover:bg-accent"
-                aria-label="Bearbeiten"
-                title="Bearbeiten"
+                aria-label="Edit"
+                title="Edit"
               >
                 <Pencil className="h-3.5 w-3.5" />
               </button>

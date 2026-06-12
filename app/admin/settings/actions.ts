@@ -81,7 +81,7 @@ export async function setCompanyLogo(input: {
   const session = await auth();
   if (!session?.user) throw new Error("Nicht angemeldet.");
   if (!hasPermission(session.user.role, "settings.write")) {
-    throw new Error("Keine Berechtigung 'Einstellungen bearbeiten'.");
+    throw new Error("Keine Berechtigung 'Edit settings'.");
   }
 
   if (!ALLOWED_LOGO_MIMES.includes(input.mimeType as (typeof ALLOWED_LOGO_MIMES)[number])) {
@@ -123,7 +123,7 @@ export async function clearCompanyLogo() {
   const session = await auth();
   if (!session?.user) throw new Error("Nicht angemeldet.");
   if (!hasPermission(session.user.role, "settings.write")) {
-    throw new Error("Keine Berechtigung 'Einstellungen bearbeiten'.");
+    throw new Error("Keine Berechtigung 'Edit settings'.");
   }
 
   await prisma.company.update({
@@ -157,7 +157,7 @@ export async function setKioskPassword(input: unknown) {
   const session = await auth();
   if (!session?.user) throw new Error("Nicht angemeldet.");
   if (!hasPermission(session.user.role, "settings.write")) {
-    throw new Error("Keine Berechtigung 'Einstellungen bearbeiten'.");
+    throw new Error("Keine Berechtigung 'Edit settings'.");
   }
 
   const data = kioskPasswordSchema.parse(input);
@@ -202,7 +202,7 @@ export async function setKioskLockTimeout(input: unknown) {
   const session = await auth();
   if (!session?.user) throw new Error("Nicht angemeldet.");
   if (!hasPermission(session.user.role, "settings.write")) {
-    throw new Error("Keine Berechtigung 'Einstellungen bearbeiten'.");
+    throw new Error("Keine Berechtigung 'Edit settings'.");
   }
 
   const data = kioskLockTimeoutSchema.parse(input);

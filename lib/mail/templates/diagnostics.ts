@@ -96,7 +96,7 @@ Details: ${DASH}
     "Stündlicher Systemstatus",
     `<p style="margin:0 0 12px 0;">${input.tenants.length} Mandanten · <strong style="color:#DA0E15;">${crit} kritisch</strong> · ${warn} Warnung</p>
      <table style="border-collapse:collapse;font-size:13px;width:100%;">
-       <tr style="text-align:left;color:#6B6B6B;"><th style="padding:6px 10px;">Status</th><th style="padding:6px 10px;">Score</th><th style="padding:6px 10px;">Mandant</th><th style="padding:6px 10px;">Findings</th><th style="padding:6px 10px;">Security</th></tr>
+       <tr style="text-align:left;color:#6B6B6B;"><th style="padding:6px 10px;">Status</th><th style="padding:6px 10px;">Score</th><th style="padding:6px 10px;">Tenant</th><th style="padding:6px 10px;">Findings</th><th style="padding:6px 10px;">Security</th></tr>
        ${htmlRows}
      </table>`,
   );
@@ -128,7 +128,7 @@ Details: ${DASH}
 `;
   const html = shell(
     input.title,
-    `<p style="margin:0 0 8px 0;">Mandant <strong>${escapeHtml(input.tenantName)}</strong> · Schweregrad <strong>${input.severity}</strong> · ${escapeHtml(input.category)}</p>
+    `<p style="margin:0 0 8px 0;">Tenant<strong>${escapeHtml(input.tenantName)}</strong> · Schweregrad <strong>${input.severity}</strong> · ${escapeHtml(input.category)}</p>
      <p style="margin:0 0 12px 0;">${escapeHtml(input.message)}</p>
      <p style="margin:0 0 12px 0;color:#6B6B6B;"><strong>Empfehlung:</strong> ${escapeHtml(input.recommendation || "—")}</p>`,
   );
@@ -157,7 +157,7 @@ Prüfen: ${DASH}
 `;
   const html = shell(
     "Verdächtige Aktivität erkannt",
-    `<p style="margin:0 0 8px 0;">Mandant <strong>${escapeHtml(input.tenantName ?? "Plattform")}</strong> · <strong>${escapeHtml(input.eventType)}</strong></p>
+    `<p style="margin:0 0 8px 0;">Tenant<strong>${escapeHtml(input.tenantName ?? "Plattform")}</strong> · <strong>${escapeHtml(input.eventType)}</strong></p>
      <p style="margin:0 0 8px 0;">Schweregrad <strong>${input.severity}</strong> · Risk-Score ${input.riskScore}</p>
      <p style="margin:0 0 12px 0;">${escapeHtml(input.message)}</p>`,
   );

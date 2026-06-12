@@ -226,9 +226,7 @@ function PinPad({
       </div>
 
       <div className="flex justify-end gap-2">
-        <Button variant="ghost" size="sm" onClick={onCancel} disabled={pending}>
-          Abbrechen
-        </Button>
+        <Button variant="ghost" size="sm" onClick={onCancel} disabled={pending}>Cancel</Button>
         {pending && <span className="text-xs text-habb-muted">Prüfe PIN …</span>}
       </div>
     </div>
@@ -328,9 +326,7 @@ function OverrideForm({
       </p>
 
       <div className="flex justify-end gap-2">
-        <Button type="button" variant="ghost" size="sm" onClick={onCancel} disabled={pending}>
-          Abbrechen
-        </Button>
+        <Button type="button" variant="ghost" size="sm" onClick={onCancel} disabled={pending}>Cancel</Button>
         <Button type="submit" size="sm" disabled={pending}>
           {pending ? "Ausstempel …" : "Jetzt ausstempeln"}
         </Button>

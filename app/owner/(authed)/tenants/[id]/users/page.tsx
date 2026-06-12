@@ -65,18 +65,18 @@ export default async function TenantUsersPage({
           <thead className="bg-habb-paper text-left text-xs font-medium uppercase tracking-wide text-habb-muted">
             <tr>
               <th scope="col" className="px-5 py-3">Name</th>
-              <th scope="col" className="px-5 py-3">E-Mail</th>
-              <th scope="col" className="px-5 py-3">Rolle</th>
+              <th scope="col" className="px-5 py-3">Email</th>
+              <th scope="col" className="px-5 py-3">Role</th>
               <th scope="col" className="px-5 py-3">Status</th>
               <th scope="col" className="px-5 py-3">Letzter Login</th>
-              <th scope="col" className="px-5 py-3 text-right">Aktionen</th>
+              <th scope="col" className="px-5 py-3 text-right">Actions</th>
             </tr>
           </thead>
           <tbody className="divide-y divide-habb-line">
             {users.length === 0 && (
               <tr>
                 <td colSpan={6} className="px-5 py-12 text-center text-sm text-habb-muted">
-                  Keine User in diesem Mandanten.
+                  Keine User in diesem Tenanten.
                 </td>
               </tr>
             )}
@@ -106,19 +106,13 @@ export default async function TenantUsersPage({
                       className="inline-flex items-center gap-1 text-xs text-habb-red"
                       title={u.lockedReason ?? ""}
                     >
-                      <span className="h-1.5 w-1.5 rounded-full bg-habb-red" />
-                      Gesperrt
-                    </span>
+                      <span className="h-1.5 w-1.5 rounded-full bg-habb-red" />Suspended</span>
                   ) : u.isActive ? (
                     <span className="inline-flex items-center gap-1 text-xs text-habb-success">
-                      <span className="h-1.5 w-1.5 rounded-full bg-habb-success" />
-                      Aktiv
-                    </span>
+                      <span className="h-1.5 w-1.5 rounded-full bg-habb-success" />Active</span>
                   ) : (
                     <span className="inline-flex items-center gap-1 text-xs text-habb-muted">
-                      <span className="h-1.5 w-1.5 rounded-full bg-habb-muted" />
-                      Inaktiv
-                    </span>
+                      <span className="h-1.5 w-1.5 rounded-full bg-habb-muted" />Inactive</span>
                   )}
                 </td>
                 <td className="px-5 py-3 text-habb-muted">

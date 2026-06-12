@@ -66,9 +66,9 @@ export default async function EditMachinePage({
           {machine.archivedAt ? (
             <Badge variant="secondary">Archiviert</Badge>
           ) : machine.isActive ? (
-            <Badge variant="success">Aktiv</Badge>
+            <Badge variant="success">Active</Badge>
           ) : (
-            <Badge variant="warning">Inaktiv</Badge>
+            <Badge variant="warning">Inactive</Badge>
           )}
         </div>
       </div>

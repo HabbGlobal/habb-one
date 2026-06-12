@@ -257,7 +257,7 @@ export function BulkRangeEditor({
               <span className="text-muted-foreground">Keine Tage ausgewählt.</span>
             ) : (
               <span>
-                <strong>{dates.length}</strong> Tag{dates.length === 1 ? "" : "e"} werden
+                <strong>{dates.length}</strong>Day{dates.length === 1 ? "" : "e"} werden
                 {overwrite ? " überschrieben oder" : " neu"} gesetzt.
               </span>
             )}
@@ -266,9 +266,7 @@ export function BulkRangeEditor({
           {error && <p className="text-sm text-destructive">{error}</p>}
 
           <div className="flex justify-end gap-2 pt-2">
-            <Button type="button" variant="ghost" onClick={onClose}>
-              Abbrechen
-            </Button>
+            <Button type="button" variant="ghost" onClick={onClose}>Cancel</Button>
             <Button type="button" onClick={submit} disabled={pending || dates.length === 0}>
               {dates.length > 0
                 ? `${dates.length} Tag${dates.length === 1 ? "" : "e"} planen`

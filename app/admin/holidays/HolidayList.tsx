@@ -20,7 +20,7 @@ export interface HolidayRow {
 
 export function HolidayList({ rows, view }: { rows: HolidayRow[]; view: LifecycleView }) {
   const columns: ColumnDef<HolidayRow>[] = [
-    { header: "Datum", cell: (h) => localDateString(h.date) },
+    { header: "Date", cell: (h) => localDateString(h.date) },
     { header: "DE", cell: (h) => h.nameDe },
     { header: "EN", cell: (h) => h.nameEn },
     { header: "Anteil", cell: (h) => h.fraction.toString() },

@@ -24,7 +24,7 @@ export function OwnerRoleMatrixEditor({ tenantId, ...rest }: Props) {
       {...rest}
       onSave={onSave}
       onResetRole={onResetRole}
-      headerHint="Änderungen wirken sofort auf alle User dieses Mandanten."
+      headerHint="Änderungen wirken sofort auf alle User dieses Tenanten."
     />
   );
 }

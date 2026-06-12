@@ -97,7 +97,7 @@ export default async function KioskActionsPage({
           subtitle={tKiosk("title")}
           logoVersion={employee.company.updatedAt.getTime().toString()}
           rightSlot={
-            // WICHTIG: kein simpler Link! Der "Zurück"-Klick MUSS die
+            // WICHTIG: kein simpler Link! Der "Back"-Klick MUSS die
             // Kiosk-PIN-Session sofort löschen, sonst kann der Nachfolger
             // am Tablet via Browser-Forward auf diese Seite zurück.
             <form action={endKioskSessionAction}>

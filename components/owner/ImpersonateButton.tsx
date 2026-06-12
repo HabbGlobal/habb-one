@@ -25,7 +25,7 @@ interface ConsentInfo {
 const DURATION_OPTIONS = [15, 30, 60, 120, 240];
 
 /**
- * "Anmelden als"-Button + zweistufiger Modal-Flow.
+ * "Sign in as"-Button + zweistufiger Modal-Flow.
  *  Stufe 1: Reason + Scope + Dauer → POST /request → OTP geht an Kunde
  *  Stufe 2: Owner tippt OTP, den er vom Kunden persönlich erfragt
  *           POST /verify → Cookie wird gesetzt → Redirect nach /admin
@@ -151,13 +151,13 @@ export function ImpersonateButton({ user }: Props) {
         className="inline-flex items-center gap-1.5 rounded-md border border-habb-line bg-white px-3 py-1.5 text-xs font-medium text-habb-ink hover:bg-habb-paper"
       >
         <LogIn className="h-3.5 w-3.5" />
-        Anmelden als
+        Sign in as
       </button>
 
       {stage === "request" && (
-        <ModalShell title={`Anmelden als ${user.name}`} onClose={close}>
+        <ModalShell title={`Sign in as ${user.name}`} onClose={close}>
           <p className="text-sm text-habb-muted">
-            Wir senden einen 6-stelligen Code per E-Mail an{" "}
+            Wir senden einen 6-stelligen Code per Email an{" "}
             <span className="text-habb-ink">{user.email}</span>. Der Kunde muss
             den Code persönlich weitergeben, bevor die Sitzung startet.
           </p>
@@ -179,20 +179,20 @@ export function ImpersonateButton({ user }: Props) {
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             <div>
               <label className="block text-xs font-medium uppercase tracking-wide text-habb-muted mb-1">
-                Berechtigung
+                Permission
               </label>
               <div className="flex gap-2">
                 <ScopePill active={scope === "READONLY"} onClick={() => setScope("READONLY")}>
-                  Nur Lesen
+                  Read only
                 </ScopePill>
                 <ScopePill active={scope === "FULL"} onClick={() => setScope("FULL")}>
-                  Vollzugriff
+                  Full access
                 </ScopePill>
               </div>
             </div>
             <div>
               <label className="block text-xs font-medium uppercase tracking-wide text-habb-muted mb-1">
-                Maximale Dauer
+                Max duration
               </label>
               <select
                 value={durationMinutes}
@@ -211,9 +211,9 @@ export function ImpersonateButton({ user }: Props) {
           {error && <ErrorBox>{error}</ErrorBox>}
 
           <ModalFooter>
-            <CancelButton onClick={close}>Abbrechen</CancelButton>
+            <CancelButton onClick={close}>Cancel</CancelButton>
             <PrimaryButton onClick={submitRequest} pending={pending}>
-              Code senden
+              Send code
             </PrimaryButton>
           </ModalFooter>
         </ModalShell>
@@ -224,7 +224,7 @@ export function ImpersonateButton({ user }: Props) {
           <div className="rounded-lg border border-habb-line bg-habb-paper px-4 py-3 text-sm">
             <div className="flex items-center gap-2 text-habb-success">
               <Shield className="h-3.5 w-3.5" />
-              <span className="font-medium">Code wurde gesendet</span>
+              <span className="font-medium">Code sent</span>
             </div>
             <p className="mt-1 text-habb-ink">
               Empfänger:{" "}
@@ -233,19 +233,19 @@ export function ImpersonateButton({ user }: Props) {
             <p className="mt-0.5 text-xs text-habb-muted">
               {consent.emailDelivered
                 ? `Gültig bis ${new Date(consent.expiresAt).toLocaleTimeString("de-CH")}`
-                : "E-Mail-Zustellung unsicher — bitte Kunden direkt anrufen."}
+                : "Email-Zustellung unsicher — bitte Kunden direkt anrufen."}
             </p>
           </div>
 
           <p className="text-sm text-habb-ink">
             Bitte den Code mündlich vom Kunden erfragen und hier eintippen.
             Der Code wurde nirgendwo sonst angezeigt — er lebt ausschließlich
-            in der E-Mail des Kunden.
+            in der Email des Kunden.
           </p>
 
           <div>
             <label className="block text-xs font-medium uppercase tracking-wide text-habb-muted mb-1">
-              6-stelliger Bestätigungscode
+              6-digit confirmation code
             </label>
             <input
               value={otp}
@@ -266,9 +266,9 @@ export function ImpersonateButton({ user }: Props) {
           {error && <ErrorBox>{error}</ErrorBox>}
 
           <ModalFooter>
-            <CancelButton onClick={cancelConsent}>Abbrechen + Code sperren</CancelButton>
+            <CancelButton onClick={cancelConsent}>Cancel + lock code</CancelButton>
             <PrimaryButton onClick={submitOtp} pending={pending}>
-              Sitzung starten
+              Start session
             </PrimaryButton>
           </ModalFooter>
         </ModalShell>
@@ -281,7 +281,7 @@ export function ImpersonateButton({ user }: Props) {
           setShowSudo(false);
           submitRequest();
         }}
-        actionLabel={`Anmelden als ${user.name}`}
+        actionLabel={`Sign in as ${user.name}`}
       />
     </>
   );
@@ -452,7 +452,7 @@ function labelRequestError(code?: string, message?: string): string {
     case "USER_INACTIVE":
       return "Ziel-User ist inaktiv.";
     case "COMPANY_SUSPENDED":
-      return "Mandant ist suspendiert — Impersonation nicht möglich.";
+      return "Tenant ist suspendiert — Impersonation nicht möglich.";
     case "INVALID":
       return message || "Eingabe ungültig.";
     default:

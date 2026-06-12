@@ -181,7 +181,7 @@ export function StepBillingRow({
               className="h-6 w-6 p-0"
               onClick={cancel}
               disabled={pending}
-              title="Abbrechen"
+              title="Cancel"
             >
               <X className="h-3 w-3" />
             </Button>
@@ -190,7 +190,7 @@ export function StepBillingRow({
               className="h-6 w-6 p-0"
               onClick={save}
               disabled={pending}
-              title="Speichern"
+              title="Save"
             >
               <Check className="h-3 w-3" />
             </Button>

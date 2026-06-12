@@ -180,9 +180,7 @@ export function InvoiceActions({
               size="sm"
               onClick={() => setShowPaid(false)}
               disabled={pending}
-            >
-              Abbrechen
-            </Button>
+            >Cancel</Button>
             <Button onClick={onMarkPaid} size="sm" disabled={pending}>
               <CheckCircle2 className="h-4 w-4 mr-1" />
               Als bezahlt markieren

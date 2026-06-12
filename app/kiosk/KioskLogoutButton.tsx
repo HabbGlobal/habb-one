@@ -45,7 +45,7 @@ export function KioskLogoutButton({ mode = "lock" }: { mode?: "lock" | "account"
       title={mode === "account" ? "Abmelden (Schicht-Ende)" : "Tablet sperren (Schicht-Ende)"}
     >
       <LogOut className="h-4 w-4" />
-      {mode === "account" ? "Abmelden" : "Sperren"}
+      {mode === "account" ? "Sign out" : "Suspend"}
     </button>
   );
 }

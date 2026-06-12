@@ -45,7 +45,7 @@ export function PasswordChangeForm() {
         const data = await res.json().catch(() => ({}));
         setError(
           data?.error === "WRONG_PASSWORD"
-            ? "Aktuelles Passwort ist falsch."
+            ? "Current password ist falsch."
             : data?.error === "WEAK_PASSWORD"
               ? "Neues Passwort ist zu schwach."
               : "Ändern fehlgeschlagen. Bitte erneut versuchen.",
@@ -61,7 +61,7 @@ export function PasswordChangeForm() {
   return (
     <form onSubmit={onSubmit} className="space-y-3 max-w-md">
       <Field
-        label="Aktuelles Passwort"
+        label="Current password"
         name="currentPassword"
         autoComplete="current-password"
         required
@@ -87,7 +87,7 @@ export function PasswordChangeForm() {
       )}
       {success && (
         <p className="rounded-md border border-habb-success/30 bg-habb-success/5 px-3 py-2 text-xs text-habb-success flex items-center gap-1.5">
-          <Check className="h-3.5 w-3.5" /> Passwort wurde aktualisiert.
+          <Check className="h-3.5 w-3.5" /> Password updated.
         </p>
       )}
 
@@ -97,7 +97,7 @@ export function PasswordChangeForm() {
         className="inline-flex items-center gap-2 rounded-md bg-habb-black px-4 py-2 text-sm font-medium text-white hover:bg-habb-ink disabled:opacity-60"
       >
         {pending && <Loader2 className="h-3.5 w-3.5 animate-spin" />}
-        Passwort ändern
+        Change password
       </button>
     </form>
   );

@@ -36,7 +36,7 @@ export default async function RegistrationsPage() {
   return (
     <div className="space-y-6">
       <header>
-        <p className="text-xs uppercase tracking-[0.18em] text-habb-muted">Plattform</p>
+        <p className="text-xs uppercase tracking-[0.18em] text-habb-muted">Platform</p>
         <h1 className="mt-1 text-2xl font-semibold tracking-tight text-habb-black">
           Registrierungs-Anfragen
         </h1>
@@ -56,7 +56,7 @@ export default async function RegistrationsPage() {
         <section className="rounded-lg border border-dashed border-habb-line bg-white px-5 py-10 text-center">
           <h2 className="text-sm font-medium text-habb-ink">Keine offenen Anfragen</h2>
           <p className="mt-1 text-xs text-habb-muted">
-            Neue Self-Registrierungen landen automatisch hier, sobald die E-Mail bestätigt ist.
+            Neue Self-Registrations landen automatisch hier, sobald die Email bestätigt ist.
           </p>
         </section>
       ) : (
@@ -84,7 +84,7 @@ export default async function RegistrationsPage() {
                       )}
                     </div>
                     <dl className="mt-2 grid grid-cols-1 gap-x-6 gap-y-1 text-xs sm:grid-cols-2">
-                      <Row label="Telefon" value={r.phone || "—"} />
+                      <Row label="Phone" value={r.phone || "—"} />
                       <Row
                         label="Adresse"
                         value={[r.address, r.city, r.country].filter(Boolean).join(", ") || "—"}
@@ -114,7 +114,7 @@ export default async function RegistrationsPage() {
                       href={`/owner/tenants/${r.id}`}
                       className="text-xs text-habb-muted underline-offset-2 hover:underline"
                     >
-                      Mandanten-Profil öffnen →
+                      Tenanten-Profil öffnen →
                     </Link>
                   </div>
                 </div>

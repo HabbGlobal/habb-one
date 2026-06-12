@@ -202,8 +202,7 @@ export default async function SchedulerPage({
           <h1 className="text-2xl font-semibold flex items-center gap-2">
             <CalendarIcon className="h-6 w-6" /> Werkstatt-Plan
           </h1>
-          <p className="text-sm text-muted-foreground">
-            Woche {fmtDate(monday)} – {fmtDate(addDays(monday, 4))}
+          <p className="text-sm text-muted-foreground">Week{fmtDate(monday)} – {fmtDate(addDays(monday, 4))}
           </p>
         </div>
         <div className="flex items-center gap-2">
@@ -247,7 +246,7 @@ export default async function SchedulerPage({
             <table className="w-full text-xs">
               <thead className="bg-muted/40 border-b">
                 <tr>
-                  <th className="text-left px-3 py-2 w-44 font-medium">Maschine</th>
+                  <th className="text-left px-3 py-2 w-44 font-medium">Machine</th>
                   {weekDays.map((d, i) => (
                     <th
                       key={isoDate(d)}
@@ -306,7 +305,7 @@ export default async function SchedulerPage({
                                         {fmtTime(e.plannedStart)}–{fmtTime(e.plannedEnd)}
                                       </span>
                                       {e.isLocked && (
-                                        <span title="Gesperrt" className="text-[10px]">🔒</span>
+                                        <span title="Suspended" className="text-[10px]">🔒</span>
                                       )}
                                       {hasConflict && (
                                         <AlertTriangle className="h-3 w-3 text-destructive" />

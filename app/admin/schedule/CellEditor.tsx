@@ -86,7 +86,7 @@ export function CellEditor({
         router.refresh();
         onClose();
       } catch (err) {
-        setError(err instanceof Error ? err.message : "Fehler beim Speichern");
+        setError(err instanceof Error ? err.message : "Error while saving");
       }
     });
   };
@@ -219,12 +219,8 @@ export function CellEditor({
               Eintrag löschen
             </Button>
             <div className="flex gap-2">
-              <Button type="button" variant="ghost" onClick={onClose}>
-                Abbrechen
-              </Button>
-              <Button type="button" onClick={save} disabled={pending}>
-                Speichern
-              </Button>
+              <Button type="button" variant="ghost" onClick={onClose}>Cancel</Button>
+              <Button type="button" onClick={save} disabled={pending}>Save</Button>
             </div>
           </div>
         </CardContent>

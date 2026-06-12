@@ -8,7 +8,7 @@ import { SudoPromptModal } from "./SudoPromptModal";
 type OwnerRole = "OWNER_SUPPORT" | "OWNER_ADMIN" | "OWNER_ROOT";
 
 /**
- * Create-Owner-Modal. Owner-Root erfasst E-Mail + Name + Rolle, der
+ * Create-Owner-Modal. Owner-Root erfasst Email + Name + Role, der
  * Server generiert ein Initial-Passwort (Show-Once-Modal), das per
  * sicherem Kanal an den neuen Owner übergeben wird. Passkey-Enrollment
  * erfolgt beim ersten Login.
@@ -38,7 +38,7 @@ export function CreateOwnerButton() {
       reason: String(fd.get("reason") ?? "").trim(),
     };
     if (!payload.email || !payload.name) {
-      setError("E-Mail und Name sind Pflicht.");
+      setError("Email und Name sind Pflicht.");
       return;
     }
     if (payload.reason.length < 10) {
@@ -63,7 +63,7 @@ export function CreateOwnerButton() {
         const json = await res.json().catch(() => ({}));
         setError(
           json?.error === "EMAIL_EXISTS"
-            ? "Diese E-Mail-Adresse existiert bereits."
+            ? "Diese Email-Adresse existiert bereits."
             : json?.message || "Anlegen fehlgeschlagen.",
         );
         return;
@@ -118,12 +118,10 @@ export function CreateOwnerButton() {
               </button>
             </header>
             <div className="space-y-4 px-5 py-5">
-              <Field label="E-Mail" name="email" type="email" required />
+              <Field label="Email" name="email" type="email" required />
               <Field label="Name" name="name" required />
               <div>
-                <label className="block text-xs font-medium uppercase tracking-wide text-habb-muted mb-1">
-                  Rolle
-                </label>
+                <label className="block text-xs font-medium uppercase tracking-wide text-habb-muted mb-1">Role</label>
                 <select
                   name="role"
                   defaultValue="OWNER_SUPPORT"
@@ -131,7 +129,7 @@ export function CreateOwnerButton() {
                 >
                   <option value="OWNER_SUPPORT">Support (Read-only mit Consent)</option>
                   <option value="OWNER_ADMIN">Admin (Tenants verwalten)</option>
-                  <option value="OWNER_ROOT">Root (Vollzugriff)</option>
+                  <option value="OWNER_ROOT">Root (Full access)</option>
                 </select>
               </div>
               <div>
@@ -157,9 +155,7 @@ export function CreateOwnerButton() {
                   type="button"
                   onClick={reset}
                   className="rounded-md border border-habb-line bg-white px-4 py-2 text-sm font-medium text-habb-ink hover:bg-habb-paper"
-                >
-                  Abbrechen
-                </button>
+                >Cancel</button>
                 <button
                   type="submit"
                   disabled={pending}
@@ -189,7 +185,7 @@ export function CreateOwnerButton() {
             </header>
             <div className="space-y-4 px-5 py-5">
               <p className="text-sm text-habb-ink">
-                Übermittle das Passwort jetzt direkt an{" "}
+                Transmit the password directly to{" "}
                 <span className="font-medium">{createdPwd.email}</span>. Nach
                 Schließen ist es weg — niemand (auch nicht OWNER_ROOT) kann es
                 später wieder einsehen.

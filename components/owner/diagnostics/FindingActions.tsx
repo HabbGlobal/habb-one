@@ -34,7 +34,7 @@ export function FindingActions({ findingId }: { findingId: string }) {
         return;
       }
       const j = await res.json().catch(() => ({}));
-      setErr(j?.message || "Aktion fehlgeschlagen.");
+      setErr(j?.message || "Action fehlgeschlagen.");
     });
 
   return (
@@ -45,21 +45,21 @@ export function FindingActions({ findingId }: { findingId: string }) {
         onClick={() => patch("acknowledged")}
         className="rounded-md border border-habb-line px-2 py-1 text-xs hover:bg-habb-paper"
       >
-        Bestätigen
+        Confirm
       </button>
       <button
         type="button"
         onClick={() => patch("resolved")}
         className="rounded-md border border-habb-success/40 px-2 py-1 text-xs text-habb-success hover:bg-habb-success/5"
       >
-        Gelöst
+        Resolved
       </button>
       <button
         type="button"
         onClick={() => patch("ignored", true)}
         className="rounded-md border border-habb-line px-2 py-1 text-xs text-habb-muted hover:bg-habb-paper"
       >
-        Ignorieren
+        Ignore
       </button>
       {err && <span className="text-xs text-habb-red">{err}</span>}
     </div>

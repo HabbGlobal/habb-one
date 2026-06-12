@@ -304,9 +304,7 @@ export function ScanClient({
                 className="flex-1"
                 onClick={cancelForm}
                 disabled={pending}
-              >
-                Abbrechen
-              </Button>
+              >Cancel</Button>
               <Button
                 onClick={submitAction}
                 disabled={pending}

@@ -452,7 +452,7 @@ function formatLate(min: number): string {
   const h = Math.floor(min / 60);
   if (h < 24) return `${h} h`;
   const d = Math.floor(h / 24);
-  return `${d} ${d === 1 ? "Tag" : "Tage"}`;
+  return `${d} ${d === 1 ? "Day" : "Tage"}`;
 }
 
 // ─────────────────────────────────────────

@@ -108,7 +108,7 @@ export const PLANS: PlanSpec[] = [
     limits: [
       { label: "Employees", value: "up to 3" },
       { label: "Invoices / Month", value: "up to 20" },
-      { label: "Support", value: "E-Mail" },
+      { label: "Support", value: "Email" },
     ],
   },
   {
@@ -127,7 +127,7 @@ export const PLANS: PlanSpec[] = [
     limits: [
       { label: "Employees", value: "up to 10" },
       { label: "Payroll Export", value: "PDF + Excel" },
-      { label: "Support", value: "E-Mail" },
+      { label: "Support", value: "Email" },
     ],
   },
   {

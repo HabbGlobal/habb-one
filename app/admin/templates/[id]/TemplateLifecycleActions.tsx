@@ -76,8 +76,7 @@ export function TemplateLifecycleActions({
             }
             disabled={pending}
           >
-            <Trash2 className="h-4 w-4 mr-1" /> Löschen
-          </Button>
+            <Trash2 className="h-4 w-4 mr-1" />Delete</Button>
         )}
       </div>
       {error && <span className="text-xs text-destructive">{error}</span>}

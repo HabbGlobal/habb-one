@@ -75,7 +75,7 @@ function buildPlanSheet(
   const headerRowIdx = 5;
   const headerRow = ws.getRow(headerRowIdx);
   headerRow.values = [
-    "Mitarbeiter",
+    "Employee",
     ...report.days.map((d) => `${d.weekdayLabel} ${d.dayLabel}`),
   ];
   headerRow.font = { bold: true, color: { argb: HEADER_FG } };

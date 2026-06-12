@@ -29,11 +29,11 @@ export function ReportControls({ defaultYear, defaultMonth, employees }: Props) 
     <div className="space-y-4">
       <div className="grid grid-cols-1 md:grid-cols-4 gap-3">
         <div className="space-y-1">
-          <Label>Jahr</Label>
+          <Label>Year</Label>
           <Input type="number" value={year} onChange={(e) => setYear(Number(e.target.value))} />
         </div>
         <div className="space-y-1">
-          <Label>Monat</Label>
+          <Label>Month</Label>
           <Select value={month} onChange={(e) => setMonth(Number(e.target.value))}>
             {Array.from({ length: 12 }, (_, i) => i + 1).map((m) => (
               <option key={m} value={m}>
