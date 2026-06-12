@@ -107,7 +107,7 @@ export function InvoiceSettingsForm({ initial }: { initial: Initial }) {
           <Input
             value={creditorName}
             onChange={(e) => setCreditorName(e.target.value)}
-            placeholder="z. B. Tschannen Spritzwerk AG"
+            placeholder="z. B. habb global Spritzwerk AG"
           />
           <div className="text-xs text-muted-foreground">
             Leer lassen für Firmen-Namen aus den Stammdaten.

@@ -5,8 +5,8 @@
 //
 // Verwendung:
 //   pnpm tsx scripts/create-kiosk-user.ts \
-//     --company "Tschannen Spritzwerk AG" \
-//     --email zeit@tschannen.ch \
+//     --company "habb global Spritzwerk AG" \
+//     --email zeit@habb global.ch \
 //     --password "Zeit1234" \
 //     [--name "Werkstatt-Tablet"]
 //

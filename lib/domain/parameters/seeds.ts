@@ -1,4 +1,4 @@
-// All system-parameter seeds for the Tschannen ERP. Single source of
+// All system-parameter seeds for the habb global ERP. Single source of
 // truth for the values listed in the briefing's Sektion 2 — every default
 // time, oven temperature, multiplier, and rate lives here. Code MUST NOT
 // hardcode any of these values; it loads them through the parameter store
@@ -27,36 +27,36 @@ export interface ParameterSeed {
 const PROCESS_TIMES: Array<[code: string, defaultMin: number, label: string]> = [
   // Vorbereitung
   ["DEGREASE_MANUAL", 1.5, "Entfettung manuell — Min/m²"],
-  ["CHEM_PRETREAT",   2.0, "Chemische Vorbehandlung — Min/m²"],
-  ["MASKING",         4.0, "Maskieren / Abkleben — Min/m²"],
-  ["MOUNTING",        1.0, "Aufhängen / Bestücken — Min/m²"],
+  ["CHEM_PRETREAT", 2.0, "Chemische Vorbehandlung — Min/m²"],
+  ["MASKING", 4.0, "Maskieren / Abkleben — Min/m²"],
+  ["MOUNTING", 1.0, "Aufhängen / Bestücken — Min/m²"],
   // Sandstrahlen
-  ["BLAST_SA1",        3.0, "Strahlen Sa 1 (leicht) — Min/m²"],
-  ["BLAST_SA2",        5.0, "Strahlen Sa 2 (gründlich) — Min/m²"],
-  ["BLAST_SA25",       7.5, "Strahlen Sa 2.5 (sehr gründlich) — Min/m²"],
-  ["BLAST_SA3",       12.0, "Strahlen Sa 3 (Reinmetall) — Min/m²"],
-  ["BLAST_GLASS",      4.5, "Glasperlenstrahlen — Min/m²"],
+  ["BLAST_SA1", 3.0, "Strahlen Sa 1 (leicht) — Min/m²"],
+  ["BLAST_SA2", 5.0, "Strahlen Sa 2 (gründlich) — Min/m²"],
+  ["BLAST_SA25", 7.5, "Strahlen Sa 2.5 (sehr gründlich) — Min/m²"],
+  ["BLAST_SA3", 12.0, "Strahlen Sa 3 (Reinmetall) — Min/m²"],
+  ["BLAST_GLASS", 4.5, "Glasperlenstrahlen — Min/m²"],
   // Nasslackieren
-  ["WP_PRIMER",        2.0, "Grundierung Nasslack — Min/m²"],
-  ["WP_SANDING",       3.0, "Zwischenschliff — Min/m²"],
-  ["WP_TOP_1K",        2.5, "Decklack 1K — Min/m²"],
-  ["WP_TOP_2K",        2.5, "Decklack 2K — Min/m²"],
-  ["WP_CLEAR",         2.0, "Klarlack — Min/m²"],
+  ["WP_PRIMER", 2.0, "Grundierung Nasslack — Min/m²"],
+  ["WP_SANDING", 3.0, "Zwischenschliff — Min/m²"],
+  ["WP_TOP_1K", 2.5, "Decklack 1K — Min/m²"],
+  ["WP_TOP_2K", 2.5, "Decklack 2K — Min/m²"],
+  ["WP_CLEAR", 2.0, "Klarlack — Min/m²"],
   // Pulverbeschichtung
-  ["PC_APPLICATION",   1.5, "Pulverauftrag — Min/m²"],
+  ["PC_APPLICATION", 1.5, "Pulverauftrag — Min/m²"],
   // Nachbereitung
-  ["UNMASKING",        2.0, "Demaskieren — Min/m²"],
+  ["UNMASKING", 2.0, "Demaskieren — Min/m²"],
 ];
 
 // Pauschalen ohne Min/m² (Demontage, QC, Touchup, Packaging, Curing)
 // werden über `process.<CODE>.flatMinutes` modelliert.
 const PROCESS_FLAT_MINUTES: Array<[code: string, defaultMin: number, label: string]> = [
-  ["DISASSEMBLY",     20, "Demontage — Pauschale Min/Auftrag"],
-  ["QUALITY_CHECK",   10, "Qualitätskontrolle — Pauschale Min/Position"],
-  ["TOUCHUP",         15, "Nacharbeit Touch-up — Pauschale Min/Position"],
-  ["PACKAGING",       10, "Verpackung — Pauschale Min/Position"],
-  ["PC_CURING",       20, "Aushärten Pulver — Pauschale Min/Charge"],
-  ["PC_DOUBLE",       40, "Doppelbeschichtung — Pauschale Min/Position"],
+  ["DISASSEMBLY", 20, "Demontage — Pauschale Min/Auftrag"],
+  ["QUALITY_CHECK", 10, "Qualitätskontrolle — Pauschale Min/Position"],
+  ["TOUCHUP", 15, "Nacharbeit Touch-up — Pauschale Min/Position"],
+  ["PACKAGING", 10, "Verpackung — Pauschale Min/Position"],
+  ["PC_CURING", 20, "Aushärten Pulver — Pauschale Min/Charge"],
+  ["PC_DOUBLE", 40, "Doppelbeschichtung — Pauschale Min/Position"],
 ];
 
 // ─────────────────────────────────────────
@@ -93,32 +93,32 @@ const CURING_PROFILES = [
 // DRYING — Trocknung Nasslack je Lacktyp + Modus
 // ─────────────────────────────────────────
 const DRYING_PROFILES: Array<[sub: string, modeRT: number, modeOven: number, label: string]> = [
-  ["primer",     45,  20, "Grundierung — Trocknung"],
-  ["top1k",      360, 30, "Decklack 1K — Trocknung"],
-  ["top2k",      720, 30, "Decklack 2K — Trocknung"],
-  ["clear",      360, 30, "Klarlack — Trocknung"],
+  ["primer", 45, 20, "Grundierung — Trocknung"],
+  ["top1k", 360, 30, "Decklack 1K — Trocknung"],
+  ["top2k", 720, 30, "Decklack 2K — Trocknung"],
+  ["clear", 360, 30, "Klarlack — Trocknung"],
 ];
 
 // ─────────────────────────────────────────
 // MATERIAL — Multiplikatoren auf Strahl-/Vorbehandlungszeit
 // ─────────────────────────────────────────
 const MATERIAL_FACTORS: Array<[material: string, factor: number, label: string]> = [
-  ["STEEL_S235",    1.00, "Stahl S235 — Multiplikator (Referenz)"],
-  ["STEEL_HIGH_C",  1.15, "Höher legierter Stahl — Multiplikator"],
-  ["STAINLESS",     1.25, "Edelstahl — Multiplikator"],
-  ["ALUMINIUM",     0.85, "Aluminium — Multiplikator"],
-  ["GALVANIZED",    1.10, "Verzinkt — Multiplikator"],
-  ["CAST_IRON",     1.30, "Guss — Multiplikator"],
-  ["OTHER",         1.00, "Sonstiges Material — Multiplikator"],
+  ["STEEL_S235", 1.00, "Stahl S235 — Multiplikator (Referenz)"],
+  ["STEEL_HIGH_C", 1.15, "Höher legierter Stahl — Multiplikator"],
+  ["STAINLESS", 1.25, "Edelstahl — Multiplikator"],
+  ["ALUMINIUM", 0.85, "Aluminium — Multiplikator"],
+  ["GALVANIZED", 1.10, "Verzinkt — Multiplikator"],
+  ["CAST_IRON", 1.30, "Guss — Multiplikator"],
+  ["OTHER", 1.00, "Sonstiges Material — Multiplikator"],
 ];
 
 // ─────────────────────────────────────────
 // COMPLEXITY — Multiplikatoren für Maskieren/Touchup
 // ─────────────────────────────────────────
 const COMPLEXITY_FACTORS: Array<[level: string, factor: number, label: string]> = [
-  ["SIMPLE",       0.8, "Komplexität Einfach"],
-  ["NORMAL",       1.0, "Komplexität Normal"],
-  ["COMPLEX",      1.4, "Komplexität Komplex"],
+  ["SIMPLE", 0.8, "Komplexität Einfach"],
+  ["NORMAL", 1.0, "Komplexität Normal"],
+  ["COMPLEX", 1.4, "Komplexität Komplex"],
   ["VERY_COMPLEX", 1.8, "Komplexität Sehr komplex"],
 ];
 
@@ -126,12 +126,12 @@ const COMPLEXITY_FACTORS: Array<[level: string, factor: number, label: string]> 
 // PRICING — Stundensätze, Zuschläge
 // ─────────────────────────────────────────
 const PRICING_RATES_MACHINE: Array<[type: string, rate: number, label: string]> = [
-  ["BLAST_CABIN",  120, "Stundensatz Strahlkabine"],
-  ["CHEM_BATH",     90, "Stundensatz Chemiebecken"],
-  ["PAINT_CABIN",  140, "Stundensatz Lackierkabine"],
+  ["BLAST_CABIN", 120, "Stundensatz Strahlkabine"],
+  ["CHEM_BATH", 90, "Stundensatz Chemiebecken"],
+  ["PAINT_CABIN", 140, "Stundensatz Lackierkabine"],
   ["POWDER_CABIN", 150, "Stundensatz Pulverkabine"],
-  ["CURING_OVEN",   80, "Stundensatz Einbrennofen"],
-  ["DRYING_OVEN",   80, "Stundensatz Trockenofen"],
+  ["CURING_OVEN", 80, "Stundensatz Einbrennofen"],
+  ["DRYING_OVEN", 80, "Stundensatz Trockenofen"],
 ];
 
 // ─────────────────────────────────────────

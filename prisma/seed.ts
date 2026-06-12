@@ -1,5 +1,5 @@
 // Seed data for local development.
-//   - 1 company (Tschannen Spritzwerk AG)
+//   - 1 company (habb global Spritzwerk AG)
 //   - 1 admin user
 //   - 1 secretary user
 //   - 5 employees with varied employment models
@@ -16,17 +16,17 @@ import bcrypt from "bcryptjs";
 
 const prisma = new PrismaClient();
 
-const ADMIN_EMAIL = process.env.SEED_ADMIN_EMAIL ?? "admin@tschannen.ch";
+const ADMIN_EMAIL = process.env.SEED_ADMIN_EMAIL ?? "admin@habbglobal.com";
 const ADMIN_PASSWORD = process.env.SEED_ADMIN_PASSWORD ?? "admin1234";
 
 async function main() {
   console.log("→ Seeding…");
 
   const company = await prisma.company.upsert({
-    where: { id: "tschannen" },
+    where: { id: "habb global" },
     create: {
-      id: "tschannen",
-      name: "Tschannen Spritzwerk AG",
+      id: "habb global",
+      name: "habb global Spritzwerk AG",
       address: "Industriestrasse 1",
       city: "Burgdorf",
       country: "CH",
@@ -44,7 +44,7 @@ async function main() {
   });
 
   // Super-Admin (System-Administrator — kann Rollen-Matrix bearbeiten)
-  const SUPERADMIN_EMAIL = process.env.SEED_SUPERADMIN_EMAIL ?? "superadmin@tschannen.ch";
+  const SUPERADMIN_EMAIL = process.env.SEED_SUPERADMIN_EMAIL ?? "superadmin@habbglobal.com";
   const SUPERADMIN_PASSWORD = process.env.SEED_SUPERADMIN_PASSWORD ?? "superadmin1234";
   await prisma.user.upsert({
     where: { email: SUPERADMIN_EMAIL },
@@ -55,6 +55,7 @@ async function main() {
       passwordHash: await bcrypt.hash(SUPERADMIN_PASSWORD, 10),
       role: "SUPERADMIN",
       preferredLanguage: "de",
+      emailVerifiedAt: new Date(),
     },
     update: {},
   });
@@ -69,20 +70,22 @@ async function main() {
       passwordHash: await bcrypt.hash(ADMIN_PASSWORD, 10),
       role: "ADMIN",
       preferredLanguage: "de",
+      emailVerifiedAt: new Date(),
     },
     update: {},
   });
 
   // Sekretärin (rolle PLANNER)
   await prisma.user.upsert({
-    where: { email: "sekretariat@tschannen.ch" },
+    where: { email: "sekretariat@habbglobal.com" },
     create: {
       companyId: company.id,
-      email: "sekretariat@tschannen.ch",
+      email: "sekretariat@habbglobal.com",
       name: "Sekretärin",
       passwordHash: await bcrypt.hash("sekretariat1234", 10),
       role: "PLANNER",
       preferredLanguage: "de",
+      emailVerifiedAt: new Date(),
     },
     update: {},
   });
@@ -90,14 +93,15 @@ async function main() {
   // Produktionsmitarbeiter-Demo (rolle EMPLOYEE) — optional Login,
   // primär arbeiten Werkstatt-Mitarbeiter via Kiosk-PIN.
   await prisma.user.upsert({
-    where: { email: "produktion@tschannen.ch" },
+    where: { email: "produktion@habbglobal.com" },
     create: {
       companyId: company.id,
-      email: "produktion@tschannen.ch",
+      email: "produktion@habbglobal.com",
       name: "Produktionsmitarbeiter (Demo)",
       passwordHash: await bcrypt.hash("produktion1234", 10),
       role: "EMPLOYEE",
       preferredLanguage: "de",
+      emailVerifiedAt: new Date(),
     },
     update: {},
   });
@@ -121,17 +125,17 @@ async function main() {
     });
   }
 
-  // Default work areas for Tschannen Spritzwerk.
+  // Default work areas for habb global Spritzwerk.
   // Capacity rules:
   //   - Sandstrahlen, Pulvern: one machine each → max 1 employee per day
   //   - Vor- & Nachbereitung: must always be staffed by ≥ 2 people
   //   - All others: no fixed bounds
   const areas = [
-    { name: "Sandstrahlen",       colorHex: "#f59e0b", sortOrder: 1, minEmployeesPerDay: null, maxEmployeesPerDay: 1 },
-    { name: "Nasslackieren",      colorHex: "#3b82f6", sortOrder: 2, minEmployeesPerDay: null, maxEmployeesPerDay: null },
-    { name: "Pulvern",            colorHex: "#10b981", sortOrder: 3, minEmployeesPerDay: null, maxEmployeesPerDay: 1 },
-    { name: "Vor- & Nachbereitung", colorHex: "#8b5cf6", sortOrder: 4, minEmployeesPerDay: 2,    maxEmployeesPerDay: null },
-    { name: "Lieferung",          colorHex: "#ef4444", sortOrder: 5, minEmployeesPerDay: null, maxEmployeesPerDay: null },
+    { name: "Sandstrahlen", colorHex: "#f59e0b", sortOrder: 1, minEmployeesPerDay: null, maxEmployeesPerDay: 1 },
+    { name: "Nasslackieren", colorHex: "#3b82f6", sortOrder: 2, minEmployeesPerDay: null, maxEmployeesPerDay: null },
+    { name: "Pulvern", colorHex: "#10b981", sortOrder: 3, minEmployeesPerDay: null, maxEmployeesPerDay: 1 },
+    { name: "Vor- & Nachbereitung", colorHex: "#8b5cf6", sortOrder: 4, minEmployeesPerDay: 2, maxEmployeesPerDay: null },
+    { name: "Lieferung", colorHex: "#ef4444", sortOrder: 5, minEmployeesPerDay: null, maxEmployeesPerDay: null },
   ];
   for (const a of areas) {
     await prisma.workArea.upsert({
@@ -440,7 +444,7 @@ async function main() {
         status: "APPROVED",
         decidedAt: new Date(),
       },
-    }).catch(() => {});
+    }).catch(() => { });
   }
 
   // ─────────────────────────────────────────
@@ -510,7 +514,7 @@ async function main() {
   console.log("Admin login:");
   console.log(`  ${ADMIN_EMAIL} / ${ADMIN_PASSWORD}\n`);
   console.log("Secretary login:");
-  console.log(`  sekretariat@tschannen.ch / sekretariat1234\n`);
+  console.log(`  sekretariat@habb global.ch / sekretariat1234\n`);
   console.log("Employee PINs (kiosk):");
   for (const e of created) {
     console.log(`  ${e.employeeNumber}: ${e.pin}`);
@@ -930,8 +934,8 @@ async function seedDemoCustomersAndOrders(companyId: string, adminUserId: string
       changedAt: Date;
       comment: string | null;
     }> = [
-      { fromStatus: null, toStatus: "DRAFT", changedAt: spec.receivedAt, comment: "Auftrag erfasst" },
-    ];
+        { fromStatus: null, toStatus: "DRAFT", changedAt: spec.receivedAt, comment: "Auftrag erfasst" },
+      ];
     const s: typeof spec & { confirmedAt?: Date; startedAt?: Date; completedAt?: Date; deliveredAt?: Date; onHoldComment?: string } = spec;
     if (s.confirmedAt) {
       historyRows.push({

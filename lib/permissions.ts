@@ -250,7 +250,7 @@ const matrixCache = new Map<string, CacheEntry>();
 /**
  * Zuletzt geladener companyId — der sync `hasPermission()`-Helper liest
  * von hier, wenn die Caller-Site den companyId-Kontext nicht durchreichen
- * kann (z. B. Sidebar-Filter). In Single-Tenant-Setups (Tschannen) ist
+ * kann (z. B. Sidebar-Filter). In Single-Tenant-Setups (habb global) ist
  * das genau richtig.
  */
 let lastLoadedCompanyId: string | null = null;

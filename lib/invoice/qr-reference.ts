@@ -3,7 +3,7 @@
 // Spezifikation: Swiss Implementation Guidelines QR-Bill (SIX, Stand 2024).
 //
 // Format: 27 Ziffern (26 Daten + 1 Prüfziffer Modulo-10-rekursiv).
-// Konvention für TSchannen:
+// Konvention für habb global:
 //   • Stellen 1-7: Mandanten-/Firma-ID (auf 7 padded mit Nullen)
 //   • Stellen 8-26: Fortlaufende Rechnungs-ID (Cuid-basiert in Ziffern + Padding)
 //   • Stelle 27: Prüfziffer

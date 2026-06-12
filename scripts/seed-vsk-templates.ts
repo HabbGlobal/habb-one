@@ -6,7 +6,7 @@
  *
  * Run:  tsx scripts/seed-vsk-templates.ts
  *
- * Templates sind so designed, dass sie Tschannens beide Preislisten
+ * Templates sind so designed, dass sie habb globals beide Preislisten
  * abdecken (Industrie/Stahlbau + Fahrzeug/Motors) und auf VSKs vier
  * Stationen aufbauen: Sandstrahlen, Pulverkabine, Nasslack-Kabine,
  * Einbrennofen.
@@ -28,7 +28,7 @@ interface VskTemplate {
 // 13 Vorlagen — Industrie/Stahlbau (1–6) und Motors/Fahrzeug (7–13)
 // ─────────────────────────────────────────────────────────────
 const TEMPLATES: VskTemplate[] = [
-  // ── Industrie / Stahlbau (aus Tschannen Liste 1) ──
+  // ── Industrie / Stahlbau (aus habb global Liste 1) ──
   {
     key: "industrie-pulver-aussen",
     label: "Industrie Pulver — Aussenbereich (2-Schicht)",
@@ -151,7 +151,7 @@ const TEMPLATES: VskTemplate[] = [
     ],
   },
 
-  // ── Motors / Fahrzeug (aus Tschannen Liste 2 — VSK-Kernsortiment) ──
+  // ── Motors / Fahrzeug (aus habb global Liste 2 — VSK-Kernsortiment) ──
   {
     key: "velo-rahmen-komplett",
     label: "Velo Rahmen (inkl. Gabel/Lenker)",

@@ -21,18 +21,18 @@ function escapeHtml(s: string): string {
 
 function shell(title: string, bodyHtml: string): string {
   return `<!doctype html>
-<html lang="de">
+<html lang="en">
 <body style="font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Helvetica,Arial,sans-serif;background:#FAFAF9;margin:0;padding:0;color:#1A1A1A;">
   <div style="max-width:560px;margin:0 auto;padding:32px 24px;">
     <div style="font-weight:600;font-size:18px;letter-spacing:-0.02em;">
-      habb<span style="color:#DA0E15">.ch</span>
+      HABB<span style="color:#DA0E15"> One</span>
     </div>
     <h1 style="font-size:22px;font-weight:600;margin:24px 0 12px 0;">${escapeHtml(title)}</h1>
     ${bodyHtml}
     <hr style="border:none;border-top:1px solid #E7E5E4;margin:24px 0;" />
     <p style="font-size:12px;color:#6B6B6B;line-height:1.55;margin:0;">
-      Bei Fragen: <a href="mailto:support@HABB Global (PVT) LTD" style="color:#1A1A1A;">support@HABB Global (PVT) LTD</a>.
-      Verdacht auf Missbrauch: <a href="mailto:security@HABB Global (PVT) LTD" style="color:#1A1A1A;">security@HABB Global (PVT) LTD</a>.
+      For questions: <a href="mailto:support@habbglobal.com" style="color:#1A1A1A;">support@habbglobal.com</a>.
+      Suspected abuse: <a href="mailto:security@habbglobal.com" style="color:#1A1A1A;">security@habbglobal.com</a>.
     </p>
   </div>
 </body>
@@ -49,49 +49,49 @@ export interface VerifyMailInput {
 }
 
 export function buildEmailVerificationMail(input: VerifyMailInput) {
-  const expires = input.expiresAt.toLocaleString("de-CH", {
-    timeZone: "Europe/Zurich",
+  const expires = input.expiresAt.toLocaleString("en-US", {
+    timeZone: "UTC",
     dateStyle: "medium",
     timeStyle: "short",
   });
-  const subject = "Bitte E-Mail-Adresse bestätigen — HABB One";
+  const subject = "Please verify your email address — HABB One";
 
-  const text = `Guten Tag ${input.recipientName}
+  const text = `Hello ${input.recipientName}
 
-Vielen Dank für die Registrierung von "${input.companyName}" bei HABB One.
+Thank you for registering "${input.companyName}" with HABB One.
 
-Bitte bestätigen Sie Ihre E-Mail-Adresse durch Klick auf folgenden Link:
+Please confirm your email address by clicking the following link:
 ${input.verifyUrl}
 
-Der Link ist bis ${expires} (Schweizer Zeit) gültig.
+The link is valid until ${expires} (UTC).
 
-Nach der Bestätigung prüft das HABB Global (PVT) LTD Team Ihre Anfrage und gibt Ihren
-Zugang frei. Sie erhalten dann eine weitere E-Mail.
+After confirmation, the HABB One team will review your request and activate
+your access. You will receive another email once this is done.
 
-Haben Sie sich NICHT registriert? Tun Sie nichts — der Link läuft ab.
+Did you NOT register? Do nothing — the link will expire.
 `.trim();
 
   const html = shell(
-    "E-Mail bestätigen",
+    "Verify email",
     `
     <p style="line-height:1.55;margin:0 0 16px 0;">
-      Guten Tag <strong>${escapeHtml(input.recipientName)}</strong>,
+      Hello <strong>${escapeHtml(input.recipientName)}</strong>,
     </p>
     <p style="line-height:1.55;margin:0 0 16px 0;">
-      Vielen Dank für die Registrierung von <strong>${escapeHtml(input.companyName)}</strong> bei HABB One.
-      Bitte bestätigen Sie Ihre E-Mail-Adresse:
+      Thank you for registering <strong>${escapeHtml(input.companyName)}</strong> with HABB One.
+      Please verify your email address:
     </p>
     <p style="margin:28px 0;">
       <a href="${input.verifyUrl}" style="display:inline-block;background:#0A0A0A;color:#FFFFFF;padding:14px 28px;border-radius:8px;text-decoration:none;font-weight:500;">
-        E-Mail bestätigen
+        Verify email
       </a>
     </p>
     <p style="font-size:13px;color:#6B6B6B;line-height:1.55;margin:0 0 8px 0;">
-      Gültig bis ${escapeHtml(expires)} (Schweizer Zeit).
+      Valid until ${escapeHtml(expires)} (UTC).
     </p>
     <p style="font-size:13px;color:#6B6B6B;line-height:1.55;margin:0 0 16px 0;">
-      Nach der Bestätigung prüft das HABB Global (PVT) LTD Team Ihre Anfrage und gibt Ihren
-      Zugang frei. Sie erhalten dann eine weitere Nachricht.
+      After confirmation, the HABB One team will review your request and activate
+      your access. You will receive another message once this is done.
     </p>
   `,
   );
@@ -107,36 +107,34 @@ export interface SubmittedMailInput {
 }
 
 export function buildRegistrationSubmittedMail(input: SubmittedMailInput) {
-  const subject = "Registrierung eingegangen — HABB One";
-  const text = `Guten Tag ${input.recipientName}
+  const subject = "Registration received — HABB One";
+  const text = `Hello ${input.recipientName}
 
-Wir haben Ihre Registrierung für "${input.companyName}" erhalten und prüfen
-sie nun manuell. Sobald Ihr Zugang freigegeben ist, melden wir uns per
-E-Mail.
+We have received your registration for "${input.companyName}" and are currently
+reviewing it manually. Once your access is activated, we will notify you by
+email.
 
-In der Zwischenzeit können Sie sich bei HABB One anmelden und Ihr Firmen-
-Profil bearbeiten. Alle anderen Funktionen sind erst nach der Freigabe
-zugänglich.
+In the meantime, you can log in to HABB One and edit your company profile.
+All other features will be accessible after activation.
 
-Freundliche Grüsse
-Ihr HABB Global (PVT) LTD Team
+Best regards
+Your HABB One Team
 `.trim();
 
   const html = shell(
-    "Registrierung eingegangen",
+    "Registration received",
     `
     <p style="line-height:1.55;margin:0 0 16px 0;">
-      Guten Tag <strong>${escapeHtml(input.recipientName)}</strong>,
+      Hello <strong>${escapeHtml(input.recipientName)}</strong>,
     </p>
     <p style="line-height:1.55;margin:0 0 16px 0;">
-      Wir haben Ihre Registrierung für <strong>${escapeHtml(input.companyName)}</strong>
-      erhalten und prüfen sie nun manuell. Sobald Ihr Zugang freigegeben ist,
-      melden wir uns per E-Mail.
+      We have received your registration for <strong>${escapeHtml(input.companyName)}</strong>
+      and are currently reviewing it manually. Once your access is activated,
+      we will notify you by email.
     </p>
     <p style="line-height:1.55;margin:0 0 16px 0;">
-      In der Zwischenzeit können Sie sich bei HABB One anmelden und Ihr Firmen-
-      Profil bearbeiten. Alle anderen Funktionen sind erst nach der Freigabe
-      zugänglich.
+      In the meantime, you can log in to HABB One and edit your company profile.
+      All other features will be accessible after activation.
     </p>
   `,
   );
@@ -153,33 +151,33 @@ export interface ApprovedMailInput {
 }
 
 export function buildRegistrationApprovedMail(input: ApprovedMailInput) {
-  const subject = "Ihr HABB One-Zugang ist freigegeben";
-  const text = `Guten Tag ${input.recipientName}
+  const subject = "Your HABB One access is activated";
+  const text = `Hello ${input.recipientName}
 
-Schön, dass Sie dabei sind: Ihr HABB One-Zugang für "${input.companyName}"
-ist soeben freigegeben worden. Sie können sich ab sofort anmelden und
-HABB One vollständig nutzen.
+Welcome aboard: Your HABB One access for "${input.companyName}"
+has just been activated. You can now log in and
+use HABB One fully.
 
-Anmeldung: ${input.loginUrl}
+Login: ${input.loginUrl}
 
-Freundliche Grüsse
-Ihr HABB Global (PVT) LTD Team
+Best regards
+Your HABB One Team
 `.trim();
 
   const html = shell(
-    "Zugang freigegeben",
+    "Access activated",
     `
     <p style="line-height:1.55;margin:0 0 16px 0;">
-      Guten Tag <strong>${escapeHtml(input.recipientName)}</strong>,
+      Hello <strong>${escapeHtml(input.recipientName)}</strong>,
     </p>
     <p style="line-height:1.55;margin:0 0 16px 0;">
-      Schön, dass Sie dabei sind: Ihr HABB One-Zugang für
-      <strong>${escapeHtml(input.companyName)}</strong> ist soeben freigegeben
-      worden. Sie können sich ab sofort anmelden und HABB One vollständig nutzen.
+      Welcome aboard: Your HABB One access for
+      <strong>${escapeHtml(input.companyName)}</strong> has just been activated.
+      You can now log in and use HABB One fully.
     </p>
     <p style="margin:28px 0;">
       <a href="${input.loginUrl}" style="display:inline-block;background:#0A0A0A;color:#FFFFFF;padding:14px 28px;border-radius:8px;text-decoration:none;font-weight:500;">
-        Jetzt anmelden
+        Log in now
       </a>
     </p>
   `,
@@ -197,35 +195,34 @@ export interface RejectedMailInput {
 }
 
 export function buildRegistrationRejectedMail(input: RejectedMailInput) {
-  const subject = "Ihre HABB One-Registrierung wurde abgelehnt";
-  const text = `Guten Tag ${input.recipientName}
+  const subject = "Your HABB One registration was rejected";
+  const text = `Hello ${input.recipientName}
 
-Leider können wir Ihre Registrierung für "${input.companyName}" nicht
-freigeben.
+Unfortunately, we cannot activate your registration for "${input.companyName}".
 
-Begründung: ${input.reason}
+Reason: ${input.reason}
 
-Bei Rückfragen wenden Sie sich gerne an support@HABB Global (PVT) LTD.
+If you have any questions, please contact support@habbglobal.com.
 
-Freundliche Grüsse
-Ihr HABB Global (PVT) LTD Team
+Best regards
+Your HABB One Team
 `.trim();
 
   const html = shell(
-    "Registrierung abgelehnt",
+    "Registration rejected",
     `
     <p style="line-height:1.55;margin:0 0 16px 0;">
-      Guten Tag <strong>${escapeHtml(input.recipientName)}</strong>,
+      Hello <strong>${escapeHtml(input.recipientName)}</strong>,
     </p>
     <p style="line-height:1.55;margin:0 0 12px 0;">
-      Leider können wir Ihre Registrierung für
-      <strong>${escapeHtml(input.companyName)}</strong> nicht freigeben.
+      Unfortunately, we cannot activate your registration for
+      <strong>${escapeHtml(input.companyName)}</strong>.
     </p>
     <p style="line-height:1.55;margin:0 0 12px 0;">
-      <strong>Begründung:</strong> ${escapeHtml(input.reason)}
+      <strong>Reason:</strong> ${escapeHtml(input.reason)}
     </p>
     <p style="line-height:1.55;margin:0 0 16px 0;">
-      Bei Rückfragen: <a href="mailto:support@HABB Global (PVT) LTD" style="color:#1A1A1A;">support@HABB Global (PVT) LTD</a>.
+      For questions: <a href="mailto:support@habbglobal.com" style="color:#1A1A1A;">support@habbglobal.com</a>.
     </p>
   `,
   );
@@ -252,43 +249,43 @@ export interface OwnerNewRegistrationMailInput {
  * Bewusst sachlich (kein Marketing-Ton) — das ist eine Ops-Mail.
  */
 export function buildOwnerNewRegistrationMail(input: OwnerNewRegistrationMailInput) {
-  const subject = `Neue Registrierung wartet auf Freigabe: ${input.companyName}`;
+  const subject = `New registration waiting for approval: ${input.companyName}`;
   const locationLine = [input.city, input.country].filter(Boolean).join(", ") || "—";
 
-  const text = `Neue Mandanten-Registrierung — E-Mail bestätigt, wartet auf Freigabe.
+  const text = `New Tenant Registration — Email verified, waiting for approval.
 
-Firma:       ${input.companyName}
-Antragsteller: ${input.applicantName} <${input.applicantEmail}>
-Telefon:     ${input.phone || "—"}
-Standort:    ${locationLine}
+Company:       ${input.companyName}
+Applicant:     ${input.applicantName} <${input.applicantEmail}>
+Phone:         ${input.phone || "—"}
+Location:      ${locationLine}
 
-Prüfen + freigeben/ablehnen:
+Review + approve/reject:
 ${input.reviewUrl}
 
-Diese Mail wurde automatisch ausgelöst, sobald die Registrierung den
-Status PENDING_APPROVAL erreicht hat.
+This email was automatically triggered when the registration reached
+PENDING_APPROVAL status.
 `.trim();
 
   const html = shell(
-    "Neue Registrierung wartet auf Freigabe",
+    "New registration waiting for approval",
     `
     <p style="line-height:1.55;margin:0 0 16px 0;">
-      Eine neue Mandanten-Registrierung hat die E-Mail-Verifizierung
-      bestanden und wartet jetzt im Owner-Portal auf Freigabe oder Ablehnung.
+      A new tenant registration has passed email verification
+      and is now waiting in the Owner Portal for approval or rejection.
     </p>
     <table cellpadding="0" cellspacing="0" style="font-size:14px;line-height:1.6;margin:0 0 20px 0;">
-      <tr><td style="color:#6B6B6B;padding-right:16px;">Firma</td><td><strong>${escapeHtml(input.companyName)}</strong></td></tr>
-      <tr><td style="color:#6B6B6B;padding-right:16px;">Antragsteller</td><td>${escapeHtml(input.applicantName)} &lt;${escapeHtml(input.applicantEmail)}&gt;</td></tr>
-      <tr><td style="color:#6B6B6B;padding-right:16px;">Telefon</td><td>${escapeHtml(input.phone || "—")}</td></tr>
-      <tr><td style="color:#6B6B6B;padding-right:16px;">Standort</td><td>${escapeHtml(locationLine)}</td></tr>
+      <tr><td style="color:#6B6B6B;padding-right:16px;">Company</td><td><strong>${escapeHtml(input.companyName)}</strong></td></tr>
+      <tr><td style="color:#6B6B6B;padding-right:16px;">Applicant</td><td>${escapeHtml(input.applicantName)} &lt;${escapeHtml(input.applicantEmail)}&gt;</td></tr>
+      <tr><td style="color:#6B6B6B;padding-right:16px;">Phone</td><td>${escapeHtml(input.phone || "—")}</td></tr>
+      <tr><td style="color:#6B6B6B;padding-right:16px;">Location</td><td>${escapeHtml(locationLine)}</td></tr>
     </table>
     <p style="margin:24px 0;">
       <a href="${input.reviewUrl}" style="display:inline-block;background:#0A0A0A;color:#FFFFFF;padding:14px 28px;border-radius:8px;text-decoration:none;font-weight:500;">
-        Im Owner-Portal prüfen
+        Review in Owner Portal
       </a>
     </p>
     <p style="font-size:13px;color:#6B6B6B;line-height:1.55;margin:0;">
-      Automatisch ausgelöst beim Übergang auf PENDING_APPROVAL.
+      Automatically triggered on transition to PENDING_APPROVAL.
     </p>
   `,
   );

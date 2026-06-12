@@ -4,7 +4,7 @@
  * auth-gated und nicht direkt aufrufbar). Repliziert exakt was
  * replaceTimeEntryDay schreibt + liest via getDayStatsForRange.
  *
- * 1. Findet Tschannen-Mitarbeiter Balakirishanth + einen reducesTarget-Typ.
+ * 1. Findet habb global-Mitarbeiter Balakirishanth + einen reducesTarget-Typ.
  * 2. Legt eine Einzeltag-Absence an (status APPROVED) für einen Testtag.
  * 3. getDayStatsForRange → erwartet: Absence sichtbar, Soll reduziert.
  * 4. Wenn ein countsAsWorked-Typ existiert: zusätzlicher Check.

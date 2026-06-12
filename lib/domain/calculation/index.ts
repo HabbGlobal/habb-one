@@ -1,4 +1,4 @@
-// Pure calculation functions for the Tschannen ERP.
+// Pure calculation functions for the habb global ERP.
 //
 // Reading rules:
 //   - All functions are PURE — no DB calls, no Date.now(), no network.

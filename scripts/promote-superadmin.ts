@@ -3,7 +3,7 @@
 // Verwendung:
 //   pnpm tsx scripts/promote-superadmin.ts <email>
 //   # Beispiel:
-//   pnpm tsx scripts/promote-superadmin.ts admin@tschannen.ch
+//   pnpm tsx scripts/promote-superadmin.ts admin@habb global.ch
 //
 // Nutzen:
 //   Der SUPERADMIN ist der einzige Account, der unter /admin/roles die

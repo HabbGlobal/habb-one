@@ -1,4 +1,4 @@
-// Tschannen Spritzwerk AG — Zeiterfassung
+// habb global Spritzwerk AG — Zeiterfassung
 // Prisma schema. Design notes:
 //   - One TimeEntry per employee per local date. TimePunches store raw events,
 //     BreakEntries store break ranges. Calculated balances are NEVER stored

@@ -23,62 +23,61 @@ export function buildPasswordResetMail(input: PasswordResetMailInput) {
     dateStyle: "medium",
     timeStyle: "short",
   });
-  const subject = "Passwort zurücksetzen — HABB One";
+  const subject = "Reset your password — HABB One";
 
-  const text = `Guten Tag ${input.recipientName}
+  const text = `Hello ${input.recipientName}
 
-${input.initiatedByLabel} (${input.initiatedByName}) hat einen Passwort-Reset
-für Ihren HABB One-Account ausgelöst. Bitte klicken Sie folgenden Link, um
-ein neues Passwort zu setzen:
+${input.initiatedByLabel} (${input.initiatedByName}) has requested a password reset
+for your HABB One account. Please click the link below to
+set a new password:
 
 ${input.resetUrl}
 
-Der Link ist bis ${expires} (Schweizer Zeit) gültig und kann nur ein einziges
-Mal verwendet werden.
+The link is valid until ${expires} and can only be used once.
 
-Haben Sie diesen Reset NICHT angefordert? Tun Sie nichts — der Link läuft
-automatisch ab. Bei Verdacht auf Missbrauch melden Sie sich unter
-security@HABB Global (PVT) LTD.
+If you did NOT request this reset, do nothing — the link will expire
+automatically. If you suspect abuse, please contact
+security@habbglobal.com.
 
-Freundliche Grüsse
-Ihr HABB Global (PVT) LTD Team
+Best regards
+Your HABB One Team
 `.trim();
 
   const html = `<!doctype html>
-<html lang="de">
+<html lang="en">
 <body style="font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Helvetica,Arial,sans-serif;background:#FAFAF9;margin:0;padding:0;color:#1A1A1A;">
   <div style="max-width:560px;margin:0 auto;padding:32px 24px;">
     <div style="font-weight:600;font-size:18px;letter-spacing:-0.02em;">
-      habb<span style="color:#DA0E15">.ch</span>
+      HABB<span style="color:#DA0E15"> One</span>
     </div>
-    <h1 style="font-size:22px;font-weight:600;margin:24px 0 12px 0;">Passwort zurücksetzen</h1>
+    <h1 style="font-size:22px;font-weight:600;margin:24px 0 12px 0;">Reset password</h1>
     <p style="line-height:1.55;margin:0 0 16px 0;">
-      Guten Tag <strong>${escapeHtml(input.recipientName)}</strong>,
+      Hello <strong>${escapeHtml(input.recipientName)}</strong>,
     </p>
     <p style="line-height:1.55;margin:0 0 16px 0;">
-      ${escapeHtml(input.initiatedByLabel)} (${escapeHtml(input.initiatedByName)}) hat einen
-      Passwort-Reset für Ihren HABB One-Account ausgelöst. Klicken Sie unten, um
-      ein neues Passwort zu setzen.
+      ${escapeHtml(input.initiatedByLabel)} (${escapeHtml(input.initiatedByName)}) has requested a
+      password reset for your HABB One account. Click below to
+      set a new password.
     </p>
     <p style="margin:28px 0;">
       <a href="${input.resetUrl}"
          style="display:inline-block;background:#0A0A0A;color:#FFFFFF;padding:14px 28px;border-radius:8px;text-decoration:none;font-weight:500;">
-        Neues Passwort setzen
+        Set new password
       </a>
     </p>
     <p style="font-size:13px;color:#6B6B6B;line-height:1.55;margin:0 0 8px 0;">
-      Der Link ist bis <strong>${escapeHtml(expires)} (Schweizer Zeit)</strong> gültig und
-      kann nur ein einziges Mal verwendet werden.
+      The link is valid until <strong>${escapeHtml(expires)}</strong> and
+      can only be used once.
     </p>
     <p style="font-size:13px;color:#6B6B6B;line-height:1.55;margin:0 0 16px 0;">
-      Funktioniert der Button nicht? Kopieren Sie diese URL in Ihren Browser:<br/>
+      Button not working? Copy this URL into your browser:<br/>
       <code style="word-break:break-all;color:#1A1A1A;">${escapeHtml(input.resetUrl)}</code>
     </p>
     <hr style="border:none;border-top:1px solid #E7E5E4;margin:24px 0;" />
     <p style="font-size:12px;color:#6B6B6B;line-height:1.55;margin:0;">
-      Haben Sie diesen Reset NICHT angefordert? Tun Sie nichts — der Link läuft
-      automatisch ab. Bei Verdacht auf Missbrauch melden Sie sich unter
-      <a href="mailto:security@HABB Global (PVT) LTD" style="color:#1A1A1A;">security@HABB Global (PVT) LTD</a>.
+      If you did NOT request this reset, do nothing — the link will expire
+      automatically. If you suspect abuse, please contact
+      <a href="mailto:security@habbglobal.com" style="color:#1A1A1A;">security@habbglobal.com</a>.
     </p>
   </div>
 </body>

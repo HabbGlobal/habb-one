@@ -27,7 +27,7 @@ describe("buildDigestMail", () => {
 describe("buildImmediateFindingMail", () => {
   it("Betreff enthält Severity + Mandant", () => {
     const m = buildImmediateFindingMail({
-      tenantName: "Tschannen",
+      tenantName: "habb global",
       severity: "critical",
       category: "configuration",
       title: "QR-IBAN fehlt",
@@ -35,7 +35,7 @@ describe("buildImmediateFindingMail", () => {
       recommendation: "QR-IBAN setzen.",
     });
     expect(m.subject).toContain("CRITICAL");
-    expect(m.subject).toContain("Tschannen");
+    expect(m.subject).toContain("habb global");
     expect(m.text).toContain("QR-IBAN setzen.");
   });
 });

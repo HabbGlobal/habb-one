@@ -7,13 +7,13 @@ export interface TenantContext {
 }
 
 const DEMO_SLUG_TO_NAME: Record<string, string> = {
-  tschannen: "Tschannen Spritzwerk AG",
+  "habb global": "HABB Global (PVT) LTD",
 };
 
 /**
  * Resolve the active tenant for the current request, in this order:
  *   1. explicit `?tenant=<slug>` query parameter
- *   2. subdomain of the request host (e.g. `tschannen.HABB Global (PVT) LTD` → `tschannen`)
+ *   2. subdomain of the request host (e.g. `habb global.HABB Global (PVT) LTD` → `habb global`)
  *
  * Returns `null` when no tenant can be identified. The login page renders fine
  * without one — the "Mandant: …" hint simply disappears.

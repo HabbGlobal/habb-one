@@ -13,7 +13,7 @@ import { syncEntitlementsToPlan, PLAN_MODULES } from "../lib/entitlements/module
 const prisma = new PrismaClient();
 
 const TARGETS: { match: string; plan: TenantPlan }[] = [
-  { match: "Tschannen", plan: "ENTERPRISE" },
+  { match: "habb global", plan: "ENTERPRISE" },
   { match: "VSK Motors", plan: "TRIAL" },
   { match: "HABB Switzerland", plan: "STARTER" },
 ];

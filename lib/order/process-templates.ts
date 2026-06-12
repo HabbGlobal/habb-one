@@ -1,6 +1,6 @@
 // Standard-Prozessvorlagen + Ressourcen-Mapping pro ProcessCode.
 //
-// Tschannen-spezifische Vorlagen aus Sektion 2.1 des Briefings. Beim Wizard
+// habb global-spezifische Vorlagen aus Sektion 2.1 des Briefings. Beim Wizard
 // kann der User eine Vorlage anwenden (= Steps mit Default-Reihenfolge,
 // Skill, MachineType anlegen) und danach einzelne Schritte editieren.
 
@@ -20,32 +20,32 @@ export interface ProcessResources {
 
 export const PROCESS_RESOURCES: Record<ProcessCode, ProcessResources> = {
   // Vorbereitung
-  DISASSEMBLY:      { skill: "PREP",          machine: null,           defaultWaitMinutes: 0 },
-  DEGREASE_MANUAL:  { skill: "PREP",          machine: null,           defaultWaitMinutes: 0 },
-  CHEM_PRETREAT:    { skill: "PREP",          machine: "CHEM_BATH",    defaultWaitMinutes: 30 },
-  MASKING:          { skill: "PREP",          machine: null,           defaultWaitMinutes: 0 },
-  MOUNTING:         { skill: "PREP",          machine: null,           defaultWaitMinutes: 0 },
+  DISASSEMBLY: { skill: "PREP", machine: null, defaultWaitMinutes: 0 },
+  DEGREASE_MANUAL: { skill: "PREP", machine: null, defaultWaitMinutes: 0 },
+  CHEM_PRETREAT: { skill: "PREP", machine: "CHEM_BATH", defaultWaitMinutes: 30 },
+  MASKING: { skill: "PREP", machine: null, defaultWaitMinutes: 0 },
+  MOUNTING: { skill: "PREP", machine: null, defaultWaitMinutes: 0 },
   // Sandstrahlen
-  BLAST_SA1:        { skill: "BLASTER",       machine: "BLAST_CABIN",  defaultWaitMinutes: 0 },
-  BLAST_SA2:        { skill: "BLASTER",       machine: "BLAST_CABIN",  defaultWaitMinutes: 0 },
-  BLAST_SA25:       { skill: "BLASTER",       machine: "BLAST_CABIN",  defaultWaitMinutes: 0 },
-  BLAST_SA3:        { skill: "BLASTER",       machine: "BLAST_CABIN",  defaultWaitMinutes: 0 },
-  BLAST_GLASS:      { skill: "BLASTER",       machine: "BLAST_CABIN",  defaultWaitMinutes: 0 },
+  BLAST_SA1: { skill: "BLASTER", machine: "BLAST_CABIN", defaultWaitMinutes: 0 },
+  BLAST_SA2: { skill: "BLASTER", machine: "BLAST_CABIN", defaultWaitMinutes: 0 },
+  BLAST_SA25: { skill: "BLASTER", machine: "BLAST_CABIN", defaultWaitMinutes: 0 },
+  BLAST_SA3: { skill: "BLASTER", machine: "BLAST_CABIN", defaultWaitMinutes: 0 },
+  BLAST_GLASS: { skill: "BLASTER", machine: "BLAST_CABIN", defaultWaitMinutes: 0 },
   // Nasslackieren
-  WP_PRIMER:        { skill: "PAINTER",       machine: "PAINT_CABIN",  defaultWaitMinutes: 60 },
-  WP_SANDING:       { skill: "PAINTER",       machine: null,           defaultWaitMinutes: 0 },
-  WP_TOP_1K:        { skill: "PAINTER",       machine: "PAINT_CABIN",  defaultWaitMinutes: 240 },
-  WP_TOP_2K:        { skill: "PAINTER",       machine: "PAINT_CABIN",  defaultWaitMinutes: 720 },
-  WP_CLEAR:         { skill: "PAINTER",       machine: "PAINT_CABIN",  defaultWaitMinutes: 240 },
+  WP_PRIMER: { skill: "PAINTER", machine: "PAINT_CABIN", defaultWaitMinutes: 60 },
+  WP_SANDING: { skill: "PAINTER", machine: null, defaultWaitMinutes: 0 },
+  WP_TOP_1K: { skill: "PAINTER", machine: "PAINT_CABIN", defaultWaitMinutes: 240 },
+  WP_TOP_2K: { skill: "PAINTER", machine: "PAINT_CABIN", defaultWaitMinutes: 720 },
+  WP_CLEAR: { skill: "PAINTER", machine: "PAINT_CABIN", defaultWaitMinutes: 240 },
   // Pulverbeschichtung
-  PC_APPLICATION:   { skill: "POWDER_COATER", machine: "POWDER_CABIN", defaultWaitMinutes: 0 },
-  PC_CURING:        { skill: "POWDER_COATER", machine: "CURING_OVEN",  defaultWaitMinutes: 30 },
-  PC_DOUBLE:        { skill: "POWDER_COATER", machine: "POWDER_CABIN", defaultWaitMinutes: 0 },
+  PC_APPLICATION: { skill: "POWDER_COATER", machine: "POWDER_CABIN", defaultWaitMinutes: 0 },
+  PC_CURING: { skill: "POWDER_COATER", machine: "CURING_OVEN", defaultWaitMinutes: 30 },
+  PC_DOUBLE: { skill: "POWDER_COATER", machine: "POWDER_CABIN", defaultWaitMinutes: 0 },
   // Nachbereitung
-  UNMASKING:        { skill: "PREP",          machine: null,           defaultWaitMinutes: 0 },
-  QUALITY_CHECK:    { skill: "QC",            machine: null,           defaultWaitMinutes: 0 },
-  TOUCHUP:          { skill: "PAINTER",       machine: null,           defaultWaitMinutes: 0 },
-  PACKAGING:        { skill: "PREP",          machine: null,           defaultWaitMinutes: 0 },
+  UNMASKING: { skill: "PREP", machine: null, defaultWaitMinutes: 0 },
+  QUALITY_CHECK: { skill: "QC", machine: null, defaultWaitMinutes: 0 },
+  TOUCHUP: { skill: "PAINTER", machine: null, defaultWaitMinutes: 0 },
+  PACKAGING: { skill: "PREP", machine: null, defaultWaitMinutes: 0 },
 };
 
 // ─────────────────────────────────────────

@@ -27,17 +27,17 @@ async function main() {
 
   if (employees.length === 0) {
     console.log("Keine Employees mit 'Balakir' im Namen gefunden.\n");
-    console.log("Liste ALLE Tschannen-Mitarbeiter und ihre Schedule-Werte:");
-    const tschannen = await prisma.company.findFirst({
-      where: { name: { contains: "Tschannen", mode: "insensitive" } },
+    console.log("Liste ALLE habb global-Mitarbeiter und ihre Schedule-Werte:");
+    const habb global = await prisma.company.findFirst({
+      where: { name: { contains: "habb global", mode: "insensitive" } },
       select: { id: true, name: true },
     });
-    if (!tschannen) {
-      console.log("Tschannen-Mandant nicht gefunden.");
+    if (!habb global) {
+      console.log("habb global-Mandant nicht gefunden.");
       return;
     }
     const all = await prisma.employee.findMany({
-      where: { companyId: tschannen.id },
+      where: { companyId: habb global.id },
       include: { scheduleDays: true },
       orderBy: { lastName: "asc" },
     });

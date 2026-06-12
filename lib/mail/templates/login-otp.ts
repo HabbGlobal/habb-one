@@ -17,45 +17,45 @@ export interface LoginOtpMailInput {
 }
 
 export function buildLoginOtpMail(input: LoginOtpMailInput) {
-  const subject = "HABB One — Anmeldecode";
+  const subject = "HABB One — Verification Code";
 
   const fromMeta =
     input.ipAddress || input.userAgent
-      ? `\nGerät / IP: ${input.userAgent ?? "?"} · ${input.ipAddress ?? "?"}`
+      ? `\nDevice / IP: ${input.userAgent ?? "?"} · ${input.ipAddress ?? "?"}`
       : "";
 
-  const text = `Guten Tag ${input.recipientName}
+  const text = `Hello ${input.recipientName}
 
-Sie haben gerade eine Anmeldung bei HABB One angefordert. Bitte
-bestätigen Sie diese mit folgendem Code:
+You have requested to sign in to HABB One. Please
+confirm this with the following code:
 
   ${input.otp}
 
-Der Code ist ${input.validForMinutes} Minuten gültig.${fromMeta}
+This code is valid for ${input.validForMinutes} minutes.${fromMeta}
 
-Falls Sie diese Anmeldung NICHT angefordert haben, ignorieren Sie diese
-E-Mail — ohne den Code kann sich niemand bei Ihrem Konto anmelden.
-Sicherheitshalber sollten Sie anschliessend Ihr Passwort zurücksetzen.
+If you did NOT request this sign in, please ignore this
+email — no one can sign in to your account without this code.
+As a security measure, you may want to reset your password afterwards.
 
 — HABB One`;
 
   const html = `<!doctype html>
-<html lang="de">
+<html lang="en">
   <body style="font-family:system-ui,-apple-system,'Segoe UI',sans-serif;color:#1A1A1A;line-height:1.55;max-width:560px;margin:24px auto;padding:0 16px;">
     <p style="font-size:14px;color:#6B6B6B;">HABB One</p>
-    <h1 style="font-size:22px;margin:6px 0 18px;">Anmeldecode</h1>
-    <p>Guten Tag ${escapeHtml(input.recipientName)},</p>
-    <p>Sie haben gerade eine Anmeldung bei HABB One angefordert. Bitte bestätigen Sie diese mit folgendem Code:</p>
+    <h1 style="font-size:22px;margin:6px 0 18px;">Verification Code</h1>
+    <p>Hello ${escapeHtml(input.recipientName)},</p>
+    <p>You have requested to sign in to HABB One. Please confirm this with the following code:</p>
     <div style="margin:24px 0;padding:18px;border:1px solid #E7E5E4;border-radius:8px;background:#FAFAF9;text-align:center;">
-      <p style="margin:0 0 6px;font-size:11px;text-transform:uppercase;letter-spacing:0.08em;color:#6B6B6B;">Bestätigungscode</p>
+      <p style="margin:0 0 6px;font-size:11px;text-transform:uppercase;letter-spacing:0.08em;color:#6B6B6B;">Confirmation Code</p>
       <p style="margin:0;font-family:'SF Mono',Menlo,monospace;font-size:32px;letter-spacing:0.28em;color:#0A0A0A;">${escapeHtml(input.otp)}</p>
     </div>
-    <p style="font-size:13px;color:#6B6B6B;">Gültig für ${input.validForMinutes} Minuten.${
+    <p style="font-size:13px;color:#6B6B6B;">Valid for ${input.validForMinutes} minutes.${
       input.ipAddress || input.userAgent
-        ? ` Anfrage von <span style="font-family:'SF Mono',Menlo,monospace;">${escapeHtml(input.ipAddress ?? "?")}</span> · ${escapeHtml(input.userAgent ?? "?")}.`
+        ? ` Request from <span style="font-family:'SF Mono',Menlo,monospace;">${escapeHtml(input.ipAddress ?? "?")}</span> · ${escapeHtml(input.userAgent ?? "?")}.`
         : ""
     }</p>
-    <p style="font-size:13px;">Falls Sie diese Anmeldung <strong>nicht</strong> angefordert haben, ignorieren Sie diese E-Mail. Ohne den Code kann sich niemand anmelden. Sicherheitshalber sollten Sie anschliessend Ihr Passwort zurücksetzen.</p>
+    <p style="font-size:13px;">If you did <strong>not</strong> request this sign in, please ignore this email. No one can sign in without the code. As a security measure, you may want to reset your password afterwards.</p>
     <p style="font-size:12px;color:#6B6B6B;margin-top:32px;">— HABB One</p>
   </body>
 </html>`;

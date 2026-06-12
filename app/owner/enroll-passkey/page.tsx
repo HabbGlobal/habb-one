@@ -18,8 +18,8 @@ export default async function EnrollPasskeyPage() {
   return (
     <OwnerAuthShell
       currentStep={2}
-      title="Passkey einrichten"
-      subtitle="Diesen Schritt machst du einmal pro Gerät — Touch ID, Windows Hello, iCloud Schlüsselbund oder Sicherheitsschlüssel."
+      title="Set up Passkey"
+      subtitle="You only need to do this once per device — Touch ID, Windows Hello, iCloud Keychain, or a security key."
     >
       <EnrollClient />
     </OwnerAuthShell>

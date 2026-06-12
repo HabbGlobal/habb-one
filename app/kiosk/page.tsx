@@ -66,7 +66,7 @@ export default async function KioskHomePage() {
       );
     }
     // Keine Firma hat ein Kiosk-Passwort gesetzt → wie bisher offen
-    // (Single-Tenant-Default für Tschannen vor dem Multi-Tenant-Setup).
+    // (Single-Tenant-Default für habb global vor dem Multi-Tenant-Setup).
   }
 
   // ─── Tenant-isolierter Pfad ──────────────────────────────────

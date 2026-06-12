@@ -15,7 +15,7 @@ export function EnrollClient() {
     start(async () => {
       try {
         const optsRes = await fetch("/api/owner/auth/passkey/enroll-options");
-        if (!optsRes.ok) throw new Error("Konnte Registrierungs-Optionen nicht abrufen.");
+        if (!optsRes.ok) throw new Error("Could not fetch registration options.");
         const options = await optsRes.json();
 
         const attestation = await startRegistration({ optionsJSON: options });
@@ -25,14 +25,14 @@ export function EnrollClient() {
           headers: { "content-type": "application/json" },
           body: JSON.stringify({ response: attestation }),
         });
-        if (!verifyRes.ok) throw new Error("Passkey-Verifizierung fehlgeschlagen.");
+        if (!verifyRes.ok) throw new Error("Passkey verification failed.");
 
         router.replace("/owner");
         router.refresh();
       } catch (err) {
-        const msg = err instanceof Error ? err.message : "Unbekannter Fehler.";
+        const msg = err instanceof Error ? err.message : "Unknown error.";
         if (msg.includes("aborted") || msg.includes("cancelled")) {
-          setError("Vorgang abgebrochen. Bitte erneut versuchen.");
+          setError("Process aborted. Please try again.");
         } else {
           setError(msg);
         }
@@ -49,7 +49,7 @@ export function EnrollClient() {
         className="inline-flex w-full items-center justify-center gap-2 rounded-lg bg-habb-black px-5 py-3.5 text-base font-medium text-white shadow-sm transition-colors hover:bg-habb-ink focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-habb-red focus-visible:ring-offset-2 disabled:opacity-60"
       >
         {pending ? <Loader2 className="h-4 w-4 animate-spin" /> : <KeyRound className="h-4 w-4" />}
-        Passkey jetzt registrieren
+        <span>Register passkey now</span>
       </button>
 
       {error && (
@@ -62,11 +62,11 @@ export function EnrollClient() {
       )}
 
       <div className="rounded-lg border border-habb-line bg-habb-paper px-4 py-3.5 text-xs text-habb-muted">
-        <p className="font-medium text-habb-ink">Was als nächstes passiert</p>
+        <p className="font-medium text-habb-ink">What happens next</p>
         <ol className="mt-2 space-y-1.5 leading-relaxed">
-          <li>1. Dein Browser fragt nach Touch ID, Windows Hello, einem Sicherheitsschlüssel oder dem iCloud-Schlüsselbund.</li>
-          <li>2. Der private Schlüssel verlässt dein Gerät nie — er wird kryptografisch an diese Domain gebunden.</li>
-          <li>3. Künftige Anmeldungen erfolgen nur noch mit Passwort + diesem Passkey.</li>
+          <li>1. Your browser will ask for Touch ID, Windows Hello, a security key, or iCloud Keychain.</li>
+          <li>2. The private key never leaves your device — it is cryptographically bound to this domain.</li>
+          <li>3. Future logins will require both your password and this passkey.</li>
         </ol>
       </div>
     </div>

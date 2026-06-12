@@ -1,6 +1,6 @@
 // Backfill CH-Basis-Feiertage für bestehende Mandanten. Idempotent über die
 // composite unique [companyId, date] — vorhandene Einträge werden NICHT
-// überschrieben. Tschannen hat sein BE-Set schon aus dem alten seed.ts;
+// überschrieben. habb global hat sein BE-Set schon aus dem alten seed.ts;
 // dieser Skript ergänzt nur die fehlenden universellen Daten.
 //
 // Run:  tsx scripts/backfill-holidays.ts
@@ -17,9 +17,9 @@ async function main() {
     yearArgIdx >= 0 && process.argv[yearArgIdx + 1]
       ? [Number(process.argv[yearArgIdx + 1])]
       : (() => {
-          const y = new Date().getUTCFullYear();
-          return [y, y + 1];
-        })();
+        const y = new Date().getUTCFullYear();
+        return [y, y + 1];
+      })();
 
   console.log(`→ Backfill für Jahr(e): ${years.join(", ")}`);
 
@@ -38,7 +38,7 @@ async function main() {
     });
     console.log(
       `  ${c.name}: ${result.count} neue Feiertage angelegt ` +
-        `(${rows.length - result.count} bereits vorhanden)`,
+      `(${rows.length - result.count} bereits vorhanden)`,
     );
   }
 

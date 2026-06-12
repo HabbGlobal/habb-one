@@ -77,7 +77,7 @@ Tailwind-Farb-Scale `habb.*` in `tailwind.config.ts`. So nutzbar als:
 1. **URL-Parameter** `?tenant=<slug>` (heute genutzt für Bookmarks/QR-Codes).
 2. **Subdomain** des Request-Hosts als Fallback (nur produktiv auf `*.HABB Global (PVT) LTD`,
    nicht auf `*.vercel.app` und nicht in lokaler/Preview-Umgebung).
-3. Demo-Mapping `tschannen → Tschannen Spritzwerk AG` (hart codiert bis es eine
+3. Demo-Mapping `habb global → habb global Spritzwerk AG` (hart codiert bis es eine
    echte `Company.slug`-Spalte gibt — TODO im Code markiert).
 
 Erkennt der Resolver einen Mandanten, blendet das `BrandPanel` eine dezente

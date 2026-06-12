@@ -10,7 +10,7 @@ sees real-time revenue, orders, utilisation, attendance, balances, vacation days
 and warnings. Monthly reports and documents are exportable as CSV, Excel or PDF
 (with company logo).
 
-**First reference installation:** Tschannen Spritzwerk AG, Burgdorf.
+**First reference installation:** habb global Spritzwerk AG, Burgdorf.
 
 ## Tech Stack
 
@@ -76,8 +76,8 @@ npm run dev
 
 | Role        | Email / Employee No.             | Password / PIN  |
 |-------------|----------------------------------|-----------------|
-| Admin       | admin@tschannen.ch               | admin1234       |
-| Secretary   | sekretariat@tschannen.ch         | sekretariat1234 |
+| Admin       | admin@habb global.ch               | admin1234       |
+| Secretary   | sekretariat@habb global.ch         | sekretariat1234 |
 | Hans Müller (001, 100%)          | Employee 001  | PIN 1234 |
 | Anna Keller (002, 80%)           | Employee 002  | PIN 2345 |
 | Stefan Bachmann (003, 60%)       | Employee 003  | PIN 3456 |

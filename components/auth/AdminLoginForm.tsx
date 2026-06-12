@@ -150,7 +150,7 @@ export function AdminLoginForm({
               body: JSON.stringify({ tokenId: stage.tokenId }),
             });
             if (!res.ok) {
-              setSubmitError("Neuer Code konnte nicht gesendet werden.");
+              setSubmitError("Failed to send a new code.");
               return;
             }
             const payload = await res.json();
@@ -360,7 +360,7 @@ function OtpStep({
   function onSubmit(e: React.FormEvent) {
     e.preventDefault();
     if (!/^\d{6}$/.test(otp)) {
-      setSubmitError("Bitte den 6-stelligen Code eingeben.");
+      setSubmitError("Please enter the 6-digit code.");
       return;
     }
     setSubmitError(null);
@@ -377,21 +377,21 @@ function OtpStep({
         className="inline-flex items-center gap-1.5 text-xs text-habb-muted hover:text-habb-ink"
       >
         <ArrowLeft className="h-3 w-3" />
-        Zurück
+        Back
       </button>
 
       <div className="rounded-md border border-habb-line bg-habb-paper px-4 py-3 text-sm">
-        <p className="font-medium text-habb-ink">Code per E-Mail gesendet</p>
+        <p className="font-medium text-habb-ink">Code sent via email</p>
         <p className="mt-1 text-habb-muted">
-          {emailDelivered ? "Wir haben einen 6-stelligen Code an" : "Wir versuchen, einen Code zu senden an"}{" "}
-          <span className="font-mono text-habb-ink">{maskedEmail || rawEmail}</span>. Gültig{" "}
-          {expiresInMin} {expiresInMin === 1 ? "Minute" : "Minuten"}.
+          {emailDelivered ? "We have sent a 6-digit code to" : "We are trying to send a code to"}{" "}
+          <span className="font-mono text-habb-ink">{maskedEmail || rawEmail}</span>. Valid for{" "}
+          {expiresInMin} {expiresInMin === 1 ? "minute" : "minutes"}.
         </p>
       </div>
 
       <div className="space-y-1.5">
         <label htmlFor="otp" className="block text-sm font-medium text-habb-ink">
-          Bestätigungscode
+          Confirmation code
         </label>
         <input
           id="otp"
@@ -420,18 +420,18 @@ function OtpStep({
         className="inline-flex w-full items-center justify-center gap-2 rounded-md bg-habb-black px-4 py-2.5 text-sm font-medium text-white hover:bg-habb-ink disabled:cursor-not-allowed disabled:opacity-60"
       >
         {pending && <Loader2 className="h-4 w-4 animate-spin" />}
-        Anmelden
+        Sign in
       </button>
 
       <p className="text-center text-xs text-habb-muted">
-        Code nicht erhalten?{" "}
+        Didn't receive a code?{" "}
         <button
           type="button"
           disabled={resending}
           onClick={() => startResend(onResend)}
           className="font-medium text-habb-ink underline-offset-2 hover:underline hover:text-habb-red disabled:opacity-50"
         >
-          {resending ? "Sende…" : "Neuen Code anfordern"}
+          {resending ? "Sending…" : "Request a new code"}
         </button>
       </p>
     </form>

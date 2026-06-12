@@ -1,6 +1,6 @@
 // Tests für die Calendar-/Working-Time-Logik.
 //
-// Standardprofil Tschannen: Mo-Fr 07:30-12:00 + 13:00-17:00, Mittagspause
+// Standardprofil habb global: Mo-Fr 07:30-12:00 + 13:00-17:00, Mittagspause
 // 12:00-13:00, Sa+So frei. Alle Tests in Europe/Zurich.
 
 import { describe, expect, it } from "vitest";

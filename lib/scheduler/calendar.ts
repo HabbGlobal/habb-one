@@ -324,7 +324,7 @@ const EMPTY_WORKING_HOURS: WorkingHoursJson = {
   mon: [], tue: [], wed: [], thu: [], fri: [], sat: [], sun: [],
 };
 
-/** Standard-Tschannen-Arbeitszeiten Mo-Fr 07:30-12:00 + 13:00-17:00. */
+/** Standard-habb global-Arbeitszeiten Mo-Fr 07:30-12:00 + 13:00-17:00. */
 export const DEFAULT_WORKING_HOURS: WorkingHoursJson = {
   mon: [{ from: "07:30", to: "12:00" }, { from: "13:00", to: "17:00" }],
   tue: [{ from: "07:30", to: "12:00" }, { from: "13:00", to: "17:00" }],
