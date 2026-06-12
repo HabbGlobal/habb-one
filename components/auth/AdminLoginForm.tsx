@@ -424,7 +424,7 @@ function OtpStep({
       </button>
 
       <p className="text-center text-xs text-habb-muted">
-        Didn't receive a code?{" "}
+        Didn&apos;t receive a code?{" "}
         <button
           type="button"
           disabled={resending}
