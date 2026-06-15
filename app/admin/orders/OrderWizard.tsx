@@ -1,12 +1,12 @@
-"use client";
+﻿"use client";
 
 // Multi-section order editor (used both for "new" and "edit" of DRAFT
 // orders). Layout:
-//   1) Header data — Customer, addresses, contact person, dates, priority
-//   2) Positions — per position: master data + process flow (with template)
+//   1) Header data â€” Customer, addresses, contact person, dates, priority
+//   2) Positions â€” per position: master data + process flow (with template)
 //
 // State is local. On submit we POST the full payload through the server
-// action `createOrder` / `updateDraftOrder` — no optimistic UI.
+// action `createOrder` / `updateDraftOrder` â€” no optimistic UI.
 
 import { useMemo, useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
@@ -46,9 +46,9 @@ import {
   GLOSS_LEVEL_LABEL,
 } from "@/lib/order/labels";
 
-// ─────────────────────────────────────────
+// â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 // Types
-// ─────────────────────────────────────────
+// â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
 export interface CustomerOption {
   id: string;
@@ -118,9 +118,9 @@ interface Props {
   initial?: OrderWizardInitial;
 }
 
-// ─────────────────────────────────────────
+// â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 // Defaults
-// ─────────────────────────────────────────
+// â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
 function makeEmptyItem(position: number): ItemDraft {
   return {
@@ -154,9 +154,9 @@ function todayPlus(days: number): string {
   return d.toISOString().slice(0, 10);
 }
 
-// ─────────────────────────────────────────
+// â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 // Component
-// ─────────────────────────────────────────
+// â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
 export function OrderWizard({
   mode,
@@ -169,7 +169,7 @@ export function OrderWizard({
   const [pending, start] = useTransition();
   const [error, setError] = useState<string | null>(null);
 
-  // ── core ──
+  // â”€â”€ core â”€â”€
   const [customerId, setCustomerId] = useState(initial?.core.customerId ?? "");
   const [contactPersonId, setContactPersonId] = useState(initial?.core.contactPersonId ?? "");
   const [shippingAddressId, setShippingAddressId] = useState(
@@ -193,7 +193,7 @@ export function OrderWizard({
   const [notes, setNotes] = useState(initial?.core.notes ?? "");
   const [customerNotes, setCustomerNotes] = useState(initial?.core.customerNotes ?? "");
 
-  // ── items ──
+  // â”€â”€ items â”€â”€
   const [items, setItems] = useState<ItemDraft[]>(() => {
     if (initial?.items?.length) {
       return initial.items.map((it, i) => ({
@@ -231,7 +231,7 @@ export function OrderWizard({
     [customers, customerId],
   );
 
-  // ── item helpers ──
+  // â”€â”€ item helpers â”€â”€
   const updateItem = (idx: number, patch: Partial<ItemDraft>) => {
     setItems((prev) => prev.map((it, i) => (i === idx ? { ...it, ...patch } : it)));
   };
@@ -249,7 +249,7 @@ export function OrderWizard({
     setItems((prev) => prev.filter((_, i) => i !== idx));
   };
 
-  // ── steps inside an item ──
+  // â”€â”€ steps inside an item â”€â”€
   const updateStep = (itemIdx: number, stepIdx: number, patch: Partial<StepDraft>) => {
     setItems((prev) =>
       prev.map((it, i) => {
@@ -320,7 +320,7 @@ export function OrderWizard({
       processCode: code,
       machineTypeRequired: r.machine,
       skillRequired: r.skill,
-      // Don't reset wait if user has customised it — but if it's still the
+      // Don't reset wait if user has customised it â€” but if it's still the
       // current-default, adopt the new default.
       waitMinutesAfter: r.defaultWaitMinutes,
     });
@@ -355,7 +355,7 @@ export function OrderWizard({
     });
   };
 
-  // Recommender — suggests steps, user decides whether to accept.
+  // Recommender â€” suggests steps, user decides whether to accept.
   const [suggestion, setSuggestion] = useState<{
     itemIdx: number;
     steps: {
@@ -416,7 +416,7 @@ export function OrderWizard({
     setSuggestion(null);
   };
 
-  // ── submit ──
+  // â”€â”€ submit â”€â”€
   const submit = () => {
     setError(null);
     if (items.some((it) => it.steps.length === 0)) {
@@ -480,20 +480,20 @@ export function OrderWizard({
     });
   };
 
-  // ─────────────────────────────────────────
+  // â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
   // Render
-  // ─────────────────────────────────────────
+  // â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
   return (
     <div className="space-y-6">
-      {/* ── Step 1: Kopfdaten ── */}
+      {/* â”€â”€ Step 1: Header â”€â”€ */}
       <section className="space-y-3">
         <h2 className="font-medium text-sm text-muted-foreground uppercase tracking-wider">
-          1. Kopfdaten
+          1. Header
         </h2>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
           <div className="space-y-1 md:col-span-2">
-            <Label>Kunde *</Label>
+            <Label>Customer *</Label>
             <Select
               value={customerId}
               onChange={(e) => {
@@ -503,10 +503,10 @@ export function OrderWizard({
                 setBillingAddressId("");
               }}
             >
-              <option value="">— Kunde wählen —</option>
+              <option value="">â€” Select customer â€”</option>
               {customers.map((c) => (
                 <option key={c.id} value={c.id}>
-                  {c.customerNumber} · {c.label}
+                  {c.customerNumber} Â· {c.label}
                 </option>
               ))}
             </Select>
@@ -515,28 +515,28 @@ export function OrderWizard({
           {customer && (
             <>
               <div className="space-y-1">
-                <Label>Kontaktperson</Label>
+                <Label>Contact person</Label>
                 <Select
                   value={contactPersonId}
                   onChange={(e) => setContactPersonId(e.target.value)}
                 >
-                  <option value="">— keine —</option>
+                  <option value="">â€” none â€”</option>
                   {customer.contacts.map((ct) => (
                     <option key={ct.id} value={ct.id}>
                       {ct.label}
-                      {ct.isPrimary ? " (primär)" : ""}
+                      {ct.isPrimary ? " (primary)" : ""}
                     </option>
                   ))}
                 </Select>
               </div>
 
               <div className="space-y-1">
-                <Label>Lieferadresse</Label>
+                <Label>Shipping address</Label>
                 <Select
                   value={shippingAddressId}
                   onChange={(e) => setShippingAddressId(e.target.value)}
                 >
-                  <option value="">— keine —</option>
+                  <option value="">â€” keine â€”</option>
                   {customer.addresses
                     .filter((a) => a.type === "SHIPPING" || a.type === "BOTH")
                     .map((a) => (
@@ -548,12 +548,12 @@ export function OrderWizard({
               </div>
 
               <div className="space-y-1">
-                <Label>Rechnungsadresse</Label>
+                <Label>Billing address</Label>
                 <Select
                   value={billingAddressId}
                   onChange={(e) => setBillingAddressId(e.target.value)}
                 >
-                  <option value="">— keine —</option>
+                  <option value="">â€” keine â€”</option>
                   {customer.addresses
                     .filter((a) => a.type === "BILLING" || a.type === "BOTH")
                     .map((a) => (
@@ -567,7 +567,7 @@ export function OrderWizard({
           )}
 
           <div className="space-y-1">
-            <Label>Eingangsdatum *</Label>
+            <Label>Received date *</Label>
             <Input
               type="date"
               value={receivedAt}
@@ -575,7 +575,7 @@ export function OrderWizard({
             />
           </div>
           <div className="space-y-1">
-            <Label>Liefertermin (extern) *</Label>
+            <Label>Delivery date (external) *</Label>
             <Input
               type="date"
               value={promisedAt}
@@ -583,7 +583,7 @@ export function OrderWizard({
             />
           </div>
           <div className="space-y-1">
-            <Label>Interne Deadline</Label>
+            <Label>Internal deadline</Label>
             <Input
               type="date"
               value={internalDeadline}
@@ -591,45 +591,45 @@ export function OrderWizard({
             />
           </div>
           <div className="space-y-1">
-            <Label>Priorität</Label>
+            <Label>Priority</Label>
             <Select
               value={priority}
               onChange={(e) => setPriority(e.target.value as typeof PRIORITIES[number])}
             >
               {PRIORITIES.map((p) => (
                 <option key={p} value={p}>
-                  {p === "EXPRESS" ? "Express (Zuschlag!)" : p}
+                  {p === "EXPRESS" ? "Express (surcharge!)" : p}
                 </option>
               ))}
             </Select>
           </div>
 
           <div className="space-y-1 md:col-span-2">
-            <Label>Interne Notizen</Label>
+            <Label>Internal notes</Label>
             <Textarea
               rows={2}
               value={notes}
               onChange={(e) => setNotes(e.target.value)}
-              placeholder="Hinweise für Werkstatt / Disposition"
+              placeholder="Notes for workshop / scheduling"
             />
           </div>
           <div className="space-y-1 md:col-span-2">
-            <Label>Kunden-Notizen (auf Auftragsbestätigung)</Label>
+            <Label>Customer notes (on order confirmation)</Label>
             <Textarea
               rows={2}
               value={customerNotes}
               onChange={(e) => setCustomerNotes(e.target.value)}
-              placeholder="z. B. „Bitte mit Schutzfolie liefern"
+              placeholder="e.g. Please deliver with protective film"
             />
           </div>
         </div>
       </section>
 
-      {/* ── Step 2: Positionen ── */}
+      {/* â”€â”€ Step 2: Items â”€â”€ */}
       <section className="space-y-3">
         <div className="flex items-center justify-between">
           <h2 className="font-medium text-sm text-muted-foreground uppercase tracking-wider">
-            2. Positionen
+            2. Items
           </h2>
           <Button type="button" variant="outline" size="sm" onClick={addItem}>
             <Plus className="h-4 w-4 mr-1" /> Add position
@@ -643,7 +643,7 @@ export function OrderWizard({
                 Pos. {it.position}
                 {it.description && (
                   <span className="ml-2 text-muted-foreground font-normal">
-                    — {it.description}
+                    â€” {it.description}
                   </span>
                 )}
               </CardTitle>
@@ -670,15 +670,15 @@ export function OrderWizard({
                   />
                 </div>
                 <div className="space-y-1 col-span-2 md:col-span-3">
-                  <Label>Beschreibung *</Label>
+                  <Label>Description *</Label>
                   <Input
                     value={it.description}
                     onChange={(e) => updateItem(idx, { description: e.target.value })}
-                    placeholder="z. B. Geländerstreben verzinkt"
+                    placeholder="e.g. Galvanized railing bars"
                   />
                 </div>
                 <div className="space-y-1">
-                  <Label>Stück</Label>
+                  <Label>Qty</Label>
                   <Input
                     type="number"
                     min={1}
@@ -689,7 +689,7 @@ export function OrderWizard({
                   />
                 </div>
                 <div className="space-y-1">
-                  <Label>Oberfläche (m²) *</Label>
+                  <Label>Surface (mÂ²) *</Label>
                   <Input
                     type="number"
                     step={0.01}
@@ -701,7 +701,7 @@ export function OrderWizard({
                   />
                 </div>
                 <div className="space-y-1">
-                  <Label>Gewicht (kg)</Label>
+                  <Label>Weight (kg)</Label>
                   <Input
                     type="number"
                     step={0.01}
@@ -714,7 +714,7 @@ export function OrderWizard({
                   />
                 </div>
                 <div className="space-y-1">
-                  <Label>Materialdicke (mm)</Label>
+                  <Label>Thickness (mm)</Label>
                   <Input
                     type="number"
                     step={0.1}
@@ -742,7 +742,7 @@ export function OrderWizard({
                   </Select>
                 </div>
                 <div className="space-y-1">
-                  <Label>Komplexität</Label>
+                  <Label>Complexity</Label>
                   <Select
                     value={it.complexity}
                     onChange={(e) =>
@@ -757,7 +757,7 @@ export function OrderWizard({
                   </Select>
                 </div>
                 <div className="space-y-1">
-                  <Label>Farbsystem</Label>
+                  <Label>Color system</Label>
                   <Select
                     value={it.colorSystem}
                     onChange={(e) =>
@@ -766,7 +766,7 @@ export function OrderWizard({
                       })
                     }
                   >
-                    <option value="">—</option>
+                    <option value="">â€”</option>
                     {(Object.keys(COLOR_SYSTEM_LABEL) as Array<keyof typeof COLOR_SYSTEM_LABEL>).map((k) => (
                       <option key={k} value={k}>
                         {COLOR_SYSTEM_LABEL[k]}
@@ -775,7 +775,7 @@ export function OrderWizard({
                   </Select>
                 </div>
                 <div className="space-y-1">
-                  <Label>Farbcode</Label>
+                  <Label>Color code</Label>
                   <Input
                     value={it.colorCode}
                     onChange={(e) => updateItem(idx, { colorCode: e.target.value })}
@@ -783,14 +783,14 @@ export function OrderWizard({
                   />
                 </div>
                 <div className="space-y-1">
-                  <Label>Glanzgrad</Label>
+                  <Label>Gloss level</Label>
                   <Select
                     value={it.glossLevel}
                     onChange={(e) =>
                       updateItem(idx, { glossLevel: e.target.value as ItemDraft["glossLevel"] })
                     }
                   >
-                    <option value="">—</option>
+                    <option value="">â€”</option>
                     {(Object.keys(GLOSS_LEVEL_LABEL) as Array<keyof typeof GLOSS_LEVEL_LABEL>).map((k) => (
                       <option key={k} value={k}>
                         {GLOSS_LEVEL_LABEL[k]}
@@ -800,9 +800,9 @@ export function OrderWizard({
                 </div>
                 <div className="space-y-1">
                   <Label>
-                    Anwendung *{" "}
+                    Application *{" "}
                     <span className="text-xs text-muted-foreground font-normal">
-                      (Innen/Aussen)
+                      (Indoor/Outdoor)
                     </span>
                   </Label>
                   <Select
@@ -813,14 +813,14 @@ export function OrderWizard({
                       })
                     }
                   >
-                    <option value="">— wählen —</option>
-                    <option value="INDOOR">Innen</option>
-                    <option value="OUTDOOR">Aussen</option>
-                    <option value="BOTH">Innen + Aussen</option>
+                    <option value="">â€” select â€”</option>
+                    <option value="INDOOR">Indoor</option>
+                    <option value="OUTDOOR">Outdoor</option>
+                    <option value="BOTH">Indoor + Outdoor</option>
                   </Select>
                 </div>
                 <div className="space-y-1">
-                  <Label>Stückpreis (CHF)</Label>
+                  <Label>Unit price (CHF)</Label>
                   <Input
                     type="number"
                     step={0.01}
@@ -835,7 +835,7 @@ export function OrderWizard({
                   />
                 </div>
                 <div className="space-y-1 col-span-2 md:col-span-4">
-                  <Label>Notizen zur Position</Label>
+                  <Label>Item notes</Label>
                   <Textarea
                     rows={1}
                     value={it.notes}
@@ -861,7 +861,7 @@ export function OrderWizard({
                       }}
                       className="w-44"
                     >
-                      <option value="">— Template —</option>
+                      <option value="">â€” Template â€”</option>
                       {templates.map((t) => (
                         <option key={t.id} value={t.id}>
                           {t.label}
@@ -945,7 +945,7 @@ export function OrderWizard({
                             }
                             className="text-xs"
                           >
-                            {/* Grouped by stage — Preparation → Sandblasting → … */}
+                            {/* Grouped by stage â€” Preparation â†’ Sandblasting â†’ â€¦ */}
                             {(["Preparation", "Sandblasting", "Wet Painting", "Powder Coating", "Post-processing"] as const).map((group) => (
                               <optgroup key={group} label={group}>
                                 {PROCESS_CODES.filter((c) => PROCESS_GROUP[c] === group).map((c) => (
@@ -987,7 +987,7 @@ export function OrderWizard({
                             }
                             className="text-xs"
                           >
-                            <option value="">— keine —</option>
+                            <option value="">â€” keine â€”</option>
                             {MACHINE_TYPES.map((m) => (
                               <option key={m} value={m}>
                                 {MACHINE_LABEL[m]}
@@ -1029,7 +1029,7 @@ export function OrderWizard({
         ))}
       </section>
 
-      {/* ── Errors + Submit ── */}
+      {/* â”€â”€ Errors + Submit â”€â”€ */}
       {error && (
         <div className="rounded-lg border border-destructive bg-destructive/10 px-3 py-2 text-sm text-destructive">
           {error}
@@ -1038,8 +1038,8 @@ export function OrderWizard({
 
       <div className="flex items-center justify-between pt-2 border-t">
         <p className="text-xs text-muted-foreground">
-          Zeit- und Preisberechnung erfolgt beim Speichern (Status: Entwurf).
-          Snapshot-Friere ab <strong>Bestätigt</strong>.
+          Time and price calculation happens on save (Status: Draft).
+          Snapshot frozen from <strong>Confirmed</strong>.
         </p>
         <div className="flex gap-2">
           <Button
@@ -1054,7 +1054,7 @@ export function OrderWizard({
         </div>
       </div>
 
-      {/* Paint shop recommendation — Vorschau-Modal */}
+      {/* Paint shop recommendation â€” Vorschau-Modal */}
       {suggestion && (
         <div
           className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4"
@@ -1073,8 +1073,8 @@ export function OrderWizard({
                   Paint shop recommendation
                 </h2>
                 <p className="text-xs text-muted-foreground mt-0.5">
-                  Vorschlag basierend auf Material + Anwendung + Glanz.
-                  Übernehmen ersetzt die aktuellen Schritte — danach editierbar.
+                  Suggestion based on material + application + gloss.
+                  Applying replaces the current steps â€” editable afterwards.
                 </p>
               </div>
               <button
@@ -1083,7 +1083,7 @@ export function OrderWizard({
                 className="p-1 rounded hover:bg-habb-paper text-muted-foreground"
                 aria-label="Close"
               >
-                ✕
+                âœ•
               </button>
             </div>
 
@@ -1091,7 +1091,7 @@ export function OrderWizard({
               {suggestion.warnings.length > 0 && (
                 <div className="rounded-md bg-amber-50 border border-amber-200 px-3 py-2 text-sm text-amber-900 space-y-1">
                   {suggestion.warnings.map((w, i) => (
-                    <div key={i}>⚠ {w}</div>
+                    <div key={i}>âš  {w}</div>
                   ))}
                 </div>
               )}
@@ -1114,10 +1114,10 @@ export function OrderWizard({
                       <span className="text-xs text-muted-foreground">
                         {SKILL_LABEL[s.skillRequired]}
                         {s.machineTypeRequired
-                          ? ` · ${MACHINE_LABEL[s.machineTypeRequired]}`
+                          ? ` Â· ${MACHINE_LABEL[s.machineTypeRequired]}`
                           : ""}
                         {s.waitMinutesAfter > 0
-                          ? ` · ${s.waitMinutesAfter} Min Wartezeit`
+                          ? ` Â· ${s.waitMinutesAfter} Min Wartezeit`
                           : ""}
                       </span>
                     </div>

@@ -1,4 +1,4 @@
-// Rechnungs-Liste mit Status-Tabs.
+// Invoice list with status tabs.
 
 import Link from "next/link";
 import { Prisma, type InvoiceStatus } from "@prisma/client";

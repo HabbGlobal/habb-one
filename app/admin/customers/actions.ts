@@ -1,4 +1,4 @@
-"use server";
+﻿"use server";
 
 // Customer + Address + Contact server actions. All mutations:
 //   1. require permission via `lib/permissions.ts`,
@@ -25,24 +25,24 @@ import {
   type DuplicateMatch,
 } from "@/lib/customer/duplicates";
 
-// ─────────────────────────────────────────
+// â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 // Auth helpers
-// ─────────────────────────────────────────
+// â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
 async function requireWriter() {
   const session = await auth();
-  if (!session?.user) throw new Error("Nicht angemeldet.");
+  if (!session?.user) throw new Error("Not authenticated.");
   if (!hasPermission(session.user.role, "customers.write")) {
-    throw new Error("Keine Berechtigung.");
+    throw new Error("No permission.");
   }
   return session.user;
 }
 
 async function requireReader() {
   const session = await auth();
-  if (!session?.user) throw new Error("Nicht angemeldet.");
+  if (!session?.user) throw new Error("Not authenticated.");
   if (!hasPermission(session.user.role, "customers.read")) {
-    throw new Error("Keine Berechtigung.");
+    throw new Error("No permission.");
   }
   return session.user;
 }
@@ -62,7 +62,7 @@ function explainPrismaError(err: unknown): string | null {
     if (err.code === "P2002") {
       const target = (err.meta?.target as string[] | undefined)?.join(", ") ?? "Feld";
       if (target.includes("customerNumber")) {
-        return "Diese Kundennummer existiert bereits — bitte erneut versuchen.";
+        return "Diese Kundennummer existiert bereits â€” bitte erneut versuchen.";
       }
       if (target.includes("vatNumber")) {
         return "Diese MwSt-Nummer ist bereits einem anderen Kunden zugeordnet.";
@@ -74,9 +74,9 @@ function explainPrismaError(err: unknown): string | null {
   return null;
 }
 
-// ─────────────────────────────────────────
+// â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 // Read: duplicate check (UI calls this before submit)
-// ─────────────────────────────────────────
+// â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
 export async function checkDuplicates(input: {
   vatNumber?: string;
@@ -92,9 +92,9 @@ export async function checkDuplicates(input: {
   });
 }
 
-// ─────────────────────────────────────────
+// â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 // Customer Create / Update
-// ─────────────────────────────────────────
+// â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
 const createInputSchema = z.object({
   core: customerCoreSchema,
@@ -168,7 +168,7 @@ export async function updateCustomer(id: string, input: unknown) {
   const data = parseOrThrow(customerCoreSchema, input);
 
   const before = await prisma.customer.findUniqueOrThrow({ where: { id } });
-  if (before.companyId !== user.companyId) throw new Error("Keine Berechtigung.");
+  if (before.companyId !== user.companyId) throw new Error("No permission.");
 
   try {
     await prisma.customer.update({
@@ -213,9 +213,9 @@ export async function updateCustomer(id: string, input: unknown) {
   revalidatePath(`/admin/customers/${id}`);
 }
 
-// ─────────────────────────────────────────
+// â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 // Address management (sub-resource)
-// ─────────────────────────────────────────
+// â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
 export async function addAddress(customerId: string, input: unknown) {
   const user = await requireWriter();
@@ -224,11 +224,11 @@ export async function addAddress(customerId: string, input: unknown) {
   const customer = await prisma.customer.findUniqueOrThrow({
     where: { id: customerId },
   });
-  if (customer.companyId !== user.companyId) throw new Error("Keine Berechtigung.");
+  if (customer.companyId !== user.companyId) throw new Error("No permission.");
 
   await prisma.$transaction(async (tx) => {
     if (data.isDefault) {
-      // Only one default address per customer per type — un-flag any sibling.
+      // Only one default address per customer per type â€” un-flag any sibling.
       await tx.address.updateMany({
         where: {
           customerId,
@@ -264,7 +264,7 @@ export async function updateAddress(addressId: string, input: unknown) {
     include: { customer: true },
   });
   if (before.customer.companyId !== user.companyId) {
-    throw new Error("Keine Berechtigung.");
+    throw new Error("No permission.");
   }
 
   await prisma.$transaction(async (tx) => {
@@ -303,7 +303,7 @@ export async function deleteAddress(addressId: string) {
     include: { customer: true },
   });
   if (before.customer.companyId !== user.companyId) {
-    throw new Error("Keine Berechtigung.");
+    throw new Error("No permission.");
   }
   await prisma.address.delete({ where: { id: addressId } });
   await recordAudit({
@@ -316,9 +316,9 @@ export async function deleteAddress(addressId: string) {
   revalidatePath(`/admin/customers/${before.customerId}`);
 }
 
-// ─────────────────────────────────────────
+// â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 // Contact management
-// ─────────────────────────────────────────
+// â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
 export async function addContact(customerId: string, input: unknown) {
   const user = await requireWriter();
@@ -327,7 +327,7 @@ export async function addContact(customerId: string, input: unknown) {
   const customer = await prisma.customer.findUniqueOrThrow({
     where: { id: customerId },
   });
-  if (customer.companyId !== user.companyId) throw new Error("Keine Berechtigung.");
+  if (customer.companyId !== user.companyId) throw new Error("No permission.");
 
   await prisma.$transaction(async (tx) => {
     if (data.isPrimary) {
@@ -358,7 +358,7 @@ export async function updateContact(contactId: string, input: unknown) {
     include: { customer: true },
   });
   if (before.customer.companyId !== user.companyId) {
-    throw new Error("Keine Berechtigung.");
+    throw new Error("No permission.");
   }
   await prisma.$transaction(async (tx) => {
     if (data.isPrimary && !before.isPrimary) {
@@ -386,7 +386,7 @@ export async function deleteContact(contactId: string) {
     include: { customer: true },
   });
   if (before.customer.companyId !== user.companyId) {
-    throw new Error("Keine Berechtigung.");
+    throw new Error("No permission.");
   }
   await prisma.contact.delete({ where: { id: contactId } });
   await recordAudit({
@@ -399,9 +399,9 @@ export async function deleteContact(contactId: string) {
   revalidatePath(`/admin/customers/${before.customerId}`);
 }
 
-// ─────────────────────────────────────────
+// â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 // Bulk lifecycle (mirrors employees/areas/holidays pattern)
-// ─────────────────────────────────────────
+// â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
 async function authorizeBulk(ids: string[]) {
   const user = await requireWriter();
@@ -410,7 +410,7 @@ async function authorizeBulk(ids: string[]) {
     select: { id: true },
   });
   if (owned.length !== ids.length) {
-    throw new Error("Mindestens ein Eintrag gehört nicht zu dieser Firma.");
+    throw new Error("At least one entry does not belong to this company.");
   }
   return user;
 }

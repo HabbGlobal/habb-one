@@ -55,10 +55,10 @@ export function QuoteList({ rows }: { rows: QuoteListItemDTO[] }) {
           <TableHead className="w-32">Nr.</TableHead>
           <TableHead>Customer</TableHead>
           <TableHead className="w-28">Status</TableHead>
-          <TableHead className="w-28">Erstellt</TableHead>
-          <TableHead className="w-28">Gültig bis</TableHead>
+          <TableHead className="w-28">Created</TableHead>
+          <TableHead className="w-28">Valid until</TableHead>
           <TableHead className="w-12 text-right">Pos.</TableHead>
-          <TableHead className="w-32 text-right">Betrag</TableHead>
+          <TableHead className="w-32 text-right">Amount</TableHead>
           <TableHead className="w-12"></TableHead>
         </TableRow>
       </TableHeader>

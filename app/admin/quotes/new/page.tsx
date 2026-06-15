@@ -44,7 +44,7 @@ export default async function NewQuotePage() {
       <div>
         <h1 className="text-2xl font-semibold">New Quote</h1>
         <p className="text-sm text-muted-foreground">
-          Status startet als <strong>Entwurf</strong>. Wird beim Versenden eingefroren.
+          Status starts as <strong>Draft</strong>. Will be frozen when sent.
         </p>
       </div>
 

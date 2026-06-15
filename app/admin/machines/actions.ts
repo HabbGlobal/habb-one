@@ -26,7 +26,7 @@ const DEFAULT_WORKING_HOURS = {
 } as const;
 
 const machineCoreSchema = z.object({
-  name: z.string().min(1, "Name fehlt").max(80),
+  name: z.string().min(1, "Name required").max(80),
   type: z.enum([
     "BLAST_CABIN",
     "CHEM_BATH",
@@ -48,9 +48,9 @@ export type MachineCoreInput = z.input<typeof machineCoreSchema>;
 
 async function requireWriter() {
   const session = await auth();
-  if (!session?.user) throw new Error("Nicht angemeldet.");
+  if (!session?.user) throw new Error("Not authenticated.");
   if (!hasPermission(session.user.role, "machines.write")) {
-    throw new Error("Keine Berechtigung 'Maschinen bearbeiten'.");
+    throw new Error("No permission to edit machines.");
   }
   return session.user;
 }
@@ -75,7 +75,7 @@ async function assertAreaInCompany(
     where: { id: areaId, companyId },
     select: { id: true },
   });
-  if (!area) throw new Error("Bereich gehört nicht zu dieser Firma.");
+  if (!area) throw new Error("Area does not belong to this company.");
 }
 
 export async function createMachine(input: unknown) {
@@ -88,7 +88,7 @@ export async function createMachine(input: unknown) {
     where: { companyId: user.companyId, name: data.name, deletedAt: null },
     select: { id: true },
   });
-  if (dup) throw new Error(`Eine Maschine mit Namen "${data.name}" existiert bereits.`);
+  if (dup) throw new Error(`A machine with name "${data.name}" already exists.`);
 
   await assertAreaInCompany(data.workAreaId, user.companyId);
 
@@ -141,7 +141,7 @@ export async function updateMachine(id: string, input: unknown) {
       },
       select: { id: true },
     });
-    if (dup) throw new Error(`Eine Maschine mit Namen "${data.name}" existiert bereits.`);
+    if (dup) throw new Error(`A machine with name "${data.name}" already exists.`);
   }
 
   await assertAreaInCompany(data.workAreaId, user.companyId);
@@ -218,7 +218,7 @@ export async function setMachineWorkArea(
     entityId: machineId,
     oldValue: { workAreaId: before.workAreaId },
     newValue: { workAreaId: workAreaId ?? null },
-    reason: `Bereich für Maschine "${before.name}" geändert`,
+    reason: `Area for machine "${before.name}" changed`,
   });
 
   revalidatePath("/admin/machines");
@@ -241,7 +241,7 @@ export async function archiveMachine(id: string) {
     action: "UPDATE",
     entityType: "Machine",
     entityId: id,
-    reason: `Maschine "${machine.name}" archiviert`,
+    reason: `Machine "${machine.name}" archived`,
   });
   revalidatePath("/admin/machines");
 }

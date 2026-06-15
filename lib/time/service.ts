@@ -210,7 +210,7 @@ async function assertEmployeeInCompany(
   });
   if (!emp || emp.companyId !== expectedCompanyId) {
     throw new Error(
-      `Time-Service: Mitarbeiter ${employeeId} gehört nicht zur erwarteten Company.`,
+      `Time-Service: Employee ${employeeId} does not belong to the expected company.`,
     );
   }
 }

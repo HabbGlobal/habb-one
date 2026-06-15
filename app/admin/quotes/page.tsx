@@ -1,4 +1,4 @@
-// Offerten-Liste mit Status-Tabs.
+// Quotes list with status tabs.
 
 import Link from "next/link";
 import { Prisma, type QuoteStatus } from "@prisma/client";

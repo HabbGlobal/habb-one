@@ -227,9 +227,9 @@ export function QuoteWizard({ mode, customers, templates, processResources, init
   };
 
   /**
-   * Schritt NACH der gegebenen Position einfügen — z. B. zwischen
-   * "Sandstrahlen" und "Lackieren" einen zusätzlichen "Maskieren"-Schritt.
-   * Sequenzen werden für alle Schritte neu vergeben (10, 20, 30 …).
+   * Insert a step AFTER the given position — e.g. between
+   * "Sandblasting" and "Painting" an additional "Masking" step.
+   * Sequences are re-assigned for all steps (10, 20, 30 …).
    */
   const insertStepAfter = (itemIdx: number, afterStepIdx: number) => {
     const code: ProcessCode = "MASKING";
@@ -238,7 +238,7 @@ export function QuoteWizard({ mode, customers, templates, processResources, init
       prev.map((it, i) => {
         if (i !== itemIdx) return it;
         const newStep = {
-          sequence: 0, // wird unten neu durchnummeriert
+          sequence: 0, // renumbered below
           processCode: code,
           machineTypeRequired: r.machine,
           skillRequired: r.skill,
@@ -411,7 +411,7 @@ export function QuoteWizard({ mode, customers, templates, processResources, init
           processCode: s.processCode,
           machineTypeRequired: s.machineTypeRequired,
           skillRequired: s.skillRequired,
-          estimatedMinutes: 0, // wird vom Server neu berechnet
+          estimatedMinutes: 0, // recalculated by server
           waitMinutesAfter: s.waitMinutesAfter,
           notes: s.notes || undefined,
         })),
@@ -436,16 +436,16 @@ export function QuoteWizard({ mode, customers, templates, processResources, init
 
   return (
     <div className="space-y-6">
-      {/* Kopfdaten */}
+      {/* Header */}
       <section className="space-y-3">
         <h2 className="font-medium text-sm text-muted-foreground uppercase tracking-wider">
-          1. Kopfdaten
+          1. Header
         </h2>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
           <div className="space-y-1 md:col-span-3">
-            <Label>Kunde *</Label>
+            <Label>Customer *</Label>
             <Select value={customerId} onChange={(e) => setCustomerId(e.target.value)}>
-              <option value="">— Kunde wählen —</option>
+              <option value="">— Select customer —</option>
               {customers.map((c) => (
                 <option key={c.id} value={c.id}>
                   {c.customerNumber} · {c.label}
@@ -454,7 +454,7 @@ export function QuoteWizard({ mode, customers, templates, processResources, init
             </Select>
           </div>
           <div className="space-y-1">
-            <Label>Gültig bis *</Label>
+            <Label>Valid until *</Label>
             <Input
               type="date"
               value={validUntil}
@@ -462,7 +462,7 @@ export function QuoteWizard({ mode, customers, templates, processResources, init
             />
           </div>
           <div className="space-y-1">
-            <Label>MwSt-Satz (%)</Label>
+            <Label>VAT rate (%)</Label>
             <Input
               type="number"
               step={0.1}
@@ -478,17 +478,17 @@ export function QuoteWizard({ mode, customers, templates, processResources, init
               rows={2}
               value={notes}
               onChange={(e) => setNotes(e.target.value)}
-              placeholder="z. B. Lieferzeit 4 Wochen, Versand frei Haus"
+              placeholder="e.g. Delivery time 4 weeks, free shipping"
             />
           </div>
         </div>
       </section>
 
-      {/* Positionen */}
+      {/* Items */}
       <section className="space-y-3">
         <div className="flex items-center justify-between">
           <h2 className="font-medium text-sm text-muted-foreground uppercase tracking-wider">
-            2. Positionen
+            2. Items
           </h2>
           <Button type="button" variant="outline" size="sm" onClick={addItem}>
             <Plus className="h-4 w-4 mr-1" /> Position
@@ -530,15 +530,15 @@ export function QuoteWizard({ mode, customers, templates, processResources, init
                   />
                 </div>
                 <div className="space-y-1 col-span-2 md:col-span-3">
-                  <Label>Beschreibung *</Label>
+                  <Label>Description *</Label>
                   <Input
                     value={it.description}
                     onChange={(e) => updateItem(idx, { description: e.target.value })}
-                    placeholder="z. B. Geländerstreben verzinkt"
+                    placeholder="e.g. Galvanized railing bars"
                   />
                 </div>
                 <div className="space-y-1">
-                  <Label>Stk.</Label>
+                  <Label>Qty</Label>
                   <Input
                     type="number"
                     min={1}
@@ -547,7 +547,7 @@ export function QuoteWizard({ mode, customers, templates, processResources, init
                   />
                 </div>
                 <div className="space-y-1">
-                  <Label>Stückpreis CHF *</Label>
+                  <Label>Unit price CHF *</Label>
                   <Input
                     type="number"
                     inputMode="decimal"
@@ -556,7 +556,7 @@ export function QuoteWizard({ mode, customers, templates, processResources, init
                     value={it.unitPriceCHF}
                     onChange={(e) =>
                       updateItem(idx, {
-                        // Komma → Punkt (für Schweizer Tippgewohnheit)
+                        // Comma → dot (for Swiss typing habits)
                         unitPriceCHF: Number(e.target.value.replace(",", ".")),
                       })
                     }
@@ -564,7 +564,7 @@ export function QuoteWizard({ mode, customers, templates, processResources, init
                   />
                 </div>
                 <div className="space-y-1">
-                  <Label>Oberfläche m² *</Label>
+                  <Label>Surface m² *</Label>
                   <Input
                     type="number"
                     step={0.01}
@@ -576,7 +576,7 @@ export function QuoteWizard({ mode, customers, templates, processResources, init
                   />
                 </div>
                 <div className="space-y-1">
-                  <Label>Gewicht (kg)</Label>
+                  <Label>Weight (kg)</Label>
                   <Input
                     type="number"
                     step={0.01}
@@ -589,7 +589,7 @@ export function QuoteWizard({ mode, customers, templates, processResources, init
                   />
                 </div>
                 <div className="space-y-1">
-                  <Label>Materialdicke (mm)</Label>
+                  <Label>Thickness (mm)</Label>
                   <Input
                     type="number"
                     step={0.1}
@@ -617,7 +617,7 @@ export function QuoteWizard({ mode, customers, templates, processResources, init
                   </Select>
                 </div>
                 <div className="space-y-1">
-                  <Label>Komplexität</Label>
+                  <Label>Complexity</Label>
                   <Select
                     value={it.complexity}
                     onChange={(e) =>
@@ -632,7 +632,7 @@ export function QuoteWizard({ mode, customers, templates, processResources, init
                   </Select>
                 </div>
                 <div className="space-y-1">
-                  <Label>Farbsystem</Label>
+                  <Label>Color system</Label>
                   <Select
                     value={it.colorSystem}
                     onChange={(e) =>
@@ -650,7 +650,7 @@ export function QuoteWizard({ mode, customers, templates, processResources, init
                   </Select>
                 </div>
                 <div className="space-y-1">
-                  <Label>Farbcode</Label>
+                  <Label>Color code</Label>
                   <Input
                     value={it.colorCode}
                     onChange={(e) => updateItem(idx, { colorCode: e.target.value })}
@@ -658,7 +658,7 @@ export function QuoteWizard({ mode, customers, templates, processResources, init
                   />
                 </div>
                 <div className="space-y-1">
-                  <Label>Glanzgrad</Label>
+                  <Label>Gloss level</Label>
                   <Select
                     value={it.glossLevel}
                     onChange={(e) =>
@@ -675,9 +675,9 @@ export function QuoteWizard({ mode, customers, templates, processResources, init
                 </div>
                 <div className="space-y-1">
                   <Label>
-                    Anwendung *{" "}
+                    Application *{" "}
                     <span className="text-xs text-muted-foreground font-normal">
-                      (Innen/Aussen)
+                      (Indoor/Outdoor)
                     </span>
                   </Label>
                   <Select
@@ -688,14 +688,14 @@ export function QuoteWizard({ mode, customers, templates, processResources, init
                       })
                     }
                   >
-                    <option value="">— wählen —</option>
-                    <option value="INDOOR">Innen</option>
-                    <option value="OUTDOOR">Aussen</option>
-                    <option value="BOTH">Innen + Aussen</option>
+                    <option value="">— select —</option>
+                    <option value="INDOOR">Indoor</option>
+                    <option value="OUTDOOR">Outdoor</option>
+                    <option value="BOTH">Indoor + Outdoor</option>
                   </Select>
                 </div>
                 <div className="space-y-1 col-span-2 md:col-span-4">
-                  <Label>Notizen zur Position</Label>
+                  <Label>Item notes</Label>
                   <Textarea
                     rows={1}
                     value={it.notes}
@@ -765,8 +765,7 @@ export function QuoteWizard({ mode, customers, templates, processResources, init
                   <div className="rounded-md bg-habb-paper border border-habb-line px-3 py-1.5 text-xs text-habb-ink flex items-center gap-2">
                     <CheckCircle2 className="h-3.5 w-3.5 shrink-0" />
                     <span>
-                      Vorlage geladen — du kannst Schritte ergänzen, bearbeiten oder
-                      umsortieren.
+                      Template loaded — you can add, edit, or reorder steps.
                     </span>
                   </div>
                 )}
@@ -852,7 +851,7 @@ export function QuoteWizard({ mode, customers, templates, processResources, init
                             }
                             className="text-xs"
                           >
-                            <option value="">— keine —</option>
+                            <option value="">— none —</option>
                             {MACHINE_TYPES.map((m) => (
                               <option key={m} value={m}>
                                 {MACHINE_LABEL[m]}
@@ -887,16 +886,16 @@ export function QuoteWizard({ mode, customers, templates, processResources, init
                             onClick={() => removeStep(idx, sIdx)}
                             className="p-1 rounded hover:bg-destructive/10 text-destructive"
                             aria-label="Remove step"
-                            title="Schritt entfernen"
+                            title="Remove step"
                           >
                             <Trash2 className="h-3 w-3" />
                           </button>
                         </div>
                       </div>
                     ))}
-                    {/* Großer „+ Schritt"-Button am Ende — sichtbarer als
-                        der kleine Button im Header. Damit wird klar: auch
-                        nach Vorlage-Anwendung kann manuell ergänzt werden. */}
+                    {/* Large "+ Step" button at the end — more visible than
+                        the small button in the header. Makes it clear: even
+                        after applying a template, steps can be added manually. */}
                     <button
                       type="button"
                       onClick={() => addStep(idx)}
@@ -918,15 +917,15 @@ export function QuoteWizard({ mode, customers, templates, processResources, init
         <CardContent className="p-4">
           <div className="flex items-baseline justify-between">
             <div>
-              <div className="text-xs text-muted-foreground">Total netto</div>
+              <div className="text-xs text-muted-foreground">Total net</div>
               <div className="text-lg font-semibold tabular-nums">{fmtCHF(totalNet)}</div>
             </div>
             <div>
-              <div className="text-xs text-muted-foreground">+ MwSt {vatRate}%</div>
+              <div className="text-xs text-muted-foreground">+ VAT {vatRate}%</div>
               <div className="text-lg tabular-nums">{fmtCHF(vatCHF)}</div>
             </div>
             <div>
-              <div className="text-xs text-muted-foreground">Total brutto</div>
+              <div className="text-xs text-muted-foreground">Total gross</div>
               <div className="text-xl font-semibold tabular-nums text-emerald-700">
                 {fmtCHF(totalGross)}
               </div>
@@ -943,8 +942,8 @@ export function QuoteWizard({ mode, customers, templates, processResources, init
 
       <div className="flex items-center justify-between pt-2 border-t">
         <p className="text-xs text-muted-foreground">
-          Schritt-Aufwand wird beim Speichern aus den Live-Parametern berechnet.
-          Snapshot-Friere ab <strong>Versendet</strong>.
+          Step effort is calculated from live parameters on save.
+          Snapshot frozen from <strong>Sent</strong>.
         </p>
         <div className="flex gap-2">
           <Button variant="ghost" onClick={() => router.back()} disabled={pending}>Cancel</Button>
@@ -973,9 +972,9 @@ export function QuoteWizard({ mode, customers, templates, processResources, init
                   Paint shop recommendation
                 </h2>
                 <p className="text-xs text-muted-foreground mt-0.5">
-                  Vorschlag basierend auf Material + Anwendung + Glanz.
-                  Übernehmen ersetzt die aktuellen Schritte — du kannst sie
-                  danach beliebig editieren.
+                  Suggestion based on material + application + gloss.
+                  Applying replaces the current steps — you can edit them
+                  afterwards as needed.
                 </p>
               </div>
               <button
@@ -1020,7 +1019,7 @@ export function QuoteWizard({ mode, customers, templates, processResources, init
                           ? ` · ${MACHINE_LABEL[s.machineTypeRequired]}`
                           : ""}
                         {s.waitMinutesAfter > 0
-                          ? ` · ${s.waitMinutesAfter} Min Wartezeit`
+                          ? ` · ${s.waitMinutesAfter} min wait time`
                           : ""}
                       </span>
                     </div>

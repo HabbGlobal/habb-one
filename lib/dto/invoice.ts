@@ -179,10 +179,10 @@ export function allowedNextInvoiceStatuses(s: Invoice["status"]): Invoice["statu
 
 export function invoiceStatusLabel(s: Invoice["status"]): string {
   return {
-    DRAFT:     "Entwurf",
-    SENT:      "Versendet",
-    PAID:      "Bezahlt",
-    OVERDUE:   "Überfällig",
-    CANCELLED: "Storniert",
+    DRAFT:     "Draft",
+    SENT:      "Sent",
+    PAID:      "Paid",
+    OVERDUE:   "Overdue",
+    CANCELLED: "Cancelled",
   }[s];
 }

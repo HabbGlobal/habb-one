@@ -1,9 +1,9 @@
-"use server";
+﻿"use server";
 
 // Server actions for the secretary / admin monthly scheduling module.
 //
 // Lifecycle of a ScheduleMonth:
-//   DRAFT → PUBLISHED → CHANGED_AFTER_PUBLISHING → PUBLISHED → ... → ARCHIVED
+//   DRAFT â†’ PUBLISHED â†’ CHANGED_AFTER_PUBLISHING â†’ PUBLISHED â†’ ... â†’ ARCHIVED
 //
 // Editing entries on a PUBLISHED month flips the month into
 // CHANGED_AFTER_PUBLISHING and writes a ScheduleChangeLog row so we can show
@@ -37,18 +37,18 @@ import { localDateString } from "@/lib/time/zone";
 
 async function requireWriter() {
   const session = await auth();
-  if (!session?.user) throw new Error("Nicht angemeldet.");
+  if (!session?.user) throw new Error("Not authenticated.");
   if (!hasPermission(session.user.role, "schedule.write")) {
-    throw new Error("Keine Berechtigung.");
+    throw new Error("No permission.");
   }
   return session.user;
 }
 
 async function requirePublisher() {
   const session = await auth();
-  if (!session?.user) throw new Error("Nicht angemeldet.");
+  if (!session?.user) throw new Error("Not authenticated.");
   if (!hasPermission(session.user.role, "schedule.publish")) {
-    throw new Error("Keine Berechtigung.");
+    throw new Error("No permission.");
   }
   return session.user;
 }
@@ -122,12 +122,12 @@ export async function upsertScheduleEntry(input: unknown) {
   const month = await prisma.scheduleMonth.findUniqueOrThrow({
     where: { id: data.monthId },
   });
-  if (month.companyId !== user.companyId) throw new Error("Keine Berechtigung.");
+  if (month.companyId !== user.companyId) throw new Error("No permission.");
 
   const employee = await prisma.employee.findUniqueOrThrow({
     where: { id: data.employeeId },
   });
-  if (employee.companyId !== user.companyId) throw new Error("Keine Berechtigung.");
+  if (employee.companyId !== user.companyId) throw new Error("No permission.");
 
   const dateUtc = toUtcMidnight(data.date);
   const plannedMinutes =
@@ -217,7 +217,7 @@ export async function deleteScheduleEntry(entryId: string) {
     include: { scheduleMonth: true },
   });
   if (entry.scheduleMonth.companyId !== user.companyId) {
-    throw new Error("Keine Berechtigung.");
+    throw new Error("No permission.");
   }
   await prisma.scheduleEntry.delete({ where: { id: entryId } });
   if (entry.scheduleMonth.status === "PUBLISHED") {
@@ -232,7 +232,7 @@ export async function deleteScheduleEntry(entryId: string) {
 export async function publishScheduleMonth(monthId: string) {
   const user = await requirePublisher();
   const month = await prisma.scheduleMonth.findUniqueOrThrow({ where: { id: monthId } });
-  if (month.companyId !== user.companyId) throw new Error("Keine Berechtigung.");
+  if (month.companyId !== user.companyId) throw new Error("No permission.");
   await prisma.scheduleMonth.update({
     where: { id: monthId },
     data: {
@@ -255,7 +255,7 @@ export async function publishScheduleMonth(monthId: string) {
 export async function revertToDraft(monthId: string) {
   const user = await requirePublisher();
   const month = await prisma.scheduleMonth.findUniqueOrThrow({ where: { id: monthId } });
-  if (month.companyId !== user.companyId) throw new Error("Keine Berechtigung.");
+  if (month.companyId !== user.companyId) throw new Error("No permission.");
   await prisma.scheduleMonth.update({
     where: { id: monthId },
     data: { status: "DRAFT" },
@@ -263,9 +263,9 @@ export async function revertToDraft(monthId: string) {
   revalidatePath("/admin/schedule");
 }
 
-// ─────────────────────────────────────────
+// â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 // Bulk range planning
-// ─────────────────────────────────────────
+// â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
 const bulkSchema = z.object({
   monthId: z.string().cuid().optional().nullable(),
@@ -300,14 +300,14 @@ export async function bulkUpsertScheduleEntries(input: unknown) {
   const employee = await prisma.employee.findUniqueOrThrow({
     where: { id: data.employeeId },
   });
-  if (employee.companyId !== user.companyId) throw new Error("Keine Berechtigung.");
+  if (employee.companyId !== user.companyId) throw new Error("No permission.");
 
   // All dates must be within the target month so a range editor can't bleed
   // entries into a different ScheduleMonth row.
   for (const d of data.dates) {
     const [y, m] = d.split("-").map(Number);
     if (y !== data.year || m !== data.month) {
-      throw new Error(`Datum ausserhalb des Monats: ${d}`);
+      throw new Error(`Date outside of month: ${d}`);
     }
   }
 
@@ -334,7 +334,7 @@ export async function bulkUpsertScheduleEntries(input: unknown) {
       },
     });
   }
-  if (monthRow.companyId !== user.companyId) throw new Error("Keine Berechtigung.");
+  if (monthRow.companyId !== user.companyId) throw new Error("No permission.");
 
   const plannedMinutes =
     data.type === "WORK"
@@ -505,7 +505,7 @@ export async function copyFromPreviousMonth(year: number, month: number) {
     include: { entries: true },
   });
   if (!prev || prev.entries.length === 0) {
-    throw new Error("Vormonat enthält keine Planung.");
+    throw new Error("Previous month contains no plan.");
   }
 
   const target = await ensureScheduleMonth(year, month);
@@ -584,9 +584,9 @@ export async function copyFromPreviousMonth(year: number, month: number) {
   return { created: result.count };
 }
 
-// ─────────────────────────────────────────
+// â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 // Auto-planner: distribute employees across areas for the month
-// ─────────────────────────────────────────
+// â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
 const autoPlanSchema = z.object({
   year: z.number().int().min(2000).max(2100),
@@ -772,7 +772,7 @@ export async function autoPlanMonth(input: unknown) {
       });
     }
   }, {
-    // Sequential upserts × ~100 entries can take 5-15 s on a remote DB.
+    // Sequential upserts Ã— ~100 entries can take 5-15 s on a remote DB.
     // Bump well beyond Prisma's 5 s default to avoid the transaction being
     // closed mid-loop.
     maxWait: 10_000,
@@ -806,36 +806,36 @@ export async function autoPlanMonth(input: unknown) {
   };
 }
 
-// ─────────────────────────────────────────
+// â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 // Bulk-Delete: Auto-Planung wegputzen
-// ─────────────────────────────────────────
+// â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
 const bulkDeleteSchema = z.object({
   /** Bereich: Woche oder ganzer Monat. */
   scope: z.enum(["week", "month"]),
   /**
-   * Anker-Datum für den Bereich.
-   *  - scope=week: Beliebiger Tag in der ISO-Woche → Mo-So wird abgeleitet.
-   *  - scope=month: Beliebiger Tag im Monat → der ganze Monat wird genommen.
+   * Anker-Datum fÃ¼r den Bereich.
+   *  - scope=week: Beliebiger Tag in der ISO-Woche â†’ Mo-So wird abgeleitet.
+   *  - scope=month: Beliebiger Tag im Monat â†’ der ganze Monat wird genommen.
    */
   anchorDate: z.string().regex(/^\d{4}-\d{2}-\d{2}$/),
   /**
-   * Welche Quelle gelöscht wird:
-   *  - "AUTO": nur automatisch geplante Einträge
+   * Welche Quelle gelÃ¶scht wird:
+   *  - "AUTO": nur automatisch geplante EintrÃ¤ge
    *  - "AUTO_AND_COPIED": auto + aus Vormonat kopierte (alles "nicht-manuell")
    *  - "ALL": alles im Bereich (auch manuell). Als letzte Reset-Option.
    */
   filter: z.enum(["AUTO", "AUTO_AND_COPIED", "ALL"]),
-  /** Optional: nur für eine Liste von Mitarbeitenden. Leer = alle. */
+  /** Optional: nur fÃ¼r eine Liste von Mitarbeitenden. Leer = alle. */
   employeeIds: z.array(z.string().cuid()).optional(),
-  /** Optional: nur für einen Bereich. */
+  /** Optional: nur fÃ¼r einen Bereich. */
   workAreaId: z.string().cuid().optional().nullable(),
 });
 
 export type BulkDeleteInput = z.input<typeof bulkDeleteSchema>;
 
 /**
- * Berechnet das (UTC-)Datums-Fenster für `scope` + `anchorDate`.
+ * Berechnet das (UTC-)Datums-Fenster fÃ¼r `scope` + `anchorDate`.
  * Woche = ISO-Woche Mo-So.
  */
 function rangeFor(scope: "week" | "month", anchorDate: string): { from: Date; to: Date } {
@@ -864,14 +864,14 @@ function sourceFilterToWhere(
     case "AUTO_AND_COPIED":
       return { source: { in: ["AUTO", "COPIED"] } };
     case "ALL":
-      return {}; // kein Filter — auch MANUAL wird gelöscht
+      return {}; // kein Filter â€” auch MANUAL wird gelÃ¶scht
   }
 }
 
 /**
- * Zählt nur, wie viele Einträge die gegebenen Filter-Kriterien matchen würden.
- * Wird vom UI VOR dem Löschen aufgerufen, damit der Bestätigungs-Dialog
- * sagen kann: "23 Einträge werden gelöscht."
+ * ZÃ¤hlt nur, wie viele EintrÃ¤ge die gegebenen Filter-Kriterien matchen wÃ¼rden.
+ * Wird vom UI VOR dem LÃ¶schen aufgerufen, damit der BestÃ¤tigungs-Dialog
+ * sagen kann: "23 EintrÃ¤ge werden gelÃ¶scht."
  */
 export async function countBulkDeletableEntries(input: unknown): Promise<{
   total: number;
@@ -919,12 +919,12 @@ export async function countBulkDeletableEntries(input: unknown): Promise<{
 }
 
 /**
- * Löscht ScheduleEntries gemäss Filter im gewählten Zeitraum.
+ * LÃ¶scht ScheduleEntries gemÃ¤ss Filter im gewÃ¤hlten Zeitraum.
  *
  * Sicherheitsnetz:
  *   - Nur User mit `schedule.write`-Permission.
- *   - Tenant-isoliert über `scheduleMonth.companyId`.
- *   - Audit-Log-Eintrag mit gelöschter Anzahl + Filter-Beschreibung.
+ *   - Tenant-isoliert Ã¼ber `scheduleMonth.companyId`.
+ *   - Audit-Log-Eintrag mit gelÃ¶schter Anzahl + Filter-Beschreibung.
  *   - Wenn der betroffene Monat PUBLISHED war: Status auf
  *     CHANGED_AFTER_PUBLISHING setzen (analog zu allen anderen Mutationen).
  */
@@ -947,7 +947,7 @@ export async function bulkDeleteScheduleEntries(input: unknown): Promise<{
     ...(data.workAreaId ? { workAreaId: data.workAreaId } : {}),
   };
 
-  // Vorab betroffene Monate finden, damit wir PUBLISHED → CHANGED setzen können.
+  // Vorab betroffene Monate finden, damit wir PUBLISHED â†’ CHANGED setzen kÃ¶nnen.
   const affectedMonths = await prisma.scheduleEntry.findMany({
     where,
     select: { scheduleMonthId: true },
@@ -978,7 +978,7 @@ export async function bulkDeleteScheduleEntries(input: unknown): Promise<{
     userId: user.id,
     action: "DELETE",
     entityType: "ScheduleEntry",
-    entityId: data.anchorDate, // kein einzelnes Subjekt — Datum als Anker
+    entityId: data.anchorDate, // kein einzelnes Subjekt â€” Datum als Anker
     newValue: {
       bulkDelete: true,
       scope: data.scope,
@@ -998,20 +998,20 @@ export async function bulkDeleteScheduleEntries(input: unknown): Promise<{
   return { deleted: result.count, scope: data.scope, filter: data.filter };
 }
 
-// ─────────────────────────────────────────
-// Aus Werkstatt-Plan → Personal-Plan ableiten
-// ─────────────────────────────────────────
+// â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// Aus Werkstatt-Plan â†’ Personal-Plan ableiten
+// â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
 const deriveSchema = z.object({
-  /** Anker — beliebiger Tag im Zielmonat (oder Mo der Zielwoche). */
+  /** Anker â€” beliebiger Tag im Zielmonat (oder Mo der Zielwoche). */
   anchorDate: z.string().regex(/^\d{4}-\d{2}-\d{2}$/),
   /** Bereich: Woche oder Monat. */
   scope: z.enum(["week", "month"]),
-  /** Wenn true: bereits vorhandene AUTO-Einträge dürfen überschrieben werden. */
+  /** Wenn true: bereits vorhandene AUTO-EintrÃ¤ge dÃ¼rfen Ã¼berschrieben werden. */
   overwriteAuto: z.boolean().default(false),
-  /** Wenn true: nur rechnen + Konflikte zurückgeben, nichts schreiben. */
+  /** Wenn true: nur rechnen + Konflikte zurÃ¼ckgeben, nichts schreiben. */
   dryRun: z.boolean().default(false),
-  /** Standard-Schicht für neu erzeugte WORK-Einträge. */
+  /** Standard-Schicht fÃ¼r neu erzeugte WORK-EintrÃ¤ge. */
   defaultStart: z.string().regex(/^\d{2}:\d{2}$/).default("07:30"),
   defaultEnd: z.string().regex(/^\d{2}:\d{2}$/).default("16:30"),
   defaultBreakMinutes: z.coerce.number().int().min(0).max(180).default(30),
@@ -1050,13 +1050,13 @@ function rangeForDerive(
 }
 
 /**
- * Liest den Werkstatt-Plan für den gewählten Zeitraum, mappt Maschinen-
- * Buchungen über `Machine.workAreaId` auf WorkAreas, und ergänzt im
- * Personal-Plan automatisch WORK-Einträge für die nötigen Mitarbeiter.
+ * Liest den Werkstatt-Plan fÃ¼r den gewÃ¤hlten Zeitraum, mappt Maschinen-
+ * Buchungen Ã¼ber `Machine.workAreaId` auf WorkAreas, und ergÃ¤nzt im
+ * Personal-Plan automatisch WORK-EintrÃ¤ge fÃ¼r die nÃ¶tigen Mitarbeiter.
  *
  * Sicherheits-Pattern:
- *   - SCHREIBT NIE über MANUAL- oder COPIED-Einträge.
- *   - AUTO-Einträge werden nur überschrieben, wenn `overwriteAuto=true`.
+ *   - SCHREIBT NIE Ã¼ber MANUAL- oder COPIED-EintrÃ¤ge.
+ *   - AUTO-EintrÃ¤ge werden nur Ã¼berschrieben, wenn `overwriteAuto=true`.
  *   - Mit `dryRun=true` kann das UI eine Vorschau zeigen, bevor geschrieben wird.
  */
 export async function derivePersonnelFromWorkshopPlan(
@@ -1067,9 +1067,9 @@ export async function derivePersonnelFromWorkshopPlan(
   const { from, to, year, month } = rangeForDerive(data.scope, data.anchorDate);
 
   // 1) Werkstatt-Buchungen im Zeitraum laden
-  // Lifecycle-Filter: nur Aufträge aktiver Kunden, nicht archiviert/gelöscht.
-  // Stornierte Aufträge schließen wir explizit aus — sie sollen keinen
-  // Personal-Bedarf auslösen.
+  // Lifecycle-Filter: nur AuftrÃ¤ge aktiver Kunden, nicht archiviert/gelÃ¶scht.
+  // Stornierte AuftrÃ¤ge schlieÃŸen wir explizit aus â€” sie sollen keinen
+  // Personal-Bedarf auslÃ¶sen.
   const bookings = await prisma.orderScheduleEntry.findMany({
     where: {
       order: {
@@ -1089,7 +1089,7 @@ export async function derivePersonnelFromWorkshopPlan(
     },
   });
 
-  // 2) Maschinen, Bereiche, Mitarbeiter, Absences laden — alles parallel
+  // 2) Maschinen, Bereiche, Mitarbeiter, Absences laden â€” alles parallel
   const [machineRows, areaRows, employeeRows, absenceRows, existingRows] =
     await Promise.all([
       prisma.machine.findMany({
@@ -1134,7 +1134,7 @@ export async function derivePersonnelFromWorkshopPlan(
           endDate: true,
         },
       }),
-      // Bestehende Personal-Plan-Einträge im Zeitraum
+      // Bestehende Personal-Plan-EintrÃ¤ge im Zeitraum
       prisma.scheduleEntry.findMany({
         where: {
           scheduleMonth: { companyId: user.companyId },
@@ -1211,7 +1211,7 @@ export async function derivePersonnelFromWorkshopPlan(
     return { ...result, written: 0 };
   }
 
-  // 5) Persistieren — Monats-Row(s) sicherstellen + Einträge upserten
+  // 5) Persistieren â€” Monats-Row(s) sicherstellen + EintrÃ¤ge upserten
   const computeMinutes = (start: string, end: string, breakMin: number): number => {
     const [sh, sm] = start.split(":").map(Number);
     const [eh, em] = end.split(":").map(Number);
@@ -1229,7 +1229,7 @@ export async function derivePersonnelFromWorkshopPlan(
     const [y, m] = a.date.split("-").map(Number);
     monthYearKeys.add(`${y}|${m}`);
   }
-  const monthRowMap = new Map<string, string>(); // "y|m" → monthId
+  const monthRowMap = new Map<string, string>(); // "y|m" â†’ monthId
   for (const key of monthYearKeys) {
     const [y, m] = key.split("|").map(Number);
     const row = await prisma.scheduleMonth.upsert({
@@ -1294,8 +1294,8 @@ export async function derivePersonnelFromWorkshopPlan(
             updatedById: user.id,
           },
           update: {
-            // Nur überschreiben wenn der bestehende Eintrag überschreibbar ist.
-            // Die Logik hat das schon vorgeprüft — hier vertrauen wir darauf.
+            // Nur Ã¼berschreiben wenn der bestehende Eintrag Ã¼berschreibbar ist.
+            // Die Logik hat das schon vorgeprÃ¼ft â€” hier vertrauen wir darauf.
             type: "WORK",
             workAreaId: a.workAreaId,
             source: "AUTO",

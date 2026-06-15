@@ -1,13 +1,13 @@
 "use client";
 
-// Planung-Sektion auf der Order-Detail-Page.
+// Scheduling section on the order detail page.
 //
-// Zeigt:
-//   - Liste aller geplanten Schritte mit Maschine + Zeit + Lock-Status
-//   - Konflikte (Deadline-Miss, fehlende Maschine, ...)
-//   - "Neu planen"-Button (ruft scheduleOrder)
-//   - "Plan löschen"-Button (clearOrderSchedule)
-//   - Lock/Unlock pro Eintrag
+// Shows:
+//   - List of all planned steps with machine + time + lock status
+//   - Conflicts (deadline miss, missing machine, ...)
+//   - "Reschedule" button (calls scheduleOrder)
+//   - "Delete plan" button (clearOrderSchedule)
+//   - Lock/Unlock per entry
 
 import { useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
@@ -81,25 +81,25 @@ export function SchedulingSection({
       try {
         const r = await scheduleOrder(orderId);
         setFeedback(
-          `${r.proposedCount} Schritte geplant${r.conflictCount > 0 ? `, ${r.conflictCount} Konflikte` : ""}.`,
+          `${r.proposedCount} steps scheduled${r.conflictCount > 0 ? `, ${r.conflictCount} conflicts` : ""}.`,
         );
         router.refresh();
         setTimeout(() => setFeedback(null), 5_000);
       } catch (err) {
-        setError(err instanceof Error ? err.message : "Fehler.");
+        setError(err instanceof Error ? err.message : "Error.");
       }
     });
   };
 
   const onClear = () => {
-    if (!confirm("Komplette Planung dieses Auftrags löschen (auch gesperrte Einträge)?")) return;
+    if (!confirm("Delete all scheduling for this order (including locked entries)?")) return;
     setError(null);
     start(async () => {
       try {
         await clearOrderSchedule(orderId);
         router.refresh();
       } catch (err) {
-        setError(err instanceof Error ? err.message : "Fehler.");
+        setError(err instanceof Error ? err.message : "Error.");
       }
     });
   };
@@ -115,14 +115,14 @@ export function SchedulingSection({
         }
         router.refresh();
       } catch (err) {
-        setError(err instanceof Error ? err.message : "Fehler.");
+        setError(err instanceof Error ? err.message : "Error.");
       }
     });
   };
 
   // Konflikte aggregieren (alle Einträge zusammen)
   const allConflicts = steps.flatMap((s) =>
-    s.conflicts.map((c) => ({ ...c, stepLabel: `Schritt ${s.sequence}` })),
+    s.conflicts.map((c) => ({ ...c, stepLabel: `Step ${s.sequence}` })),
   );
   // Deduplizieren pro Message — Auftrags-übergreifende Konflikte erscheinen
   // sonst pro Eintrag wiederholt.
@@ -136,18 +136,18 @@ export function SchedulingSection({
       <div className="flex flex-wrap items-center justify-between gap-2">
         <div className="text-sm text-muted-foreground">
           {steps.length === 0
-            ? "Noch nicht geplant."
-            : `${steps.length} Schritt${steps.length === 1 ? "" : "e"} geplant.`}
+            ? "Not yet scheduled."
+            : `${steps.length} step${steps.length === 1 ? "" : "s"} scheduled.`}
         </div>
         {canWrite && (
           <div className="flex gap-2">
             <Button onClick={onPlan} size="sm" disabled={pending}>
               <Wand2 className="h-4 w-4 mr-1" />
-              {pending ? "Plane …" : steps.length === 0 ? "Jetzt planen" : "Neu planen"}
+              {pending ? "Planning …" : steps.length === 0 ? "Plan now" : "Re-plan"}
             </Button>
             {steps.length > 0 && (
               <Button onClick={onClear} variant="outline" size="sm" disabled={pending}>
-                <Trash2 className="h-4 w-4 mr-1" /> Plan löschen
+                <Trash2 className="h-4 w-4 mr-1" /> Delete plan
               </Button>
             )}
           </div>
@@ -169,7 +169,7 @@ export function SchedulingSection({
       {uniqueConflicts.length > 0 && (
         <div className="rounded-lg border-2 border-destructive/40 bg-destructive/5 px-3 py-2 text-sm">
           <div className="font-medium text-destructive flex items-center gap-1">
-            <AlertTriangle className="h-4 w-4" /> Konflikte
+            <AlertTriangle className="h-4 w-4" /> Conflicts
           </div>
           <ul className="mt-1 space-y-1">
             {uniqueConflicts.map((c, i) => (
@@ -191,7 +191,7 @@ export function SchedulingSection({
             <thead className="bg-muted/40 border-b">
               <tr>
                 <th className="text-left px-2 py-1.5 w-12">#</th>
-                <th className="text-left px-2 py-1.5">Schritt</th>
+                <th className="text-left px-2 py-1.5">Step</th>
                 <th className="text-left px-2 py-1.5">Machine</th>
                 <th className="text-left px-2 py-1.5">Day</th>
                 <th className="text-left px-2 py-1.5">Zeit</th>
@@ -210,7 +210,7 @@ export function SchedulingSection({
                       s.machineName
                     ) : (
                       <span className="text-muted-foreground italic">
-                        manuell
+                        manual
                       </span>
                     )}
                   </td>
@@ -227,7 +227,7 @@ export function SchedulingSection({
                         onClick={() => onToggleLock(s)}
                         disabled={pending}
                         className="p-1 rounded hover:bg-accent"
-                        title={s.isLocked ? "Sperre lösen" : "Sperren (Auto-Plan überspringt)"}
+                        title={s.isLocked ? "Unlock" : "Lock (auto-plan skips)"}
                       >
                         {s.isLocked ? (
                           <Lock className="h-3 w-3 text-amber-600" />

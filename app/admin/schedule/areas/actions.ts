@@ -1,14 +1,14 @@
-"use server";
+﻿"use server";
 
-// Server actions for the "Bereich × Tag" schedule view.
+// Server actions for the "Bereich Ã— Tag" schedule view.
 //
-// The view inverts the classic employee × day matrix: rows are areas,
+// The view inverts the classic employee Ã— day matrix: rows are areas,
 // columns are days. From a cell the secretary can assign or remove an
 // employee on that area for that specific date.
 //
 // Assigning = upsert a WORK ScheduleEntry with workAreaId set. Default
 // shift comes from the employee's WorkScheduleDay if available, else the
-// company default 07:30–16:30 / 30 min break.
+// company default 07:30â€“16:30 / 30 min break.
 //
 // Unassigning = clear workAreaId on the entry (we never delete the entry
 // here so any other planning data stays intact).
@@ -23,9 +23,9 @@ import { checkAssignment } from "@/lib/schedule/check";
 
 async function requireWriter() {
   const session = await auth();
-  if (!session?.user) throw new Error("Nicht angemeldet.");
+  if (!session?.user) throw new Error("Not authenticated.");
   if (!hasPermission(session.user.role, "schedule.write")) {
-    throw new Error("Keine Berechtigung.");
+    throw new Error("No permission.");
   }
   return session.user;
 }
@@ -90,7 +90,7 @@ export async function assignEmployeeToAreaOnDate(input: unknown) {
     update: {},
   });
 
-  // Capacity + competency rules — throws ScheduleRuleError with German message.
+  // Capacity + competency rules â€” throws ScheduleRuleError with German message.
   await checkAssignment({
     companyId: user.companyId,
     monthId: monthRow.id,

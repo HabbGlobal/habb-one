@@ -202,7 +202,7 @@ export function TemplateForm({
                   onClick={() => moveStep(idx, -1)}
                   disabled={idx === 0}
                   className="p-0.5 rounded hover:bg-accent disabled:opacity-30"
-                  aria-label="Hoch"
+                  aria-label="Up"
                 >
                   <ArrowUp className="h-3 w-3" />
                 </button>
@@ -212,7 +212,7 @@ export function TemplateForm({
                   onClick={() => moveStep(idx, 1)}
                   disabled={idx === steps.length - 1}
                   className="p-0.5 rounded hover:bg-accent disabled:opacity-30"
-                  aria-label="Runter"
+                  aria-label="Down"
                 >
                   <ArrowDown className="h-3 w-3" />
                 </button>

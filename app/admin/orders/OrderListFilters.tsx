@@ -25,7 +25,7 @@ export function OrderListFilters() {
       <div className="relative flex-1 min-w-[220px]">
         <Search className="absolute left-2 top-2.5 h-4 w-4 text-muted-foreground" />
         <Input
-          placeholder="Nach Auftragsnummer, Kunde, Notizen …"
+          placeholder="Search by order number, customer, notes …"
           defaultValue={sp.get("q") ?? ""}
           onChange={(e) => {
             const v = e.target.value;
@@ -39,37 +39,37 @@ export function OrderListFilters() {
         value={sp.get("status") ?? "all"}
         onChange={(e) => update("status", e.target.value)}
         className="w-44"
-        aria-label="Status filtern"
+        aria-label="Filter status"
       >
         <option value="all">All Status</option>
-        <option value="DRAFT">Entwurf</option>
-        <option value="CONFIRMED">Bestätigt</option>
-        <option value="IN_PROGRESS">In Arbeit</option>
-        <option value="ON_HOLD">Pausiert</option>
+        <option value="DRAFT">Draft</option>
+        <option value="CONFIRMED">Confirmed</option>
+        <option value="IN_PROGRESS">In Progress</option>
+        <option value="ON_HOLD">On Hold</option>
         <option value="COMPLETED">Closed</option>
-        <option value="DELIVERED">Geliefert</option>
-        <option value="INVOICED">Verrechnet</option>
+        <option value="DELIVERED">Delivered</option>
+        <option value="INVOICED">Invoiced</option>
         <option value="CANCELLED">Cancelled</option>
       </Select>
       <Select
         value={sp.get("priority") ?? "all"}
         onChange={(e) => update("priority", e.target.value)}
         className="w-32"
-        aria-label="Priorität filtern"
+        aria-label="Filter priority"
       >
         <option value="all">All Prios</option>
-        <option value="LOW">Niedrig</option>
+        <option value="LOW">Low</option>
         <option value="NORMAL">Normal</option>
-        <option value="HIGH">Hoch</option>
+        <option value="HIGH">High</option>
         <option value="EXPRESS">Express</option>
       </Select>
       <Select
         value={sp.get("late") ?? "all"}
         onChange={(e) => update("late", e.target.value)}
         className="w-44"
-        aria-label="Verspätet filtern"
+        aria-label="Filter late"
       >
-        <option value="all">All Liefertermine</option>
+        <option value="all">All delivery dates</option>
         <option value="yes">Nur overdue</option>
       </Select>
     </div>

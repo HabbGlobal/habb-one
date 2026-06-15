@@ -22,10 +22,10 @@ class AdjustmentError extends Error {}
 
 async function requireCorrector() {
   const session = await auth();
-  if (!session?.user) throw new AdjustmentError("Nicht angemeldet.");
+  if (!session?.user) throw new AdjustmentError("Not authenticated.");
   if (!hasPermission(session.user.role, "timeEntries.correct")) {
     throw new AdjustmentError(
-      "Keine Berechtigung — die Rolle CEO oder Sekretariat ist erforderlich.",
+      "No permission — CEO or Secretary role required.",
     );
   }
   return session.user;
@@ -38,8 +38,8 @@ const createSchema = z.object({
   direction: z.enum(["ADD", "SUBTRACT"]),
   hours: z.coerce
     .number()
-    .positive("Stunden müssen grösser als 0 sein.")
-    .max(2000, "Wert zu gross."),
+    .positive("Hours must be greater than 0.")
+    .max(2000, "Value too large."),
   reason: z
     .string()
     .min(3, "Bitte einen Grund (mind. 3 Zeichen) angeben.")
@@ -59,9 +59,9 @@ export async function createTimeAdjustment(
       where: { id: data.employeeId },
       select: { id: true, companyId: true, firstName: true, lastName: true },
     });
-    if (!emp) throw new AdjustmentError("Mitarbeiter nicht gefunden.");
+    if (!emp) throw new AdjustmentError("Employee not found.");
     if (emp.companyId !== user.companyId) {
-      throw new AdjustmentError("Mitarbeiter gehört nicht zu deiner Firma.");
+      throw new AdjustmentError("Employee does not belong to your company.");
     }
 
     const sign = data.direction === "SUBTRACT" ? -1 : 1;
@@ -94,7 +94,7 @@ export async function createTimeAdjustment(
   } catch (e) {
     if (e instanceof AdjustmentError) return { ok: false, error: e.message };
     if (e instanceof z.ZodError) {
-      return { ok: false, error: e.issues[0]?.message ?? "Ungültige Eingabe." };
+      return { ok: false, error: e.issues[0]?.message ?? "Invalid input." };
     }
     throw e;
   }
@@ -113,9 +113,9 @@ export async function deleteTimeAdjustment(
       where: { id: data.id },
       select: { id: true, companyId: true, employeeId: true, minutes: true, reason: true },
     });
-    if (!adj) throw new AdjustmentError("Korrektur nicht gefunden.");
+    if (!adj) throw new AdjustmentError("Adjustment not found.");
     if (adj.companyId !== user.companyId) {
-      throw new AdjustmentError("Korrektur gehört nicht zu deiner Firma.");
+      throw new AdjustmentError("Adjustment does not belong to your company.");
     }
 
     await prisma.timeAdjustment.delete({ where: { id: adj.id } });
@@ -128,7 +128,7 @@ export async function deleteTimeAdjustment(
       entityType: "TimeAdjustment",
       entityId: adj.id,
       oldValue: { minutes: adj.minutes, reason: adj.reason },
-      reason: "Korrektur entfernt",
+      reason: "Adjustment removed",
     });
 
     revalidatePath("/admin/reports/payroll");
@@ -136,7 +136,7 @@ export async function deleteTimeAdjustment(
   } catch (e) {
     if (e instanceof AdjustmentError) return { ok: false, error: e.message };
     if (e instanceof z.ZodError) {
-      return { ok: false, error: e.issues[0]?.message ?? "Ungültige Eingabe." };
+      return { ok: false, error: e.issues[0]?.message ?? "Invalid input." };
     }
     throw e;
   }

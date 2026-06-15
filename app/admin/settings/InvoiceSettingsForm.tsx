@@ -68,7 +68,7 @@ export function InvoiceSettingsForm({ initial }: { initial: Initial }) {
           <Label>
             QR-IBAN *{" "}
             <span className="text-xs text-muted-foreground font-normal">
-              (Schweizer Konto, IID 30000-31999 für QR-Rechnung)
+              (Swiss account, IID 30000-31999 for QR invoice)
             </span>
           </Label>
           <Input

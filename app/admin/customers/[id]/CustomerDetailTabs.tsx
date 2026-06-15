@@ -5,13 +5,13 @@ import { cn } from "@/lib/utils";
 
 const TABS = [
   { key: "master", label: "Master data" },
-  { key: "addresses", label: "Adressen" },
-  { key: "contacts", label: "Kontakte" },
+  { key: "addresses", label: "Addresses" },
+  { key: "contacts", label: "Contacts" },
   { key: "orders", label: "Orders" },
   { key: "quotes", label: "Quotes" },
   { key: "invoices", label: "Invoices" },
-  { key: "stats", label: "Statistik" },
-  { key: "activity", label: "Aktivität" },
+  { key: "stats", label: "Statistics" },
+  { key: "activity", label: "Activity" },
 ] as const;
 
 type TabKey = (typeof TABS)[number]["key"];

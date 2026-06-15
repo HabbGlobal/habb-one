@@ -81,7 +81,7 @@ export default async function KioskHomePage() {
     // Fallback: keine Firma, leerer State
     return (
       <main className="min-h-screen bg-habb-paper p-6 flex items-center justify-center">
-        <p className="text-habb-muted">Keine Firma konfiguriert.</p>
+        <p className="text-habb-muted">No company configured.</p>
       </main>
     );
   }

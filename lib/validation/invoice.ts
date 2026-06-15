@@ -1,4 +1,4 @@
-// Zod-Schemas für Rechnungen.
+// Zod schemas for invoices.
 
 import { z } from "zod";
 
@@ -11,9 +11,9 @@ const optionalString = z
 
 export const invoiceItemSchema = z.object({
   position: z.coerce.number().int().min(1).max(9_999),
-  description: z.string().trim().min(1, "Beschreibung Pflicht.").max(500),
-  quantity: z.coerce.number().min(0.001, "Menge ≥ 0.001").max(1_000_000).default(1),
-  unit: z.string().trim().min(1).max(20).default("Stk"),
+  description: z.string().trim().min(1, "Description required.").max(500),
+  quantity: z.coerce.number().min(0.001, "Quantity ≥ 0.001").max(1_000_000).default(1),
+  unit: z.string().trim().min(1).max(20).default("pcs"),
   unitPriceCHF: z.coerce.number().min(0).max(1_000_000),
   discountPct: z.coerce.number().min(0).max(100).default(0),
 });
@@ -21,7 +21,7 @@ export type InvoiceItemFormData = z.infer<typeof invoiceItemSchema>;
 
 export const invoiceCoreSchema = z
   .object({
-    customerId: z.string().cuid("Kunde wählen."),
+    customerId: z.string().cuid("Please select a customer."),
     orderId: z.string().cuid().optional().or(z.literal("")).transform((v) => v || undefined),
     issuedAt: z.coerce.date(),
     dueAt: z.coerce.date(),
@@ -33,7 +33,7 @@ export const invoiceCoreSchema = z
       ctx.addIssue({
         code: z.ZodIssueCode.custom,
         path: ["dueAt"],
-        message: "Fälligkeit muss nach dem Rechnungsdatum liegen.",
+        message: "Due date must be after the invoice date.",
       });
     }
   });
@@ -41,7 +41,7 @@ export type InvoiceCoreFormData = z.infer<typeof invoiceCoreSchema>;
 
 export const invoiceFullSchema = z.object({
   core: invoiceCoreSchema,
-  items: z.array(invoiceItemSchema).min(1, "Mindestens eine Position."),
+  items: z.array(invoiceItemSchema).min(1, "At least one item required."),
 });
 export type InvoiceFullFormData = z.infer<typeof invoiceFullSchema>;
 
@@ -54,7 +54,7 @@ export const invoiceStatusChangeSchema = z.object({
 
 export const idsSchema = z.array(z.string().cuid()).min(1).max(500);
 
-// Mark-Paid Action: optional Teilbetrag für Teilzahlungen.
+// Mark-Paid Action: optional partial amount for partial payments.
 export const markPaidSchema = z.object({
   paidAt: z.coerce.date().default(() => new Date()),
   paidAmountCHF: z.coerce.number().min(0).max(10_000_000).optional(),

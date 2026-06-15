@@ -76,12 +76,12 @@ export function ParameterEditDialog({
   };
 
   const reset = () => {
-    if (!confirm(`„${param.label}" auf Default ${param.defaultValue}${param.unit ?? ""} zurücksetzen?`)) {
+    if (!confirm(`Reset "${param.label}" to default ${param.defaultValue}${param.unit ?? ""}?`)) {
       return;
     }
-    const r = prompt("Begründung für Reset (Pflicht):");
+    const r = prompt("Reason for reset (required):");
     if (!r || r.trim().length < 3) {
-      alert("Begründung mit mindestens 3 Zeichen ist Pflicht.");
+      alert("Reason with at least 3 characters is required.");
       return;
     }
     start(async () => {
@@ -177,7 +177,7 @@ export function ParameterEditDialog({
           )}
 
           <div className="space-y-1">
-            <Label>Begründung *</Label>
+            <Label>Reason *</Label>
             <Textarea
               rows={2}
               value={reason}
@@ -198,7 +198,7 @@ export function ParameterEditDialog({
               size="sm"
               onClick={reset}
               disabled={pending || param.currentValue === param.defaultValue}
-              title="Auf Default zurücksetzen"
+              title="Reset to default"
             >
               <RotateCcw className="h-4 w-4 mr-1" />
               Default
@@ -213,7 +213,7 @@ export function ParameterEditDialog({
                   reason.trim().length < 3
                 }
               >
-                Übernehmen
+                Apply
               </Button>
             </div>
           </div>

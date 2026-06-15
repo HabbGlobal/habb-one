@@ -2,8 +2,8 @@
 
 // Quote-Server-Actions.
 //
-// Quote-Items haben ab jetzt explizite ProcessSteps (analog Order). Das
-// macht den Convert-to-Order verlustfrei: Steps werden 1:1 kopiert.
+// Quote items now have explicit ProcessSteps (analogous to Order). This
+// makes the convert-to-order lossless: Steps are copied 1:1.
 
 import { z } from "zod";
 import { revalidatePath } from "next/cache";
@@ -36,9 +36,9 @@ const TX_OPTS = { maxWait: 10_000, timeout: 30_000 } as const;
 
 async function requirePerm(perm: Permission) {
   const session = await auth();
-  if (!session?.user) throw new Error("Nicht angemeldet.");
+  if (!session?.user) throw new Error("Not authenticated.");
   if (!hasPermission(session.user.role, perm)) {
-    throw new Error("Keine Berechtigung.");
+    throw new Error("No permission.");
   }
   return session.user;
 }
@@ -56,13 +56,13 @@ function parseOrThrow<T extends z.ZodTypeAny>(schema: T, input: unknown): z.infe
 function explainPrismaError(err: unknown): string | null {
   if (err instanceof Prisma.PrismaClientKnownRequestError) {
     if (err.code === "P2002") {
-      const target = (err.meta?.target as string[] | undefined)?.join(", ") ?? "Feld";
+      const target = (err.meta?.target as string[] | undefined)?.join(", ") ?? "field";
       if (target.includes("quoteNumber")) {
-        return "Diese Offerten-Nummer existiert bereits — bitte erneut versuchen.";
+        return "This quote number already exists — please try again.";
       }
-      return `Eindeutigkeits-Konflikt: ${target}`;
+      return `Uniqueness conflict: ${target}`;
     }
-    if (err.code === "P2025") return "Datensatz nicht gefunden.";
+    if (err.code === "P2025") return "Record not found.";
   }
   return null;
 }
@@ -72,9 +72,8 @@ function explainPrismaError(err: unknown): string | null {
 // ─────────────────────────────────────────
 
 /**
- * Berechnet pro Item die estimatedMinutes pro Step (× Live-Parameter).
- * Wird beim Speichern verwendet damit die Werte nicht vom Client manipuliert
- * werden können.
+ * Recalculates estimatedMinutes per step (× live parameters) for each item.
+ * Used on save so values cannot be manipulated by the client.
  */
 function recalcStepMinutes(
   item: {
@@ -223,7 +222,7 @@ export async function updateDraftQuote(quoteId: string, input: unknown) {
     select: { status: true },
   });
   if (before.status !== "DRAFT") {
-    throw new Error("Nur Entwürfe können editiert werden.");
+    throw new Error("Only drafts can be edited.");
   }
 
   const params = await loadAllParams(prisma, user.companyId);
@@ -250,7 +249,7 @@ export async function updateDraftQuote(quoteId: string, input: unknown) {
   );
 
   await prisma.$transaction(async (tx) => {
-    // Items + Steps komplett neu aufbauen
+    // Rebuild items + steps completely
     await tx.quoteItem.deleteMany({ where: { quoteId } });
     await tx.quote.update({
       where: { id: quoteId },
@@ -322,11 +321,11 @@ export async function changeQuoteStatus(quoteId: string, input: unknown) {
   });
 
   if (toStatus === "SENT" && !hasPermission(user.role, "quotes.send")) {
-    throw new Error("Keine Berechtigung zum Versenden.");
+    throw new Error("No permission to send.");
   }
 
   if (!allowedNextQuoteStatuses(before.status).includes(toStatus)) {
-    throw new Error(`Übergang ${before.status} → ${toStatus} nicht erlaubt.`);
+    throw new Error(`Transition ${before.status} → ${toStatus} not allowed.`);
   }
 
   let snapshot: Record<string, string> | undefined;
@@ -376,7 +375,7 @@ const convertSchema = z.object({
 export async function convertQuoteToOrder(quoteId: string, input: unknown) {
   const user = await requirePerm("orders.write");
   if (!hasPermission(user.role, "quotes.write")) {
-    throw new Error("Keine Berechtigung.");
+    throw new Error("No permission.");
   }
 
   const data = parseOrThrow(convertSchema, input);
@@ -389,13 +388,13 @@ export async function convertQuoteToOrder(quoteId: string, input: unknown) {
   });
 
   if (quote.status !== "ACCEPTED") {
-    throw new Error("Nur angenommene Offerten können in einen Auftrag umgewandelt werden.");
+    throw new Error("Only accepted quotes can be converted to an order.");
   }
   if (quote.convertedToOrderId) {
-    throw new Error("Diese Offerte wurde bereits in einen Auftrag umgewandelt.");
+    throw new Error("This quote has already been converted to an order.");
   }
 
-  // Quote-Total wird als Auftrags-Preis übernommen — Kunde hat akzeptiert
+  // Quote total is adopted as the order price — customer has accepted
   const totalNetCHF = Number(quote.totalNetCHF);
 
   let orderId = "";
@@ -456,13 +455,13 @@ export async function convertQuoteToOrder(quoteId: string, input: unknown) {
                 fromStatus: null,
                 toStatus: "DRAFT",
                 changedById: user.id,
-                comment: `Erfasst aus Offerte ${quote.quoteNumber}`,
+                comment: `Created from quote ${quote.quoteNumber}`,
               },
               {
                 fromStatus: "DRAFT",
                 toStatus: "CONFIRMED",
                 changedById: user.id,
-                comment: "Direkt bestätigt — Offerte angenommen",
+                comment: "Directly confirmed — quote accepted",
               },
             ],
           },
@@ -511,7 +510,7 @@ export async function bulkDeleteDraftQuotes(rawIds: unknown) {
   });
   if (owned.length !== ids.length) {
     throw new Error(
-      "Nur Entwürfe können gelöscht werden. Versendete Offerten lassen sich nicht entfernen.",
+      "Only drafts can be deleted. Sent quotes cannot be removed.",
     );
   }
   for (const id of ids) {
@@ -548,7 +547,7 @@ export async function applyQuoteProcessTemplate(args: { templateId: string }) {
         include: { steps: { orderBy: { sequence: "asc" } } },
       });
 
-  if (!dbTpl) throw new Error("Vorlage nicht gefunden.");
+  if (!dbTpl) throw new Error("Template not found.");
 
   return dbTpl.steps.map((s, i) => ({
     sequence: (i + 1) * 10,
@@ -560,7 +559,7 @@ export async function applyQuoteProcessTemplate(args: { templateId: string }) {
 }
 
 // ─────────────────────────────────────────
-// Spritzwerk-Recommender — Schritte vorschlagen anhand Material/Anwendung
+// Paint Shop Recommender — suggest steps based on material/application
 // ─────────────────────────────────────────
 
 const recommendSchema = z.object({
@@ -576,10 +575,10 @@ const recommendSchema = z.object({
 });
 
 /**
- * Spritzwerk-Spezialisten-Vorschlag: schlägt anhand Material + Anwendungs-
- * bereich + Glanz eine sinnvolle Schrittfolge vor (z. B. SA2.5 + 2K-Lack
- * für Outdoor-Stahl). Keine DB — pure Logik. User kann das Resultat 1:1
- * übernehmen oder editieren.
+ * Paint shop specialist suggestion: recommends a sensible step sequence
+ * based on material + application area + gloss (e.g. SA2.5 + 2K paint
+ * for outdoor steel). No DB — pure logic. User can adopt the result 1:1
+ * or edit it.
  */
 export async function recommendQuoteProcessSteps(input: unknown) {
   await requirePerm("quotes.read");

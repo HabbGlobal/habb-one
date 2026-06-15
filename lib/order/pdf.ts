@@ -78,16 +78,16 @@ function fmtMin(n: number): string {
   return `${h} h ${m} Min`;
 }
 
-function statusLabelDE(s: OrderDetailDTO["status"]): string {
+function statusLabel(s: OrderDetailDTO["status"]): string {
   return {
-    DRAFT: "Entwurf",
-    CONFIRMED: "Bestätigt",
-    IN_PROGRESS: "In Arbeit",
-    ON_HOLD: "Pausiert",
-    COMPLETED: "Abgeschlossen",
-    DELIVERED: "Geliefert",
-    CANCELLED: "Storniert",
-    INVOICED: "Verrechnet",
+    DRAFT: "Draft",
+    CONFIRMED: "Confirmed",
+    IN_PROGRESS: "In Progress",
+    ON_HOLD: "On Hold",
+    COMPLETED: "Completed",
+    DELIVERED: "Delivered",
+    CANCELLED: "Cancelled",
+    INVOICED: "Invoiced",
   }[s];
 }
 
@@ -116,7 +116,7 @@ function drawHeader(
     });
   }
   if (company.vatNumber) {
-    page.drawText(`MwSt-Nr. ${company.vatNumber}`, {
+    page.drawText(`VAT No. ${company.vatNumber}`, {
       x: 40,
       y: height - 80,
       size: 9,
@@ -187,14 +187,14 @@ export async function confirmationPdf(args: BuildArgs): Promise<Uint8Array> {
 
   let page = doc.addPage([A4.w, A4.h]);
   if (logo) drawCompanyLogoTopRight(page, logo);
-  drawHeader(page, font, fontBold, company, "Auftragsbestätigung", order.orderNumber);
+  drawHeader(page, font, fontBold, company, "Order Confirmation", order.orderNumber);
 
   // Address blocks
   drawAddressBlock(
     page,
     font,
     fontBold,
-    "Rechnungsadresse",
+    "Billing Address",
     billingAddress,
     order.customerDisplayName,
     40,
@@ -205,7 +205,7 @@ export async function confirmationPdf(args: BuildArgs): Promise<Uint8Array> {
       page,
       font,
       fontBold,
-      "Lieferadresse",
+      "Shipping Address",
       shippingAddress,
       order.customerDisplayName,
       300,
@@ -216,10 +216,10 @@ export async function confirmationPdf(args: BuildArgs): Promise<Uint8Array> {
   // Meta block
   let y = A4.h - 280;
   const meta: Array<[string, string]> = [
-    ["Auftragsnummer", order.orderNumber],
-    ["Status", statusLabelDE(order.status)],
-    ["Eingangsdatum", fmtDate(order.receivedAt)],
-    ["Liefertermin", fmtDate(order.promisedAt)],
+    ["Order Number", order.orderNumber],
+    ["Status", statusLabel(order.status)],
+    ["Received", fmtDate(order.receivedAt)],
+    ["Delivery Date", fmtDate(order.promisedAt)],
     ["Tracking-ID", order.trackingId],
   ];
   for (const [k, v] of meta) {
@@ -231,7 +231,7 @@ export async function confirmationPdf(args: BuildArgs): Promise<Uint8Array> {
   // Customer notes
   if (order.customerNotes) {
     y -= 10;
-    page.drawText("Hinweise", { x: 40, y, size: 9, font: fontBold, color: rgb(0.5, 0.5, 0.5) });
+    page.drawText("Notes", { x: 40, y, size: 9, font: fontBold, color: rgb(0.5, 0.5, 0.5) });
     y -= 14;
     for (const line of wrapText(order.customerNotes, 90).slice(0, 4)) {
       page.drawText(line, { x: 40, y, size: 10, font });
@@ -241,14 +241,14 @@ export async function confirmationPdf(args: BuildArgs): Promise<Uint8Array> {
 
   // Items table header
   y -= 20;
-  page.drawText("Positionen", { x: 40, y, size: 12, font: fontBold });
+  page.drawText("Items", { x: 40, y, size: 12, font: fontBold });
   y -= 16;
   const cols = { pos: 40, desc: 80, qty: 360, hours: 410, total: 490 };
   page.drawText("Pos.", { x: cols.pos, y, size: 9, font: fontBold });
-  page.drawText("Beschreibung", { x: cols.desc, y, size: 9, font: fontBold });
-  page.drawText("Stk.", { x: cols.qty, y, size: 9, font: fontBold });
-  page.drawText("Aufwand", { x: cols.hours, y, size: 9, font: fontBold });
-  page.drawText("Summe", { x: cols.total, y, size: 9, font: fontBold });
+  page.drawText("Description", { x: cols.desc, y, size: 9, font: fontBold });
+  page.drawText("Qty", { x: cols.qty, y, size: 9, font: fontBold });
+  page.drawText("Effort", { x: cols.hours, y, size: 9, font: fontBold });
+  page.drawText("Total", { x: cols.total, y, size: 9, font: fontBold });
   y -= 4;
   page.drawLine({
     start: { x: 40, y },
@@ -267,7 +267,7 @@ export async function confirmationPdf(args: BuildArgs): Promise<Uint8Array> {
     page.drawText(String(it.position), { x: cols.pos, y, size: 10, font });
     const descLines = wrapText(
       `${it.description} · ${it.surfaceM2} m² · ${materialLabel(it.material)} · ${complexityLabel(it.complexity)}` +
-        (it.applicationArea ? ` · Anwendung: ${applicationAreaLabel(it.applicationArea)}` : "") +
+        (it.applicationArea ? ` · Application: ${applicationAreaLabel(it.applicationArea)}` : "") +
         (it.colorCode ? ` · ${colorSystemLabel(it.colorSystem)} ${it.colorCode}`.replace(/\s+/g, " ") : ""),
       55,
     );
@@ -298,7 +298,7 @@ export async function confirmationPdf(args: BuildArgs): Promise<Uint8Array> {
       color: rgb(0.3, 0.3, 0.3),
       thickness: 1,
     });
-    page.drawText("Total (netto)", {
+    page.drawText("Total (net)", {
       x: 360,
       y,
       size: 11,
@@ -314,7 +314,7 @@ export async function confirmationPdf(args: BuildArgs): Promise<Uint8Array> {
 
   // Footer
   page.drawText(
-    "Dieses Dokument wurde elektronisch erstellt und ist ohne Unterschrift gültig.",
+    "This document was generated electronically and is valid without signature.",
     {
       x: 40,
       y: 40,
@@ -344,13 +344,13 @@ export async function deliveryNotePdf(args: BuildArgs): Promise<Uint8Array> {
 
   const page = doc.addPage([A4.w, A4.h]);
   if (logo) drawCompanyLogoTopRight(page, logo);
-  drawHeader(page, font, fontBold, company, "Lieferschein", order.orderNumber);
+  drawHeader(page, font, fontBold, company, "Delivery Note", order.orderNumber);
 
   drawAddressBlock(
     page,
     font,
     fontBold,
-    "Lieferadresse",
+    "Shipping Address",
     shippingAddress,
     order.customerDisplayName,
     40,
@@ -364,17 +364,17 @@ export async function deliveryNotePdf(args: BuildArgs): Promise<Uint8Array> {
   y -= 14;
   page.drawText(order.trackingId, { x: x2, y, size: 10, font: fontBold });
   y -= 18;
-  page.drawText("Liefertermin", { x: x2, y, size: 9, font, color: rgb(0.5, 0.5, 0.5) });
+  page.drawText("Delivery Date", { x: x2, y, size: 9, font, color: rgb(0.5, 0.5, 0.5) });
   y -= 14;
   page.drawText(fmtDate(order.promisedAt), { x: x2, y, size: 10, font: fontBold });
 
   // Items list
   y = A4.h - 290;
-  page.drawText("Lieferpositionen", { x: 40, y, size: 12, font: fontBold });
+  page.drawText("Delivery Items", { x: 40, y, size: 12, font: fontBold });
   y -= 16;
   page.drawText("Pos.", { x: 40, y, size: 9, font: fontBold });
-  page.drawText("Beschreibung", { x: 80, y, size: 9, font: fontBold });
-  page.drawText("Stk.", { x: 460, y, size: 9, font: fontBold });
+  page.drawText("Description", { x: 80, y, size: 9, font: fontBold });
+  page.drawText("Qty", { x: 460, y, size: 9, font: fontBold });
   y -= 4;
   page.drawLine({
     start: { x: 40, y },
@@ -392,7 +392,7 @@ export async function deliveryNotePdf(args: BuildArgs): Promise<Uint8Array> {
 
   // Receipt area
   y = 140;
-  page.drawText("Datum / Unterschrift Empfänger:", {
+  page.drawText("Date / Recipient Signature:", {
     x: 40,
     y,
     size: 10,
@@ -420,7 +420,7 @@ export async function qrLabelPdf(args: BuildArgs): Promise<Uint8Array> {
 
   const page = doc.addPage([A6.w, A6.h]);
   page.drawText(company.name, { x: 20, y: A6.h - 30, size: 12, font: fontBold });
-  page.drawText("Auftrags-Etikett", {
+  page.drawText("Order Label", {
     x: 20,
     y: A6.h - 46,
     size: 9,
@@ -446,7 +446,7 @@ export async function qrLabelPdf(args: BuildArgs): Promise<Uint8Array> {
   });
 
   // Liefertermin
-  page.drawText("Liefertermin", {
+  page.drawText("Delivery Date", {
     x: 20,
     y: A6.h - 170,
     size: 8,
@@ -461,7 +461,7 @@ export async function qrLabelPdf(args: BuildArgs): Promise<Uint8Array> {
   });
 
   // Anzahl Positionen
-  page.drawText("Positionen", {
+  page.drawText("Items", {
     x: 150,
     y: A6.h - 170,
     size: 8,
@@ -488,7 +488,7 @@ export async function qrLabelPdf(args: BuildArgs): Promise<Uint8Array> {
     borderColor: rgb(0.6, 0.6, 0.6),
     borderWidth: 1,
   });
-  page.drawText("QR-Code Platzhalter", {
+  page.drawText("QR-Code Placeholder", {
     x: qrX + 14,
     y: qrY + qrSize / 2,
     size: 9,

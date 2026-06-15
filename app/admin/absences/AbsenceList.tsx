@@ -77,10 +77,10 @@ export function AbsenceList({ rows, view }: { rows: AbsenceRow[]; view: Lifecycl
       }}
       emptyText={
         view === "active"
-          ? "Keine Absenzen."
+          ? "No absences."
           : view === "archived"
-          ? "Kein Eintrag im Archiv."
-          : "Papierkorb ist leer."
+          ? "No entries in archive."
+          : "Trash is empty."
       }
     />
   );

@@ -79,7 +79,7 @@ export default async function ParametersPage() {
           <h1 className="text-2xl font-semibold">System-Parameter</h1>
           <p className="text-sm text-muted-foreground">
             Zeit-, Temperatur-, Faktor- und Preisparameter — wirkt sofort auf
-            DRAFT-Aufträge, eingefroren bei CONFIRMED+ via Snapshot.
+            DRAFT orders, frozen at CONFIRMED+ via snapshot.
           </p>
         </div>
         <div className="flex gap-2">
@@ -95,8 +95,8 @@ export default async function ParametersPage() {
       {!canWrite && (
         <Card className="border-amber-200 bg-amber-50">
           <CardContent className="p-3 text-sm text-amber-900">
-            Du siehst Parameter nur lesend. Änderungen sind dem ADMIN
-            (CEO/Geschäftsleitung) vorbehalten.
+            You can view parameters read-only. Changes are reserved for
+            ADMIN (CEO/management).
           </CardContent>
         </Card>
       )}
@@ -105,12 +105,12 @@ export default async function ParametersPage() {
 
       <Card>
         <CardHeader>
-          <CardTitle className="text-base">Letzte 30 Tage Änderungen</CardTitle>
+          <CardTitle className="text-base">Last 30 Days Changes</CardTitle>
         </CardHeader>
         <CardContent>
           {recentChanges.length === 0 ? (
             <p className="text-sm text-muted-foreground">
-              Keine Parameter-Änderungen in den letzten 30 Tagen.
+              No parameter changes in the last 30 days.
             </p>
           ) : (
             <ul className="divide-y text-sm">

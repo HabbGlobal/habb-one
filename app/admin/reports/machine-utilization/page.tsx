@@ -60,11 +60,11 @@ export default async function MachineUtilizationPage({
             href="/admin/reports"
             className="inline-flex items-center text-xs text-muted-foreground hover:text-foreground"
           >
-            <ArrowLeft className="h-3 w-3 mr-1" /> zurück
+            <ArrowLeft className="h-3 w-3 mr-1" /> back
           </Link>
-          <h1 className="text-2xl font-semibold mt-1">Maschinen-Auslastung</h1>
+          <h1 className="text-2xl font-semibold mt-1">Machine Utilization</h1>
           <p className="text-sm text-muted-foreground">
-            Gebuchte vs. verfügbare Stunden pro Maschine.
+            Booked vs. available hours per machine.
           </p>
         </div>
         <Button asChild variant="outline" size="sm">
@@ -114,12 +114,12 @@ export default async function MachineUtilizationPage({
 
       <Card>
         <CardHeader>
-          <CardTitle className="text-base">Pro Maschine</CardTitle>
+          <CardTitle className="text-base">Per Machine</CardTitle>
         </CardHeader>
         <CardContent>
           {report.rows.length === 0 ? (
             <p className="text-sm text-muted-foreground text-center py-8">
-              Keine aktiven Maschinen in dieser Firma.
+              No active machines in this company.
             </p>
           ) : (
             <div className="space-y-3">
@@ -158,9 +158,9 @@ export default async function MachineUtilizationPage({
       </Card>
 
       <p className="text-xs text-muted-foreground">
-        Verfügbare Stunden = Working-Hours der Maschine ∩ Periode, abzüglich
-        Feiertage und Wartungsfenster. Buchungen werden auf die Periode geclamped
-        falls sie über den Range hinausgehen.
+        Available hours = working hours of the machine ∩ period, minus
+        holidays and maintenance windows. Bookings are clamped to the period
+        if they extend beyond the range.
       </p>
     </div>
   );

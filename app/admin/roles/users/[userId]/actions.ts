@@ -26,13 +26,13 @@ export type SaveUserPermissionsInput = z.input<typeof saveSchema>;
 
 function assertSuper(role: string | null | undefined) {
   if (!isSuperAdmin(role)) {
-    throw new Error("Nur SUPERADMIN darf Per-User-Rechte ändern.");
+    throw new Error("Only SUPERADMIN may change per-user permissions.");
   }
 }
 
 export async function saveUserPermissions(input: SaveUserPermissionsInput) {
   const session = await auth();
-  if (!session?.user) throw new Error("Nicht angemeldet.");
+  if (!session?.user) throw new Error("Not authenticated.");
   assertSuper(session.user.role);
 
   const data = saveSchema.parse(input);
@@ -41,16 +41,16 @@ export async function saveUserPermissions(input: SaveUserPermissionsInput) {
     where: { id: data.userId },
     select: { id: true, companyId: true, role: true, email: true, deletedAt: true },
   });
-  if (!user) throw new Error("User nicht gefunden.");
+  if (!user) throw new Error("User not found.");
   // Strikte Tenant-Trennung: ein SUPERADMIN darf nur seine eigenen User
   // editieren. Cross-Tenant würde sonst über die URL gehen.
   if (user.companyId !== session.user.companyId) {
-    throw new Error("User gehört nicht zu deinem Mandanten.");
+    throw new Error("User does not belong to your tenant.");
   }
-  if (user.deletedAt) throw new Error("User ist gelöscht.");
+  if (user.deletedAt) throw new Error("User is deleted.");
   if (isSuperAdmin(user.role)) {
     throw new Error(
-      "SUPERADMIN hat per Design immer alle Rechte — Per-User-Overrides sind hier nicht zulässig.",
+      "SUPERADMIN always has all permissions by design — per-user overrides are not permitted.",
     );
   }
 
@@ -94,7 +94,7 @@ export async function saveUserPermissions(input: SaveUserPermissionsInput) {
     entityId: user.id,
     oldValue: { overrides: before },
     newValue: { overrides: overrideEntries },
-    reason: `Per-User-Rechte für ${user.email} aktualisiert`,
+    reason: `Per-user permissions for ${user.email} updated`,
   });
 
   revalidatePath(`/admin/roles/users/${user.id}`);
@@ -103,16 +103,16 @@ export async function saveUserPermissions(input: SaveUserPermissionsInput) {
 
 export async function resetUserPermissions(userId: string) {
   const session = await auth();
-  if (!session?.user) throw new Error("Nicht angemeldet.");
+  if (!session?.user) throw new Error("Not authenticated.");
   assertSuper(session.user.role);
 
   const user = await prisma.user.findUnique({
     where: { id: userId },
     select: { id: true, companyId: true, email: true },
   });
-  if (!user) throw new Error("User nicht gefunden.");
+  if (!user) throw new Error("User not found.");
   if (user.companyId !== session.user.companyId) {
-    throw new Error("User gehört nicht zu deinem Mandanten.");
+    throw new Error("User does not belong to your tenant.");
   }
 
   const before = await prisma.userPermission.findMany({
@@ -133,7 +133,7 @@ export async function resetUserPermissions(userId: string) {
     entityId: user.id,
     oldValue: { overrides: before },
     newValue: { overrides: [], reset: true },
-    reason: `Per-User-Rechte für ${user.email} zurückgesetzt`,
+    reason: `Per-user permissions for ${user.email} reset`,
   });
 
   revalidatePath(`/admin/roles/users/${user.id}`);

@@ -174,12 +174,12 @@ export default async function QuoteDetailPage({
                 href={`/admin/orders/${dto.convertedToOrderId}`}
                 className="text-sm underline"
               >
-                → Auftrag öffnen
+                → Open order
               </Link>
             )}
           </div>
           <p className="text-sm text-muted-foreground mt-1">
-            Kunde:{" "}
+            Customer:{" "}
             <Link
               href={`/admin/customers/${dto.customerId}`}
               className="underline hover:text-foreground"
@@ -187,7 +187,7 @@ export default async function QuoteDetailPage({
               {dto.customerDisplayName}
             </Link>
             {" · "}
-            Gültig bis: {fmtDate(dto.validUntil)}
+            Valid until: {fmtDate(dto.validUntil)}
           </p>
         </div>
         <div className="flex flex-wrap items-center gap-2">
@@ -202,10 +202,10 @@ export default async function QuoteDetailPage({
       {/* Quick Facts */}
       <Card>
         <CardContent className="p-4 grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
-          <Fact label="Erstellt" value={fmtDate(dto.createdAt)} />
-          <Fact label="Gültig bis" value={fmtDate(dto.validUntil)} />
-          <Fact label="MwSt-Satz" value={`${dto.vatRate} %`} />
-          <Fact label="Total netto" value={fmtCHF(dto.totalNetCHF)} bold />
+          <Fact label="Created" value={fmtDate(dto.createdAt)} />
+          <Fact label="Valid until" value={fmtDate(dto.validUntil)} />
+          <Fact label="VAT rate" value={`${dto.vatRate} %`} />
+          <Fact label="Total net" value={fmtCHF(dto.totalNetCHF)} bold />
         </CardContent>
       </Card>
 
@@ -225,8 +225,8 @@ export default async function QuoteDetailPage({
           />
           {dto.status === "DRAFT" && (
             <p className="text-xs text-muted-foreground mt-3">
-              Beim Versand werden die aktuellen Berechnungs-Parameter eingefroren —
-              Preise bleiben für den Kunden bis zum Gültigkeits-Datum verbindlich.
+              On sending, the current calculation parameters are frozen —
+              prices remain binding for the customer until the validity date.
             </p>
           )}
         </CardContent>
@@ -326,7 +326,7 @@ export default async function QuoteDetailPage({
             {/* Summen */}
             <div className="grid grid-cols-3 gap-4 mt-4 pt-3 border-t text-sm">
               <div>
-                <div className="text-xs text-muted-foreground">Schätzung gesamt</div>
+                <div className="text-xs text-muted-foreground">Total estimate</div>
                 <div className="font-medium tabular-nums">
                   {totalEstimated > 0 ? fmtMin(totalEstimated) : "—"}
                 </div>

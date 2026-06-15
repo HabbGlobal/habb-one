@@ -17,9 +17,9 @@ const TX_OPTS = { maxWait: 10_000, timeout: 30_000 } as const;
 
 async function requireWriter() {
   const session = await auth();
-  if (!session?.user) throw new Error("Nicht angemeldet.");
+  if (!session?.user) throw new Error("Not authenticated.");
   if (!hasPermission(session.user.role, "templates.write")) {
-    throw new Error("Keine Berechtigung.");
+    throw new Error("No permission.");
   }
   return session.user;
 }
@@ -124,7 +124,7 @@ export async function updateTemplate(templateId: string, input: unknown) {
 
   revalidatePath("/admin/templates");
   revalidatePath(`/admin/templates/${templateId}`);
-  // Order-/Quote-Wizards laden Templates frisch — Änderungen wirken sofort.
+  // Order/Quote Wizards load templates fresh — changes take effect immediately.
   revalidatePath("/admin/orders");
   revalidatePath("/admin/quotes");
 }
@@ -138,7 +138,7 @@ export async function archiveTemplate(templateId: string) {
   const before = await prisma.processTemplate.findFirstOrThrow({
     where: { id: templateId, companyId: user.companyId },
   });
-  if (before.archivedAt) throw new Error("Bereits archiviert.");
+  if (before.archivedAt) throw new Error("Already archived.");
   await prisma.processTemplate.update({
     where: { id: templateId },
     data: { archivedAt: new Date() },

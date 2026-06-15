@@ -10,8 +10,8 @@ import { AreaMatrix, type AreaCellEmployee, type AreaMatrixDay, type AreaRow } f
 export const dynamic = "force-dynamic";
 
 const MONTH_NAMES_DE = [
-  "Januar", "Februar", "März", "April", "Mai", "Juni",
-  "Juli", "August", "September", "Oktober", "November", "Dezember",
+  "January", "February", "March", "April", "May", "June",
+  "July", "August", "September", "October", "November", "December",
 ];
 
 function clampYear(s: string | undefined, fallback: number) {
@@ -138,12 +138,11 @@ export default async function AreaSchedulePage({
     <div className="space-y-4">
       <div>
         <h1 className="text-2xl font-semibold">
-          Bereich-Übersicht — {MONTH_NAMES_DE[month - 1]} {year}
+          Area Overview — {MONTH_NAMES_DE[month - 1]} {year}
         </h1>
         <p className="text-sm text-muted-foreground">
-          Pro Bereich und Tag siehst Du, wer eingeplant ist. Klick auf eine
-          Zelle öffnet die Detail-Ansicht und erlaubt das Hinzufügen oder
-          Entfernen von Mitarbeitenden.
+          Per area and day you can see who is scheduled. Click on a
+          cell to open the detail view and add or remove employees.
         </p>
       </div>
 
@@ -174,9 +173,9 @@ export default async function AreaSchedulePage({
         <CardContent className="p-0 overflow-x-auto">
           {rows.length === 0 ? (
             <p className="text-muted-foreground text-sm p-6">
-              Noch keine Bereiche definiert.{" "}
+              No areas defined yet.{" "}
               <Link className="underline" href="/admin/areas">
-                Bereiche verwalten
+                Manage areas
               </Link>
             </p>
           ) : (

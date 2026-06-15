@@ -2,13 +2,13 @@
 
 // Order server actions. All mutations:
 //   1. require permission via `lib/permissions.ts`,
-//   2. validate input via Zod (errors mapped to German messages),
+//   2. validate input via Zod,
 //   3. run inside a Prisma transaction when multiple rows change,
 //   4. write an `AuditLog` entry + an `OrderStatusHistory` row on transitions.
 //
-// Snapshot-Regeln (siehe docs/parameters.md):
-//   • DRAFT          → liest LIVE-Parameter, recalc bei jeder Änderung
-//   • CONFIRMED+     → friert `parameterSnapshot` ein, danach unveränderlich
+// Snapshot rules (see docs/parameters.md):
+//   • DRAFT          → reads LIVE parameters, recalc on every change
+//   • CONFIRMED+     → freezes `parameterSnapshot`, then immutable
 
 import { z } from "zod";
 import { revalidatePath } from "next/cache";
@@ -45,10 +45,10 @@ import { allowedNextStatuses } from "@/lib/dto/order";
 // Transaction timeouts
 // ─────────────────────────────────────────
 //
-// Default Prisma-Transaktions-Timeout sind 5 s; das reicht über Supabase
-// (Singapore, ~200 ms RTT) bei verschachtelten Order-Creates (Order +
-// OrderItem + ProcessStep[] + OrderStatusHistory) nicht. Wir setzen
-// grosszügig 30 s damit auch Aufträge mit vielen Positionen durchgehen.
+// Default Prisma transaction timeout is 5 s; that is not enough over Supabase
+// (Singapore, ~200 ms RTT) for nested Order-Creates (Order +
+// OrderItem + ProcessStep[] + OrderStatusHistory). We set a generous
+// 30 s so that orders with many positions also go through.
 const TX_OPTS = { maxWait: 10_000, timeout: 30_000 } as const;
 
 // ─────────────────────────────────────────
@@ -57,9 +57,9 @@ const TX_OPTS = { maxWait: 10_000, timeout: 30_000 } as const;
 
 async function requirePerm(perm: Permission) {
   const session = await auth();
-  if (!session?.user) throw new Error("Nicht angemeldet.");
+  if (!session?.user) throw new Error("Not authenticated.");
   if (!hasPermission(session.user.role, perm)) {
-    throw new Error("Keine Berechtigung.");
+    throw new Error("No permission.");
   }
   return session.user;
 }
@@ -79,11 +79,11 @@ function explainPrismaError(err: unknown): string | null {
     if (err.code === "P2002") {
       const target = (err.meta?.target as string[] | undefined)?.join(", ") ?? "Feld";
       if (target.includes("orderNumber")) {
-        return "Diese Auftragsnummer existiert bereits — bitte erneut versuchen.";
+        return "This order number already exists — please try again.";
       }
-      return `Eindeutigkeits-Konflikt: ${target}`;
+      return `Uniqueness conflict: ${target}`;
     }
-    if (err.code === "P2025") return "Datensatz nicht gefunden.";
+    if (err.code === "P2025") return "Record not found.";
   }
   return null;
 }
@@ -217,7 +217,7 @@ export async function createOrder(input: unknown) {
                 fromStatus: null,
                 toStatus: "DRAFT",
                 changedById: user.id,
-                comment: "Auftrag erfasst",
+                comment: "Order created",
               },
             ],
           },
@@ -261,7 +261,7 @@ export async function updateDraftOrder(orderId: string, input: unknown) {
     select: { status: true, customerId: true },
   });
   if (before.status !== "DRAFT") {
-    throw new Error("Nur DRAFT-Aufträge können vollständig editiert werden.");
+    throw new Error("Only DRAFT orders can be fully edited.");
   }
 
   const customer = await prisma.customer.findFirstOrThrow({
@@ -352,15 +352,15 @@ export async function changeOrderStatus(orderId: string, input: unknown) {
 
   // Special permissions per transition
   if (toStatus === "CONFIRMED" && !hasPermission(user.role, "orders.confirm")) {
-    throw new Error("Keine Berechtigung zum Bestätigen.");
+    throw new Error("No permission to confirm.");
   }
   if (toStatus === "CANCELLED" && !hasPermission(user.role, "orders.cancel")) {
-    throw new Error("Keine Berechtigung zum Stornieren.");
+    throw new Error("No permission to cancel.");
   }
 
   if (!allowedNextStatuses(before.status).includes(toStatus)) {
     throw new Error(
-      `Übergang ${before.status} → ${toStatus} nicht erlaubt.`,
+      `Transition ${before.status} → ${toStatus} not allowed.`,
     );
   }
 
@@ -433,9 +433,9 @@ export async function updateOrderItem(
     where: { id: itemId },
     include: { order: true },
   });
-  if (before.order.companyId !== user.companyId) throw new Error("Keine Berechtigung.");
+  if (before.order.companyId !== user.companyId) throw new Error("No permission.");
   if (before.order.status !== "DRAFT") {
-    throw new Error("Position kann nur im Status DRAFT geändert werden.");
+    throw new Error("Position can only be changed in DRAFT status.");
   }
 
   const params = await loadAllParams(prisma, user.companyId);
@@ -499,9 +499,9 @@ export async function updateOrderItem(
 export async function applyProcessTemplate(args: { templateId: string }) {
   const user = await requirePerm("orders.write");
 
-  // Priorität 1: DB-Vorlage (kann Admin editieren).
-  // ID kann entweder die DB-cuid sein ODER ein stabiler Code-Key wie
-  // "powder-standard" — in dem Fall lookup via key.
+  // Priority 1: DB template (admin can edit).
+  // ID can be either the DB cuid OR a stable code key like
+  // "powder-standard" — in that case lookup via key.
   const dbTpl = args.templateId.length > 20
     ? await prisma.processTemplate.findFirst({
         where: { id: args.templateId, companyId: user.companyId, deletedAt: null },
@@ -526,7 +526,7 @@ export async function applyProcessTemplate(args: { templateId: string }) {
     }));
   }
 
-  // Fallback: Code-Vorlage (sollte nach Seed nicht vorkommen)
+  // Fallback: Code template (should not occur after seed)
   const skeletons = expandTemplate(args.templateId);
   return skeletons;
 }
@@ -549,7 +549,7 @@ async function authorizeBulk(ids: string[]) {
     select: { id: true, status: true },
   });
   if (owned.length !== ids.length) {
-    throw new Error("Mindestens ein Auftrag gehört nicht zu dieser Firma.");
+    throw new Error("At least one order does not belong to this company.");
   }
   return { user, owned };
 }
@@ -562,7 +562,7 @@ export async function bulkArchiveOrders(rawIds: unknown) {
   );
   if (blocked.length > 0) {
     throw new Error(
-      "Aufträge in Arbeit können nicht archiviert werden — bitte zuerst abschliessen oder stornieren.",
+      "Orders in progress cannot be archived — please complete or cancel first.",
     );
   }
   await prisma.order.updateMany({
@@ -648,9 +648,9 @@ const recommendOrderSchema = z.object({
 
 export async function recommendOrderProcessSteps(input: unknown) {
   const session = await auth();
-  if (!session?.user) throw new Error("Nicht angemeldet.");
+  if (!session?.user) throw new Error("Not authenticated.");
   if (!hasPermission(session.user.role, "orders.read")) {
-    throw new Error("Keine Berechtigung 'Aufträge lesen'.");
+    throw new Error("No permission 'read orders'.");
   }
   const data = recommendOrderSchema.parse(input);
   const result = suggestProcessSteps(data as SuggestionInput);

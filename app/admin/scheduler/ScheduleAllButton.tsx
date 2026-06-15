@@ -18,7 +18,7 @@ export function ScheduleAllButton() {
   const click = () => {
     if (
       !confirm(
-        "Alle aktiven Aufträge (Bestätigt / In Arbeit / Pausiert) neu planen?\n\nGesperrte Einträge bleiben unverändert.",
+        "Replan all active orders (Confirmed / In Progress / On Hold)?\n\nLocked entries remain unchanged.",
       )
     ) {
       return;
@@ -29,7 +29,7 @@ export function ScheduleAllButton() {
       try {
         const r = await scheduleAll();
         setFeedback(
-          `${r.orderCount} Aufträge geplant — ${r.proposedCount} Schritte, ${r.conflictCount} Konflikte.`,
+          `${r.orderCount} orders scheduled — ${r.proposedCount} steps, ${r.conflictCount} conflicts.`,
         );
         router.refresh();
         setTimeout(() => setFeedback(null), 6_000);

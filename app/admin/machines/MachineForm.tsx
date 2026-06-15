@@ -1,6 +1,6 @@
 "use client";
 
-// Maschinen-Form: erstellen / bearbeiten.
+// Machine form: create / edit.
 
 import { useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
@@ -14,12 +14,12 @@ import { Save } from "lucide-react";
 import { createMachine, updateMachine, type MachineCoreInput } from "./actions";
 
 const TYPE_OPTIONS: { value: string; label: string }[] = [
-  { value: "BLAST_CABIN", label: "Sandstrahl-Kabine" },
-  { value: "CHEM_BATH", label: "Chemie-Bad" },
-  { value: "PAINT_CABIN", label: "Lackier-Kabine" },
-  { value: "POWDER_CABIN", label: "Pulver-Kabine" },
-  { value: "CURING_OVEN", label: "Aushärte-Ofen" },
-  { value: "DRYING_OVEN", label: "Trocken-Ofen" },
+  { value: "BLAST_CABIN", label: "Blast Cabin" },
+  { value: "CHEM_BATH", label: "Chemical Bath" },
+  { value: "PAINT_CABIN", label: "Paint Cabin" },
+  { value: "POWDER_CABIN", label: "Powder Cabin" },
+  { value: "CURING_OVEN", label: "Curing Oven" },
+  { value: "DRYING_OVEN", label: "Drying Oven" },
 ];
 
 interface AreaOption {
@@ -103,7 +103,7 @@ export function MachineForm({ initial, areas, mode }: Props) {
               onChange={(e) => update("name", e.target.value)}
               required
               maxLength={80}
-              placeholder="z. B. Sandstrahl-1"
+              placeholder="e.g. Blast-1"
             />
           </div>
           <div className="space-y-1">
@@ -122,16 +122,16 @@ export function MachineForm({ initial, areas, mode }: Props) {
           </div>
           <div className="space-y-1">
             <Label>
-              Werkstatt-Bereich{" "}
+              Workshop area{" "}
               <span className="text-xs text-muted-foreground font-normal">
-                (für Personalplanung)
+                (for staff planning)
               </span>
             </Label>
             <Select
               value={data.workAreaId ?? ""}
               onChange={(e) => update("workAreaId", e.target.value || null)}
             >
-              <option value="">— kein Bereich —</option>
+              <option value="">— no area —</option>
               {areas.map((a) => (
                 <option key={a.id} value={a.id}>
                   {a.name}
@@ -139,7 +139,7 @@ export function MachineForm({ initial, areas, mode }: Props) {
               ))}
             </Select>
             <div className="text-xs text-muted-foreground">
-              Maschinen ohne Bereich lösen keinen Personal-Bedarf aus.
+              Machines without an area do not trigger staffing requirements.
             </div>
           </div>
           <div className="space-y-1">
@@ -149,7 +149,7 @@ export function MachineForm({ initial, areas, mode }: Props) {
               onChange={(e) => update("isActive", e.target.value === "1")}
             >
               <option value="1">Active</option>
-              <option value="0">Inaktiv (kann nicht eingeplant werden)</option>
+              <option value="0">Inactive (cannot be scheduled)</option>
             </Select>
           </div>
         </CardContent>
@@ -158,15 +158,15 @@ export function MachineForm({ initial, areas, mode }: Props) {
       <Card>
         <CardHeader>
           <CardTitle className="text-base">
-            Werkstückgrößen{" "}
+            Workpiece dimensions{" "}
             <span className="text-xs text-muted-foreground font-normal">
-              (max. mögliche Maße — leer = kein Limit)
+              (max. possible dimensions — empty = no limit)
             </span>
           </CardTitle>
         </CardHeader>
         <CardContent className="grid grid-cols-2 md:grid-cols-4 gap-4">
           <div className="space-y-1">
-            <Label>Länge (mm)</Label>
+            <Label>Length (mm)</Label>
             <Input
               type="number"
               min={0}
@@ -175,7 +175,7 @@ export function MachineForm({ initial, areas, mode }: Props) {
             />
           </div>
           <div className="space-y-1">
-            <Label>Breite (mm)</Label>
+            <Label>Width (mm)</Label>
             <Input
               type="number"
               min={0}
@@ -184,7 +184,7 @@ export function MachineForm({ initial, areas, mode }: Props) {
             />
           </div>
           <div className="space-y-1">
-            <Label>Höhe (mm)</Label>
+            <Label>Height (mm)</Label>
             <Input
               type="number"
               min={0}
@@ -193,7 +193,7 @@ export function MachineForm({ initial, areas, mode }: Props) {
             />
           </div>
           <div className="space-y-1">
-            <Label>Gewicht (kg)</Label>
+            <Label>Weight (kg)</Label>
             <Input
               type="number"
               min={0}
@@ -203,9 +203,9 @@ export function MachineForm({ initial, areas, mode }: Props) {
           </div>
           <div className="space-y-1 col-span-2 md:col-span-2">
             <Label>
-              Charge-Kapazität (m²){" "}
+              Charge capacity (m²){" "}
               <span className="text-xs text-muted-foreground font-normal">
-                (für Öfen / Becken)
+                (for ovens / baths)
               </span>
             </Label>
             <Input
@@ -236,7 +236,7 @@ export function MachineForm({ initial, areas, mode }: Props) {
           {pending
             ? "Saving..."
             : mode.kind === "create"
-              ? "Anlegen"
+              ? "Create"
               : "Save"}
         </Button>
       </div>

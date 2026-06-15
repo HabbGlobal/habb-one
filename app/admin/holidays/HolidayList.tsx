@@ -23,7 +23,7 @@ export function HolidayList({ rows, view }: { rows: HolidayRow[]; view: Lifecycl
     { header: "Date", cell: (h) => localDateString(h.date) },
     { header: "DE", cell: (h) => h.nameDe },
     { header: "EN", cell: (h) => h.nameEn },
-    { header: "Anteil", cell: (h) => h.fraction.toString() },
+    { header: "Fraction", cell: (h) => h.fraction.toString() },
   ];
   return (
     <SelectableList
@@ -40,10 +40,10 @@ export function HolidayList({ rows, view }: { rows: HolidayRow[]; view: Lifecycl
       }}
       emptyText={
         view === "active"
-          ? "Keine Feiertage erfasst."
+          ? "No holidays recorded."
           : view === "archived"
-          ? "Kein Eintrag im Archiv."
-          : "Papierkorb ist leer."
+          ? "No entries in archive."
+          : "Trash is empty."
       }
     />
   );

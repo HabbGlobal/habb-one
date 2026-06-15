@@ -1,20 +1,21 @@
-// Zwei Listen-Karten fürs Dashboard: "Letzte Aufträge" + "Letzte Rechnungen".
-// Reine Server-Components (keine Hooks). Status-Badge mit Tone-Mapping.
+// Recent activity cards for dashboard: "Recent Orders" + "Recent Invoices".
+// Pure server components (no hooks). Status badge with tone mapping.
 
 import Link from "next/link";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { formatDateCH } from "@/lib/utils";
 import type { RecentInvoice, RecentOrder } from "@/lib/dashboard/kpi";
+import { ArrowUpRight } from "lucide-react";
 
 const ORDER_STATUS_LABEL: Record<string, string> = {
-  DRAFT: "Entwurf",
-  CONFIRMED: "Bestätigt",
-  IN_PROGRESS: "In Arbeit",
-  ON_HOLD: "Pausiert",
-  COMPLETED: "Fertig",
-  DELIVERED: "Geliefert",
-  INVOICED: "Verrechnet",
+  DRAFT: "Draft",
+  CONFIRMED: "Confirmed",
+  IN_PROGRESS: "In Progress",
+  ON_HOLD: "On Hold",
+  COMPLETED: "Completed",
+  DELIVERED: "Delivered",
+  INVOICED: "Invoiced",
   CANCELLED: "Cancelled",
 };
 
@@ -32,10 +33,10 @@ const ORDER_STATUS_VARIANT: Record<string, BadgeVariant> = {
 };
 
 const INVOICE_STATUS_LABEL: Record<string, string> = {
-  DRAFT: "Entwurf",
-  SENT: "Versendet",
+  DRAFT: "Draft",
+  SENT: "Sent",
   PAID: "Paid",
-  OVERDUE: "Überfällig",
+  OVERDUE: "Overdue",
   CANCELLED: "Cancelled",
 };
 
@@ -57,27 +58,28 @@ const CHF = (n: number) =>
 
 export function RecentOrdersCard({ rows }: { rows: RecentOrder[] }) {
   return (
-    <Card>
-      <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-3">
-        <CardTitle className="text-base">Letzte Aufträge</CardTitle>
+    <Card className="overflow-hidden border-0 shadow-sm bg-white/80 backdrop-blur-sm">
+      <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-3 border-b border-slate-100">
+        <CardTitle className="text-sm font-semibold">Recent Orders</CardTitle>
         <Link
           href="/admin/orders"
-          className="text-xs text-habb-ink hover:text-habb-red font-medium transition-colors"
-        >All ansehen →
+          className="inline-flex items-center gap-1 text-xs text-muted-foreground hover:text-foreground font-medium transition-colors"
+        >
+          View all <ArrowUpRight className="h-3 w-3" />
         </Link>
       </CardHeader>
-      <CardContent className="px-0">
+      <CardContent className="px-0 pt-0">
         {rows.length === 0 ? (
-          <p className="text-sm text-muted-foreground px-6 pb-4">
-            Noch keine Aufträge.
+          <p className="text-sm text-muted-foreground px-6 py-8 text-center">
+            No orders yet.
           </p>
         ) : (
-          <ul className="divide-y">
+          <ul className="divide-y divide-slate-50">
             {rows.map((r) => (
               <li key={r.id}>
                 <Link
                   href={`/admin/orders/${r.id}`}
-                  className="flex items-center gap-3 px-6 py-3 hover:bg-habb-paper transition-colors"
+                  className="flex items-center gap-3 px-6 py-3.5 hover:bg-slate-50/80 transition-colors"
                 >
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center gap-2">
@@ -87,10 +89,10 @@ export function RecentOrdersCard({ rows }: { rows: RecentOrder[] }) {
                       </Badge>
                     </div>
                     <div className="text-xs text-muted-foreground truncate mt-0.5">
-                      {r.customerName} · Eingang {formatDateCH(r.receivedAt)}
+                      {r.customerName} · Received {formatDateCH(r.receivedAt)}
                     </div>
                   </div>
-                  <div className="text-right text-sm tabular-nums">
+                  <div className="text-right text-sm font-medium tabular-nums">
                     {r.totalNetCHF != null ? CHF(r.totalNetCHF) : "—"}
                   </div>
                 </Link>
@@ -105,27 +107,28 @@ export function RecentOrdersCard({ rows }: { rows: RecentOrder[] }) {
 
 export function RecentInvoicesCard({ rows }: { rows: RecentInvoice[] }) {
   return (
-    <Card>
-      <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-3">
-        <CardTitle className="text-base">Letzte Rechnungen</CardTitle>
+    <Card className="overflow-hidden border-0 shadow-sm bg-white/80 backdrop-blur-sm">
+      <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-3 border-b border-slate-100">
+        <CardTitle className="text-sm font-semibold">Recent Invoices</CardTitle>
         <Link
           href="/admin/invoices"
-          className="text-xs text-habb-ink hover:text-habb-red font-medium transition-colors"
-        >All ansehen →
+          className="inline-flex items-center gap-1 text-xs text-muted-foreground hover:text-foreground font-medium transition-colors"
+        >
+          View all <ArrowUpRight className="h-3 w-3" />
         </Link>
       </CardHeader>
-      <CardContent className="px-0">
+      <CardContent className="px-0 pt-0">
         {rows.length === 0 ? (
-          <p className="text-sm text-muted-foreground px-6 pb-4">
-            Noch keine Rechnungen.
+          <p className="text-sm text-muted-foreground px-6 py-8 text-center">
+            No invoices yet.
           </p>
         ) : (
-          <ul className="divide-y">
+          <ul className="divide-y divide-slate-50">
             {rows.map((r) => (
               <li key={r.id}>
                 <Link
                   href={`/admin/invoices/${r.id}`}
-                  className="flex items-center gap-3 px-6 py-3 hover:bg-habb-paper transition-colors"
+                  className="flex items-center gap-3 px-6 py-3.5 hover:bg-slate-50/80 transition-colors"
                 >
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center gap-2">
@@ -135,10 +138,10 @@ export function RecentInvoicesCard({ rows }: { rows: RecentInvoice[] }) {
                       </Badge>
                     </div>
                     <div className="text-xs text-muted-foreground truncate mt-0.5">
-                      {r.customerName} · Fällig {formatDateCH(r.dueAt)}
+                      {r.customerName} · Due {formatDateCH(r.dueAt)}
                     </div>
                   </div>
-                  <div className="text-right text-sm tabular-nums">
+                  <div className="text-right text-sm font-medium tabular-nums">
                     {CHF(r.totalGrossCHF)}
                   </div>
                 </Link>

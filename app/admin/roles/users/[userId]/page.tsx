@@ -63,7 +63,7 @@ export default async function TenantUserPermissionsPage({
           Rollen &amp; Rechte
         </Link>
         <h1 className="mt-2 text-2xl font-semibold">
-          Persönliche Rechte — {user.name || user.email}
+          Personal Permissions — {user.name || user.email}
         </h1>
         <p className="text-xs text-muted-foreground mt-0.5">
           {user.email} · Rolle: <strong>{roleLabelDe(user.role)}</strong>
@@ -72,13 +72,13 @@ export default async function TenantUserPermissionsPage({
 
       {isSuper ? (
         <div className="rounded-lg border bg-habb-paper px-4 py-3 text-sm">
-          <strong>SUPERADMIN</strong> hat per Design immer alle Rechte —
-          Per-User-Overrides sind hier nicht zulässig. Wenn du Rechte
-          einschränken willst, ändere bitte zuerst die Rolle des Users.
+          <strong>SUPERADMIN</strong> by design always has all permissions —
+          per-user overrides are not allowed here. If you want to restrict
+          permissions, please first change the user&apos;s role.
         </div>
       ) : user.deletedAt ? (
         <div className="rounded-lg border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-900">
-          Dieser User ist gelöscht — Rechte werden nicht mehr verwendet.
+          This user is deleted — permissions are no longer used.
         </div>
       ) : (
         <TenantUserPermissionsEditor

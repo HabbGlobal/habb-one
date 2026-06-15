@@ -65,11 +65,11 @@ function fmtCHF(n: number): string {
 
 function statusLabel(s: QuoteDetailDTO["status"]): string {
   return {
-    DRAFT: "Entwurf",
-    SENT: "Versendet",
-    ACCEPTED: "Angenommen",
-    REJECTED: "Abgelehnt",
-    EXPIRED: "Abgelaufen",
+    DRAFT: "Draft",
+    SENT: "Sent",
+    ACCEPTED: "Accepted",
+    REJECTED: "Rejected",
+    EXPIRED: "Expired",
   }[s];
 }
 
@@ -91,11 +91,11 @@ function drawHeader(
     );
   }
   if (company.vatNumber) {
-    page.drawText(safe(`MwSt-Nr. ${company.vatNumber}`), {
+    page.drawText(safe(`VAT No. ${company.vatNumber}`), {
       x: 40, y: height - 80, size: 9, font, color: rgb(0.4, 0.4, 0.4),
     });
   }
-  page.drawText("Offerte", {
+  page.drawText("Quote", {
     x: 40, y: height - 120, size: 18, font: fontBold,
   });
   page.drawText(safe(quoteNumber), {
@@ -118,7 +118,7 @@ function drawAddress(
   x: number,
   y: number,
 ) {
-  page.drawText("Empfänger", {
+  page.drawText("Recipient", {
     x, y, size: 9, font: fontBold, color: rgb(0.5, 0.5, 0.5),
   });
   let cy = y - 14;
@@ -182,10 +182,10 @@ export async function quotePdf(args: BuildArgs): Promise<Uint8Array> {
   // Meta
   let y = A4.h - 280;
   const meta: Array<[string, string]> = [
-    ["Offerte-Nr.", quote.quoteNumber],
+    ["Quote No.", quote.quoteNumber],
     ["Status", statusLabel(quote.status)],
     ["Date", fmtDate(quote.createdAt)],
-    ["Gültig bis", fmtDate(quote.validUntil)],
+    ["Valid Until", fmtDate(quote.validUntil)],
   ];
   for (const [k, v] of meta) {
     page.drawText(safe(k), { x: 40, y, size: 9, font, color: rgb(0.5, 0.5, 0.5) });
@@ -195,7 +195,7 @@ export async function quotePdf(args: BuildArgs): Promise<Uint8Array> {
 
   if (quote.notes) {
     y -= 10;
-    page.drawText("Hinweise", {
+    page.drawText("Notes", {
       x: 40, y, size: 9, font: fontBold, color: rgb(0.5, 0.5, 0.5),
     });
     y -= 14;
@@ -207,15 +207,15 @@ export async function quotePdf(args: BuildArgs): Promise<Uint8Array> {
 
   // Items table
   y -= 20;
-  page.drawText("Positionen", {
+  page.drawText("Items", {
     x: 40, y, size: 12, font: fontBold,
   });
   y -= 16;
   const cols = { pos: 40, desc: 80, qty: 360, unit: 410, total: 490 };
   page.drawText("Pos.", { x: cols.pos, y, size: 9, font: fontBold });
-  page.drawText("Beschreibung", { x: cols.desc, y, size: 9, font: fontBold });
-  page.drawText("Stk.", { x: cols.qty, y, size: 9, font: fontBold });
-  page.drawText("Stückpreis", { x: cols.unit, y, size: 9, font: fontBold });
+  page.drawText("Description", { x: cols.desc, y, size: 9, font: fontBold });
+  page.drawText("Qty", { x: cols.qty, y, size: 9, font: fontBold });
+  page.drawText("Unit Price", { x: cols.unit, y, size: 9, font: fontBold });
   page.drawText("Total", { x: cols.total, y, size: 9, font: fontBold });
   y -= 4;
   page.drawLine({
@@ -242,7 +242,7 @@ export async function quotePdf(args: BuildArgs): Promise<Uint8Array> {
     if (it.material) descParts.push(safe(materialLabel(it.material)));
     if (it.complexity) descParts.push(safe(complexityLabel(it.complexity)));
     if (it.applicationArea) {
-      descParts.push(safe(`Anwendung: ${applicationAreaLabel(it.applicationArea)}`));
+      descParts.push(safe(`Application: ${applicationAreaLabel(it.applicationArea)}`));
     }
     if (it.colorCode) {
       const cs = it.colorSystem ? colorSystemLabel(it.colorSystem) : "";
@@ -296,7 +296,7 @@ export async function quotePdf(args: BuildArgs): Promise<Uint8Array> {
     color: rgb(0.3, 0.3, 0.3),
     thickness: 1,
   });
-  page.drawText("Total netto", {
+  page.drawText("Total net", {
     x: 360, y, size: 10, font,
   });
   page.drawText(fmtCHF(quote.totalNetCHF), {
@@ -315,7 +315,7 @@ export async function quotePdf(args: BuildArgs): Promise<Uint8Array> {
     color: rgb(0.3, 0.3, 0.3),
     thickness: 0.7,
   });
-  page.drawText("Total brutto", {
+  page.drawText("Total gross", {
     x: 360, y, size: 12, font: fontBold,
   });
   page.drawText(fmtCHF(round2(quote.totalNetCHF + vatCHF)), {

@@ -54,8 +54,8 @@ export default async function PayrollDashboardPage({ searchParams }: PageProps) 
   }
 
   const months = [
-    "Januar", "Februar", "März", "April", "Mai", "Juni",
-    "Juli", "August", "September", "Oktober", "November", "Dezember",
+    "January", "February", "March", "April", "May", "June",
+    "July", "August", "September", "October", "November", "December",
   ];
   const years = Array.from({ length: 6 }, (_, i) => now.getFullYear() - 4 + i);
 
@@ -137,14 +137,14 @@ export default async function PayrollDashboardPage({ searchParams }: PageProps) 
               className="inline-flex items-center gap-2 rounded-md border border-habb-line bg-white px-3 py-2 text-sm font-medium text-habb-ink hover:bg-habb-paper"
             >
               <FileSpreadsheet className="h-4 w-4" />
-              Excel exportieren
+              Excel export
             </a>
             <a
               href={`/api/admin/reports/payroll.pdf?employeeId=${employeeId}&year=${year}&month=${month}`}
               className="inline-flex items-center gap-2 rounded-md border border-habb-line bg-white px-3 py-2 text-sm font-medium text-habb-ink hover:bg-habb-paper"
             >
               <FileText className="h-4 w-4" />
-              PDF exportieren
+              PDF export
             </a>
           </div>
 
@@ -158,7 +158,7 @@ export default async function PayrollDashboardPage({ searchParams }: PageProps) 
                 <Row label="Employee No." value={report.employee.employeeNumber} />
                 <Row label="Date of birth" value={fmtDate(report.employee.dateOfBirth)} />
                 <Row label="SSN" value={report.employee.ahvNumber || "—"} />
-                <Row label="Adresse" value={report.employee.address || "—"} />
+                <Row label="Address" value={report.employee.address || "—"} />
                 <Row label="Email" value={report.employee.email || "—"} />
                 <Row label="Phone" value={report.employee.phone || "—"} />
               </CardContent>
@@ -386,5 +386,5 @@ function Stat({
 
 function fmtDate(d: Date | null): string {
   if (!d) return "—";
-  return d.toLocaleDateString("de-CH");
+  return d.toLocaleDateString("en-GB");
 }

@@ -26,7 +26,7 @@ export function CustomerListFilters() {
       <div className="relative flex-1 min-w-[200px]">
         <Search className="absolute left-2 top-2.5 h-4 w-4 text-muted-foreground" />
         <Input
-          placeholder="Nach Name, Nr., Ort, E-Mail …"
+          placeholder="Search by name, no., city, email …"
           defaultValue={sp.get("q") ?? ""}
           onChange={(e) => {
             // Lightweight debounce — server-side query is cheap enough.
@@ -41,19 +41,19 @@ export function CustomerListFilters() {
         value={sp.get("type") ?? "all"}
         onChange={(e) => update("type", e.target.value)}
         className="w-36"
-        aria-label="Typ filtern"
+        aria-label="Filter type"
       >
-        <option value="all">All Typen</option>
-        <option value="PRIVATE">Privateeee</option>
+        <option value="all">All Types</option>
+        <option value="PRIVATE">Private</option>
         <option value="BUSINESS">Business</option>
       </Select>
       <Select
         value={sp.get("language") ?? "all"}
         onChange={(e) => update("language", e.target.value)}
         className="w-28"
-        aria-label="Sprache filtern"
+        aria-label="Filter language"
       >
-        <option value="all">All Sprachen</option>
+        <option value="all">All Languages</option>
         <option value="DE">DE</option>
         <option value="FR">FR</option>
         <option value="IT">IT</option>
@@ -63,9 +63,9 @@ export function CustomerListFilters() {
         value={sp.get("openOrders") ?? "all"}
         onChange={(e) => update("openOrders", e.target.value)}
         className="w-44"
-        aria-label="Offene Aufträge filtern"
+        aria-label="Filter open orders"
       >
-        <option value="all">All Kunden</option>
+        <option value="all">All customers</option>
         <option value="yes">Mit offenen Aufträgen</option>
       </Select>
     </div>

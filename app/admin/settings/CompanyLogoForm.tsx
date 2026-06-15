@@ -1,11 +1,11 @@
 "use client";
 
-// Logo-Upload für die Firma. Klein und fokussiert:
-//   - File-Picker (nur PNG/JPG, max 1 MB)
-//   - Live-Vorschau (FileReader → Object-URL)
-//   - Speichert via Server-Action
-//   - Aktuelles Logo wird über /api/company/logo angezeigt; mit
-//     Cache-Bust-Param damit nach Upload der Browser neu lädt.
+// Logo upload for the company. Small and focused:
+//   - File picker (only PNG/JPG, max 1 MB)
+//   - Live preview (FileReader → Object URL)
+//   - Saves via Server Action
+//   - Current logo is shown via /api/company/logo; with
+//     cache-bust param so the browser reloads after upload.
 
 import { useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
@@ -15,9 +15,9 @@ import { Image as ImageIcon, Trash2, Upload } from "lucide-react";
 import { setCompanyLogo, clearCompanyLogo } from "./actions";
 
 interface Props {
-  /** Wenn true, ist im Server schon ein Logo gespeichert. */
+  /** If true, the server already has a logo stored. */
   hasLogo: boolean;
-  /** Cache-Bust-Token damit der Browser ein neues Logo nach Update lädt. */
+  /** Cache-bust token so the browser reloads the logo after update. */
   logoVersion: string;
 }
 
@@ -41,7 +41,7 @@ export function CompanyLogoForm({ hasLogo, logoVersion }: Props) {
       return;
     }
     if (file.size > 1_000_000) {
-      setError(`Bild zu groß (${(file.size / 1024).toFixed(0)} KB) — max. 1 MB.`);
+      setError(`Image too large (${(file.size / 1024).toFixed(0)} KB) — max. 1 MB.`);
       return;
     }
     const reader = new FileReader();
@@ -136,7 +136,7 @@ export function CompanyLogoForm({ hasLogo, logoVersion }: Props) {
               className="inline-flex items-center gap-2 cursor-pointer rounded-md border bg-background px-3 py-2 text-sm hover:bg-accent"
             >
               <Upload className="h-4 w-4" />
-              Bild auswählen
+              Choose image
               <input
                 id="logo-input"
                 type="file"

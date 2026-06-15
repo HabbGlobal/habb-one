@@ -129,9 +129,9 @@ export function SelectableList<T>({
               disabled={isPending}
               onClick={() =>
                 runBulk(
-                  "In Papierkorb verschoben",
+                  "Moved to trash",
                   bulk.delete,
-                  `${selected.size} Eintrag/Einträge in den Papierkorb verschieben?`
+                  `Move ${selected.size} item(s) to trash?`
                 )
               }
             >

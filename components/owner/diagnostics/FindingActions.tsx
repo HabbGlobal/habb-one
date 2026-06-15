@@ -15,9 +15,9 @@ export function FindingActions({ findingId }: { findingId: string }) {
       let reason: string | undefined;
       if (withReason) {
         reason =
-          window.prompt("Begründung (≥ 5 Zeichen):")?.trim() || undefined;
+          window.prompt("Reason (≥ 5 characters):")?.trim() || undefined;
         if (!reason || reason.length < 5) {
-          setErr("Begründung erforderlich.");
+          setErr("Reason is required.");
           return;
         }
       }

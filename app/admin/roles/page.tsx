@@ -58,7 +58,7 @@ export default async function RolesPage() {
     EMPLOYEE: getStaticDefaults("EMPLOYEE" as UserRole),
   };
 
-  // Override-Count pro Rolle für die Header-Badge.
+  // Override count per role for the header badge.
   const overridesPerRole: Record<ConfigurableRole, number> = {
     ADMIN: 0,
     PLANNER: 0,

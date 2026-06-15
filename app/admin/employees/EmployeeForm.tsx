@@ -319,17 +319,17 @@ export function EmployeeForm({
 
       <Card>
         <CardHeader>
-          <CardTitle>Personalangaben</CardTitle>
+          <CardTitle>Personal Details</CardTitle>
         </CardHeader>
         <CardContent className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <Field label="Geburtsdatum">
+          <Field label="Date of Birth">
             <Input
               type="date"
               value={data.dateOfBirth}
               onChange={(e) => update("dateOfBirth", e.target.value)}
             />
           </Field>
-          <Field label="AHV-Nr.">
+          <Field label="SSN">
             <Input
               value={data.ahvNumber}
               onChange={(e) => update("ahvNumber", e.target.value)}
@@ -337,11 +337,11 @@ export function EmployeeForm({
               maxLength={16}
             />
           </Field>
-          <Field label="Adresse">
+          <Field label="Address">
             <Input
               value={data.address}
               onChange={(e) => update("address", e.target.value)}
-              placeholder="Strasse Nr., PLZ Ort"
+              placeholder="Street No., ZIP City"
             />
           </Field>
           <Field label="Phone">
@@ -402,7 +402,7 @@ export function EmployeeForm({
               onChange={(e) => update("annualVacationDays", Number(e.target.value))}
             />
           </Field>
-          <Field label="Initial Saldo (h)">
+          <Field label="Initial balance (h)">
             <Input
               type="number"
               step={0.1}
@@ -410,7 +410,7 @@ export function EmployeeForm({
               onChange={(e) => update("initialOvertimeHours", Number(e.target.value))}
             />
           </Field>
-          <Field label="Übertrag Ferien (Tage)">
+          <Field label="Vacation carry-over (days)">
             <Input
               type="number"
               step={0.5}
@@ -432,10 +432,10 @@ export function EmployeeForm({
               data.employmentType === "HOURLY_WAGE" || !data.weeklyTargetHours
             }
             onClick={redistributeNow}
-            title="Wochenstunden gleichmässig auf alle Arbeitstage (Tage > 0) verteilen"
+            title="Distribute weekly hours evenly across all working days (days > 0)"
           >
             <Wand2 className="mr-2 h-4 w-4" />
-            Gleichmässig verteilen
+            Distribute evenly
           </Button>
         </CardHeader>
         <CardContent className="space-y-3">
@@ -459,7 +459,7 @@ export function EmployeeForm({
                     <button
                       type="button"
                       onClick={() => removeDay(d.key)}
-                      title="Tag entfernen — Stunden auf andere Arbeitstage verteilen"
+                      title="Remove day — distribute hours to other working days"
                       className="absolute right-1 top-1/2 -translate-y-1/2 p-1 text-muted-foreground hover:text-destructive"
                     >
                       <X className="h-3.5 w-3.5" />
@@ -471,8 +471,8 @@ export function EmployeeForm({
           </div>
           {data.employmentType !== "HOURLY_WAGE" && (
             <p className="text-xs text-muted-foreground">
-              💡 Wochenstunden ändern verteilt automatisch. Setzt Du einen Tag auf 0
-              (oder klickst ✕), gehen seine Stunden auf die anderen Arbeitstage.
+              💡 Changing weekly hours distributes automatically. If you set a day to 0
+              (or click ✕), its hours go to the other working days.
             </p>
           )}
         </CardContent>
@@ -481,7 +481,7 @@ export function EmployeeForm({
       {availableAreas.length > 0 && (
         <Card>
           <CardHeader>
-            <CardTitle>Bereiche</CardTitle>
+            <CardTitle>Areas</CardTitle>
           </CardHeader>
           <CardContent>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
@@ -512,8 +512,8 @@ export function EmployeeForm({
               })}
             </div>
             <p className="text-xs text-muted-foreground mt-2">
-              Mehrfachauswahl möglich. Verwaltung der Bereiche unter{" "}
-              <span className="underline">Bereiche</span>.
+              Multiple selection possible. Manage areas under{" "}
+              <span className="underline">Areas</span>.
             </p>
           </CardContent>
         </Card>
@@ -521,13 +521,13 @@ export function EmployeeForm({
 
       <Card>
         <CardHeader className="flex flex-row items-center justify-between space-y-0">
-          <CardTitle>Kompetenzen</CardTitle>
+          <CardTitle>Skills</CardTitle>
           <Button
             type="button"
             variant="outline"
             size="sm"
             onClick={() => {
-              // Erste noch nicht verwendete Kompetenz hinzufügen.
+              // Add first unused skill.
               const taken = new Set(data.skills.map((s) => s.skillCode));
               const next = SKILL_CODES.find((c) => !taken.has(c));
               if (!next) return;
@@ -543,8 +543,8 @@ export function EmployeeForm({
         <CardContent className="space-y-3">
           {data.skills.length === 0 && (
             <p className="text-sm text-muted-foreground">
-              Noch keine Kompetenzen erfasst. Die automatische Planung verwendet
-              diese Angaben, um Mitarbeiter passend zu Auftragsschritten zuzuordnen.
+              No skills recorded yet. The automatic scheduling uses this
+              information to assign employees to matching order steps.
             </p>
           )}
           {data.skills.map((s, idx) => {
@@ -554,7 +554,7 @@ export function EmployeeForm({
                 key={`${s.skillCode}-${idx}`}
                 className="grid grid-cols-1 gap-3 rounded border p-3 md:grid-cols-[1fr_140px_160px_40px]"
               >
-                <Field label="Kompetenz">
+                <Field label="Skill">
                   <Select
                     value={s.skillCode}
                     onChange={(e) => {
@@ -586,7 +586,7 @@ export function EmployeeForm({
                     ))}
                   </Select>
                 </Field>
-                <Field label="Zertifiziert bis">
+                <Field label="Certified until">
                   <Input
                     type="date"
                     value={s.certifiedUntil}

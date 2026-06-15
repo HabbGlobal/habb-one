@@ -18,8 +18,8 @@ import {
 export const dynamic = "force-dynamic";
 
 const MONTH_NAMES_DE = [
-  "Januar", "Februar", "März", "April", "Mai", "Juni",
-  "Juli", "August", "September", "Oktober", "November", "Dezember",
+  "January", "February", "March", "April", "May", "June",
+  "July", "August", "September", "October", "November", "December",
 ];
 
 function clampMonth(value: string | undefined, fallback: number): number {
@@ -230,8 +230,8 @@ export default async function SchedulePage({
   // Header label depends on view.
   const heading =
     view === "month"
-      ? `Planung — ${MONTH_NAMES_DE[month - 1]} ${year}`
-      : `Planung — KW ${weekNumber(weekStartIso)} (${fmtCh(fromStr)} – ${fmtCh(toStr)})`;
+      ? `Schedule — ${MONTH_NAMES_DE[month - 1]} ${year}`
+      : `Schedule — CW ${weekNumber(weekStartIso)} (${fmtCh(fromStr)} – ${fmtCh(toStr)})`;
 
   return (
     <div className="space-y-4">

@@ -1,6 +1,6 @@
 "use client";
 
-// Status-Buttons + Convert-to-Order-Dialog für die Quote-Detail-Page.
+// Status buttons + convert-to-order dialog for the quote detail page.
 
 import { useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
@@ -65,12 +65,12 @@ export function QuoteActions({
   const onClick = (s: Quote["status"]) => {
     setError(null);
     if (s === "SENT" && !canSend) {
-      setError("Keine Berechtigung zum Versenden.");
+      setError("No permission to send.");
       return;
     }
     const confirmMsg =
       s === "SENT"
-        ? "Offerte versenden? Damit werden die aktuellen Berechnungs-Parameter eingefroren — der Preis bleibt fix bis zum Gültigkeits-Datum."
+        ? "Send quote? This will freeze the current calculation parameters — the price remains fixed until the validity date."
         : s === "ACCEPTED"
         ? "Offerte als angenommen markieren? Du kannst sie danach in einen Auftrag umwandeln."
         : s === "REJECTED"
@@ -155,7 +155,7 @@ export function QuoteActions({
               />
             </div>
             <div className="space-y-1">
-              <Label className="text-xs">Priorität</Label>
+              <Label className="text-xs">Priority</Label>
               <Select
                 value={priority}
                 onChange={(e) =>
@@ -170,9 +170,8 @@ export function QuoteActions({
             </div>
           </div>
           <p className="text-xs text-muted-foreground">
-            Der Auftrag wird direkt im Status <strong>Bestätigt</strong> erfasst und übernimmt
-            den Snapshot der Offerte. Die ProcessSteps werden anhand der Vorlagen pro Position
-            erzeugt.
+            The order will be created directly in <strong>Confirmed</strong> status and adopts
+            the snapshot of the quote. The ProcessSteps are generated based on the templates per position.
           </p>
           <div className="flex justify-end gap-2">
             <Button

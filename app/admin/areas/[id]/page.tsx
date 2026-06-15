@@ -21,7 +21,7 @@ export default async function EditAreaPage({
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
-        <h1 className="text-2xl font-semibold">Bereich bearbeiten</h1>
+        <h1 className="text-2xl font-semibold">Edit Area</h1>
         <Link href="/admin/areas" className="text-sm text-muted-foreground hover:underline">← Back</Link>
       </div>
       <Card>

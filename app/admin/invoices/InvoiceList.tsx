@@ -44,7 +44,7 @@ export function InvoiceList({ rows }: { rows: InvoiceListItemDTO[] }) {
   if (rows.length === 0) {
     return (
       <div className="text-center text-muted-foreground py-10 text-sm">
-        Keine Rechnungen in dieser Ansicht.
+        No invoices in this view.
       </div>
     );
   }
@@ -56,9 +56,9 @@ export function InvoiceList({ rows }: { rows: InvoiceListItemDTO[] }) {
           <TableHead>Customer</TableHead>
           <TableHead className="w-28">Status</TableHead>
           <TableHead className="w-24">Date</TableHead>
-          <TableHead className="w-24">Fällig</TableHead>
-          <TableHead className="w-16">Mahn.</TableHead>
-          <TableHead className="w-32 text-right">Betrag (Brutto)</TableHead>
+          <TableHead className="w-24">Due</TableHead>
+          <TableHead className="w-16">Rem.</TableHead>
+          <TableHead className="w-32 text-right">Amount (Gross)</TableHead>
           <TableHead className="w-12"></TableHead>
         </TableRow>
       </TableHeader>

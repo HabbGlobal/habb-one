@@ -15,9 +15,9 @@ import {
 type Variant = "confirmation" | "delivery-note" | "qr-label";
 
 const FILENAME_PREFIX: Record<Variant, string> = {
-  confirmation: "Auftragsbestaetigung",
-  "delivery-note": "Lieferschein",
-  "qr-label": "QR-Etikett",
+  confirmation: "OrderConfirmation",
+  "delivery-note": "DeliveryNote",
+  "qr-label": "QR-Label",
 };
 
 export async function buildOrderPdfResponse(orderId: string, variant: Variant) {

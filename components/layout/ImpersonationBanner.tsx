@@ -30,7 +30,7 @@ export async function ImpersonationBanner() {
             Mandanten {imp.targetCompanyName} angemeldet.
           </span>
           <span className="ml-2 hidden md:inline opacity-80">
-            · {scopeLabel} · läuft in {minutesLeft} Min ab
+            · {scopeLabel} · expires in {minutesLeft} min
           </span>
         </div>
         <EndImpersonationButton />

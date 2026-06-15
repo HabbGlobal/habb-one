@@ -28,9 +28,9 @@ export default async function NewMachinePage() {
         className="inline-flex items-center text-sm text-muted-foreground hover:text-foreground"
       >
         <ChevronLeft className="h-4 w-4" />
-        Zurück zur Liste
+        Back to list
       </Link>
-      <h1 className="text-2xl font-semibold">Neue Maschine</h1>
+      <h1 className="text-2xl font-semibold">New Machine</h1>
 
       <MachineForm
         initial={{

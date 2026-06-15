@@ -10,9 +10,9 @@ import { recordAudit } from "@/lib/audit";
 
 async function requireAdmin() {
   const session = await auth();
-  if (!session?.user) throw new Error("Nicht angemeldet.");
+  if (!session?.user) throw new Error("Not authenticated.");
   if (!hasPermission(session.user.role, "settings.write")) {
-    throw new Error("Keine Berechtigung.");
+    throw new Error("No permission.");
   }
   return session.user;
 }
@@ -77,7 +77,7 @@ export async function createWorkArea(input: unknown) {
     });
   } catch (err) {
     if (err instanceof Prisma.PrismaClientKnownRequestError && err.code === "P2002") {
-      throw new Error("Ein Bereich mit diesem Namen existiert bereits.");
+      throw new Error("An area with this name already exists.");
     }
     throw err;
   }
@@ -88,7 +88,7 @@ export async function updateWorkArea(id: string, input: unknown) {
   const user = await requireAdmin();
   const data = parseOrThrow(areaSchema, input);
   const before = await prisma.workArea.findUniqueOrThrow({ where: { id } });
-  if (before.companyId !== user.companyId) throw new Error("Keine Berechtigung.");
+  if (before.companyId !== user.companyId) throw new Error("No permission.");
   try {
     await prisma.workArea.update({
       where: { id },
@@ -103,7 +103,7 @@ export async function updateWorkArea(id: string, input: unknown) {
     });
   } catch (err) {
     if (err instanceof Prisma.PrismaClientKnownRequestError && err.code === "P2002") {
-      throw new Error("Ein Bereich mit diesem Namen existiert bereits.");
+      throw new Error("An area with this name already exists.");
     }
     throw err;
   }
@@ -130,7 +130,7 @@ async function authorizeBulk(ids: string[]) {
     select: { id: true },
   });
   if (owned.length !== ids.length) {
-    throw new Error("Mindestens ein Eintrag gehört nicht zu dieser Firma.");
+    throw new Error("At least one entry does not belong to this company.");
   }
   return user;
 }

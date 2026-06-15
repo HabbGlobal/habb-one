@@ -23,17 +23,17 @@ export function ContactManager({ customerId, contacts, canWrite }: Props) {
     <Card>
       <CardContent className="p-4 space-y-4">
         <div className="flex items-center justify-between">
-          <h3 className="font-semibold">Kontakte</h3>
+          <h3 className="font-semibold">Contacts</h3>
           {canWrite && (
             <Button size="sm" onClick={() => setEditing("new")}>
-              <Plus className="h-4 w-4 mr-1" /> Neuer Kontakt
+              <Plus className="h-4 w-4 mr-1" /> New contact
             </Button>
           )}
         </div>
 
         {contacts.length === 0 ? (
           <p className="text-sm text-muted-foreground">
-            Noch keine Kontakte erfasst.
+            No contacts recorded yet.
           </p>
         ) : (
           <ul className="space-y-2">
@@ -72,7 +72,7 @@ function ContactRow({
   const router = useRouter();
   const [pending, start] = useTransition();
   const onDelete = () => {
-    if (!confirm("Kontakt wirklich löschen?")) return;
+    if (!confirm("Really delete this contact?")) return;
     start(async () => {
       try {
         await deleteContact(contact.id);
@@ -93,7 +93,7 @@ function ContactRow({
           </span>
           {contact.isPrimary && (
             <span className="inline-flex items-center gap-1 rounded bg-amber-100 text-amber-800 px-1.5 py-0.5 text-[10px] font-semibold">
-              <Star className="h-3 w-3" /> Hauptkontakt
+              <Star className="h-3 w-3" /> Primary contact
             </span>
           )}
         </div>
@@ -208,7 +208,7 @@ function ContactDialog({
         <CardContent className="p-5 space-y-3">
           <div className="flex items-start justify-between">
             <h3 className="font-semibold">
-              {initial ? "Kontakt bearbeiten" : "Neuer Kontakt"}
+              {initial ? "Edit contact" : "New contact"}
             </h3>
             <button
               type="button"
@@ -220,11 +220,11 @@ function ContactDialog({
             </button>
           </div>
           <div className="grid grid-cols-2 gap-3">
-            <Field label="Anrede">
+            <Field label="Salutation">
               <Input
                 value={data.salutation}
                 onChange={(e) => setData({ ...data, salutation: e.target.value })}
-                placeholder="Herr / Frau / Divers"
+                placeholder="Mr / Ms / Diverse"
               />
             </Field>
             <Field label="Position">
@@ -255,7 +255,7 @@ function ContactDialog({
                 onChange={(e) => setData({ ...data, email: e.target.value })}
               />
             </Field>
-            <Field label="Telefon (Festnetz)">
+            <Field label="Phone (landline)">
               <Input
                 value={data.phone}
                 onChange={(e) => setData({ ...data, phone: e.target.value })}
@@ -274,7 +274,7 @@ function ContactDialog({
               checked={data.isPrimary}
               onChange={(e) => setData({ ...data, isPrimary: e.target.checked })}
             />
-            Als Hauptkontakt markieren
+            Mark as primary contact
           </label>
           {error && <p className="text-sm text-destructive">{error}</p>}
           <div className="flex justify-end gap-2 pt-2">

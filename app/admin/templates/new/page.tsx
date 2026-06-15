@@ -14,14 +14,14 @@ export default async function NewTemplatePage() {
   return (
     <div className="space-y-6 max-w-4xl">
       <div>
-        <h1 className="text-2xl font-semibold">Neue Process-Vorlage</h1>
+        <h1 className="text-2xl font-semibold">New Process Template</h1>
         <p className="text-sm text-muted-foreground">
-          Definiere die Standard-Schrittfolge. Wird sofort in Auftrags-/Offerten-Wizard verfügbar.
+          Define the standard step sequence. Will be immediately available in the order/quote wizard.
         </p>
       </div>
       <Card>
         <CardHeader>
-          <CardTitle className="text-base">Vorlagen-Daten</CardTitle>
+          <CardTitle className="text-base">Template Data</CardTitle>
         </CardHeader>
         <CardContent>
           <TemplateForm mode="create" />

@@ -8,12 +8,12 @@ import { Badge } from "@/components/ui/badge";
 import { MachineForm } from "../MachineForm";
 
 const TYPE_LABEL: Record<string, string> = {
-  BLAST_CABIN: "Sandstrahl-Kabine",
-  CHEM_BATH: "Chemie-Bad",
-  PAINT_CABIN: "Lackier-Kabine",
-  POWDER_CABIN: "Pulver-Kabine",
-  CURING_OVEN: "Aushärte-Ofen",
-  DRYING_OVEN: "Trocken-Ofen",
+  BLAST_CABIN: "Blast Cabin",
+  CHEM_BATH: "Chemical Bath",
+  PAINT_CABIN: "Paint Cabin",
+  POWDER_CABIN: "Powder Cabin",
+  CURING_OVEN: "Curing Oven",
+  DRYING_OVEN: "Drying Oven",
 };
 
 export default async function EditMachinePage({
@@ -53,7 +53,7 @@ export default async function EditMachinePage({
         className="inline-flex items-center text-sm text-muted-foreground hover:text-foreground"
       >
         <ChevronLeft className="h-4 w-4" />
-        Zurück zur Liste
+        Back to list
       </Link>
       <div className="flex items-center justify-between flex-wrap gap-3">
         <div>
@@ -75,7 +75,7 @@ export default async function EditMachinePage({
 
       {!canWrite && (
         <div className="rounded-lg border border-amber-200 bg-amber-50 px-3 py-2 text-sm text-amber-900">
-          Du hast keine Schreib-Berechtigung — Felder sind read-only.
+          You do not have write permission — fields are read-only.
         </div>
       )}
 

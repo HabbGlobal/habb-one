@@ -43,7 +43,7 @@ export function AutoPlanButton({ year, month }: { year: number; month: number })
         setReport(res);
         router.refresh();
       } catch (err) {
-        setError(err instanceof Error ? err.message : "Fehler");
+        setError(err instanceof Error ? err.message : "Error");
       }
     });
   };
@@ -61,7 +61,7 @@ export function AutoPlanButton({ year, month }: { year: number; month: number })
         }}
       >
         <Sparkles className="mr-2 h-4 w-4" />
-        Auto-Planen
+        Auto-plan
       </Button>
 
       {open && (
@@ -74,9 +74,9 @@ export function AutoPlanButton({ year, month }: { year: number; month: number })
           <Card className="fixed inset-x-4 top-12 z-50 mx-auto max-w-md max-h-[85vh] overflow-y-auto">
             <CardHeader className="flex flex-row items-start justify-between gap-2 space-y-0">
               <div>
-                <CardTitle className="text-base">Monat automatisch planen</CardTitle>
+                <CardTitle className="text-base">Auto-plan month</CardTitle>
                 <p className="text-sm text-muted-foreground">
-                  Verteilt anwesende, kompetente Mitarbeitende auf die Bereiche.
+                  Distributes available, qualified employees across areas.
                 </p>
               </div>
               <button
@@ -93,35 +93,35 @@ export function AutoPlanButton({ year, month }: { year: number; month: number })
                 <>
                   <div className="text-sm text-muted-foreground space-y-1">
                     <p>
-                      ✓ Mo–Fr werden geplant, Wochenende und Feiertage übersprungen
+                      ✓ Mon–Fri are planned, weekends and holidays skipped
                     </p>
                     <p>
-                      ✓ Mitarbeiter mit Ferien / Krankheit / Abwesenheit werden weggelassen
+                      ✓ Employees on vacation / sickness / absence are excluded
                     </p>
                     <p>
-                      ✓ Begrenzte Bereiche (Sandstrahlen, Pulvern) werden zuerst gefüllt
+                      ✓ Limited areas (Sandblasting, Powder Coating) are filled first
                     </p>
                     <p>
-                      ✓ Gleichmässige Verteilung über die kompetenten Mitarbeitenden
+                      ✓ Even distribution across qualified employees
                     </p>
                   </div>
 
                   <div className="grid grid-cols-2 gap-3">
-                    <Field label="Standard-Start">
+                    <Field label="Default start">
                       <Input
                         type="time"
                         value={defaultStart}
                         onChange={(e) => setDefaultStart(e.target.value)}
                       />
                     </Field>
-                    <Field label="Standard-Ende">
+                    <Field label="Default end">
                       <Input
                         type="time"
                         value={defaultEnd}
                         onChange={(e) => setDefaultEnd(e.target.value)}
                       />
                     </Field>
-                    <Field label="Pause (Min.)">
+                    <Field label="Break (min)">
                       <Input
                         type="number"
                         min={0}
@@ -139,7 +139,7 @@ export function AutoPlanButton({ year, month }: { year: number; month: number })
                       checked={overwriteExisting}
                       onChange={(e) => setOverwriteExisting(e.target.checked)}
                     />
-                    Bestehende Bereich-Zuteilungen überschreiben
+                    Overwrite existing area assignments
                   </label>
 
                   {error && <p className="text-sm text-destructive">{error}</p>}
@@ -147,19 +147,19 @@ export function AutoPlanButton({ year, month }: { year: number; month: number })
                   <div className="flex justify-end gap-2 pt-2">
                     <Button type="button" variant="ghost" onClick={() => setOpen(false)}>Cancel</Button>
                     <Button type="button" onClick={run} disabled={pending}>
-                      Jetzt planen
+                      Plan now
                     </Button>
                   </div>
                 </>
               ) : (
                 <>
                   <div className="rounded-lg bg-green-50 border border-green-200 px-4 py-3 text-sm text-green-800">
-                    ✓ <strong>{report.written}</strong> Tag-Zuteilungen vorgenommen.
+                    ✓ <strong>{report.written}</strong> day assignments made.
                   </div>
                   {report.unfilled.length > 0 && (
                     <div className="space-y-1">
                       <p className="text-sm font-semibold">
-                        {report.unfilled.length} unbesetzte Slots
+                        {report.unfilled.length} unfilled slots
                       </p>
                       <ul className="text-xs text-muted-foreground max-h-40 overflow-y-auto space-y-0.5">
                         {report.unfilled.slice(0, 30).map((u, i) => (
@@ -168,14 +168,14 @@ export function AutoPlanButton({ year, month }: { year: number; month: number })
                           </li>
                         ))}
                         {report.unfilled.length > 30 && (
-                          <li>… +{report.unfilled.length - 30} weitere</li>
+                          <li>… +{report.unfilled.length - 30} more</li>
                         )}
                       </ul>
                     </div>
                   )}
                   <div className="flex justify-end pt-2">
                     <Button type="button" onClick={() => setOpen(false)}>
-                      Schliessen
+                      Close
                     </Button>
                   </div>
                 </>

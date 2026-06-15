@@ -26,8 +26,8 @@ export default async function TimeEntriesPage({
   const tCommon = await getTranslations("common");
   const sp = await searchParams;
 
-  // Mandanten-Filter: nur Mitarbeitende DIESES Tenants. Ohne diesen Filter
-  // sehen User aller Mandanten alle Mitarbeitenden.
+  // Tenant filter: only employees of THIS tenant. Without this filter
+  // users of all tenants would see all employees.
   const employees = await prisma.employee.findMany({
     where: {
       companyId: session.user.companyId,
@@ -42,8 +42,8 @@ export default async function TimeEntriesPage({
   const fromStr = sp.from || format(startOfMonth(today), "yyyy-MM-dd");
   const toStr = sp.to || format(today, "yyyy-MM-dd");
 
-  // employeeId aus Query-String IMMER gegen die geladene Liste validieren —
-  // sonst könnte jemand mit einer fremden employeeId Stempelzeiten leaken.
+  // Always validate employeeId from query string against the loaded list —
+  // otherwise someone could leak time entries with a foreign employeeId.
   const validIds = new Set(employees.map((e) => e.id));
   const requestedId = sp.employeeId;
   const employeeId =
@@ -53,7 +53,7 @@ export default async function TimeEntriesPage({
     ? await prisma.timeEntry.findMany({
         where: {
           employeeId,
-          // Defense-in-Depth: zusätzlich gegen die Tenant-Kette filtern.
+          // Defense-in-depth: additionally filter against the tenant chain.
           employee: { companyId: session.user.companyId },
           workDate: {
             gte: new Date(`${fromStr}T00:00:00Z`),

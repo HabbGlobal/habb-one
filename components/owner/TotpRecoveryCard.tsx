@@ -40,7 +40,7 @@ export function TotpRecoveryCard({ enrolled }: { enrolled: boolean }) {
         body: JSON.stringify({ code: code.trim() }),
       });
       if (!res.ok) {
-        setError("Code ungültig — bitte den aktuellen Code aus der App eingeben.");
+        setError("Invalid code — please enter the current code from the app.");
         return;
       }
       setSetup(null);
@@ -70,10 +70,10 @@ export function TotpRecoveryCard({ enrolled }: { enrolled: boolean }) {
             Emergency access (Authenticator app)
           </p>
           <p className="mt-1 text-sm text-habb-muted">
-            Reiner Wiederherstellungs-Faktor gegen Aussperren. Der Passkey
-            bleibt Pflicht — ein TOTP-Code gewährt <strong>no</strong>{" "}
-            Portalzugang, sondern erzwingt nur die Registrierung eines neuen
-            Passkeys.
+            Pure recovery factor against lockout. The passkey
+            remains mandatory — a TOTP code grants <strong>no</strong>{" "}
+            portal access, but only forces the registration of a new
+            passkey.
           </p>
 
           {enrolled && !setup && (
@@ -114,9 +114,9 @@ export function TotpRecoveryCard({ enrolled }: { enrolled: boolean }) {
           {setup && (
             <div className="mt-4 space-y-3 rounded-lg border border-habb-line bg-habb-paper p-4">
               <p className="text-xs text-habb-muted">
-                1. Scanne den QR-Code mit deiner Authenticator-App (Google
-                Authenticator, 1Password, Authy …) oder gib den Schlüssel
-                manuell ein.
+                1. Scan the QR code with your authenticator app (Google
+                Authenticator, 1Password, Authy …) or enter the key
+                manually.
               </p>
               <Image
                 src={setup.qrDataUrl}

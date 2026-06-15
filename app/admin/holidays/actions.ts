@@ -10,9 +10,9 @@ import { recordAudit } from "@/lib/audit";
 
 async function requireAdmin() {
   const session = await auth();
-  if (!session?.user) throw new Error("Nicht angemeldet.");
+  if (!session?.user) throw new Error("Not authenticated.");
   if (!hasPermission(session.user.role, "settings.write")) {
-    throw new Error("Keine Berechtigung.");
+    throw new Error("No permission.");
   }
   return session.user;
 }
@@ -67,7 +67,7 @@ export async function createHoliday(input: unknown) {
     });
   } catch (err) {
     if (err instanceof Prisma.PrismaClientKnownRequestError && err.code === "P2002") {
-      throw new Error("Für dieses Datum existiert bereits ein Feiertag.");
+      throw new Error("A holiday already exists for this date.");
     }
     throw err;
   }
@@ -78,7 +78,7 @@ export async function updateHoliday(id: string, input: unknown) {
   const user = await requireAdmin();
   const data = parseOrThrow(schema, input);
   const before = await prisma.holiday.findUniqueOrThrow({ where: { id } });
-  if (before.companyId !== user.companyId) throw new Error("Keine Berechtigung.");
+  if (before.companyId !== user.companyId) throw new Error("No permission.");
   await prisma.holiday.update({
     where: { id },
     data: {
@@ -104,7 +104,7 @@ export async function updateHoliday(id: string, input: unknown) {
 export async function deleteHoliday(id: string) {
   const user = await requireAdmin();
   const h = await prisma.holiday.findUniqueOrThrow({ where: { id } });
-  if (h.companyId !== user.companyId) throw new Error("Keine Berechtigung.");
+  if (h.companyId !== user.companyId) throw new Error("No permission.");
   await prisma.holiday.update({ where: { id }, data: { deletedAt: new Date() } });
   await recordAudit({
     companyId: user.companyId,
@@ -130,7 +130,7 @@ async function authorizeBulk(ids: string[]) {
     select: { id: true },
   });
   if (owned.length !== ids.length) {
-    throw new Error("Mindestens ein Eintrag gehört nicht zu dieser Firma.");
+    throw new Error("At least one entry does not belong to this company.");
   }
   return user;
 }

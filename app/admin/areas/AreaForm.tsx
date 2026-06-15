@@ -61,7 +61,7 @@ export function AreaForm({
         />
       </Field>
       <div className="grid grid-cols-2 gap-3">
-        <Field label="Farbe">
+        <Field label="Color">
           <div className="flex items-center gap-2">
             <Input
               type="color"
@@ -77,7 +77,7 @@ export function AreaForm({
             />
           </div>
         </Field>
-        <Field label="Sortierung (kleiner = oben)">
+        <Field label="Sort order (lower = higher)">
           <Input
             type="number"
             min={0}

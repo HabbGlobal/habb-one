@@ -82,11 +82,11 @@ export default async function CalculationReportPage({
             href="/admin/reports"
             className="inline-flex items-center text-xs text-muted-foreground hover:text-foreground"
           >
-            <ArrowLeft className="h-3 w-3 mr-1" /> zurück
+            <ArrowLeft className="h-3 w-3 mr-1" /> back
           </Link>
-          <h1 className="text-2xl font-semibold mt-1">Kalkulations-Genauigkeit</h1>
+          <h1 className="text-2xl font-semibold mt-1">Calculation Accuracy</h1>
           <p className="text-sm text-muted-foreground">
-            Schätzung vs. Ist vs. Verrechnet — pro Auftrag, mit Abweichungen.
+            Estimate vs. Actual vs. Billed — per order, with deviations.
           </p>
         </div>
         <Button asChild variant="outline" size="sm">
@@ -102,21 +102,21 @@ export default async function CalculationReportPage({
       <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
         <SummaryCard label="Orders" value={String(report.rows.length)} />
         <SummaryCard
-          label="Schätzung"
+          label="Estimate"
           value={fmtMin(report.totals.estimatedMinutes)}
           sub={fmtCHF(report.totals.estimatedCHF)}
         />
         <SummaryCard
-          label="Ist (Scans)"
+          label="Actual (Scans)"
           value={fmtMin(report.totals.actualMinutes)}
           sub={
             report.totals.actualMinutes == null
-              ? "unvollständig"
+              ? "incomplete"
               : undefined
           }
         />
         <SummaryCard
-          label="Verrechnet"
+          label="Billed"
           value={fmtMin(report.totals.billedMinutes)}
           sub={fmtCHF(report.totals.billedCHF)}
           accent={`Abw. ${fmtPct(report.totals.weightedDeviationPct)}`}
@@ -126,12 +126,12 @@ export default async function CalculationReportPage({
 
       <Card>
         <CardHeader>
-          <CardTitle className="text-base">Aufträge in der Periode</CardTitle>
+          <CardTitle className="text-base">Orders in the period</CardTitle>
         </CardHeader>
         <CardContent className="p-0">
           {report.rows.length === 0 ? (
             <p className="text-center text-muted-foreground py-10 text-sm">
-              Keine Aufträge in dieser Periode.
+              No orders in this period.
             </p>
           ) : (
             <div className="overflow-x-auto">
@@ -140,13 +140,13 @@ export default async function CalculationReportPage({
                   <tr>
                     <th className="text-left px-3 py-2">Order</th>
                     <th className="text-left px-3 py-2">Customer</th>
-                    <th className="text-left px-3 py-2">Termin</th>
-                    <th className="text-right px-3 py-2">Schätz.</th>
-                    <th className="text-right px-3 py-2">Ist</th>
-                    <th className="text-right px-3 py-2">Verr.</th>
-                    <th className="text-right px-3 py-2">Δ Ist</th>
-                    <th className="text-right px-3 py-2">Δ Verr.</th>
-                    <th className="text-right px-3 py-2">Verr. CHF</th>
+                    <th className="text-left px-3 py-2">Due</th>
+                    <th className="text-right px-3 py-2">Est.</th>
+                    <th className="text-right px-3 py-2">Actual</th>
+                    <th className="text-right px-3 py-2">Billed</th>
+                    <th className="text-right px-3 py-2">Δ Actual</th>
+                    <th className="text-right px-3 py-2">Δ Billed</th>
+                    <th className="text-right px-3 py-2">Billed CHF</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -221,10 +221,10 @@ export default async function CalculationReportPage({
       </Card>
 
       <p className="text-xs text-muted-foreground">
-        <Badge variant="secondary" className="text-[10px]">Hinweis</Badge>
-        {" "}Aufträge werden gelistet, wenn ihr Liefertermin, Abschluss oder Lieferung
-        in der gewählten Periode liegt. CHF-Werte basieren auf dem aktuellen
-        Mitarbeiter-Stundensatz (System-Parameter).
+        <Badge variant="secondary" className="text-[10px]">Note</Badge>
+        {" "}Orders are listed when their delivery date, completion, or delivery
+        falls within the selected period. CHF values are based on the current
+        employee hourly rate (system parameter).
       </p>
     </div>
   );

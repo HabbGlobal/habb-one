@@ -9,9 +9,9 @@ import { recordAudit } from "@/lib/audit";
 
 async function requireWriter() {
   const session = await auth();
-  if (!session?.user) throw new Error("Nicht angemeldet.");
+  if (!session?.user) throw new Error("Not authenticated.");
   if (!hasPermission(session.user.role, "absences.write")) {
-    throw new Error("Keine Berechtigung.");
+    throw new Error("No permission.");
   }
   return session.user;
 }
@@ -40,10 +40,10 @@ const absenceSchema = z.object({
 export async function createAbsence(input: unknown) {
   const user = await requireWriter();
   const data = parseOrThrow(absenceSchema, input);
-  if (data.endDate < data.startDate) throw new Error("Enddatum vor Startdatum.");
+  if (data.endDate < data.startDate) throw new Error("End date before start date.");
 
   const employee = await prisma.employee.findUniqueOrThrow({ where: { id: data.employeeId } });
-  if (employee.companyId !== user.companyId) throw new Error("Keine Berechtigung.");
+  if (employee.companyId !== user.companyId) throw new Error("No permission.");
 
   const absence = await prisma.absence.create({
     data: {
@@ -74,13 +74,13 @@ export async function createAbsence(input: unknown) {
 export async function updateAbsence(id: string, input: unknown) {
   const user = await requireWriter();
   const data = parseOrThrow(absenceSchema, input);
-  if (data.endDate < data.startDate) throw new Error("Enddatum vor Startdatum.");
+  if (data.endDate < data.startDate) throw new Error("End date before start date.");
 
   const before = await prisma.absence.findUniqueOrThrow({
     where: { id },
     include: { employee: true },
   });
-  if (before.employee.companyId !== user.companyId) throw new Error("Keine Berechtigung.");
+  if (before.employee.companyId !== user.companyId) throw new Error("No permission.");
 
   await prisma.absence.update({
     where: { id },
@@ -113,15 +113,15 @@ export async function updateAbsence(id: string, input: unknown) {
 
 export async function decideAbsence(id: string, status: "APPROVED" | "REJECTED" | "CANCELLED") {
   const session = await auth();
-  if (!session?.user) throw new Error("Nicht angemeldet.");
+  if (!session?.user) throw new Error("Not authenticated.");
   if (!hasPermission(session.user.role, "absences.approve")) {
-    throw new Error("Keine Berechtigung.");
+    throw new Error("No permission.");
   }
   const before = await prisma.absence.findUniqueOrThrow({
     where: { id },
     include: { employee: true },
   });
-  if (before.employee.companyId !== session.user.companyId) throw new Error("Keine Berechtigung.");
+  if (before.employee.companyId !== session.user.companyId) throw new Error("No permission.");
   await prisma.absence.update({
     where: { id },
     data: { status, decidedById: session.user.id, decidedAt: new Date() },
@@ -155,7 +155,7 @@ async function authorizeBulk(ids: string[]) {
     select: { id: true },
   });
   if (owned.length !== ids.length) {
-    throw new Error("Mindestens ein Eintrag gehört nicht zu dieser Firma.");
+    throw new Error("At least one entry does not belong to this company.");
   }
   return user;
 }

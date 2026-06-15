@@ -30,7 +30,7 @@ export async function AdminShell({ children }: { children: ReactNode }) {
     try {
       enabledModules = Array.from(await getEnabledModules(session.user.companyId));
     } catch {
-      // Sidebar zeigt im Zweifel weniger — Route-Guard bleibt maßgeblich.
+      // Sidebar shows less in doubt — route guard remains authoritative.
       enabledModules = [];
     }
 
@@ -47,9 +47,9 @@ export async function AdminShell({ children }: { children: ReactNode }) {
       }
     }
 
-    // Firmen-Name + Logo-URL für die Sidebar laden. Wir holen NUR die
-    // Metadaten (logoData wird ausgespart), die Bytes liefert
-    // /api/company/logo direkt.
+    // Company name + logo URL for the sidebar. We only fetch the
+    // metadata (logoData is omitted), the bytes are served by
+    // /api/company/logo directly.
     try {
       const company = await prisma.company.findUnique({
         where: { id: session.user.companyId },
@@ -62,7 +62,7 @@ export async function AdminShell({ children }: { children: ReactNode }) {
         }
       }
     } catch {
-      // Sidebar fällt zurück auf den Default-Translation-String
+      // Sidebar falls back to the default translation string
     }
   }
 
@@ -78,9 +78,9 @@ export async function AdminShell({ children }: { children: ReactNode }) {
         permissions={userPermissions}
         enabledModules={enabledModules}
       />
-      {/* Main: links 256px Sidebar (md+), darüber bzw. darunter mobile-header (16px höher) */}
+      {/* Main: 256px sidebar on left (md+), above or below mobile header (16px higher) */}
       <main className="flex-1 md:ml-64 pt-14 md:pt-0">
-        {/* Banner ist no-op wenn keine Impersonation läuft */}
+        {/* Banner is no-op when no impersonation is active */}
         <ImpersonationBanner />
         <div className="max-w-7xl mx-auto px-4 md:px-6 py-6">{children}</div>
       </main>

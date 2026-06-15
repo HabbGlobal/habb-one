@@ -1,8 +1,5 @@
-// KPI-Card mit Icon-Badge, Hauptwert und Subtext (Trend oder Aufschlüsselung).
-// Server-Component-tauglich (keine Hooks). Stil angelehnt an das
-// shadcn-style Mock vom 21st-magic-Beispiel, aber mit unseren Tailwind-
-// Tokens (kein Dark-Mode-Variante, weil der Rest der App noch keinen
-// Dark-Toggle hat).
+// Modern KPI card with icon badge, main value, and subtext.
+// Server-component compatible (no hooks).
 
 import type { LucideIcon } from "lucide-react";
 import { TrendingUp, TrendingDown, Minus } from "lucide-react";
@@ -15,13 +12,13 @@ export type KpiTone =
   | "rose"
   | "slate";
 
-const TONE_BG: Record<KpiTone, string> = {
-  blue: "bg-blue-50 text-blue-600",
-  emerald: "bg-emerald-50 text-emerald-600",
-  amber: "bg-amber-50 text-amber-600",
-  purple: "bg-purple-50 text-purple-600",
-  rose: "bg-rose-50 text-rose-600",
-  slate: "bg-slate-100 text-slate-600",
+const TONE_STYLES: Record<KpiTone, { bg: string; icon: string; ring: string }> = {
+  blue: { bg: "bg-blue-50", icon: "text-blue-600", ring: "ring-blue-100" },
+  emerald: { bg: "bg-emerald-50", icon: "text-emerald-600", ring: "ring-emerald-100" },
+  amber: { bg: "bg-amber-50", icon: "text-amber-600", ring: "ring-amber-100" },
+  purple: { bg: "bg-purple-50", icon: "text-purple-600", ring: "ring-purple-100" },
+  rose: { bg: "bg-rose-50", icon: "text-rose-600", ring: "ring-rose-100" },
+  slate: { bg: "bg-slate-50", icon: "text-slate-600", ring: "ring-slate-100" },
 };
 
 interface Props {
@@ -29,11 +26,8 @@ interface Props {
   value: string;
   icon: LucideIcon;
   tone?: KpiTone;
-  /** Trend in %. Positive = grün, negative = rot, null = neutral. */
   trendPct?: number | null;
-  /** Sub-Label unter dem Hauptwert (z. B. "5 davon überfällig"). */
   subline?: string;
-  /** Wenn rot statt grün: bei "negativen" KPIs (z. B. Mahnungen). */
   negativeIsBad?: boolean;
 }
 
@@ -51,6 +45,8 @@ export function KpiCard({
   subline,
   negativeIsBad,
 }: Props) {
+  const toneStyle = TONE_STYLES[tone];
+
   const trendColor =
     trendPct == null
       ? "text-muted-foreground"
@@ -68,32 +64,42 @@ export function KpiCard({
         : TrendingDown;
 
   return (
-    <div className="rounded-xl border border-habb-line bg-white p-5 shadow-sm hover:shadow-md transition-shadow">
-      <div className="flex items-center justify-between mb-3">
-        <div className={`p-2 rounded-lg ${TONE_BG[tone]}`}>
-          <Icon className="h-5 w-5" />
+    <div className="group relative rounded-2xl border-0 bg-white/80 backdrop-blur-sm p-5 shadow-sm hover:shadow-lg transition-all duration-300 hover:-translate-y-0.5">
+      {/* Subtle gradient accent at top */}
+      <div className={`absolute inset-x-0 top-0 h-0.5 rounded-t-2xl opacity-0 group-hover:opacity-100 transition-opacity ${
+        tone === "emerald" ? "bg-gradient-to-r from-emerald-400 to-emerald-600" :
+        tone === "blue" ? "bg-gradient-to-r from-blue-400 to-blue-600" :
+        tone === "amber" ? "bg-gradient-to-r from-amber-400 to-amber-600" :
+        tone === "purple" ? "bg-gradient-to-r from-purple-400 to-purple-600" :
+        tone === "rose" ? "bg-gradient-to-r from-rose-400 to-rose-600" :
+        "bg-gradient-to-r from-slate-400 to-slate-600"
+      }`} />
+
+      <div className="flex items-start justify-between mb-4">
+        <div className={`p-2.5 rounded-xl ${toneStyle.bg} ring-1 ${toneStyle.ring}`}>
+          <Icon className={`h-5 w-5 ${toneStyle.icon}`} />
         </div>
         {trendPct != null && (
-          <TrendIcon className={`h-4 w-4 ${trendColor}`} />
+          <div className={`flex items-center gap-1 text-xs font-medium ${trendColor} bg-slate-50 rounded-full px-2 py-0.5`}>
+            <TrendIcon className="h-3 w-3" />
+            {fmtPct(trendPct)}
+          </div>
         )}
       </div>
-      <div className="text-xs uppercase tracking-wider text-muted-foreground font-medium">
-        {label}
+
+      <div className="space-y-1">
+        <p className="text-xs font-medium text-muted-foreground uppercase tracking-wider">
+          {label}
+        </p>
+        <p className="text-2xl font-bold text-foreground tabular-nums tracking-tight">
+          {value}
+        </p>
       </div>
-      <div className="text-2xl font-semibold text-foreground mt-1 tabular-nums">
-        {value}
-      </div>
-      {(trendPct != null || subline) && (
-        <div className="text-xs mt-2 flex items-center gap-2">
-          {trendPct != null && (
-            <span className={`${trendColor} font-medium tabular-nums`}>
-              {fmtPct(trendPct)}
-            </span>
-          )}
-          {subline && (
-            <span className="text-muted-foreground">{subline}</span>
-          )}
-        </div>
+
+      {subline && (
+        <p className="text-xs text-muted-foreground mt-3 leading-relaxed">
+          {subline}
+        </p>
       )}
     </div>
   );

@@ -17,7 +17,7 @@ import { ContactManager } from "./ContactManager";
 
 export const dynamic = "force-dynamic";
 
-const TYPE_LABEL = { PRIVATE: "Privatkunde", BUSINESS: "Geschäftskunde" } as const;
+const TYPE_LABEL = { PRIVATE: "Private", BUSINESS: "Business" } as const;
 
 export default async function CustomerDetailPage({
   params,
@@ -135,7 +135,7 @@ export default async function CustomerDetailPage({
               {customer.isActive ? "Active" : "Inactive"}
             </Badge>
             {dto.archivedAt && <Badge variant="warning">Archived</Badge>}
-            {dto.deletedAt && <Badge variant="destructive">Papierkorb</Badge>}
+            {dto.deletedAt && <Badge variant="destructive">Trash</Badge>}
           </div>
         </div>
         <Link
@@ -182,7 +182,7 @@ export default async function CustomerDetailPage({
             <CardContent className="p-4">
               {customer.orders.length === 0 ? (
                 <p className="text-sm text-muted-foreground">
-                  Noch keine Aufträge.
+                  No orders yet.
                 </p>
               ) : (
                 <ul className="divide-y">
@@ -191,8 +191,8 @@ export default async function CustomerDetailPage({
                       <div>
                         <div className="font-mono">{o.orderNumber}</div>
                         <div className="text-xs text-muted-foreground">
-                          Eingang {o.receivedAt.toLocaleDateString("de-CH")} ·
-                          Liefertermin {o.promisedAt.toLocaleDateString("de-CH")}
+                          Eingang {o.receivedAt.toLocaleDateString("en-GB")} ·
+                          Liefertermin {o.promisedAt.toLocaleDateString("en-GB")}
                         </div>
                       </div>
                       <div className="flex items-center gap-3">
@@ -212,7 +212,7 @@ export default async function CustomerDetailPage({
           <Card>
             <CardContent className="p-4">
               {customer.quotes.length === 0 ? (
-                <p className="text-sm text-muted-foreground">Noch keine Offerten.</p>
+                <p className="text-sm text-muted-foreground">No quotes yet.</p>
               ) : (
                 <ul className="divide-y">
                   {customer.quotes.map((q) => (
@@ -220,8 +220,8 @@ export default async function CustomerDetailPage({
                       <div>
                         <div className="font-mono">{q.quoteNumber}</div>
                         <div className="text-xs text-muted-foreground">
-                          Erstellt {q.createdAt.toLocaleDateString("de-CH")} · gültig bis{" "}
-                          {q.validUntil.toLocaleDateString("de-CH")}
+                          Created {q.createdAt.toLocaleDateString("en-GB")} · valid until{" "}
+                          {q.validUntil.toLocaleDateString("en-GB")}
                         </div>
                       </div>
                       <div className="flex items-center gap-3">
@@ -242,7 +242,7 @@ export default async function CustomerDetailPage({
             <CardContent className="p-4">
               {customer.invoices.length === 0 ? (
                 <p className="text-sm text-muted-foreground">
-                  Noch keine Rechnungen.
+                  No invoices yet.
                 </p>
               ) : (
                 <ul className="divide-y">
@@ -251,9 +251,9 @@ export default async function CustomerDetailPage({
                       <div>
                         <div className="font-mono">{i.invoiceNumber}</div>
                         <div className="text-xs text-muted-foreground">
-                          Ausgestellt {i.issuedAt.toLocaleDateString("de-CH")} ·
-                          fällig {i.dueAt.toLocaleDateString("de-CH")}
-                          {i.paidAt && ` · bezahlt ${i.paidAt.toLocaleDateString("de-CH")}`}
+                          Ausgestellt {i.issuedAt.toLocaleDateString("en-GB")} ·
+                          fällig {i.dueAt.toLocaleDateString("en-GB")}
+                          {i.paidAt && ` · bezahlt ${i.paidAt.toLocaleDateString("en-GB")}`}
                         </div>
                       </div>
                       <div className="flex items-center gap-3">
@@ -274,9 +274,9 @@ export default async function CustomerDetailPage({
         stats={
           <Card>
             <CardContent className="p-4 grid grid-cols-2 md:grid-cols-4 gap-4">
-              <Stat label="Aufträge total" value={String(stats.totalOrders)} />
+              <Stat label="Total orders" value={String(stats.totalOrders)} />
               <Stat
-                label="Offene Aufträge"
+                label="Open orders"
                 value={String(stats.openOrders)}
                 tone={stats.openOrders > 0 ? "warning" : "muted"}
               />
@@ -286,19 +286,19 @@ export default async function CustomerDetailPage({
                 value={formatCHF(stats.avgOrderValue)}
               />
               <Stat
-                label="Letzter Auftrag"
+                label="Last order"
                 value={
                   stats.lastOrderAt
-                    ? stats.lastOrderAt.toLocaleDateString("de-CH")
+                    ? stats.lastOrderAt.toLocaleDateString("en-GB")
                     : "—"
                 }
               />
               <Stat
-                label="Zahlungsfrist"
-                value={`${customer.paymentTerms} Tage`}
+                label="Payment terms"
+                value={`${customer.paymentTerms} Days`}
               />
               <Stat
-                label="Standard-Rabatt"
+                label="Standard discount"
                 value={
                   customer.defaultDiscount
                     ? `${Number(customer.defaultDiscount)}%`
@@ -306,7 +306,7 @@ export default async function CustomerDetailPage({
                 }
               />
               <Stat
-                label="Kreditlimit"
+                label="Credit limit"
                 value={
                   customer.creditLimit
                     ? formatCHF(Number(customer.creditLimit))
@@ -321,7 +321,7 @@ export default async function CustomerDetailPage({
             <CardContent className="p-4">
               {activity.length === 0 ? (
                 <p className="text-sm text-muted-foreground">
-                  Noch keine Aktivität protokolliert.
+                  No activity logged yet.
                 </p>
               ) : (
                 <ul className="space-y-2 text-sm">
@@ -391,13 +391,13 @@ function statusVariant(s: string): "secondary" | "success" | "warning" | "info" 
 
 function statusLabel(s: string): string {
   return {
-    DRAFT: "Entwurf",
-    CONFIRMED: "Bestätigt",
-    IN_PROGRESS: "In Arbeit",
-    ON_HOLD: "Pausiert",
-    COMPLETED: "Fertig",
-    DELIVERED: "Geliefert",
-    INVOICED: "Verrechnet",
+    DRAFT: "Draft",
+    CONFIRMED: "Confirmed",
+    IN_PROGRESS: "In Progress",
+    ON_HOLD: "On Hold",
+    COMPLETED: "Completed",
+    DELIVERED: "Delivered",
+    INVOICED: "Invoiced",
     CANCELLED: "Cancelled",
   }[s] ?? s;
 }

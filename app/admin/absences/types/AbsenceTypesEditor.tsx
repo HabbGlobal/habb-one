@@ -1,8 +1,8 @@
 "use client";
 
-// Tabelle der Abwesenheits-Typen + Aktionen (Neu / Bearbeiten / Archivieren).
-// Read-only für User OHNE `absences.write` (dann wird der Editor mit
-// disabled=true gerendert und nur die Liste angezeigt).
+// Table of absence types + actions (New / Edit / Archive).
+// Read-only for users WITHOUT `absences.write` (then the editor is rendered
+// with disabled=true and only the list is shown).
 
 import { useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
@@ -21,14 +21,14 @@ import { AbsenceTypeForm, type AbsenceTypeFormValues } from "./AbsenceTypeForm";
 import { archiveAbsenceType, restoreAbsenceType } from "./actions";
 
 const CATEGORY_LABELS: Record<string, string> = {
-  VACATION: "Ferien",
-  SICKNESS: "Krankheit",
-  ACCIDENT: "Unfall",
-  MILITARY: "Militärdienst",
-  DOCTOR: "Arztbesuch",
-  UNPAID: "Unbezahlt",
-  COMPENSATION: "Kompensation",
-  OTHER: "Sonstiges",
+  VACATION: "Vacation",
+  SICKNESS: "Sickness",
+  ACCIDENT: "Accident",
+  MILITARY: "Military Service",
+  DOCTOR: "Doctor Visit",
+  UNPAID: "Unpaid",
+  COMPENSATION: "Compensation",
+  OTHER: "Other",
 };
 
 export interface AbsenceTypeRow {
@@ -81,7 +81,7 @@ export function AbsenceTypesEditor({ types, canWrite }: Props) {
   const archive = (t: AbsenceTypeRow) => {
     if (
       !confirm(
-        `Typ "${t.labelDe}" archivieren? Bestehende Abwesenheiten bleiben erhalten, neue können diesen Typ aber nicht mehr verwenden.`,
+        `Archive type "${t.labelDe}"? Existing absences remain, but new ones can no longer use this type.`,
       )
     )
       return;
@@ -91,7 +91,7 @@ export function AbsenceTypesEditor({ types, canWrite }: Props) {
         await archiveAbsenceType(t.id);
         router.refresh();
       } catch (err) {
-        setError(err instanceof Error ? err.message : "Archivieren fehlgeschlagen.");
+        setError(err instanceof Error ? err.message : "Archive failed.");
       }
     });
   };
@@ -103,7 +103,7 @@ export function AbsenceTypesEditor({ types, canWrite }: Props) {
         await restoreAbsenceType(t.id);
         router.refresh();
       } catch (err) {
-        setError(err instanceof Error ? err.message : "Reaktivierung fehlgeschlagen.");
+        setError(err instanceof Error ? err.message : "Reactivation failed.");
       }
     });
   };
@@ -115,12 +115,12 @@ export function AbsenceTypesEditor({ types, canWrite }: Props) {
     <div className="space-y-4">
       <div className="flex items-center justify-between">
         <p className="text-sm text-habb-muted">
-          {active.length} aktive Typ{active.length === 1 ? "" : "en"}
-          {archived.length > 0 && ` · ${archived.length} archiviert`}
+          {active.length} active type{active.length === 1 ? "" : "s"}
+          {archived.length > 0 && ` · ${archived.length} archived`}
         </p>
         {canWrite && (
           <Button onClick={openNew} size="sm">
-            <Plus className="mr-1 h-4 w-4" /> Neuer Type</Button>
+            <Plus className="mr-1 h-4 w-4" /> New Type</Button>
         )}
       </div>
 
@@ -135,12 +135,12 @@ export function AbsenceTypesEditor({ types, canWrite }: Props) {
           <TableHeader>
             <TableRow>
               <TableHead className="w-10"></TableHead>
-              <TableHead>Bezeichnung</TableHead>
-              <TableHead>Schlüssel</TableHead>
-              <TableHead>Kategorie</TableHead>
+              <TableHead>Label</TableHead>
+              <TableHead>Key</TableHead>
+              <TableHead>Category</TableHead>
               <TableHead className="text-center">Paid</TableHead>
-              <TableHead className="text-center">Reduziert Soll</TableHead>
-              <TableHead className="text-center">Genehmigung?</TableHead>
+              <TableHead className="text-center">Reduces Target</TableHead>
+              <TableHead className="text-center">Approval?</TableHead>
               <TableHead className="text-right">Actions</TableHead>
             </TableRow>
           </TableHeader>
@@ -148,8 +148,8 @@ export function AbsenceTypesEditor({ types, canWrite }: Props) {
             {types.length === 0 && (
               <TableRow>
                 <TableCell colSpan={8} className="text-center text-sm text-habb-muted">
-                  Noch keine Abwesenheits-Typen.
-                  {canWrite && ` Klick auf „Neuer Typ" um anzufangen.`}
+                  No absence types yet.
+                  {canWrite && ` Click "New Type" to get started.`}
                 </TableCell>
               </TableRow>
             )}
@@ -170,7 +170,7 @@ export function AbsenceTypesEditor({ types, canWrite }: Props) {
                   <span className="ml-2 text-xs text-habb-muted">{t.labelEn}</span>
                   {t.archivedAt && (
                     <Badge variant="secondary" className="ml-2">
-                      archiviert
+                      archived
                     </Badge>
                   )}
                 </TableCell>
@@ -205,7 +205,7 @@ export function AbsenceTypesEditor({ types, canWrite }: Props) {
                             size="sm"
                             onClick={() => archive(t)}
                             disabled={pending}
-                            title="Archivieren"
+                            title="Archive"
                           >
                             <Archive className="h-3.5 w-3.5" />
                           </Button>
@@ -217,7 +217,7 @@ export function AbsenceTypesEditor({ types, canWrite }: Props) {
                           size="sm"
                           onClick={() => restore(t)}
                           disabled={pending}
-                          title="Reaktivieren"
+                          title="Reactivate"
                         >
                           <RotateCcw className="h-3.5 w-3.5" />
                         </Button>

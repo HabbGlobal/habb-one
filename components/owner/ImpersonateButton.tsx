@@ -240,7 +240,7 @@ export function ImpersonateButton({ user }: Props) {
           <p className="text-sm text-habb-ink">
             Please ask the customer for the code verbally and enter it here.
             The code was not displayed anywhere else — it exists exclusively
-            in the customer's email.
+            in the customer&apos;s email.
           </p>
 
           <div>

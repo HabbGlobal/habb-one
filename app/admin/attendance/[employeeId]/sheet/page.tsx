@@ -155,7 +155,7 @@ export default async function SheetPage({ params, searchParams }: PageProps) {
   const todayStr = localDateString(now);
   const todayIdx = dates.indexOf(todayStr);
   let weekStartIdx = todayIdx >= 0 ? todayIdx : 0;
-  // Auf Montag der aktuellen Woche zurück
+  // Go back to Monday of the current week
   while (
     weekStartIdx > 0 &&
     dayStats[weekStartIdx].weekday !== "MON"

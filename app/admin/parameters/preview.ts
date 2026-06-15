@@ -119,7 +119,7 @@ export function computePreview(args: {
         `Beispiel: ${sub}, ${SAMPLE_THICKNESS_MM} mm Materialdicke`,
         a.totalMinutes,
         b.totalMinutes,
-        "Gesamt-Aushärtung",
+        "Total curing",
       );
     } catch {
       return null;

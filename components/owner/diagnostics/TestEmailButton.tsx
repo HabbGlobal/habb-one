@@ -20,9 +20,9 @@ export function TestEmailButton() {
       const j = await res.json().catch(() => ({}));
       setMsg(
         j?.error === "NO_RECIPIENT"
-          ? "Kein Empfänger konfiguriert (DIAGNOSTICS_EMAIL_TO/OWNER_NOTIFY_EMAIL)."
+          ? "No recipient configured (DIAGNOSTICS_EMAIL_TO/OWNER_NOTIFY_EMAIL)."
           : j?.error === "RATE_LIMITED"
-            ? "Zu schnell — bitte 60 s warten."
+            ? "Too fast — please wait 60 s."
             : "Versand fehlgeschlagen.",
       );
     });

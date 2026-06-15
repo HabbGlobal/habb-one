@@ -12,9 +12,9 @@ import { hasPermission } from "@/lib/permissions";
 
 async function requireAdmin() {
   const session = await auth();
-  if (!session?.user) throw new Error("Nicht angemeldet.");
+  if (!session?.user) throw new Error("Not authenticated.");
   if (!hasPermission(session.user.role, "employees.write")) {
-    throw new Error("Keine Berechtigung.");
+    throw new Error("No permission.");
   }
   return session.user;
 }
@@ -36,11 +36,11 @@ function explainPrismaError(err: unknown): string | null {
     if (err.code === "P2002") {
       const target = (err.meta?.target as string[] | undefined)?.join(", ") ?? "Feld";
       if (target.includes("employeeNumber")) {
-        return "Diese Mitarbeiter-Nr ist bereits vergeben.";
+        return "This employee number is already taken.";
       }
-      return `Eindeutigkeits-Konflikt: ${target}`;
+      return `Uniqueness conflict: ${target}`;
     }
-    if (err.code === "P2025") return "Datensatz nicht gefunden.";
+    if (err.code === "P2025") return "Record not found.";
   }
   return null;
 }
@@ -118,7 +118,7 @@ export async function createEmployee(input: unknown) {
     revalidatePath("/admin/employees");
     return { id: employee.id, pin };
   } catch (err) {
-    return { error: err instanceof Error ? err.message : "Ein Fehler ist aufgetreten." };
+    return { error: err instanceof Error ? err.message : "An error occurred." };
   }
 }
 
@@ -128,7 +128,7 @@ export async function updateEmployee(id: string, input: unknown) {
   const data = parseOrThrow(employeeFormSchema, input);
 
   const before = await prisma.employee.findUniqueOrThrow({ where: { id } });
-  if (before.companyId !== user.companyId) throw new Error("Keine Berechtigung.");
+  if (before.companyId !== user.companyId) throw new Error("No permission.");
 
   try {
     await prisma.$transaction(async (tx) => {
@@ -216,7 +216,7 @@ export async function updateEmployee(id: string, input: unknown) {
     revalidatePath("/admin/employees");
     revalidatePath(`/admin/employees/${id}`);
   } catch (err) {
-    return { error: err instanceof Error ? err.message : "Ein Fehler ist aufgetreten." };
+    return { error: err instanceof Error ? err.message : "An error occurred." };
   }
 }
 
@@ -246,7 +246,7 @@ export async function resetEmployeePin(id: string) {
 export async function setEmployeeActive(id: string, isActive: boolean) {
   const user = await requireAdmin();
   const employee = await prisma.employee.findUniqueOrThrow({ where: { id } });
-  if (employee.companyId !== user.companyId) throw new Error("Keine Berechtigung.");
+  if (employee.companyId !== user.companyId) throw new Error("No permission.");
   await prisma.employee.update({ where: { id }, data: { isActive } });
   await recordAudit({
     companyId: user.companyId,
@@ -275,7 +275,7 @@ async function authorizeBulk(ids: string[]) {
     select: { id: true },
   });
   if (owned.length !== ids.length) {
-    throw new Error("Mindestens ein Eintrag gehört nicht zu dieser Firma.");
+    throw new Error("At least one entry does not belong to this company.");
   }
   return user;
 }

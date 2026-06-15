@@ -300,7 +300,7 @@ export default async function OrderDetailPage({
           </Button>
           <Button asChild size="sm">
             <a href={`/api/admin/orders/${dto.id}/traveler.pdf`} target="_blank">
-              <ClipboardList className="h-4 w-4 mr-1" /> Werkstatt-Laufzettel
+              <ClipboardList className="h-4 w-4 mr-1" /> Workshop traveler
             </a>
           </Button>
           {hasPermission(session.user.role, "invoices.write") &&
@@ -364,7 +364,7 @@ export default async function OrderDetailPage({
         <Card>
           <CardHeader>
             <CardTitle className="text-base flex items-center gap-2">
-              <ClipboardList className="h-4 w-4" /> Werkstatt-Planung
+              <ClipboardList className="h-4 w-4" /> Workshop scheduling
             </CardTitle>
           </CardHeader>
           <CardContent>

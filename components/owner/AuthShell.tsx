@@ -13,10 +13,10 @@ const STEPS: { n: 1 | 2; label: string }[] = [
 ];
 
 const TRUST_BULLETS = [
-  { icon: KeySquare, label: "WebAuthn / Passkey-Pflicht für jede Anmeldung" },
-  { icon: FileSearch, label: "Jede Action wird audited — append-only" },
-  { icon: MapPin, label: "Datenhaltung in der EU (Zürich-Region)" },
-  { icon: ShieldCheck, label: "Strikt getrennt vom Kunden-Login" },
+  { icon: KeySquare, label: "WebAuthn / Passkey required for every login" },
+  { icon: FileSearch, label: "Every action is audited — append-only" },
+  { icon: MapPin, label: "Data stored in the EU (Zurich region)" },
+  { icon: ShieldCheck, label: "Strictly separated from customer login" },
 ];
 
 export function OwnerAuthShell({ currentStep, title, subtitle, children }: AuthShellProps) {
@@ -39,11 +39,11 @@ export function OwnerAuthShell({ currentStep, title, subtitle, children }: AuthS
             Owner Console
           </p>
           <h2 className="mt-12 text-4xl font-semibold tracking-[-0.02em]">
-            Operationaler Zugriff für SaaS-Betreiber
+            Operational access for SaaS operators
           </h2>
           <p className="mt-4 max-w-md text-base leading-relaxed text-white/70">
-            Konsole für HABB Global (PVT) LTD — Tenanten-Verwaltung, Rechte, Audit-Trail und
-            Customer-Consent-Impersonation für Support-Fälle.
+            Console for HABB Global (PVT) LTD — tenant management, permissions, audit trail, and
+            customer consent impersonation for support cases.
           </p>
           <ul className="mt-10 space-y-3.5">
             {TRUST_BULLETS.map(({ icon: Icon, label }) => (
@@ -57,8 +57,8 @@ export function OwnerAuthShell({ currentStep, title, subtitle, children }: AuthS
           </ul>
         </div>
         <p className="relative z-10 text-xs text-white/40">
-          Diese Seite ist nicht für Kunden bestimmt. Kunden-Login findest du
-          unter <span className="text-white/60">/login</span>.
+          This page is not intended for customers. Customer login can be found
+          under <span className="text-white/60">/login</span>.
         </p>
       </aside>
 

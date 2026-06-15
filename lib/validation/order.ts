@@ -76,9 +76,9 @@ export type ProcessStepFormData = z.infer<typeof processStepSchema>;
 
 export const orderItemSchema = z.object({
   position: z.coerce.number().int().min(1).max(9_999),
-  description: z.string().trim().min(1, "Beschreibung ist Pflicht.").max(500),
+  description: z.string().trim().min(1, "Description is required.").max(500),
   quantity: z.coerce.number().int().min(1).max(100_000).default(1),
-  surfaceM2: z.coerce.number().min(0.001, "Mindestens 0.001 m².").max(10_000),
+  surfaceM2: z.coerce.number().min(0.001, "At least 0.001 m².").max(10_000),
   weightKg: z
     .preprocess(
       (v) => (v === "" || v == null ? null : Number(v)),
@@ -104,7 +104,7 @@ export const orderItemSchema = z.object({
     )
     .optional(),
   notes: optionalString,
-  steps: z.array(processStepSchema).min(1, "Mindestens ein Prozessschritt."),
+  steps: z.array(processStepSchema).min(1, "At least one process step required."),
 });
 
 export type OrderItemFormData = z.infer<typeof orderItemSchema>;
@@ -115,7 +115,7 @@ export type OrderItemFormData = z.infer<typeof orderItemSchema>;
 
 export const orderCoreSchema = z
   .object({
-    customerId: z.string().cuid("Kunde wählen."),
+    customerId: z.string().cuid("Please select a customer."),
     contactPersonId: z.string().cuid().optional().or(z.literal("")).transform((v) => v || undefined),
     shippingAddressId: z.string().cuid().optional().or(z.literal("")).transform((v) => v || undefined),
     billingAddressId: z.string().cuid().optional().or(z.literal("")).transform((v) => v || undefined),
@@ -134,14 +134,14 @@ export const orderCoreSchema = z
       ctx.addIssue({
         code: z.ZodIssueCode.custom,
         path: ["promisedAt"],
-        message: "Liefertermin darf nicht vor Eingangsdatum liegen.",
+        message: "Delivery date must not be before received date.",
       });
     }
     if (data.internalDeadline && data.internalDeadline > data.promisedAt) {
       ctx.addIssue({
         code: z.ZodIssueCode.custom,
         path: ["internalDeadline"],
-        message: "Interne Deadline muss vor dem Liefertermin liegen.",
+        message: "Internal deadline must be before the delivery date.",
       });
     }
   });
@@ -151,7 +151,7 @@ export type OrderCoreFormData = z.infer<typeof orderCoreSchema>;
 /** Full payload for create / update including children. */
 export const orderFullSchema = z.object({
   core: orderCoreSchema,
-  items: z.array(orderItemSchema).min(1, "Mindestens eine Position."),
+  items: z.array(orderItemSchema).min(1, "At least one item required."),
 });
 
 export type OrderFullFormData = z.infer<typeof orderFullSchema>;

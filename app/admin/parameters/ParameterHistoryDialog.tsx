@@ -31,7 +31,7 @@ export function ParameterHistoryDialog({
       <Card className="fixed inset-x-4 top-12 z-50 mx-auto max-w-2xl max-h-[80vh] overflow-y-auto">
         <CardHeader className="flex flex-row items-start justify-between gap-2 space-y-0">
           <div>
-            <CardTitle className="text-base">Änderungsverlauf</CardTitle>
+            <CardTitle className="text-base">Change History</CardTitle>
             <p className="text-sm text-muted-foreground">{paramLabel}</p>
             <p className="font-mono text-[11px] text-muted-foreground">{paramKey}</p>
           </div>
@@ -46,7 +46,7 @@ export function ParameterHistoryDialog({
         </CardHeader>
         <CardContent>
           {history.length === 0 ? (
-            <p className="text-sm text-muted-foreground">Noch keine Änderungen.</p>
+            <p className="text-sm text-muted-foreground">No changes yet.</p>
           ) : (
             <ul className="divide-y">
               {history.map((h) => (

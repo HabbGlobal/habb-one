@@ -57,8 +57,8 @@ export function ParameterRow({ param, canWrite, onShowHistory }: Props) {
                 type="button"
                 onClick={onShowHistory}
                 className="p-1.5 rounded hover:bg-accent"
-                title={`${param.historyCount} Änderungen ansehen`}
-                aria-label="Verlauf"
+                title={`View ${param.historyCount} changes`}
+                aria-label="History"
               >
                 <History className="h-3.5 w-3.5" />
               </button>

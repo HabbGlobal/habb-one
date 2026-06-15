@@ -1,12 +1,12 @@
-// Werkstatt-Wochenplaner.
+// Workshop weekly planner.
 //
 // Layout:
-//   - Toolbar mit Wochennavigation, "Alle Aufträge planen"-Button, Konflikt-Counter
-//   - Grid: 1 Zeile pro Maschine, 5 Spalten Mo-Fr (oder 7 inkl. Sa/So bei Sonderfällen)
-//   - Jede Zelle zeigt die Schedule-Entries dieses Tages auf dieser Maschine
-//   - Klick auf Eintrag → öffnet zugehörigen Auftrag
+//   - Toolbar with week navigation, "Schedule all orders" button, conflict counter
+//   - Grid: 1 row per machine, 5 columns Mon-Fri (or 7 incl. Sat/Sun in special cases)
+//   - Each cell shows the schedule entries of that day on that machine
+//   - Click on entry → opens the related order
 //
-// Read-only — Drag & Drop / manuelles Verschieben kommt in Phase 4.5.
+// Read-only — Drag & Drop / manual reordering comes in Phase 4.5.
 
 import Link from "next/link";
 import { auth } from "@/lib/auth";
@@ -61,10 +61,9 @@ function colorForOrder(orderNumber: string): { bg: string; border: string; text:
     h = (h * 31 + orderNumber.charCodeAt(i)) >>> 0;
   }
   const palette = [
-    // Block-Palette für Gantt-Bereiche: bewusst differenzierende Farben pro
-    // Auftrag (hash-basiert). HABB-Akzentrot bleibt reserved für aktive
-    // Zustände/Warnungen, deshalb nutzen die Blöcke hier eine neutrale
-    // Differenzialpalette.
+    // Block palette for Gantt areas: intentionally differentiating colors per
+    // order (hash-based). HABB accent red stays reserved for active
+    // states/warnings, so the blocks here use a neutral differential palette.
     { bg: "bg-habb-paper", border: "border-habb-line", text: "text-habb-ink" },
     { bg: "bg-emerald-100", border: "border-emerald-400", text: "text-emerald-900" },
     { bg: "bg-amber-100", border: "border-amber-400", text: "text-amber-900" },
@@ -86,14 +85,14 @@ export default async function SchedulerPage({
   if (!hasPermission(session.user.role, "schedule.read")) redirect("/admin");
 
   const sp = await searchParams;
-  // Bezugswoche aus ?week=YYYY-MM-DD; Default = aktuelle Woche
+  // Reference week from ?week=YYYY-MM-DD; Default = current week
   const referenceDate = sp.week ? new Date(`${sp.week}T12:00:00.000Z`) : new Date();
   const monday = startOfWeekZurich(referenceDate);
   const weekDays = Array.from({ length: 5 }, (_, i) => addDays(monday, i)); // Mo-Fr
   const weekStart = monday;
-  const weekEnd = addDays(monday, 5); // exklusiv: Sa 00:00
+  const weekEnd = addDays(monday, 5); // exclusive: Sat 00:00
 
-  // Maschinen
+  // Machines
   const machines = await prisma.machine.findMany({
     where: {
       companyId: session.user.companyId,
@@ -104,7 +103,7 @@ export default async function SchedulerPage({
     orderBy: { name: "asc" },
   });
 
-  // Schedule-Einträge dieser Woche
+  // Schedule entries for this week
   const entries = await prisma.orderScheduleEntry.findMany({
     where: {
       order: { companyId: session.user.companyId },
@@ -121,7 +120,7 @@ export default async function SchedulerPage({
     },
   });
 
-  // Konflikte global zählen (auch außerhalb dieser Woche)
+  // Count conflicts globally (also outside this week)
   const conflictCount = await prisma.scheduleConflict.count({
     where: {
       entry: { order: { companyId: session.user.companyId } },
@@ -129,7 +128,7 @@ export default async function SchedulerPage({
     },
   });
 
-  // Pro Maschine + Tag gruppieren
+  // Group by machine + day
   type CellEntry = (typeof entries)[number];
   const grid: Map<string, Map<string, CellEntry[]>> = new Map();
   for (const m of machines) {
@@ -145,7 +144,7 @@ export default async function SchedulerPage({
     machineMap.set(dayKey, list);
   }
 
-  // Stunden pro Zelle, pro Maschine-Wochensumme, pro Tag-Spalte und Total
+  // Hours per cell, per machine-week total, per day column and total
   function minutesOf(e: CellEntry): number {
     return Math.max(0, Math.round((e.plannedEnd.getTime() - e.plannedStart.getTime()) / 60_000));
   }
@@ -172,16 +171,16 @@ export default async function SchedulerPage({
     weekGrandTotal += mTotal;
   }
 
-  // Werkstatt-Verfügbarkeit pro Tag = Standard 8h × 5 Tage = 40h. Wir
-  // berechnen Auslastung relativ dazu, damit der User auf einen Blick
-  // sieht ob eine Maschine über/unterausgelastet ist.
+  // Workshop availability per day = standard 8h × 5 days = 40h. We
+  // calculate utilization relative to that, so the user can see at a glance
+  // whether a machine is over/underutilized.
   const STANDARD_HOURS_PER_DAY = 8;
   function utilizationClass(min: number): string {
     if (min === 0) return "text-muted-foreground";
     const pct = min / 60 / STANDARD_HOURS_PER_DAY;
-    if (pct >= 1.0) return "text-rose-700 font-semibold"; // ≥100% — voll/über
-    if (pct >= 0.7) return "text-amber-700 font-medium";  // ≥70% — gut belegt
-    return "text-emerald-700";                              // <70% — Luft
+    if (pct >= 1.0) return "text-rose-700 font-semibold"; // ≥100% — full/over
+    if (pct >= 0.7) return "text-amber-700 font-medium";  // ≥70% — well utilized
+    return "text-emerald-700";                              // <70% — capacity available
   }
 
   // Manuelle (machineId=null) Schritte separat anzeigen
@@ -200,7 +199,7 @@ export default async function SchedulerPage({
       <div className="flex flex-wrap items-center justify-between gap-3">
         <div>
           <h1 className="text-2xl font-semibold flex items-center gap-2">
-            <CalendarIcon className="h-6 w-6" /> Werkstatt-Plan
+            <CalendarIcon className="h-6 w-6" /> Workshop Plan
           </h1>
           <p className="text-sm text-muted-foreground">Week{fmtDate(monday)} – {fmtDate(addDays(monday, 4))}
           </p>
@@ -223,13 +222,13 @@ export default async function SchedulerPage({
         </div>
       </div>
 
-      {/* Konflikt-Banner */}
+      {/* Conflict banner */}
       {conflictCount > 0 && (
         <div className="rounded-lg border-2 border-destructive/50 bg-destructive/5 px-3 py-2 text-sm flex items-center gap-2">
           <AlertTriangle className="h-4 w-4 text-destructive" />
           <strong className="text-destructive">{conflictCount}</strong>
-          {conflictCount === 1 ? " Konflikt" : " Konflikte"} aktiv —
-          Lieferterminen prüfen und Aufträge ggf. neu planen.
+          {conflictCount === 1 ? " conflict" : " conflicts"} active —
+          check delivery dates and reschedule orders if needed.
         </div>
       )}
 
@@ -237,7 +236,7 @@ export default async function SchedulerPage({
       {machines.length === 0 ? (
         <Card>
           <CardContent className="p-6 text-center text-muted-foreground text-sm">
-            Keine Maschinen erfasst. In den Einstellungen Maschinen anlegen.
+            No machines recorded. Create machines in the settings.
           </CardContent>
         </Card>
       ) : (
@@ -365,7 +364,7 @@ export default async function SchedulerPage({
                           (isoDate(d) === today ? "bg-habb-line " : "") +
                           utilizationClass(dMin / Math.max(1, machines.length))
                         }
-                        title={`${(dMin / 60).toFixed(2)} Std. an diesem Tag, alle Maschinen`}
+                        title={`${(dMin / 60).toFixed(2)} hrs this day, all machines`}
                       >
                         {fmtHours(dMin)}
                       </td>
@@ -395,17 +394,17 @@ export default async function SchedulerPage({
           </span>
           <span className="inline-flex items-center gap-1">
             <span className="inline-block w-2 h-2 rounded-full bg-rose-500" />
-            ≥100% (voll/über)
+            ≥100% (full/over)
           </span>
         </div>
       )}
 
-      {/* Manuelle Schritte (ohne Maschine) */}
+      {/* Manual steps (no machine) */}
       {manualEntries.length > 0 && (
         <Card>
           <CardContent className="p-3">
             <div className="text-sm font-medium mb-2">
-              Manuelle Schritte (keine Maschine)
+              Manual steps (no machine)
             </div>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-2 text-xs">
               {manualEntries.map((e) => {

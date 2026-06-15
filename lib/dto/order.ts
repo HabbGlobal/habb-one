@@ -333,22 +333,22 @@ export function allowedNextStatuses(current: Order["status"]): Order["status"][]
 
 export function statusLabel(s: Order["status"]): string {
   return {
-    DRAFT: "Entwurf",
-    CONFIRMED: "Bestätigt",
-    IN_PROGRESS: "In Arbeit",
-    ON_HOLD: "Pausiert",
-    COMPLETED: "Abgeschlossen",
-    DELIVERED: "Geliefert",
-    CANCELLED: "Storniert",
-    INVOICED: "Verrechnet",
+    DRAFT: "Draft",
+    CONFIRMED: "Confirmed",
+    IN_PROGRESS: "In Progress",
+    ON_HOLD: "On Hold",
+    COMPLETED: "Completed",
+    DELIVERED: "Delivered",
+    CANCELLED: "Cancelled",
+    INVOICED: "Invoiced",
   }[s];
 }
 
 export function priorityLabel(p: Order["priority"]): string {
   return {
-    LOW: "Niedrig",
+    LOW: "Low",
     NORMAL: "Normal",
-    HIGH: "Hoch",
+    HIGH: "High",
     EXPRESS: "Express",
   }[p];
 }

@@ -64,8 +64,8 @@ export default async function TemplatesPage({
         <div>
           <h1 className="text-2xl font-semibold">Process Templates</h1>
           <p className="text-sm text-muted-foreground">
-            Standard-Workflows für Aufträge und Offerten. Änderungen wirken
-            sofort auf neue Aufträge / Offerten — bestehende bleiben unverändert.
+            Standard workflows for orders and quotes. Changes take effect
+            immediately on new orders / quotes — existing ones remain unchanged.
           </p>
         </div>
         {canWrite && (

@@ -322,7 +322,7 @@ export function InvoiceForm({ mode, customers, defaults, initial }: Props) {
               </div>
             </div>
             <div>
-              <div className="text-xs text-muted-foreground">+ MwSt {vatRate}%</div>
+              <div className="text-xs text-muted-foreground">+ VAT {vatRate}%</div>
               <div className="text-lg tabular-nums">{fmtCHF(totals.vatCHF)}</div>
             </div>
             <div>

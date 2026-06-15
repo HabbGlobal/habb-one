@@ -40,13 +40,13 @@ export default async function NewInvoicePage() {
       <div>
         <h1 className="text-2xl font-semibold">New Invoice</h1>
         <p className="text-sm text-muted-foreground">
-          Status startet als <strong>Entwurf</strong>. Beim Versenden wird eine
-          QR-Referenz vergeben — danach unveränderlich.
+          Status starts as <strong>Draft</strong>. On sending, a QR reference is
+          assigned — then immutable.
         </p>
       </div>
       <Card>
         <CardHeader>
-          <CardTitle className="text-base">Rechnungs-Daten</CardTitle>
+          <CardTitle className="text-base">Invoice Data</CardTitle>
         </CardHeader>
         <CardContent>
           <InvoiceForm

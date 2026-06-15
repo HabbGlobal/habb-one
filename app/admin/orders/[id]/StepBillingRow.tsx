@@ -25,9 +25,9 @@ import { setStepBilling } from "@/app/scan/[stepId]/actions";
 import type { ProcessStepDTO } from "@/lib/dto/order";
 
 const SOURCE_LABEL: Record<ProcessStepDTO["billingTimeSource"], string> = {
-  ACTUAL:    "Ist (Scan)",
-  ESTIMATED: "Schätzung",
-  MANUAL:    "Manuell",
+  ACTUAL:    "Actual (Scan)",
+  ESTIMATED: "Estimate",
+  MANUAL:    "Manual",
 };
 
 const SOURCE_VARIANT: Record<
@@ -76,7 +76,7 @@ export function StepBillingRow({
         setEditing(false);
         router.refresh();
       } catch (err) {
-        setError(err instanceof Error ? err.message : "Fehler.");
+        setError(err instanceof Error ? err.message : "Error.");
       }
     });
   };
@@ -109,7 +109,7 @@ export function StepBillingRow({
         ) : step.status === "IN_PROGRESS" ? (
           <span className="text-emerald-600 inline-flex items-center gap-1">
             <Clock className="h-3 w-3 animate-pulse" />
-            läuft
+            running
           </span>
         ) : (
           <span className="text-muted-foreground">—</span>
@@ -136,8 +136,8 @@ export function StepBillingRow({
                 type="button"
                 onClick={() => setEditing(true)}
                 className="p-1 rounded hover:bg-accent"
-                aria-label="Verrechnung bearbeiten"
-                title="Verrechnung bearbeiten"
+                aria-label="Edit billing"
+                title="Edit billing"
               >
                 <Pencil className="h-3 w-3" />
               </button>

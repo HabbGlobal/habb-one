@@ -15,15 +15,15 @@ export default async function EmployeeDetailPage({
   if (!session?.user) redirect("/login");
   if (!hasPermission(session.user.role, "employees.read")) redirect("/admin");
 
-  // PIN-Reset verlangt Schreibrecht (vgl. requireAdmin in actions.ts).
-  // Wer nur Leserecht hat (z.B. PLANNER) darf den Button gar nicht sehen —
-  // sonst läuft der Klick in einen unbehandelten "Keine Berechtigung."-
-  // Throw und der User sieht nur eine generische Digest-Fehlerseite.
+  // PIN reset requires write permission (cf. requireAdmin in actions.ts).
+  // Users with only read permission (e.g. PLANNER) should not see the button —
+  // otherwise the click runs into an unhandled "No permission." throw
+  // and the user sees only a generic digest error page.
   const canResetPin = hasPermission(session.user.role, "employees.write");
 
   const { id } = await params;
   const t = await getTranslations("employees");
-  // Tenant-Filter: Employee nur finden wenn er zur Session-Company gehört.
+  // Tenant filter: only find employee if they belong to the session company.
   const e = await prisma.employee.findFirst({
     where: { id, companyId: session.user.companyId },
     include: {

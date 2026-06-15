@@ -204,8 +204,8 @@ export function AdminSidebar({
             className="block min-w-0 flex-1"
           >
             {logoUrl ? (
-              // Logo enthält den Firmennamen → wir zeigen nur das Bild,
-              // groß auf weißem Hintergrund (Sidebar selbst ist dunkel).
+              // Logo contains the company name → we only show the image,
+              // large on white background (sidebar itself is dark).
               // eslint-disable-next-line @next/next/no-img-element
               <img
                 src={logoUrl}

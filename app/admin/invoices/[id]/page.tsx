@@ -148,7 +148,7 @@ export default async function InvoiceDetailPage({
                   href={`/admin/orders/${dto.orderId}`}
                   className="underline hover:text-foreground"
                 >
-                  Auftrag öffnen
+                  Open order
                 </Link>
               </>
             )}
@@ -182,13 +182,13 @@ export default async function InvoiceDetailPage({
         <CardContent className="p-4 grid grid-cols-2 md:grid-cols-5 gap-4 text-sm">
           <Fact label="Date" value={fmtDate(dto.issuedAt)} />
           <Fact
-            label="Fällig am"
+            label="Due date"
             value={fmtDate(dto.dueAt)}
             highlight={dto.isOverdue}
           />
-          <Fact label="Bezahlt am" value={fmtDate(dto.paidAt)} />
-          <Fact label="MwSt-Satz" value={`${dto.vatRate} %`} />
-          <Fact label="Total brutto" value={fmtCHF(dto.totalGrossCHF)} bold />
+          <Fact label="Paid on" value={fmtDate(dto.paidAt)} />
+          <Fact label="VAT rate" value={`${dto.vatRate} %`} />
+          <Fact label="Total gross" value={fmtCHF(dto.totalGrossCHF)} bold />
         </CardContent>
       </Card>
 
@@ -241,9 +241,9 @@ export default async function InvoiceDetailPage({
               <thead className="border-b text-xs uppercase tracking-wider text-muted-foreground">
                 <tr>
                   <th className="text-left py-2 w-12">Pos.</th>
-                  <th className="text-left py-2">Beschreibung</th>
-                  <th className="text-right py-2 w-20">Menge</th>
-                  <th className="text-right py-2 w-24">Stückpreis</th>
+                  <th className="text-left py-2">Description</th>
+                  <th className="text-right py-2 w-20">Qty</th>
+                  <th className="text-right py-2 w-24">Unit price</th>
                   <th className="text-right py-2 w-20">Rabatt</th>
                   <th className="text-right py-2 w-28">Total</th>
                 </tr>
@@ -281,7 +281,7 @@ export default async function InvoiceDetailPage({
                 </tr>
                 <tr>
                   <td colSpan={5} className="py-1 text-right text-muted-foreground">
-                    + MwSt {dto.vatRate}%
+                    + VAT {dto.vatRate}%
                   </td>
                   <td className="py-1 text-right tabular-nums">{fmtCHF(dto.vatCHF)}</td>
                 </tr>
@@ -303,15 +303,15 @@ export default async function InvoiceDetailPage({
       {dto.qrBillReference && (
         <Card>
           <CardHeader>
-            <CardTitle className="text-base">QR-Rechnungs-Referenz</CardTitle>
+            <CardTitle className="text-base">QR Invoice Reference</CardTitle>
           </CardHeader>
           <CardContent>
             <div className="font-mono text-sm tabular-nums select-all">
               {formatQrReferenceDisplay(dto.qrBillReference)}
             </div>
             <p className="text-xs text-muted-foreground mt-2">
-              Diese Referenz wird beim Zahlungsabgleich verwendet, um eingehende
-              Beträge zu identifizieren.
+              This reference is used during payment reconciliation to identify
+              incoming amounts.
             </p>
           </CardContent>
         </Card>

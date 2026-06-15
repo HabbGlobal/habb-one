@@ -1,6 +1,6 @@
 "use client";
 
-// Manuelle Zeit-Korrekturen (Gleitzeit) pro Mitarbeiter/Monat.
+// Manual time corrections (flextime) per employee/month.
 // Liste + Erfassen-Form + Löschen. Nur sichtbar/aktiv mit
 // `timeEntries.correct` (canEdit). Fliesst in den kumulierten Saldo.
 
@@ -59,11 +59,11 @@ export function PayrollAdjustments({
     setError(null);
     const h = Number.parseFloat(hours.replace(",", "."));
     if (!Number.isFinite(h) || h <= 0) {
-      setError("Bitte gültige Stunden (> 0) eingeben.");
+      setError("Please enter valid hours (> 0).");
       return;
     }
     if (reason.trim().length < 3) {
-      setError("Bitte einen Grund (mind. 3 Zeichen) angeben.");
+      setError("Please provide a reason (at least 3 characters).");
       return;
     }
     start(async () => {
@@ -86,7 +86,7 @@ export function PayrollAdjustments({
   };
 
   const remove = (id: string) => {
-    if (!confirm("Diese Korrektur wirklich entfernen?")) return;
+    if (!confirm("Really remove this adjustment?")) return;
     setError(null);
     start(async () => {
       const res = await deleteTimeAdjustment({ id });
@@ -102,19 +102,18 @@ export function PayrollAdjustments({
     <Card className="md:col-span-2">
       <CardHeader className="flex flex-row items-center justify-between gap-3 space-y-0">
         <CardTitle className="flex items-center gap-2">
-          <SlidersHorizontal className="h-4 w-4" /> Manuelle Korrekturen
+          <SlidersHorizontal className="h-4 w-4" /> Manual adjustments
         </CardTitle>
         {canEdit && !showForm && (
           <Button size="sm" onClick={() => setShowForm(true)}>
-            <Plus className="mr-1 h-4 w-4" /> Korrektur erfassen
+            <Plus className="mr-1 h-4 w-4" /> Add adjustment
           </Button>
         )}
       </CardHeader>
       <CardContent className="space-y-4">
         <p className="text-xs text-habb-muted">
-          Stunden, die zusätzlich zur erfassten Zeit gut- oder abgeschrieben
-          werden (z. B. Überzeit-Auszahlung, manuelle Anpassung). Fliesst in den
-          kumulierten Saldo ein.
+          Hours credited or debited in addition to tracked time (e.g. overtime
+          payout, manual adjustment). Flows into the cumulative balance.
         </p>
 
         {error && (
@@ -133,18 +132,18 @@ export function PayrollAdjustments({
               <Input type="date" value={date} onChange={(e) => setDate(e.target.value)} required />
             </div>
             <div className="space-y-1">
-              <Label className="text-xs">Richtung</Label>
+              <Label className="text-xs">Direction</Label>
               <select
                 value={direction}
                 onChange={(e) => setDirection(e.target.value as "ADD" | "SUBTRACT")}
                 className="h-9 w-full rounded-md border border-habb-line bg-white px-2 text-sm"
               >
-                <option value="ADD">Dazurechnen (+)</option>
-                <option value="SUBTRACT">Abziehen (−)</option>
+                <option value="ADD">Add (+)</option>
+                <option value="SUBTRACT">Subtract (−)</option>
               </select>
             </div>
             <div className="space-y-1">
-              <Label className="text-xs">Stunden</Label>
+              <Label className="text-xs">Hours</Label>
               <Input
                 type="number"
                 step="0.25"
@@ -156,11 +155,11 @@ export function PayrollAdjustments({
               />
             </div>
             <div className="space-y-1">
-              <Label className="text-xs">Grund</Label>
+              <Label className="text-xs">Reason</Label>
               <Input
                 value={reason}
                 onChange={(e) => setReason(e.target.value)}
-                placeholder="z. B. Überzeit ausbezahlt"
+                placeholder="e.g. Overtime paid out"
                 maxLength={500}
                 required
               />
@@ -184,14 +183,14 @@ export function PayrollAdjustments({
         )}
 
         {adjustments.length === 0 ? (
-          <p className="text-sm text-habb-muted">Keine Korrekturen in diesem Monat.</p>
+          <p className="text-sm text-habb-muted">No adjustments in this month.</p>
         ) : (
           <table className="w-full text-sm">
             <thead>
               <tr className="border-b border-habb-line text-left text-xs uppercase tracking-wide text-habb-muted">
                 <th className="pb-2">Date</th>
-                <th className="pb-2">Grund</th>
-                <th className="pb-2 text-right">Korrektur</th>
+                <th className="pb-2">Reason</th>
+                <th className="pb-2 text-right">Adjustment</th>
                 {canEdit && <th className="pb-2"></th>}
               </tr>
             </thead>
@@ -214,7 +213,7 @@ export function PayrollAdjustments({
                         onClick={() => remove(a.id)}
                         disabled={pending}
                         className="text-habb-muted hover:text-habb-red disabled:opacity-50"
-                        title="Korrektur entfernen"
+                        title="Remove adjustment"
                       >
                         <Trash2 className="h-4 w-4" />
                       </button>
@@ -224,7 +223,7 @@ export function PayrollAdjustments({
               ))}
               <tr className="border-t-2 border-habb-line">
                 <td className="py-2 font-medium" colSpan={2}>
-                  Summe Korrekturen
+                  Total adjustments
                 </td>
                 <td
                   className={`py-2 text-right tabular-nums font-semibold ${

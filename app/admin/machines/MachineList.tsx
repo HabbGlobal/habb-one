@@ -27,12 +27,12 @@ import {
 } from "./actions";
 
 const TYPE_LABEL: Record<string, string> = {
-  BLAST_CABIN: "Sandstrahl-Kabine",
-  CHEM_BATH: "Chemie-Bad",
-  PAINT_CABIN: "Lackier-Kabine",
-  POWDER_CABIN: "Pulver-Kabine",
-  CURING_OVEN: "Aushärte-Ofen",
-  DRYING_OVEN: "Trocken-Ofen",
+  BLAST_CABIN: "Blast Cabin",
+  CHEM_BATH: "Chemical Bath",
+  PAINT_CABIN: "Paint Cabin",
+  POWDER_CABIN: "Powder Cabin",
+  CURING_OVEN: "Curing Oven",
+  DRYING_OVEN: "Drying Oven",
 };
 
 interface MachineRow {

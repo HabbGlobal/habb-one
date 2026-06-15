@@ -60,8 +60,8 @@ export function RevokeOtherSessionsButton({ count }: { count: number }) {
               End other sessions
             </h3>
             <p className="mt-1 text-sm text-habb-muted">
-              Bestätige mit deinem aktuellen Passwort. Alle {count} anderen
-              Sitzungen werden sofort abgemeldet — diese hier bleibt aktiv.
+              Confirm with your current password. All {count} other
+              sessions will be logged out immediately — this one stays active.
             </p>
 
             <label className="mt-4 block text-xs font-medium uppercase tracking-wide text-habb-muted">

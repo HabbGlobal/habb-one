@@ -1,10 +1,10 @@
-"use server";
+﻿"use server";
 
-// Server-Actions für Abwesenheits-Typen.
+// Server-Actions fÃ¼r Abwesenheits-Typen.
 //
-// Berechtigt: jeder mit `absences.write` (Default: ADMIN + PLANNER) —
-// also CEO/Geschäftsleitung und Sekretariat. Tenant-Isolation: ein
-// User darf nur die Typen seiner eigenen Firma anlegen/ändern.
+// Berechtigt: jeder mit `absences.write` (Default: ADMIN + PLANNER) â€”
+// also CEO/GeschÃ¤ftsleitung und Sekretariat. Tenant-Isolation: ein
+// User darf nur die Typen seiner eigenen Firma anlegen/Ã¤ndern.
 
 import { z } from "zod";
 import { revalidatePath } from "next/cache";
@@ -27,9 +27,9 @@ const CATEGORIES = [
 
 async function requireWriter() {
   const session = await auth();
-  if (!session?.user) throw new Error("Nicht angemeldet.");
+  if (!session?.user) throw new Error("Not authenticated.");
   if (!hasPermission(session.user.role, "absences.write")) {
-    throw new Error("Keine Berechtigung.");
+    throw new Error("No permission.");
   }
   return session.user;
 }
@@ -44,19 +44,19 @@ function parseOrThrow<T extends z.ZodTypeAny>(schema: T, input: unknown): z.infe
   return parsed.data;
 }
 
-// ─────────────────────────────────────────
+// â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 // Schemas
-// ─────────────────────────────────────────
+// â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
 const KEY_REGEX = /^[a-z][a-z0-9_]{1,30}$/;
 
 const baseSchema = z.object({
-  // Stabiler interner Schlüssel — wird in i18n und Reports referenziert.
-  // Nur lowercase + underscore. Nicht mehr änderbar nach Erzeugung.
+  // Stabiler interner SchlÃ¼ssel â€” wird in i18n und Reports referenziert.
+  // Nur lowercase + underscore. Nicht mehr Ã¤nderbar nach Erzeugung.
   key: z
     .string()
-    .min(2, "Schlüssel mindestens 2 Zeichen.")
-    .max(30, "Schlüssel max. 30 Zeichen.")
+    .min(2, "SchlÃ¼ssel mindestens 2 Zeichen.")
+    .max(30, "SchlÃ¼ssel max. 30 Zeichen.")
     .regex(KEY_REGEX, "Nur Kleinbuchstaben, Ziffern, Unterstrich (Start mit Buchstabe)."),
   labelDe: z.string().min(1, "Label Deutsch fehlt.").max(60),
   labelEn: z.string().min(1, "Label Englisch fehlt.").max(60),
@@ -77,22 +77,22 @@ const updateSchema = baseSchema.omit({ key: true }); // key bleibt fix
 export type CreateAbsenceTypeInput = z.input<typeof createSchema>;
 export type UpdateAbsenceTypeInput = z.input<typeof updateSchema>;
 
-// ─────────────────────────────────────────
+// â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 // Actions
-// ─────────────────────────────────────────
+// â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
 export async function createAbsenceType(input: unknown) {
   const user = await requireWriter();
   const data = parseOrThrow(createSchema, input);
 
-  // Key muss innerhalb der Firma eindeutig sein — gleicher Key bei
+  // Key muss innerhalb der Firma eindeutig sein â€” gleicher Key bei
   // anderer Firma ist OK (multi-tenant via Composite-Unique).
   const existing = await prisma.absenceType.findFirst({
     where: { companyId: user.companyId, key: data.key },
     select: { id: true },
   });
   if (existing) {
-    throw new Error(`Schlüssel "${data.key}" existiert bereits in deiner Firma.`);
+    throw new Error(`SchlÃ¼ssel "${data.key}" existiert bereits in deiner Firma.`);
   }
 
   const created = await prisma.absenceType.create({
@@ -132,7 +132,7 @@ export async function updateAbsenceType(id: string, input: unknown) {
   const before = await prisma.absenceType.findUnique({ where: { id } });
   if (!before) throw new Error("Typ nicht gefunden.");
   if (before.companyId !== user.companyId) {
-    throw new Error("Typ gehört nicht zu deiner Firma.");
+    throw new Error("Typ gehÃ¶rt nicht zu deiner Firma.");
   }
 
   await prisma.absenceType.update({
@@ -174,7 +174,7 @@ export async function updateAbsenceType(id: string, input: unknown) {
 
 /**
  * Soft-Delete (Archivierung). Bestehende Absences mit diesem Typ bleiben
- * unangetastet — nur das Anlegen NEUER Absences mit diesem Typ wird
+ * unangetastet â€” nur das Anlegen NEUER Absences mit diesem Typ wird
  * blockiert (in der Liste ausgeblendet).
  */
 export async function archiveAbsenceType(id: string) {
@@ -183,7 +183,7 @@ export async function archiveAbsenceType(id: string) {
   const before = await prisma.absenceType.findUnique({ where: { id } });
   if (!before) throw new Error("Typ nicht gefunden.");
   if (before.companyId !== user.companyId) {
-    throw new Error("Typ gehört nicht zu deiner Firma.");
+    throw new Error("Typ gehÃ¶rt nicht zu deiner Firma.");
   }
   if (before.archivedAt) return; // Idempotent
 
@@ -213,7 +213,7 @@ export async function restoreAbsenceType(id: string) {
   const before = await prisma.absenceType.findUnique({ where: { id } });
   if (!before) throw new Error("Typ nicht gefunden.");
   if (before.companyId !== user.companyId) {
-    throw new Error("Typ gehört nicht zu deiner Firma.");
+    throw new Error("Typ gehÃ¶rt nicht zu deiner Firma.");
   }
   if (!before.archivedAt) return;
 

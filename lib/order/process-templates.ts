@@ -1,8 +1,8 @@
-// Standard-Prozessvorlagen + Ressourcen-Mapping pro ProcessCode.
+// Standard process templates + resource mapping per ProcessCode.
 //
-// habb global-spezifische Vorlagen aus Sektion 2.1 des Briefings. Beim Wizard
-// kann der User eine Vorlage anwenden (= Steps mit Default-Reihenfolge,
-// Skill, MachineType anlegen) und danach einzelne Schritte editieren.
+// habb global-specific templates from Section 2.1 of the briefing. In the wizard
+// the user can apply a template (= create steps with default order,
+// skill, MachineType) and then edit individual steps.
 
 import type { ProcessCode, MachineType, SkillCode } from "@prisma/client";
 
@@ -13,35 +13,35 @@ import type { ProcessCode, MachineType, SkillCode } from "@prisma/client";
 export interface ProcessResources {
   skill: SkillCode;
   machine: MachineType | null;
-  /** Default-Wartezeit (Trocknung/Aushärtung) — wird vom Calc-Engine
-   *  überschrieben, wenn ein Curing-Profil greift. */
+  /** Default wait time (drying/curing) — overridden by the calc engine
+   *  when a curing profile applies. */
   defaultWaitMinutes: number;
 }
 
 export const PROCESS_RESOURCES: Record<ProcessCode, ProcessResources> = {
-  // Vorbereitung
+  // Preparation
   DISASSEMBLY: { skill: "PREP", machine: null, defaultWaitMinutes: 0 },
   DEGREASE_MANUAL: { skill: "PREP", machine: null, defaultWaitMinutes: 0 },
   CHEM_PRETREAT: { skill: "PREP", machine: "CHEM_BATH", defaultWaitMinutes: 30 },
   MASKING: { skill: "PREP", machine: null, defaultWaitMinutes: 0 },
   MOUNTING: { skill: "PREP", machine: null, defaultWaitMinutes: 0 },
-  // Sandstrahlen
+  // Sandblasting
   BLAST_SA1: { skill: "BLASTER", machine: "BLAST_CABIN", defaultWaitMinutes: 0 },
   BLAST_SA2: { skill: "BLASTER", machine: "BLAST_CABIN", defaultWaitMinutes: 0 },
   BLAST_SA25: { skill: "BLASTER", machine: "BLAST_CABIN", defaultWaitMinutes: 0 },
   BLAST_SA3: { skill: "BLASTER", machine: "BLAST_CABIN", defaultWaitMinutes: 0 },
   BLAST_GLASS: { skill: "BLASTER", machine: "BLAST_CABIN", defaultWaitMinutes: 0 },
-  // Nasslackieren
+  // Wet painting
   WP_PRIMER: { skill: "PAINTER", machine: "PAINT_CABIN", defaultWaitMinutes: 60 },
   WP_SANDING: { skill: "PAINTER", machine: null, defaultWaitMinutes: 0 },
   WP_TOP_1K: { skill: "PAINTER", machine: "PAINT_CABIN", defaultWaitMinutes: 240 },
   WP_TOP_2K: { skill: "PAINTER", machine: "PAINT_CABIN", defaultWaitMinutes: 720 },
   WP_CLEAR: { skill: "PAINTER", machine: "PAINT_CABIN", defaultWaitMinutes: 240 },
-  // Pulverbeschichtung
+  // Powder coating
   PC_APPLICATION: { skill: "POWDER_COATER", machine: "POWDER_CABIN", defaultWaitMinutes: 0 },
   PC_CURING: { skill: "POWDER_COATER", machine: "CURING_OVEN", defaultWaitMinutes: 30 },
   PC_DOUBLE: { skill: "POWDER_COATER", machine: "POWDER_CABIN", defaultWaitMinutes: 0 },
-  // Nachbereitung
+  // Post-processing
   UNMASKING: { skill: "PREP", machine: null, defaultWaitMinutes: 0 },
   QUALITY_CHECK: { skill: "QC", machine: null, defaultWaitMinutes: 0 },
   TOUCHUP: { skill: "PAINTER", machine: null, defaultWaitMinutes: 0 },
@@ -49,15 +49,15 @@ export const PROCESS_RESOURCES: Record<ProcessCode, ProcessResources> = {
 };
 
 // ─────────────────────────────────────────
-// Vorlagen — Liste benannter Workflow-Sequenzen
+// Templates — list of named workflow sequences
 // ─────────────────────────────────────────
 
 export interface ProcessTemplate {
   id: string;
   label: string;
   description: string;
-  /** Reihenfolge der Schritte. Sequence wird automatisch in 10er-Schritten
-   *  vergeben (10, 20, 30, ...). */
+  /** Order of steps. Sequence is automatically assigned in increments of 10
+   *  (10, 20, 30, ...). */
   steps: ProcessCode[];
 }
 

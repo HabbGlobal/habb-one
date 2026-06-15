@@ -23,7 +23,7 @@ export interface AreaRow {
 export function AreaList({ rows, view }: { rows: AreaRow[]; view: LifecycleView }) {
   const columns: ColumnDef<AreaRow>[] = [
     {
-      header: "Bereich",
+      header: "Area",
       cell: (a) => (
         <div className="flex items-center gap-2">
           <span
@@ -64,7 +64,7 @@ export function AreaList({ rows, view }: { rows: AreaRow[]; view: LifecycleView 
       className: "text-right",
     },
     {
-      header: "Sortierung",
+      header: "Sort Order",
       cell: (a) => <span className="tabular-nums text-muted-foreground">{a.sortOrder}</span>,
       className: "text-right w-24",
     },
@@ -85,10 +85,10 @@ export function AreaList({ rows, view }: { rows: AreaRow[]; view: LifecycleView 
       }}
       emptyText={
         view === "active"
-          ? "Keine Bereiche erfasst."
+          ? "No areas recorded."
           : view === "archived"
-          ? "Kein Eintrag im Archiv."
-          : "Papierkorb ist leer."
+          ? "No entries in archive."
+          : "Trash is empty."
       }
     />
   );

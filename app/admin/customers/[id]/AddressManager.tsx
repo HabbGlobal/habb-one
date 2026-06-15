@@ -24,17 +24,17 @@ export function AddressManager({ customerId, addresses, canWrite }: Props) {
     <Card>
       <CardContent className="p-4 space-y-4">
         <div className="flex items-center justify-between">
-          <h3 className="font-semibold">Adressen</h3>
+          <h3 className="font-semibold">Addresses</h3>
           {canWrite && (
             <Button size="sm" onClick={() => setEditing("new")}>
-              <Plus className="h-4 w-4 mr-1" /> Neue Adresse
+              <Plus className="h-4 w-4 mr-1" /> New address
             </Button>
           )}
         </div>
 
         {addresses.length === 0 ? (
           <p className="text-sm text-muted-foreground">
-            Noch keine Adressen erfasst.
+            No addresses recorded yet.
           </p>
         ) : (
           <ul className="space-y-2">
@@ -73,7 +73,7 @@ function AddressRow({
   const router = useRouter();
   const [pending, start] = useTransition();
   const onDelete = () => {
-    if (!confirm("Diese Adresse wirklich löschen?")) return;
+    if (!confirm("Really delete this address?")) return;
     start(async () => {
       try {
         await deleteAddress(address.id);
@@ -90,10 +90,10 @@ function AddressRow({
         <div className="flex items-center gap-2">
           <span className="text-xs text-muted-foreground uppercase">
             {address.type === "BOTH"
-              ? "Rechnung + Lieferung"
+              ? "Billing + Shipping"
               : address.type === "BILLING"
-              ? "Rechnungsadresse"
-              : "Lieferadresse"}
+              ? "Billing address"
+              : "Shipping address"}
           </span>
           {address.isDefault && (
             <span className="inline-flex items-center gap-1 rounded bg-amber-100 text-amber-800 px-1.5 py-0.5 text-[10px] font-semibold">
@@ -189,7 +189,7 @@ function AddressDialog({
         <CardContent className="p-5 space-y-3">
           <div className="flex items-start justify-between">
             <h3 className="font-semibold">
-              {initial ? "Adresse bearbeiten" : "Neue Adresse"}
+              {initial ? "Edit address" : "New address"}
             </h3>
             <button
               type="button"
@@ -208,9 +208,9 @@ function AddressDialog({
                   setData({ ...data, type: e.target.value as AddressDTO["type"] })
                 }
               >
-                <option value="BOTH">Rechnung + Lieferung</option>
-                <option value="BILLING">Nur Rechnung</option>
-                <option value="SHIPPING">Nur Lieferung</option>
+                <option value="BOTH">Billing + Shipping</option>
+                <option value="BILLING">Billing only</option>
+                <option value="SHIPPING">Shipping only</option>
               </Select>
             </Field>
             <Field label="Country">
@@ -222,7 +222,7 @@ function AddressDialog({
                 }
               />
             </Field>
-            <Field label="Strasse + Nr." full>
+            <Field label="Street + No." full>
               <Input
                 value={data.street}
                 onChange={(e) => setData({ ...data, street: e.target.value })}
@@ -240,7 +240,7 @@ function AddressDialog({
                 onChange={(e) => setData({ ...data, city: e.target.value })}
               />
             </Field>
-            <Field label="Kanton (optional)" full>
+            <Field label="Canton (optional)" full>
               <Input
                 value={data.canton}
                 onChange={(e) => setData({ ...data, canton: e.target.value })}
@@ -254,7 +254,7 @@ function AddressDialog({
               checked={data.isDefault}
               onChange={(e) => setData({ ...data, isDefault: e.target.checked })}
             />
-            Als Standard-Adresse markieren
+            Mark as default address
           </label>
           {error && <p className="text-sm text-destructive">{error}</p>}
           <div className="flex justify-end gap-2 pt-2">

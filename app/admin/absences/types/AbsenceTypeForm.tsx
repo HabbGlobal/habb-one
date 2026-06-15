@@ -1,8 +1,8 @@
 "use client";
 
-// Modal-Form für Anlegen + Bearbeiten eines Abwesenheits-Typs.
-// Gleicher Pattern wie NewAbsenceDialog: handgeschriebener Backdrop +
-// fixed-positioned Card. Kein Radix-Dialog (das Projekt nutzt es nicht).
+// Modal form for creating + editing an absence type.
+// Same pattern as NewAbsenceDialog: handwritten backdrop +
+// fixed-positioned Card. No Radix dialog (the project doesn't use it).
 
 import { useEffect, useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
@@ -14,14 +14,14 @@ import { Select } from "@/components/ui/select";
 import { createAbsenceType, updateAbsenceType } from "./actions";
 
 const CATEGORY_LABELS: Record<string, string> = {
-  VACATION: "Ferien",
-  SICKNESS: "Krankheit",
-  ACCIDENT: "Unfall",
-  MILITARY: "Militärdienst",
-  DOCTOR: "Arztbesuch",
-  UNPAID: "Unbezahlt",
-  COMPENSATION: "Kompensation / Überstunden-Abbau",
-  OTHER: "Sonstiges",
+  VACATION: "Vacation",
+  SICKNESS: "Sickness",
+  ACCIDENT: "Accident",
+  MILITARY: "Military Service",
+  DOCTOR: "Doctor Visit",
+  UNPAID: "Unpaid",
+  COMPENSATION: "Compensation / overtime reduction",
+  OTHER: "Other",
 };
 
 export interface AbsenceTypeFormValues {
@@ -109,15 +109,15 @@ export function AbsenceTypeForm({ open, onOpenChange, initial }: Props) {
       <Card className="fixed inset-x-4 top-8 z-50 mx-auto max-w-lg max-h-[88vh] overflow-y-auto">
         <CardHeader>
           <CardTitle>
-            {isEdit ? "Abwesenheits-Typ bearbeiten" : "Neuer Abwesenheits-Typ"}
+            {isEdit ? "Edit absence type" : "New Absence Type"}
           </CardTitle>
         </CardHeader>
         <CardContent>
           <form onSubmit={submit} className="space-y-4">
             <div className="space-y-1">
               <Label htmlFor="key">
-                Schlüssel{" "}
-                <span className="text-xs text-muted-foreground">(stabil, intern)</span>
+                Key{" "}
+                <span className="text-xs text-muted-foreground">(stable, internal)</span>
               </Label>
               <Input
                 id="key"
@@ -129,35 +129,34 @@ export function AbsenceTypeForm({ open, onOpenChange, initial }: Props) {
                   })
                 }
                 disabled={isEdit}
-                placeholder="z. B. weiterbildung"
+                placeholder="e.g. training"
                 maxLength={30}
                 required
               />
               <p className="text-xs text-muted-foreground">
-                Kleinbuchstaben, Ziffern, Unterstrich. Nach Anlegen nicht
-                mehr änderbar.
+                Lowercase, digits, underscore. Cannot be changed after creation.
               </p>
             </div>
 
             <div className="grid grid-cols-2 gap-3">
               <div className="space-y-1">
-                <Label htmlFor="labelDe">Bezeichnung Deutsch</Label>
+                <Label htmlFor="labelDe">Label (German)</Label>
                 <Input
                   id="labelDe"
                   value={data.labelDe}
                   onChange={(e) => setData({ ...data, labelDe: e.target.value })}
-                  placeholder="z. B. Weiterbildung"
+                  placeholder="e.g. Weiterbildung"
                   maxLength={60}
                   required
                 />
               </div>
               <div className="space-y-1">
-                <Label htmlFor="labelEn">Bezeichnung Englisch</Label>
+                <Label htmlFor="labelEn">Label (English)</Label>
                 <Input
                   id="labelEn"
                   value={data.labelEn}
                   onChange={(e) => setData({ ...data, labelEn: e.target.value })}
-                  placeholder="z. B. Training"
+                  placeholder="e.g. Training"
                   maxLength={60}
                   required
                 />
@@ -165,7 +164,7 @@ export function AbsenceTypeForm({ open, onOpenChange, initial }: Props) {
             </div>
 
             <div className="space-y-1">
-              <Label htmlFor="category">Kategorie</Label>
+              <Label htmlFor="category">Category</Label>
               <Select
                 id="category"
                 value={data.category}
@@ -187,7 +186,7 @@ export function AbsenceTypeForm({ open, onOpenChange, initial }: Props) {
             </div>
 
             <div className="space-y-1">
-              <Label htmlFor="colorHex">Farbe (Plan-Anzeige)</Label>
+              <Label htmlFor="colorHex">Color (plan display)</Label>
               <div className="flex items-center gap-2">
                 <input
                   id="colorHex"
@@ -208,7 +207,7 @@ export function AbsenceTypeForm({ open, onOpenChange, initial }: Props) {
 
             <fieldset className="space-y-2 rounded-md border border-habb-line p-3">
               <legend className="px-1 text-xs uppercase tracking-wider text-habb-muted">
-                Verhalten
+                Behavior
               </legend>
 
               <CheckboxField
@@ -216,28 +215,28 @@ export function AbsenceTypeForm({ open, onOpenChange, initial }: Props) {
                 checked={data.isPaid}
                 onChange={(v) => setData({ ...data, isPaid: v })}
                 label="Paid"
-                hint="Lohnzahlung läuft weiter (z. B. Ferien, Krankheit)."
+                hint="Pay continues (e.g. vacation, sickness)."
               />
               <CheckboxField
                 id="reducesTarget"
                 checked={data.reducesTarget}
                 onChange={(v) => setData({ ...data, reducesTarget: v })}
-                label="Reduziert Soll-Stunden"
-                hint="Abwesenheits-Tage zählen NICHT zum Wochen-Soll (typisch für Ferien/Krankheit)."
+                label="Reduces target hours"
+                hint="Absence days do NOT count toward weekly target (typical for vacation/sickness)."
               />
               <CheckboxField
                 id="countsAsWorked"
                 checked={data.countsAsWorked}
                 onChange={(v) => setData({ ...data, countsAsWorked: v })}
-                label="Zählt als gearbeitet"
-                hint="Stunden werden wie Arbeitszeit verbucht (z. B. bezahlter Arzttermin in Arbeitszeit)."
+                label="Counts as worked"
+                hint="Hours are counted as work time (e.g. paid doctor visit during work hours)."
               />
               <CheckboxField
                 id="requiresApproval"
                 checked={data.requiresApproval}
                 onChange={(v) => setData({ ...data, requiresApproval: v })}
-                label="Genehmigung erforderlich"
-                hint="Mitarbeiter REQUEST den Typ; CEO/Sekretariat muss erst APPROVE setzen (z. B. Ferien)."
+                label="Approval required"
+                hint="Employee requests the type; CEO/Secretary must approve first (e.g. vacation)."
               />
             </fieldset>
 
@@ -255,7 +254,7 @@ export function AbsenceTypeForm({ open, onOpenChange, initial }: Props) {
                 disabled={pending}
               >Cancel</Button>
               <Button type="submit" disabled={pending}>
-                {pending ? "Saving..." : isEdit ? "Save" : "Anlegen"}
+                {pending ? "Saving..." : isEdit ? "Save" : "Create"}
               </Button>
             </div>
           </form>

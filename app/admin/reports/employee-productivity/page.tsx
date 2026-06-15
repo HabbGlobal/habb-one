@@ -58,11 +58,11 @@ export default async function EmployeeProductivityPage({
             href="/admin/reports"
             className="inline-flex items-center text-xs text-muted-foreground hover:text-foreground"
           >
-            <ArrowLeft className="h-3 w-3 mr-1" /> zurück
+            <ArrowLeft className="h-3 w-3 mr-1" /> back
           </Link>
-          <h1 className="text-2xl font-semibold mt-1">Mitarbeiter-Produktivität</h1>
+          <h1 className="text-2xl font-semibold mt-1">Employee Productivity</h1>
           <p className="text-sm text-muted-foreground">
-            Scan-basierte Stunden pro Mitarbeiter:in, davon billable.
+            Scan-based hours per employee, of which billable.
           </p>
         </div>
         <Button asChild variant="outline" size="sm">
@@ -101,7 +101,7 @@ export default async function EmployeeProductivityPage({
               {report.totals.billableQuotaPct.toFixed(1)} %
             </div>
             <div className="text-[10px] text-muted-foreground mt-1">
-              {report.totals.employeeCount} aktive MA
+              {report.totals.employeeCount} active employees
             </div>
           </CardContent>
         </Card>
@@ -109,7 +109,7 @@ export default async function EmployeeProductivityPage({
 
       <Card>
         <CardHeader>
-          <CardTitle className="text-base">Pro Mitarbeiter:in</CardTitle>
+          <CardTitle className="text-base">Per Employee</CardTitle>
         </CardHeader>
         <CardContent className="p-0">
           <div className="overflow-x-auto">

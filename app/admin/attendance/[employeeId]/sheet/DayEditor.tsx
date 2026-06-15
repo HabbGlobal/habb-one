@@ -403,7 +403,7 @@ export function DayEditor({ employeeId, day, absenceTypes, open, onClose }: Prop
                 id="reason"
                 value={reason}
                 onChange={(e) => setReason(e.target.value)}
-                placeholder={`z. B. "Mitarbeiter hat vergessen auszustempeln"`}
+                placeholder={`e.g. "Employee forgot to clock out"`}
                 maxLength={500}
                 required
               />

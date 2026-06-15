@@ -1,4 +1,4 @@
-"use server";
+﻿"use server";
 
 // Rechnungs-Server-Actions.
 //
@@ -9,8 +9,8 @@
 //   4) AuditLog
 //   5) revalidatePath
 //
-// Snapshot-Regel: bei DRAFT → SENT werden vatCHF, totalGrossCHF und die
-// Rechnungsadresse eingefroren. Danach unveränderlich.
+// Snapshot-Regel: bei DRAFT â†’ SENT werden vatCHF, totalGrossCHF und die
+// Rechnungsadresse eingefroren. Danach unverÃ¤nderlich.
 
 import { z } from "zod";
 import { revalidatePath } from "next/cache";
@@ -44,9 +44,9 @@ const TX_OPTS = { maxWait: 10_000, timeout: 30_000 } as const;
 
 async function requirePerm(perm: Permission) {
   const session = await auth();
-  if (!session?.user) throw new Error("Nicht angemeldet.");
+  if (!session?.user) throw new Error("Not authenticated.");
   if (!hasPermission(session.user.role, perm)) {
-    throw new Error("Keine Berechtigung.");
+    throw new Error("No permission.");
   }
   return session.user;
 }
@@ -64,16 +64,16 @@ function parseOrThrow<T extends z.ZodTypeAny>(schema: T, input: unknown): z.infe
 function explainPrismaError(err: unknown): string | null {
   if (err instanceof Prisma.PrismaClientKnownRequestError) {
     if (err.code === "P2002") {
-      const target = (err.meta?.target as string[] | undefined)?.join(", ") ?? "Feld";
+      const target = (err.meta?.target as string[] | undefined)?.join(", ") ?? "field";
       if (target.includes("invoiceNumber")) {
-        return "Diese Rechnungs-Nummer existiert bereits — bitte erneut versuchen.";
+        return "This invoice number already exists â€” please try again.";
       }
       if (target.includes("qrBillReference")) {
-        return "Diese QR-Referenz wurde bereits verwendet — bitte erneut versuchen.";
+        return "This QR reference has already been used â€” please try again.";
       }
-      return `Eindeutigkeits-Konflikt: ${target}`;
+      return `Uniqueness conflict: ${target}`;
     }
-    if (err.code === "P2025") return "Datensatz nicht gefunden.";
+    if (err.code === "P2025") return "Record not found.";
   }
   return null;
 }
@@ -86,9 +86,9 @@ function calcItemTotal(qty: number, price: number, discountPct: number): number 
   return round2(qty * price * (1 - discountPct / 100));
 }
 
-// ─────────────────────────────────────────
+// â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 // Create Manual
-// ─────────────────────────────────────────
+// â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
 export async function createInvoice(input: unknown) {
   try {
@@ -162,17 +162,17 @@ export async function createInvoice(input: unknown) {
     revalidatePath("/admin/invoices");
     return { id: invoiceId };
   } catch (err) {
-    return { error: err instanceof Error ? err.message : "Ein Fehler ist aufgetreten." };
+    return { error: err instanceof Error ? err.message : "An error occurred." };
   }
 }
 
-// ─────────────────────────────────────────
-// Create from Order — automatisches Erfassen aus einem fertigen Auftrag
-// ─────────────────────────────────────────
+// â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// Create from Order â€” automatisches Erfassen aus einem fertigen Auftrag
+// â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
 const createFromOrderSchema = z.object({
   orderId: z.string().cuid(),
-  /** Optional: Override Fälligkeit. Sonst issuedAt + paymentTerms. */
+  /** Optional: Override FÃ¤lligkeit. Sonst issuedAt + paymentTerms. */
   dueDays: z.coerce.number().int().min(0).max(180).optional(),
 });
 
@@ -191,12 +191,12 @@ export async function createInvoiceFromOrder(input: unknown) {
 
   const existingInvoiceCount = await prisma.invoice.count({ where: { orderId } });
   if (existingInvoiceCount > 0) {
-    // Schon eine Rechnung — nicht duplizieren
-    throw new Error("Für diesen Auftrag gibt es bereits eine Rechnung.");
+    // Schon eine Rechnung â€” nicht duplizieren
+    throw new Error("An invoice already exists for this order.");
   }
   if (order.status === "CANCELLED" || order.status === "DRAFT") {
     throw new Error(
-      `Auftrag im Status ${order.status} kann nicht abgerechnet werden.`,
+      `Order in status ${order.status} cannot be invoiced.`,
     );
   }
 
@@ -204,8 +204,8 @@ export async function createInvoiceFromOrder(input: unknown) {
     where: { id: user.companyId },
   });
 
-  // Defensive Fallbacks: Felder wurden nachträglich ans Schema gehängt;
-  // bestehende Companies können je nach Migration noch null haben.
+  // Defensive Fallbacks: Felder wurden nachtrÃ¤glich ans Schema gehÃ¤ngt;
+  // bestehende Companies kÃ¶nnen je nach Migration noch null haben.
   const paymentTermsDays =
     dueDays ??
     (typeof company.invoicePaymentTerms === "number" && company.invoicePaymentTerms > 0
@@ -220,20 +220,20 @@ export async function createInvoiceFromOrder(input: unknown) {
   const due = new Date(issued);
   due.setDate(issued.getDate() + paymentTermsDays);
 
-  // ─────────────────────────────────────────
+  // â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
   // Verrechnungs-Logik:
   //
-  //   1. Wenn `OrderItem.unitPriceCHF` gesetzt ist → fixer Stückpreis.
-  //      (Klassische Stückpreis-Aufträge wie „10 Geländer à 125.50".)
+  //   1. Wenn `OrderItem.unitPriceCHF` gesetzt ist â†’ fixer StÃ¼ckpreis.
+  //      (Klassische StÃ¼ckpreis-AuftrÃ¤ge wie â€ž10 GelÃ¤nder Ã  125.50".)
   //
-  //   2. Sonst: pro Schritt `effectiveBilledMinutes()` × Stundensatz
+  //   2. Sonst: pro Schritt `effectiveBilledMinutes()` Ã— Stundensatz
   //      = aufwand-basierter Preis. Die CEO-Verrechnungs-Entscheidung
   //      (ACTUAL / ESTIMATED / MANUAL pro Schritt) wird so 1:1 in den
-  //      Rechnungs-Betrag übernommen.
+  //      Rechnungs-Betrag Ã¼bernommen.
   //
-  // Die ist-Stunden (`actualMinutes`) selber landen NICHT auf der Rechnung —
+  // Die ist-Stunden (`actualMinutes`) selber landen NICHT auf der Rechnung â€”
   // die sind nur intern in den Reports relevant.
-  // ─────────────────────────────────────────
+  // â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
   // Snapshot-Parameter laden (oder Live wenn kein Snapshot vorhanden)
   const params: SystemParameterMap = order.parameterSnapshot
@@ -242,7 +242,7 @@ export async function createInvoiceFromOrder(input: unknown) {
   const laborRateCHF =
     params.tryGetNumber("pricing.rate.labor.standard") ?? 90;
 
-  // Maschinen-Stundensätze (für detailliertere Bewertung — wir verwenden
+  // Maschinen-StundensÃ¤tze (fÃ¼r detailliertere Bewertung â€” wir verwenden
   // pro Schritt den Maschinen-Satz, sonst Mitarbeiter-Standardsatz)
   function rateForStep(machineType: string | null): number {
     if (!machineType) return laborRateCHF;
@@ -255,10 +255,10 @@ export async function createInvoiceFromOrder(input: unknown) {
 
     let unitPrice: number;
     if (fixedPrice != null && fixedPrice > 0) {
-      // Fall 1: Fester Stückpreis (z. B. „Geländer 125.50")
+      // Fall 1: Fester StÃ¼ckpreis (z. B. â€žGelÃ¤nder 125.50")
       unitPrice = fixedPrice;
     } else {
-      // Fall 2: Aufwand-basiert — Σ effectiveBilledMinutes × Stundensatz pro Stk.
+      // Fall 2: Aufwand-basiert â€” Î£ effectiveBilledMinutes Ã— Stundensatz pro Stk.
       let priceCHF = 0;
       for (const st of it.processSteps) {
         const billedMin = effectiveBilledMinutes({
@@ -273,7 +273,7 @@ export async function createInvoiceFromOrder(input: unknown) {
     }
 
     const total = calcItemTotal(it.quantity, unitPrice, 0);
-    // Beschreibung um spritzwerk-relevante Stammdaten ergänzen — Anwendung
+    // Beschreibung um spritzwerk-relevante Stammdaten ergÃ¤nzen â€” Anwendung
     // (Innen/Aussen) ist preisrelevant und sollte auf der Rechnung sichtbar sein.
     const extras: string[] = [];
     if (it.applicationArea) {
@@ -319,7 +319,7 @@ export async function createInvoiceFromOrder(input: unknown) {
           vatRate,
           vatCHF,
           totalGrossCHF: totalGross,
-          notes: `Auftrag ${order.orderNumber}`,
+          notes: `Order ${order.orderNumber}`,
           createdById: user.id,
           items: {
             create: items,
@@ -349,9 +349,9 @@ export async function createInvoiceFromOrder(input: unknown) {
   return { id: invoiceId };
 }
 
-// ─────────────────────────────────────────
+// â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 // Update DRAFT
-// ─────────────────────────────────────────
+// â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
 export async function updateDraftInvoice(invoiceId: string, input: unknown) {
   try {
@@ -363,7 +363,7 @@ export async function updateDraftInvoice(invoiceId: string, input: unknown) {
     select: { status: true },
   });
   if (before.status !== "DRAFT") {
-    throw new Error("Nur Entwürfe können editiert werden.");
+    throw new Error("Only drafts can be edited.");
   }
 
   const itemsCalc = data.items.map((it) => ({
@@ -415,13 +415,13 @@ export async function updateDraftInvoice(invoiceId: string, input: unknown) {
     revalidatePath("/admin/invoices");
     revalidatePath(`/admin/invoices/${invoiceId}`);
   } catch (err) {
-    return { error: err instanceof Error ? err.message : "Ein Fehler ist aufgetreten." };
+    return { error: err instanceof Error ? err.message : "An error occurred." };
   }
 }
 
-// ─────────────────────────────────────────
+// â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 // Status workflow
-// ─────────────────────────────────────────
+// â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
 export async function changeInvoiceStatus(invoiceId: string, input: unknown) {
   const user = await requirePerm("invoices.write");
@@ -433,26 +433,26 @@ export async function changeInvoiceStatus(invoiceId: string, input: unknown) {
   });
 
   if (!allowedNextInvoiceStatuses(before.status).includes(toStatus)) {
-    throw new Error(`Übergang ${before.status} → ${toStatus} nicht erlaubt.`);
+    throw new Error(`Transition ${before.status} â†’ ${toStatus} not allowed.`);
   }
   if (toStatus === "PAID" && !hasPermission(user.role, "invoices.markPaid")) {
-    throw new Error("Keine Berechtigung 'als bezahlt markieren'.");
+    throw new Error("No permission to mark as paid.");
   }
 
   const updateData: Prisma.InvoiceUpdateInput = { status: toStatus };
 
-  // DRAFT → SENT: QR-Referenz erzeugen + Adresse-Snapshot freezen + sentAt
+  // DRAFT â†’ SENT: QR-Referenz erzeugen + Adresse-Snapshot freezen + sentAt
   if (before.status === "DRAFT" && toStatus === "SENT") {
     const company = await prisma.company.findUniqueOrThrow({
       where: { id: user.companyId },
     });
     if (!company.qrIban) {
       throw new Error(
-        "Keine QR-IBAN konfiguriert — bitte in den Einstellungen (System → Einstellungen) eintragen.",
+        "No QR-IBAN configured â€” please set it in System â†’ Settings.",
       );
     }
     if (!isValidIban(company.qrIban)) {
-      throw new Error("Konfigurierte QR-IBAN ist ungültig.");
+      throw new Error("Configured QR-IBAN is invalid.");
     }
 
     // QR-Referenz erzeugen
@@ -472,7 +472,7 @@ export async function changeInvoiceStatus(invoiceId: string, input: unknown) {
       before.customer.addresses[0];
     const ba = billingAddress
       ? {
-          name: before.customer.companyName ?? "—",
+          name: before.customer.companyName ?? "â€”",
           street: billingAddress.street,
           zip: billingAddress.zip,
           city: billingAddress.city,
@@ -486,8 +486,8 @@ export async function changeInvoiceStatus(invoiceId: string, input: unknown) {
     updateData.sentAt = new Date();
   }
 
-  // OVERDUE wird automatisch beim Page-Load gesetzt — manueller
-  // Übergang ist auch erlaubt (ändert nichts).
+  // OVERDUE wird automatisch beim Page-Load gesetzt â€” manueller
+  // Ãœbergang ist auch erlaubt (Ã¤ndert nichts).
 
   await prisma.invoice.update({
     where: { id: invoiceId },
@@ -509,9 +509,9 @@ export async function changeInvoiceStatus(invoiceId: string, input: unknown) {
   revalidatePath(`/admin/invoices/${invoiceId}`);
 }
 
-// ─────────────────────────────────────────
+// â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 // Mark as Paid (mit optionalem Teilbetrag)
-// ─────────────────────────────────────────
+// â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
 export async function markInvoicePaid(invoiceId: string, input: unknown) {
   const user = await requirePerm("invoices.markPaid");
@@ -521,7 +521,7 @@ export async function markInvoicePaid(invoiceId: string, input: unknown) {
     where: { id: invoiceId, companyId: user.companyId },
   });
   if (!["SENT", "OVERDUE"].includes(before.status)) {
-    throw new Error("Rechnung kann nur aus Status SENT/OVERDUE bezahlt werden.");
+    throw new Error("Invoice can only be marked paid from status SENT/OVERDUE.");
   }
 
   await prisma.invoice.update({
@@ -547,9 +547,9 @@ export async function markInvoicePaid(invoiceId: string, input: unknown) {
   revalidatePath(`/admin/invoices/${invoiceId}`);
 }
 
-// ─────────────────────────────────────────
-// Reminder erhöhen
-// ─────────────────────────────────────────
+// â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// Reminder erhÃ¶hen
+// â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
 export async function sendInvoiceReminder(invoiceId: string) {
   const user = await requirePerm("invoices.write");
@@ -557,7 +557,7 @@ export async function sendInvoiceReminder(invoiceId: string) {
     where: { id: invoiceId, companyId: user.companyId },
   });
   if (!["SENT", "OVERDUE"].includes(before.status)) {
-    throw new Error("Mahnung nur bei offenen Rechnungen sinnvoll.");
+    throw new Error("Reminders only make sense for open invoices.");
   }
   const newLevel = Math.min(3, before.reminderLevel + 1);
   await prisma.invoice.update({
@@ -575,22 +575,22 @@ export async function sendInvoiceReminder(invoiceId: string) {
     entityType: "Invoice",
     entityId: invoiceId,
     newValue: { reminderLevel: newLevel },
-    reason: `Mahnung Stufe ${newLevel}`,
+    reason: `Reminder level ${newLevel}`,
   });
   revalidatePath("/admin/invoices");
   revalidatePath(`/admin/invoices/${invoiceId}`);
 }
 
-// ─────────────────────────────────────────
+// â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 // Auto-Overdue-Update
-// ─────────────────────────────────────────
+// â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
 /**
  * Setzt alle SENT-Rechnungen mit dueAt in der Vergangenheit auf OVERDUE.
  * Wird beim Laden der Listen-Seite triggered (idempotent).
  *
- * companyId kommt aus der Server-Session — NIE aus einem Argument. Sonst
- * könnte ein böswilliger Client diese Action mit einer fremden companyId
+ * companyId kommt aus der Server-Session â€” NIE aus einem Argument. Sonst
+ * kÃ¶nnte ein bÃ¶swilliger Client diese Action mit einer fremden companyId
  * aufrufen und Rechnungen anderer Mandanten flippen.
  */
 export async function refreshOverdueInvoices(): Promise<number> {
@@ -606,9 +606,9 @@ export async function refreshOverdueInvoices(): Promise<number> {
   return result.count;
 }
 
-// ─────────────────────────────────────────
+// â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 // Bulk
-// ─────────────────────────────────────────
+// â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
 export async function bulkArchiveInvoices(rawIds: unknown) {
   const user = await requirePerm("invoices.write");
@@ -630,14 +630,14 @@ export async function bulkArchiveInvoices(rawIds: unknown) {
 export async function bulkDeleteDraftInvoices(rawIds: unknown) {
   const user = await requirePerm("invoices.write");
   const ids = parseOrThrow(idsSchema, rawIds);
-  // Nur DRAFT löschen — versendete bleiben Audit-pflichtig.
+  // Nur DRAFT lÃ¶schen â€” versendete bleiben Audit-pflichtig.
   const owned = await prisma.invoice.findMany({
     where: { id: { in: ids }, companyId: user.companyId, status: "DRAFT" },
     select: { id: true },
   });
   if (owned.length !== ids.length) {
     throw new Error(
-      "Nur Entwürfe können gelöscht werden. Versendete Rechnungen bleiben erhalten.",
+      "Only drafts can be deleted. Sent invoices are retained.",
     );
   }
   for (const id of ids) {
@@ -653,9 +653,9 @@ export async function bulkDeleteDraftInvoices(rawIds: unknown) {
   revalidatePath("/admin/invoices");
 }
 
-// ─────────────────────────────────────────
+// â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 // Settings update (Banking)
-// ─────────────────────────────────────────
+// â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
 export async function updateInvoiceSettings(input: unknown) {
   const user = await requirePerm("settings.write");
@@ -664,7 +664,7 @@ export async function updateInvoiceSettings(input: unknown) {
   // IBAN normalisieren + validieren
   const iban = data.qrIban.replace(/\s+/g, "").toUpperCase();
   if (iban && !isValidIban(iban)) {
-    throw new Error("IBAN-Prüfziffer ist ungültig.");
+    throw new Error("IBAN check digit is invalid.");
   }
 
   await prisma.company.update({

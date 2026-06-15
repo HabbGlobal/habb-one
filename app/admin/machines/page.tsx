@@ -55,22 +55,22 @@ export default async function MachinesPage({
           <div>
             <h1 className="text-2xl font-semibold">Machines</h1>
             <p className="text-sm text-muted-foreground mt-1">
-              Werkstatt-Anlagen + Zuordnung zu Bereichen für die automatische
-              Personalplanung.
+              Workshop equipment + assignment to areas for automatic
+              personnel planning.
             </p>
           </div>
         </div>
         <div className="flex items-center gap-2">
           <Button asChild variant="outline" size="sm">
             <Link href={showArchived ? "/admin/machines" : "/admin/machines?archived=1"}>
-              {showArchived ? "Aktive zeigen" : "Archivierte zeigen"}
+              {showArchived ? "Show active" : "Show archived"}
             </Link>
           </Button>
           {canWrite && (
             <Button asChild size="sm">
               <Link href="/admin/machines/new">
                 <Plus className="h-4 w-4 mr-1" />
-                Neue Maschine
+                New Machine
               </Link>
             </Button>
           )}
@@ -79,12 +79,12 @@ export default async function MachinesPage({
 
       {areas.length === 0 && (
         <div className="rounded-lg border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-900">
-          ⚠ Es gibt noch keine{" "}
+          ⚠ There are no{" "}
           <Link href="/admin/areas" className="underline font-medium">
-            Werkstatt-Bereiche
+            workshop areas
           </Link>
-          . Lege erst Bereiche an (Sandstrahlen, Pulvern, …), dann kannst du
-          Maschinen darauf mappen.
+          {" "}yet. Create areas first (Sandblasting, Powder Coating, …), then you can
+          assign machines to them.
         </div>
       )}
 
@@ -92,13 +92,13 @@ export default async function MachinesPage({
         <CardContent className="p-0">
           {machines.length === 0 ? (
             <div className="p-8 text-center text-sm text-muted-foreground">
-              Noch keine Maschinen erfasst.{" "}
+              No machines recorded yet.{" "}
               {canWrite && (
                 <Link
                   href="/admin/machines/new"
                   className="text-habb-ink hover:text-habb-red font-medium underline"
                 >
-                  Erste anlegen →
+                  Create first →
                 </Link>
               )}
             </div>
@@ -125,8 +125,8 @@ export default async function MachinesPage({
 
       {!showArchived && (
         <p className="text-xs text-muted-foreground">
-          Tipp: Bereiche pro Maschine kannst du direkt in der Tabelle ändern —
-          die Änderung wirkt sofort auf den Werkstatt → Personal-Plan-Ableiter.
+          Tip: You can change areas per machine directly in the table —
+          the change takes effect immediately on the workshop → personnel plan derivation.
         </p>
       )}
     </div>

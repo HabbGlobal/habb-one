@@ -24,9 +24,9 @@ export default async function TimeEntryDetail({
   const t = await getTranslations("timeEntries");
   const tCommon = await getTranslations("common");
 
-  // Tenant-Filter über die FK-Kette: Eintrag NUR finden wenn der zugehörige
-  // Employee in der Session-Company ist. Sonst 404 — keine Cross-Tenant-
-  // Sicht auf Stempelzeiten.
+  // Tenant filter via FK chain: only find the entry if the associated
+  // employee belongs to the session company. Otherwise 404 — no cross-tenant
+  // view of time entries.
   const entry = await prisma.timeEntry.findFirst({
     where: {
       id,

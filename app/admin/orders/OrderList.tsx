@@ -79,14 +79,14 @@ export function OrderList({
       cell: (o) => <div className="font-medium">{o.customerDisplayName}</div>,
     },
     {
-      header: "Eingang",
+      header: "Received",
       cell: (o) => (
         <span className="text-xs tabular-nums">{formatDate(o.receivedAt)}</span>
       ),
       className: "w-24",
     },
     {
-      header: "Liefertermin",
+      header: "Delivery date",
       cell: (o) => (
         <span
           className={
@@ -130,7 +130,7 @@ export function OrderList({
       className: "w-12",
     },
     {
-      header: "Schätzung",
+      header: "Estimate",
       cell: (o) => (
         <span className="tabular-nums text-sm text-muted-foreground">
           {formatHours(o.totalEstimatedMinutes)}
@@ -146,14 +146,14 @@ export function OrderList({
             {formatHours(o.totalActualMinutes)}
           </span>
         ) : o.totalActualMinutes === null && o.status !== "DRAFT" && o.status !== "CONFIRMED" ? (
-          <span className="text-xs text-muted-foreground italic">teilweise</span>
+          <span className="text-xs text-muted-foreground italic">partial</span>
         ) : (
           <span className="text-xs text-muted-foreground">—</span>
         ),
       className: "w-20",
     },
     {
-      header: "Verrechnet",
+      header: "Billed",
       cell: (o) => (
         <span className="tabular-nums text-sm font-medium text-emerald-700">
           {formatHours(o.totalBilledMinutes)}
@@ -162,7 +162,7 @@ export function OrderList({
       className: "w-24",
     },
     {
-      header: "Betrag",
+      header: "Amount",
       cell: (o) =>
         o.totalNetCHF != null ? (
           <span className="tabular-nums text-sm">{formatCHF(o.totalNetCHF)}</span>
@@ -188,10 +188,10 @@ export function OrderList({
       }}
       emptyText={
         view === "active"
-          ? "Keine Aufträge erfasst."
+          ? "No orders recorded."
           : view === "archived"
-          ? "Kein Eintrag im Archiv."
-          : "Papierkorb ist leer."
+          ? "No entries in archive."
+          : "Trash is empty."
       }
     />
   );

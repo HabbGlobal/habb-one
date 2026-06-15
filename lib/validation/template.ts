@@ -1,4 +1,4 @@
-// Zod-Schemas für Process-Vorlagen.
+// Zod schemas for process templates.
 
 import { z } from "zod";
 import { MACHINE_TYPES, PROCESS_CODES, SKILL_CODES } from "./order";

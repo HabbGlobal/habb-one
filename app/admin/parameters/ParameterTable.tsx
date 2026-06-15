@@ -150,9 +150,9 @@ export function ParameterTable({
                     <thead className="sr-only">
                       <tr>
                         <th>Parameter</th>
-                        <th>Aktuell</th>
+                        <th>Current</th>
                         <th>Default</th>
-                        <th>Letzte Änderung</th>
+                        <th>Last Change</th>
                         <th>Actions</th>
                       </tr>
                     </thead>

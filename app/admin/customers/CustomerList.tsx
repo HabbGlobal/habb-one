@@ -101,10 +101,10 @@ export function CustomerList({
       }}
       emptyText={
         view === "active"
-          ? "Keine Kunden erfasst."
+          ? "No customers recorded."
           : view === "archived"
-          ? "Kein Eintrag im Archiv."
-          : "Papierkorb ist leer."
+          ? "No entries in archive."
+          : "Trash is empty."
       }
     />
   );

@@ -152,14 +152,14 @@ export function AreaCellModal({
 
           {candidates.length > 0 && (
             <div>
-              <h3 className="text-sm font-semibold mb-2">Mitarbeiter hinzufügen</h3>
+              <h3 className="text-sm font-semibold mb-2">Add employee</h3>
               <div className="flex gap-2">
                 <Select
                   value={pickEmployee}
                   onChange={(e) => setPickEmployee(e.target.value)}
                   className="flex-1"
                 >
-                  <option value="">— wählen —</option>
+                  <option value="">— select —</option>
                   {candidates.map((e) => (
                     <option key={e.id} value={e.id}>
                       {e.name}

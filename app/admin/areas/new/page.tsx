@@ -13,12 +13,12 @@ export default async function NewAreaPage() {
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
-        <h1 className="text-2xl font-semibold">Neuer Bereich</h1>
+        <h1 className="text-2xl font-semibold">New Area</h1>
         <Link href="/admin/areas" className="text-sm text-muted-foreground hover:underline">← Back</Link>
       </div>
       <Card>
         <CardHeader>
-          <CardTitle>Neuer Bereich</CardTitle>
+          <CardTitle>New Area</CardTitle>
         </CardHeader>
         <CardContent>
           <AreaForm

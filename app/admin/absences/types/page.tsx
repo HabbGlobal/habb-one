@@ -13,9 +13,9 @@ export default async function AbsenceTypesPage() {
   const session = await auth();
   if (!session?.user) redirect("/login");
 
-  // Read-Berechtigung minimal — Schreiben + Anlegen + Archivieren erfordert
-  // zusätzlich `absences.write` (Default: ADMIN + PLANNER). Ohne write-Recht
-  // bekommt der User die Liste, aber keine Action-Buttons.
+  // Read permission minimal — writing + creating + archiving additionally requires
+  // `absences.write` (Default: ADMIN + PLANNER). Without write permission
+  // the user gets the list, but no action buttons.
   if (!hasPermission(session.user.role, "absences.read")) {
     redirect("/admin");
   }
@@ -48,21 +48,21 @@ export default async function AbsenceTypesPage() {
           className="inline-flex items-center gap-1 text-xs text-habb-muted hover:text-habb-ink"
         >
           <ChevronLeft className="h-3 w-3" />
-          Abwesenheiten
+          Absences
         </Link>
         <h1 className="mt-2 text-2xl font-semibold tracking-tight text-habb-ink">
-          Abwesenheits-Typen
+          Absence Types
         </h1>
         <p className="mt-1 max-w-3xl text-sm text-habb-muted">
-          Definiere die Abwesenheits-Arten, die in deiner Firma erfasst werden
-          können — z. B. Ferien, Krankheit, Weiterbildung, Militärdienst.
-          Jeder Typ hat eine Bezeichnung, eine Farbe für den Plan, eine
-          Kategorie für Reports und ein Verhalten (bezahlt? reduziert
-          Soll-Stunden? braucht Genehmigung?).
+          Define the absence types that can be recorded in your company
+          — e.g. vacation, sickness, training, military service.
+          Each type has a label, a color for the plan, a
+          category for reports, and a behavior (paid? reduces
+          target hours? requires approval?).
           {!canWrite && (
             <span className="mt-2 block text-habb-warning">
-              Du hast Lese-Berechtigung — Anlegen/Bearbeiten erfordert die
-              Rolle {`„CEO"`} oder {`„Sekretariat"`} (Berechtigung
+              You have read permission — creating/editing requires the
+              role {`"CEO"`} or {`"Secretary"`} (permission
               <code className="mx-1 rounded bg-habb-paper px-1">absences.write</code>).
             </span>
           )}

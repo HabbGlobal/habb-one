@@ -67,7 +67,7 @@ export async function updateCompanySettings(input: unknown) {
 // ─────────────────────────────────────────
 
 const ALLOWED_LOGO_MIMES = ["image/png", "image/jpeg", "image/jpg"] as const;
-const MAX_LOGO_BYTES = 1_000_000; // 1 MB — locker für PNG/JPG
+const MAX_LOGO_BYTES = 1_000_000; // 1 MB — generous for PNG/JPG
 
 /**
  * Set the company logo. `dataBase64` is the image body as Base64

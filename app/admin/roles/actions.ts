@@ -1,7 +1,7 @@
-"use server";
+﻿"use server";
 
-// Server-Actions für die Rollen-Matrix-Verwaltung. Ausschliesslich
-// SUPERADMIN-zugänglich.
+// Server-Actions fÃ¼r die Rollen-Matrix-Verwaltung. Ausschliesslich
+// SUPERADMIN-zugÃ¤nglich.
 
 import { revalidatePath } from "next/cache";
 import { z } from "zod";
@@ -18,14 +18,14 @@ import type { UserRole } from "@prisma/client";
 
 function assertSuperAdmin(role: UserRole | undefined | null) {
   if (!isSuperAdmin(role)) {
-    throw new Error("Nur SUPERADMIN darf die Rechte-Matrix ändern.");
+    throw new Error("Only SUPERADMIN may edit the permissions matrix.");
   }
 }
 
 const updateSchema = z.object({
   role: z.enum(CONFIGURABLE_ROLES),
   permission: z.string().refine(isKnownPermission, {
-    message: "Unbekannte Permission",
+    message: "Unknown permission",
   }),
   allowed: z.boolean(),
 });
@@ -35,11 +35,11 @@ export type UpdatePermissionInput = z.input<typeof updateSchema>;
 /**
  * Setzt eine einzelne Override-Zeile in der Matrix.
  * Wenn der Override-Wert dem statischen Default entspricht, wird die
- * Override-Zeile gelöscht (sauber halten).
+ * Override-Zeile gelÃ¶scht (sauber halten).
  */
 export async function updateRolePermission(input: UpdatePermissionInput) {
   const session = await auth();
-  if (!session?.user) throw new Error("Nicht angemeldet.");
+  if (!session?.user) throw new Error("Not authenticated.");
   assertSuperAdmin(session.user.role);
 
   const data = updateSchema.parse(input);
@@ -70,7 +70,7 @@ export async function updateRolePermission(input: UpdatePermissionInput) {
 }
 
 const bulkSchema = z.object({
-  /** Map: role → array of allowed permissions. */
+  /** Map: role â†’ array of allowed permissions. */
   matrix: z.record(z.enum(CONFIGURABLE_ROLES), z.array(z.string())),
 });
 
@@ -79,13 +79,13 @@ export type SaveMatrixInput = z.input<typeof bulkSchema>;
 /**
  * Speichert die ganze Matrix in einem Rutsch (UI klickt "Save" einmal).
  * Strategie:
- *  - Pro (role, perm) berechnen wir den gewünschten Override-Eintrag.
- *  - Bestehende Overrides werden via deleteMany gelöscht und dann
- *    neu eingefügt (TX).
+ *  - Pro (role, perm) berechnen wir den gewÃ¼nschten Override-Eintrag.
+ *  - Bestehende Overrides werden via deleteMany gelÃ¶scht und dann
+ *    neu eingefÃ¼gt (TX).
  */
 export async function saveRoleMatrix(input: SaveMatrixInput) {
   const session = await auth();
-  if (!session?.user) throw new Error("Nicht angemeldet.");
+  if (!session?.user) throw new Error("Not authenticated.");
   assertSuperAdmin(session.user.role);
 
   const data = bulkSchema.parse(input);
@@ -95,13 +95,13 @@ export async function saveRoleMatrix(input: SaveMatrixInput) {
     const allowed = data.matrix[role] ?? [];
     for (const p of allowed) {
       if (!isKnownPermission(p)) {
-        throw new Error(`Unbekannte Permission: ${p}`);
+        throw new Error(`Unknown permission: ${p}`);
       }
     }
   }
 
   await prisma.$transaction(async (tx) => {
-    // Alle bisherigen Overrides für die konfigurierbaren Rollen löschen
+    // Alle bisherigen Overrides fÃ¼r die konfigurierbaren Rollen lÃ¶schen
     await tx.rolePermission.deleteMany({
       where: {
         companyId: session.user.companyId,
@@ -139,20 +139,20 @@ export async function saveRoleMatrix(input: SaveMatrixInput) {
 
   invalidatePermissionMatrix(session.user.companyId);
   revalidatePath("/admin/roles");
-  revalidatePath("/admin", "layout"); // Sidebar evtl. ändern
+  revalidatePath("/admin", "layout"); // Sidebar evtl. Ã¤ndern
 }
 
 /**
- * Setzt die Matrix für eine Rolle wieder auf die statischen Defaults
- * (= alle Override-Zeilen für diese Rolle löschen).
+ * Setzt die Matrix fÃ¼r eine Rolle wieder auf die statischen Defaults
+ * (= alle Override-Zeilen fÃ¼r diese Rolle lÃ¶schen).
  */
 export async function resetRoleToDefaults(role: (typeof CONFIGURABLE_ROLES)[number]) {
   const session = await auth();
-  if (!session?.user) throw new Error("Nicht angemeldet.");
+  if (!session?.user) throw new Error("Not authenticated.");
   assertSuperAdmin(session.user.role);
 
   if (!CONFIGURABLE_ROLES.includes(role)) {
-    throw new Error("Diese Rolle ist nicht konfigurierbar.");
+    throw new Error("This role is not configurable.");
   }
 
   await prisma.rolePermission.deleteMany({

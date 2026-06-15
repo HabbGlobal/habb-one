@@ -142,8 +142,8 @@ export function OrderStatusActions({
             onChange={(e) => setComment(e.target.value)}
             placeholder={
               target === "CANCELLED"
-                ? "z. B. Kunde hat zurückgezogen"
-                : "z. B. Pulver fehlt, Lieferung erwartet 12.05."
+                ? "e.g. Customer withdrew"
+                : "e.g. Powder missing, delivery expected 12.05."
             }
           />
           <div className="flex justify-end gap-2">

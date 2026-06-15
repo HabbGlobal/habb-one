@@ -50,8 +50,8 @@ export default async function NewOrderPage() {
       <div>
         <h1 className="text-2xl font-semibold">New Order</h1>
         <p className="text-sm text-muted-foreground">
-          Erfasse Kunde, Termine, Positionen und Prozessablauf — Status startet
-          als <strong>Entwurf</strong>. Wird beim Bestätigen eingefroren.
+          Enter customer, dates, items and process flow — status starts
+          as <strong>Draft</strong>. Will be frozen on confirmation.
         </p>
       </div>
 
