@@ -213,7 +213,7 @@ export function UserPermissionsEditor({
           <Check className="inline h-3 w-3 text-emerald-600" /> Additionally granted
           (Grant) · <X className="inline h-3 w-3 text-destructive" /> Revoked
           (Deny, overrides the role) · <Minus className="inline h-3 w-3" />
-          {" "}Default (Rolle entscheidet).
+          {" "}Default (role decides).
         </p>
       </CardContent>
     </Card>

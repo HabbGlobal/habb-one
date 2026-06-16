@@ -22,7 +22,7 @@ import { requireOwner } from "@/lib/owner/auth";
 import { ownerAudit } from "@/lib/owner/audit";
 
 const schema = z.object({
-  reason: z.string().trim().min(10, "Begründung muss mindestens 10 Zeichen lang sein."),
+  reason: z.string().trim().min(10, "Reason must be at least 10 characters long."),
 });
 
 export async function POST(req: Request, { params }: { params: Promise<{ id: string }> }) {
@@ -184,7 +184,7 @@ export async function POST(req: Request, { params }: { params: Promise<{ id: str
       { timeout: 60_000, maxWait: 10_000 },
     );
   } catch (e) {
-    const message = e instanceof Error ? e.message : "Unbekannter Fehler";
+    const message = e instanceof Error ? e.message : "Unknown error";
     console.error("[tenant-hard-delete] failed", { companyId: id, message });
     return NextResponse.json(
       { error: "DELETE_FAILED", message },

@@ -42,27 +42,25 @@ export default async function ArchivedRegistrationsPage() {
       <header>
         <p className="text-xs uppercase tracking-[0.18em] text-habb-muted">Platform</p>
         <h1 className="mt-1 text-2xl font-semibold tracking-tight text-habb-black">
-          Registrierungs-Archiv
+          Registration Archive
         </h1>
         <p className="mt-1 text-sm text-habb-muted">
-          {rejected.length} abgelehnte{rejected.length === 1 ? "" : ""} Anfrage
-          {rejected.length === 1 ? "" : "n"}
+          {rejected.length} rejected request{rejected.length === 1 ? "" : "s"}
         </p>
       </header>
 
       <SectionTabs
         tabs={[
-          { href: "/owner/registrations", label: "Offen", count: pendingCount },
-          { href: "/owner/registrations/archive", label: "Archiv", count: rejected.length },
+          { href: "/owner/registrations", label: "Open", count: pendingCount },
+          { href: "/owner/registrations/archive", label: "Archive", count: rejected.length },
         ]}
       />
 
       {rejected.length === 0 ? (
         <section className="rounded-lg border border-dashed border-habb-line bg-white px-5 py-10 text-center">
-          <h2 className="text-sm font-medium text-habb-ink">Archiv ist leer</h2>
+          <h2 className="text-sm font-medium text-habb-ink">Archive is empty</h2>
           <p className="mt-1 text-xs text-habb-muted">
-            Abgelehnte Registrations werden hier dokumentiert — als Nachweis und für die
-            Audit-Spur.
+            Rejected registrations are documented here for evidence and audit history.
           </p>
         </section>
       ) : (
@@ -79,18 +77,18 @@ export default async function ArchivedRegistrationsPage() {
                     <div className="flex items-center gap-2">
                       <h2 className="text-base font-semibold text-habb-black">{r.name}</h2>
                       <span className="rounded-full border border-habb-red/30 bg-habb-red/5 px-2 py-0.5 text-[10px] uppercase tracking-wide text-habb-red-dark">
-                        Abgelehnt
+                        Rejected
                       </span>
                     </div>
                     <dl className="mt-2 grid grid-cols-1 gap-x-6 gap-y-1 text-xs sm:grid-cols-2">
                       <Row label="Phone" value={r.phone || "—"} />
                       <Row
-                        label="Adresse"
+                        label="Address"
                         value={[r.address, r.city, r.country].filter(Boolean).join(", ") || "—"}
                       />
                       <Row label="Admin" value={admin ? `${admin.name} <${admin.email}>` : "—"} />
                       <Row
-                        label="Eingegangen"
+                        label="Received"
                         value={
                           r.registrationSubmittedAt
                             ? r.registrationSubmittedAt.toLocaleString("de-CH")
@@ -98,7 +96,7 @@ export default async function ArchivedRegistrationsPage() {
                         }
                       />
                       <Row
-                        label="Abgelehnt am"
+                        label="Rejected at"
                         value={
                           r.registrationRejectedAt
                             ? r.registrationRejectedAt.toLocaleString("de-CH")
@@ -106,7 +104,7 @@ export default async function ArchivedRegistrationsPage() {
                         }
                       />
                       <Row
-                        label="Begründung"
+                        label="Reason"
                         value={r.registrationRejectionReason || "—"}
                       />
                     </dl>
@@ -116,7 +114,7 @@ export default async function ArchivedRegistrationsPage() {
                     href={`/owner/tenants/${r.id}`}
                     className="text-xs text-habb-muted underline-offset-2 hover:underline self-start"
                   >
-                    Profil öffnen →
+                    Open profile →
                   </Link>
                 </div>
               </li>

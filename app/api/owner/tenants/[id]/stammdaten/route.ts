@@ -20,7 +20,7 @@ import { ownerAudit } from "@/lib/owner/audit";
 const ALLOWED_LANGUAGES = ["de", "fr", "it", "en"] as const;
 
 const schema = z.object({
-  name: z.string().trim().min(2, "Name muss mindestens 2 Zeichen lang sein.").max(200),
+  name: z.string().trim().min(2, "Name must be at least 2 characters long.").max(200),
   address: z.string().trim().max(200).nullable(),
   city: z.string().trim().max(120).nullable(),
   country: z.string().trim().min(2).max(3).toUpperCase(),
@@ -30,7 +30,7 @@ const schema = z.object({
   qrIban: z.string().trim().max(34).nullable(),
   invoiceCreditorName: z.string().trim().max(200).nullable(),
   invoicePaymentTerms: z.number().int().min(0).max(365),
-  reason: z.string().trim().min(10, "Begründung muss mindestens 10 Zeichen lang sein."),
+  reason: z.string().trim().min(10, "Reason must be at least 10 characters long."),
 });
 
 type StammdatenInput = z.infer<typeof schema>;

@@ -43,19 +43,19 @@ export async function ownerSaveUserPermissions(input: SaveOwnerUserPermissionsIn
     where: { id: data.userId },
     select: { id: true, companyId: true, role: true, email: true, name: true, deletedAt: true },
   });
-  if (!user) throw new Error("User nicht gefunden.");
+  if (!user) throw new Error("User not found.");
   if (user.companyId !== data.tenantId) {
-    throw new Error("User gehört nicht zu diesem Tenanten.");
+    throw new Error("User does not belong to this tenant.");
   }
   if (user.deletedAt) {
-    throw new Error("User ist gelöscht.");
+    throw new Error("User is deleted.");
   }
   // SUPERADMIN behält per Definition immer alle Rechte — Overrides
   // werden ignoriert (siehe lib/permissions.ts), daher verbieten wir
   // sie hier explizit, damit der User nicht denkt, sie würden greifen.
   if (isSuperAdmin(user.role)) {
     throw new Error(
-      "SUPERADMIN hat per Design immer alle Rechte — Per-User-Overrides sind hier nicht zulässig.",
+      "SUPERADMIN always has all permissions by design. Per-user overrides are not allowed here.",
     );
   }
 
@@ -63,7 +63,7 @@ export async function ownerSaveUserPermissions(input: SaveOwnerUserPermissionsIn
   const overrideEntries: Array<{ permission: string; allowed: boolean }> = [];
   for (const [perm, state] of Object.entries(data.overrides)) {
     if (!isKnownPermission(perm)) {
-      throw new Error(`Unbekannte Permission: ${perm}`);
+      throw new Error(`Unknown permission: ${perm}`);
     }
     if (state === "grant") overrideEntries.push({ permission: perm, allowed: true });
     else if (state === "deny") overrideEntries.push({ permission: perm, allowed: false });
@@ -104,7 +104,7 @@ export async function ownerSaveUserPermissions(input: SaveOwnerUserPermissionsIn
     targetUserId: user.id,
     payloadBefore: { overrides: before } as Prisma.InputJsonValue,
     payloadAfter: { overrides: overrideEntries } as Prisma.InputJsonValue,
-    reason: `Per-User-Rechte für ${user.email} aktualisiert`,
+    reason: `Per-user permissions for ${user.email} updated`,
   });
 
   revalidatePath(`/owner/tenants/${data.tenantId}/users/${data.userId}/permissions`);
@@ -128,9 +128,9 @@ export async function ownerResetUserPermissions(input: z.input<typeof resetSchem
     where: { id: data.userId },
     select: { id: true, companyId: true, email: true },
   });
-  if (!user) throw new Error("User nicht gefunden.");
+  if (!user) throw new Error("User not found.");
   if (user.companyId !== data.tenantId) {
-    throw new Error("User gehört nicht zu diesem Tenanten.");
+    throw new Error("User does not belong to this tenant.");
   }
 
   const before = await prisma.userPermission.findMany({
@@ -151,7 +151,7 @@ export async function ownerResetUserPermissions(input: z.input<typeof resetSchem
     targetUserId: user.id,
     payloadBefore: { overrides: before } as Prisma.InputJsonValue,
     payloadAfter: { overrides: [], reset: true } as Prisma.InputJsonValue,
-    reason: `Per-User-Rechte für ${user.email} zurückgesetzt`,
+    reason: `Per-user permissions for ${user.email} reset`,
   });
 
   revalidatePath(`/owner/tenants/${data.tenantId}/users/${data.userId}/permissions`);

@@ -29,12 +29,12 @@ import { buildPasswordResetMail } from "@/lib/mail/templates/password-reset";
 import type { UserRole } from "@prisma/client";
 
 const schema = z.object({
-  email: z.string().trim().toLowerCase().email("Bitte gültige E-Mail-Adresse eingeben."),
-  name: z.string().trim().min(2, "Name muss mindestens 2 Zeichen lang sein.").max(120),
+  email: z.string().trim().toLowerCase().email("Please enter a valid email address."),
+  name: z.string().trim().min(2, "Name must be at least 2 characters long.").max(120),
   role: z.enum(OWNER_ASSIGNABLE_ROLES as [UserRole, ...UserRole[]]),
   sendMode: z.enum(["MAGIC_LINK", "TEMP_PASSWORD"]),
   preferredLanguage: z.enum(["de", "fr", "it", "en"]).default("de"),
-  reason: z.string().trim().min(10, "Begründung muss mindestens 10 Zeichen lang sein."),
+  reason: z.string().trim().min(10, "Reason must be at least 10 characters long."),
 });
 
 export async function POST(req: Request, { params }: { params: Promise<{ id: string }> }) {
@@ -70,7 +70,7 @@ export async function POST(req: Request, { params }: { params: Promise<{ id: str
   });
   if (existing) {
     return NextResponse.json(
-      { error: "EMAIL_TAKEN", message: "Diese E-Mail ist bereits vergeben." },
+      { error: "EMAIL_TAKEN", message: "This email is already taken." },
       { status: 409 },
     );
   }

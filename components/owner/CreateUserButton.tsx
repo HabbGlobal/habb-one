@@ -195,9 +195,9 @@ export function CreateUserButton({ tenantId, tenantName }: Props) {
                     onChange={(e) => setPreferredLanguage(e.target.value)}
                     className={inputCls}
                   >
-                    <option value="de">Deutsch</option>
-                    <option value="fr">Français</option>
-                    <option value="it">Italiano</option>
+                    <option value="de">German</option>
+                    <option value="fr">French</option>
+                    <option value="it">Italian</option>
                     <option value="en">English</option>
                   </select>
                 </Field>

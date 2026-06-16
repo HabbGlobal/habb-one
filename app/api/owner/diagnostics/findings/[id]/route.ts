@@ -16,7 +16,7 @@ const schema = z
     reason: z.string().trim().max(500).optional(),
   })
   .refine((v) => v.status !== "ignored" || (v.reason && v.reason.length >= 5), {
-    message: "Begründung für 'ignoriert' erforderlich (≥ 5 Zeichen).",
+    message: "A reason is required when ignoring a finding (at least 5 characters).",
   });
 
 export async function PATCH(

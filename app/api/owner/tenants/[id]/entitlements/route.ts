@@ -11,7 +11,7 @@ const schema = z.object({
   module: z.enum(ALL_MODULES as [TenantModule, ...TenantModule[]]),
   enabled: z.boolean(),
   monthlyLimit: z.number().int().min(0).nullable(),
-  reason: z.string().trim().min(10, "Begründung muss mindestens 10 Zeichen lang sein."),
+  reason: z.string().trim().min(10, "Reason must be at least 10 characters long."),
 });
 
 export async function PUT(req: Request, { params }: { params: Promise<{ id: string }> }) {

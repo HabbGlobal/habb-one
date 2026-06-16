@@ -189,7 +189,7 @@ export function RoleMatrixEditor({
                       title="Reset to default values"
                     >
                       <RotateCcw className="h-3 w-3" />
-                      Standard
+                      Default
                     </button>
                   </div>
                 </th>

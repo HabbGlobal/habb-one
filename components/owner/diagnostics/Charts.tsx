@@ -41,7 +41,7 @@ export function DiagnosticsCharts({
 
   return (
     <div className="grid gap-4 lg:grid-cols-3">
-      <ChartCard title="Tenantenstatus">
+      <ChartCard title="Tenant status">
         <ResponsiveContainer width="100%" height={220}>
           <PieChart>
             <Pie
@@ -61,7 +61,7 @@ export function DiagnosticsCharts({
         </ResponsiveContainer>
       </ChartCard>
 
-      <ChartCard title="Offene Findings nach Kategorie">
+      <ChartCard title="Open findings by category">
         <ResponsiveContainer width="100%" height={220}>
           <BarChart data={findingsByCategory}>
             <XAxis dataKey="category" hide />
@@ -72,7 +72,7 @@ export function DiagnosticsCharts({
         </ResponsiveContainer>
       </ChartCard>
 
-      <ChartCard title="Security-Events (7 Tage) nach Severity">
+      <ChartCard title="Security events by severity (7 days)">
         <ResponsiveContainer width="100%" height={220}>
           <BarChart data={securityBySeverity}>
             <XAxis dataKey="severity" />
