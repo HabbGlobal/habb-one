@@ -27,7 +27,7 @@ export function PasswordForm() {
         const json = (await res.json()) as { next: "enroll" | "signin" };
         router.push(json.next === "enroll" ? "/owner/enroll-passkey" : "/owner/login/passkey");
       } else {
-        setError("Email oder Passwort ist nicht korrekt.");
+        setError("Email or password is incorrect.");
       }
     });
   };
@@ -62,7 +62,7 @@ export function PasswordForm() {
           <button
             type="button"
             onClick={() => setShowPwd((v) => !v)}
-            aria-label={showPwd ? "Passwort verbergen" : "Passwort anzeigen"}
+            aria-label={showPwd ? "Hide password" : "Show password"}
             aria-pressed={showPwd}
             className="absolute inset-y-0 right-0 grid w-12 place-items-center text-habb-muted hover:text-habb-ink focus-visible:text-habb-ink focus-visible:outline-none"
           >
@@ -86,16 +86,16 @@ export function PasswordForm() {
         className="inline-flex w-full items-center justify-center gap-2 rounded-lg bg-habb-black px-5 py-3.5 text-base font-medium text-white shadow-sm transition-colors hover:bg-habb-ink focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-habb-red focus-visible:ring-offset-2 disabled:opacity-60"
       >
         {pending && <Loader2 className="h-4 w-4 animate-spin" />}
-        Weiter
+        Continue
       </button>
 
       <p className="text-center text-xs text-habb-muted">
-        Bei Verdacht auf Missbrauch:{" "}
+        If you suspect misuse:{" "}
         <a
-          href="mailto:security@HABB Global (PVT) LTD"
+          href="mailto:security@habbglobal.com"
           className="text-habb-ink underline-offset-2 hover:underline"
         >
-          security@HABB Global (PVT) LTD
+          security@habbglobal.com
         </a>
       </p>
     </form>
