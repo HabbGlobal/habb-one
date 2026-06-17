@@ -1,17 +1,17 @@
 /**
- * POST /api/owner/tenants/[id]/delete — Mandant UNWIDERRUFLICH löschen.
+ * POST /api/owner/tenants/[id]/delete: irreversibly delete a tenant.
  *
- * Vollständige Hard-Deletion samt aller Tenant-Daten und User. Schutz:
- *   - OWNER_ROOT + frischer Sudo
- *   - Mandant MUSS vorher suspendiert sein (Zwei-Stufen-Schutz)
- *   - Begründung Pflicht (≥ 10 Zeichen)
- *   - Forensik: ownerAudit TENANT_HARD_DELETED VOR der Löschung mit
- *     vollem Snapshot — die Audit-Zeile überlebt (targetCompanyId
- *     SetNull), der Snapshot im Payload bleibt erhalten.
+ * Full hard deletion including all tenant data and users. Safeguards:
+ *   - OWNER_ROOT + fresh sudo
+ *   - Tenant MUST already be suspended (two-step protection)
+ *   - Reason required (at least 10 characters)
+ *   - Forensics: write ownerAudit TENANT_HARD_DELETED BEFORE deletion with
+ *     a full snapshot. The audit row survives (targetCompanyId SetNull), and
+ *     the snapshot remains in the payload.
  *
- * Löschreihenfolge ist FK-sicher: erst referenzierende, dann
- * referenzierte Tabellen; Sub-Children/Impersonation hängen an
- * onDelete:Cascade und werden automatisch mitgenommen.
+ * Deletion order is FK-safe: referencing tables first, then referenced tables.
+ * Sub-children/impersonation records use onDelete:Cascade and are removed
+ * automatically.
  */
 
 import { NextResponse } from "next/server";
@@ -67,14 +67,14 @@ export async function POST(req: Request, { params }: { params: Promise<{ id: str
   });
   if (!company) return NextResponse.json({ error: "NOT_FOUND" }, { status: 404 });
 
-  // Zwei-Stufen-Schutz: nur ein bereits suspendierter Mandant ist löschbar.
+  // Two-step protection: only an already suspended tenant can be deleted.
   if (!company.suspendedAt) {
     return NextResponse.json({ error: "NOT_SUSPENDED" }, { status: 409 });
   }
 
-  // Forensik VOR der Löschung schreiben (Company existiert noch, daher
-  // targetCompanyId gültig; SetNull bewahrt die Zeile nach dem Delete,
-  // der Snapshot im Payload bleibt lesbar).
+  // Write forensics BEFORE deletion while Company still exists, so
+  // targetCompanyId is valid. SetNull preserves the row after delete, and the
+  // payload snapshot remains readable.
   await ownerAudit({
     ownerAccountId: guard.ctx.ownerAccountId,
     ownerEmail: guard.ctx.ownerEmail,
@@ -89,13 +89,13 @@ export async function POST(req: Request, { params }: { params: Promise<{ id: str
     },
   });
 
-  // FK-sichere Reihenfolge: referenzierende vor referenzierten Tabellen.
-  // Sonderfall: OrderScheduleEntry.order und ProcessStepTimeEvent.employee
-  // sind PFLICHT-Relationen OHNE onDelete (Prisma-Default = Restrict) und
-  // haben kein eigenes companyId — sie blockieren sonst order- bzw.
-  // employee-Löschung trotz Cascade über ProcessStep. Daher zuerst über
-  // die Relation entfernen. Übrige Sub-Children (OrderItem, TimeEntry,
-  // Contact, ParameterChangeLog …) + Impersonation hängen an Cascade.
+  // FK-safe order: referencing tables before referenced tables. Special case:
+  // OrderScheduleEntry.order and ProcessStepTimeEvent.employee are required
+  // relations WITHOUT onDelete (Prisma default = Restrict) and have no companyId
+  // of their own, so they would otherwise block order/employee deletion despite
+  // Cascade through ProcessStep. Remove them through the relation first.
+  // Remaining sub-children (OrderItem, TimeEntry, Contact, ParameterChangeLog,
+  // etc.) and impersonation records use Cascade.
   try {
     await prisma.$transaction(
       async (tx) => {
@@ -122,12 +122,12 @@ export async function POST(req: Request, { params }: { params: Promise<{ id: str
         await tx.rolePermission.deleteMany({ where: { companyId: id } });
         await tx.tenantEntitlement.deleteMany({ where: { companyId: id } });
 
-        // SystemParameter.updatedById / ParameterChangeLog.changedById sind
-        // Pflicht-FKs auf User OHNE Cascade (Restrict). Durch die frühere
-        // Per-Tenant-Migration zeigen FREMDER Mandanten Parameter-Zeilen
-        // auf einen User dieser Firma → würde user.deleteMany blockieren.
-        // Felder sind non-nullable: pro betroffener Fremdfirma auf einen
-        // eigenen (überlebenden) User dieser Firma umhängen.
+        // SystemParameter.updatedById / ParameterChangeLog.changedById are
+        // required FKs to User WITHOUT Cascade (Restrict). Because of the
+        // earlier per-tenant migration, parameter rows from OTHER tenants can
+        // point to a user of this company, which would block user.deleteMany.
+        // Fields are non-nullable: for each affected external company, reassign
+        // to one of that company's own surviving users.
         const doomed = (
           await tx.user.findMany({
             where: { companyId: id },
@@ -177,8 +177,8 @@ export async function POST(req: Request, { params }: { params: Promise<{ id: str
         }
 
         await tx.user.deleteMany({ where: { companyId: id } });
-        // Cascade nimmt ImpersonationConsentToken/Session mit; OwnerAuditLog
-        // targetCompanyId/targetUserId werden auf NULL gesetzt (Spur bleibt).
+        // Cascade removes ImpersonationConsentToken/Session; OwnerAuditLog
+        // targetCompanyId/targetUserId are set to NULL, preserving the trail.
         await tx.company.delete({ where: { id } });
       },
       { timeout: 60_000, maxWait: 10_000 },

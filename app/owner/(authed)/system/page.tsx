@@ -68,7 +68,7 @@ export default async function SystemPage() {
     prisma.holiday.count({
       where: {
         date: { gte: new Date(`${now.getUTCFullYear() + 1}-01-01T00:00:00Z`) },
-        nameDe: "Neujahr",
+        nameEn: "New Year's Day",
       },
     }),
     prisma.ownerAuditLog.count(),
@@ -88,7 +88,7 @@ export default async function SystemPage() {
         </p>
       </header>
 
-      {/* Health-Indikatoren */}
+      {/* Health indicators */}
       <section className="grid grid-cols-1 gap-4 sm:grid-cols-3">
         <HealthCard
           label="Database"
@@ -114,7 +114,7 @@ export default async function SystemPage() {
         />
       </section>
 
-      {/* Platform-Zahlen */}
+      {/* Platform numbers */}
       <section>
         <h2 className="text-xs uppercase tracking-[0.18em] text-habb-muted mb-3">
           Reach
@@ -149,7 +149,7 @@ export default async function SystemPage() {
         </div>
       </section>
 
-      {/* Login-Stats */}
+      {/* Login stats */}
       <section>
         <h2 className="text-xs uppercase tracking-[0.18em] text-habb-muted mb-3">
           Authentication (24h)

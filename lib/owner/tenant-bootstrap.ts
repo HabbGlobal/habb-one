@@ -1,13 +1,13 @@
 /**
- * Bootstrap-Helper für neue Mandanten. Wird von zwei Aufrufern verwendet:
+ * Bootstrap helper for new tenants. Used by two callers:
  *   - POST /api/auth/register       (Public Self-Registration)
- *   - POST /api/owner/tenants       (Owner manueller Create)
+ *   - POST /api/owner/tenants       (owner manual create)
  *
- * Verantwortung:
- *   - atomar Company + Admin-User + Default-Absenztypen anlegen
- *   - keine Daten-Carry-Over von anderen Mandanten (jede Insert ist frisch)
- *   - SUPERADMIN-Rolle für den initialen Admin — der einzige sanktionierte
- *     Weg, einen SUPERADMIN zu erzeugen
+ * Responsibilities:
+ *   - atomically create Company + Admin User + default absence types
+ *   - no data carry-over from other tenants; every insert is fresh
+ *   - SUPERADMIN role for the initial admin; the only sanctioned way to create
+ *     a SUPERADMIN
  */
 
 import bcrypt from "bcryptjs";
@@ -23,10 +23,9 @@ interface CompanyInput {
   city?: string | null;
   country: string;
   defaultLanguage?: string;
-  /** Gewähltes Abo-Paket. Fehlt es, greift der Prisma-Default (STARTER).
-   *  Bei der Self-Registration ist das nur der *gewünschte* Plan — er wird
-   *  erst mit der Owner-Freigabe wirksam (PENDING-Mandanten nutzen keine
-   *  Module). */
+  /** Selected subscription package. If missing, the Prisma default (STARTER)
+   *  applies. For self-registration this is only the *requested* plan; it takes
+   *  effect only after owner approval. PENDING tenants use no modules. */
   plan?: TenantPlan;
 }
 
@@ -35,9 +34,9 @@ interface AdminInput {
   name: string;
   passwordHash: string;
   preferredLanguage?: string;
-  /** Für Owner-manuell-create: emailVerifiedAt = jetzt. Für Self-Reg: null. */
+  /** For owner manual create: emailVerifiedAt = now. For self-registration: null. */
   emailAlreadyVerified: boolean;
-  /** Bei Owner-Temp-Password: mustChangePassword=true. Standard false. */
+  /** For owner temp password: mustChangePassword=true. Default false. */
   mustChangePassword?: boolean;
 }
 
@@ -85,8 +84,8 @@ export async function bootstrapNewTenant(input: BootstrapInput): Promise<Bootstr
       country: input.company.country,
       timezone: "Europe/Zurich",
       defaultLanguage: input.company.defaultLanguage ?? "de",
-      // undefined => Prisma-Default (STARTER). So bleibt das bisherige
-      // Verhalten für plan-lose Registrierungen unverändert.
+      // undefined => Prisma default (STARTER). Keeps existing behavior
+      // unchanged for registrations without a plan.
       plan: input.company.plan,
       registrationStatus: input.status,
       registrationSubmittedAt: input.status === "ACTIVE" ? null : now,
@@ -115,18 +114,18 @@ export async function bootstrapNewTenant(input: BootstrapInput): Promise<Bootstr
       data: DEFAULT_ABSENCE_TYPES.map((t) => ({ ...t, companyId: company.id })),
     });
 
-    // CH-Basis-Feiertage für aktuelles + nächstes Jahr. Ohne Holiday-Zeilen
-    // plant der Scheduler keine Pausen ein, die Personalabrechnung zählt
-    // Feiertage falsch — daher Pflicht-Startset.
+    // CH base holidays for the current and next year. Without Holiday rows,
+    // the scheduler does not plan breaks and payroll counts holidays
+    // incorrectly, so this initial set is required.
     const currentYear = now.getUTCFullYear();
     await tx.holiday.createMany({
       data: buildSwissHolidayRows(company.id, [currentYear, currentYear + 1]),
       skipDuplicates: true,
     });
 
-    // System-Parameter aus den Seed-Defaults — pro Mandant eigene Kopie,
-    // damit Stundensätze/Prozesszeiten unabhängig kalibriert werden können.
-    // Ohne diese Rows knallt die Calc-Engine beim ersten Offerten-Save mit
+    // System parameters from seed defaults; each tenant gets its own copy so
+    // hourly rates/process times can be calibrated independently. Without
+    // these rows the calculation engine fails on the first quote save with
     // "SystemParameter not found".
     await tx.systemParameter.createMany({
       data: PARAMETER_SEEDS.map((seed) => ({
@@ -156,9 +155,9 @@ export async function bootstrapNewTenant(input: BootstrapInput): Promise<Bootstr
 }
 
 /**
- * Konstanter Bcrypt-Vergleich gegen ein ständig vorhandenes Dummy-Hash —
- * nützlich, um Account-Enumeration via Timing zu unterbinden, wenn ein
- * Endpoint mit einem User-Lookup beginnt.
+ * Constant bcrypt comparison against an always-present dummy hash. Useful for
+ * preventing account enumeration through timing when an endpoint starts with a
+ * user lookup.
  */
 export const DUMMY_BCRYPT_HASH =
   "$2a$12$DUMMYDUMMYDUMMYDUMMYDU.fakefakefakefakefakefakefakefakefakefaa";

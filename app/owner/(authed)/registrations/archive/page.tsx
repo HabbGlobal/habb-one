@@ -5,9 +5,9 @@ import { SectionTabs } from "@/components/owner/SectionTabs";
 export const dynamic = "force-dynamic";
 
 /**
- * Archiv abgelehnter Registrierungs-Anfragen. Read-only; falls der Tenant
- * doch noch akzeptiert werden soll, muss der Status manuell zurückgesetzt
- * werden (via Stammdaten-Bearbeitung im Tenanten-Profil).
+ * Archive of rejected registration requests. Read-only; if a tenant should
+ * still be accepted later, its status must be reset manually through master
+ * data editing in the tenant profile.
  */
 export default async function ArchivedRegistrationsPage() {
   const [rejected, pendingCount] = await Promise.all([

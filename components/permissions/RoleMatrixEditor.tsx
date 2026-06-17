@@ -1,12 +1,11 @@
 "use client";
 
-// Geteilte Matrix-UI für Permissions × Rollen.
-// - Wird vom Tenant-SUPERADMIN (`/admin/roles`) und vom Owner
-//   (`/owner/tenants/[id]/roles`) gleichermaßen benutzt.
-// - Die konkreten Server-Actions kommen als Props rein, weil die
-//   Owner-Variante einen `tenantId` mitschickt und die Tenant-Variante
-//   den `companyId` aus der Session zieht.
-// - Markiert pro Zelle, ob der aktuelle Wert vom statischen Default abweicht.
+// Shared matrix UI for permissions x roles.
+// - Used by both the tenant SUPERADMIN (`/admin/roles`) and the owner
+//   (`/owner/tenants/[id]/roles`).
+// - Concrete server actions are passed as props because the owner variant sends
+//   a `tenantId`, while the tenant variant gets `companyId` from the session.
+// - Marks each cell when the current value differs from the static default.
 
 import { useMemo, useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
@@ -24,11 +23,11 @@ export interface RoleMatrixEditorProps {
   initialMatrix: Record<ConfigurableRole, Permission[]>;
   defaults: Record<ConfigurableRole, Permission[]>;
   permissionDefs: PermissionDefinition[];
-  /** Save-Action: nimmt die vollständige Matrix entgegen. */
+  /** Save action: accepts the complete matrix. */
   onSave: (matrix: Record<ConfigurableRole, Permission[]>) => Promise<void>;
-  /** Reset-Action für eine einzelne Rolle. */
+  /** Reset action for a single role. */
   onResetRole: (role: ConfigurableRole) => Promise<void>;
-  /** Optionaler Hinweis-Text unter der Karten-Header. */
+  /** Optional hint text below the card header. */
   headerHint?: string;
 }
 

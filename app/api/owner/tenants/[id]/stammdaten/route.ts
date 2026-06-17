@@ -1,12 +1,12 @@
 /**
  * PUT /api/owner/tenants/[id]/stammdaten
  *
- * Erlaubt dem Owner, ausgewählte Stammdaten-Felder eines Mandanten zu
- * ändern. HR-/Operations-Config bleibt bewusst dem Tenant-Admin überlassen
- * (Default-Stunden, Schwellwerte, Rundung, …) — wir editieren hier nur
- * Identitäts- und Rechnungs-Felder.
+ * Allows the owner to change selected master-data fields for a tenant.
+ * HR/operations configuration intentionally remains with the tenant admin
+ * (default hours, thresholds, rounding, etc.); this endpoint edits only
+ * identity and billing fields.
  *
- * Sudo + Reason + Audit-Trail wie bei allen destruktiven Owner-Aktionen.
+ * Sudo + reason + audit trail, like all destructive owner actions.
  */
 
 import { NextResponse } from "next/server";
@@ -76,7 +76,7 @@ export async function PUT(req: Request, { params }: { params: Promise<{ id: stri
 
   const data: StammdatenInput = parsed.data;
 
-  // Normalise: leere Strings, die wir als nullable behandeln, → null.
+  // Normalize empty strings that we treat as nullable to null.
   const norm = {
     name: data.name,
     address: emptyToNull(data.address),
@@ -114,8 +114,8 @@ function emptyToNull(s: string | null): string | null {
 }
 
 /**
- * Schreibt in den Audit nur die tatsächlich geänderten Felder mit before/
- * after. Spart Lärm und macht spätere Suche im Audit-Log einfacher.
+ * Write only fields that actually changed to the audit log, with before/after.
+ * This keeps noise down and makes later audit-log searches easier.
  */
 function diffFields(
   before: Record<string, unknown>,

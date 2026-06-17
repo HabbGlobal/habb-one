@@ -40,9 +40,9 @@ export async function PUT(req: Request, { params }: { params: Promise<{ id: stri
   const before = await prisma.tenantEntitlement.findUnique({
     where: { companyId_module: { companyId: id, module: parsed.data.module } },
   });
-  // Ohne Override-Zeile ist der effektive Vor-Zustand die Plan-Zugehörigkeit
-  // (gleiche Logik wie getEnabledModules/getEffectiveEntitlements) — nicht der
-  // alte plan-unabhängige MODULE_DEFAULTS-Wert.
+  // Without an override row, the effective previous state is plan membership
+  // (same logic as getEnabledModules/getEffectiveEntitlements), not the old
+  // plan-independent MODULE_DEFAULTS value.
   const inPlan = planContainsModule(company.plan, parsed.data.module);
   const beforeEffective = before
     ? { enabled: before.enabled, monthlyLimit: before.monthlyLimit }

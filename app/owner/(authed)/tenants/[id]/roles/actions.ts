@@ -1,9 +1,9 @@
 "use server";
 
-// Owner-Server-Actions für die Role-Matrix eines beliebigen Tenanten.
-// Spiegelt `app/admin/roles/actions.ts`, läuft aber unter Owner-Auth
-// (`requireOwner({ minRole: "OWNER_ADMIN" })`) und schreibt in
-// `OwnerAuditLog` statt `AuditLog`.
+// Owner server actions for the role matrix of any tenant. Mirrors
+// `app/admin/roles/actions.ts`, but runs under Owner auth
+// (`requireOwner({ minRole: "OWNER_ADMIN" })`) and writes to `OwnerAuditLog`
+// instead of `AuditLog`.
 
 import { revalidatePath } from "next/cache";
 import { z } from "zod";
@@ -27,8 +27,8 @@ const bulkSchema = z.object({
 export type SaveOwnerMatrixInput = z.input<typeof bulkSchema>;
 
 /**
- * Owner-Variante: speichert die komplette Role-Matrix eines bestimmten
- * Tenanten (tenantId aus URL-Params). Erfordert OWNER_ADMIN.
+ * Owner variant: saves the complete role matrix for a specific tenant
+ * (tenantId from URL params). Requires OWNER_ADMIN.
  */
 export async function ownerSaveRoleMatrix(input: SaveOwnerMatrixInput) {
   const guard = await requireOwner({ minRole: "OWNER_ADMIN" });
@@ -37,7 +37,7 @@ export async function ownerSaveRoleMatrix(input: SaveOwnerMatrixInput) {
 
   const data = bulkSchema.parse(input);
 
-  // Existiert der Tenant?
+  // Does the tenant exist?
   const tenant = await prisma.company.findUnique({
     where: { id: data.tenantId },
     select: { id: true, name: true },
@@ -54,7 +54,7 @@ export async function ownerSaveRoleMatrix(input: SaveOwnerMatrixInput) {
     }
   }
 
-  // Vorzustand für Audit Log einsammeln
+  // Collect the previous state for the audit log.
   const before = await prisma.rolePermission.findMany({
     where: {
       companyId: data.tenantId,
@@ -123,7 +123,7 @@ const resetSchema = z.object({
   role: z.enum(CONFIGURABLE_ROLES),
 });
 
-/** Setzt die Matrix einer Role wieder auf den statischen Default zurück. */
+/** Reset a role's matrix back to the static default. */
 export async function ownerResetRoleToDefaults(input: z.input<typeof resetSchema>) {
   const guard = await requireOwner({ minRole: "OWNER_ADMIN" });
   if (!guard.ok) throw new Error("FORBIDDEN");

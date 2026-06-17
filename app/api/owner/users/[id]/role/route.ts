@@ -9,7 +9,7 @@ import type { UserRole } from "@prisma/client";
 
 const schema = z.object({
   role: z.enum(OWNER_ASSIGNABLE_ROLES as [UserRole, ...UserRole[]]),
-  reason: z.string().trim().min(10, "Begründung muss mindestens 10 Zeichen lang sein."),
+  reason: z.string().trim().min(10, "Reason must be at least 10 characters long."),
 });
 
 export async function PUT(req: Request, { params }: { params: Promise<{ id: string }> }) {
@@ -40,8 +40,8 @@ export async function PUT(req: Request, { params }: { params: Promise<{ id: stri
   if (!before || before.deletedAt) {
     return NextResponse.json({ error: "NOT_FOUND" }, { status: 404 });
   }
-  // SUPERADMIN-Accounts dürfen vom Owner-Portal NICHT umgerollt werden —
-  // die sind der Master jedes Mandanten.
+  // SUPERADMIN accounts must NOT be rerolled by the owner portal; they are the
+  // master account of each tenant.
   if (before.role === "SUPERADMIN") {
     return NextResponse.json({ error: "SUPERADMIN_PROTECTED" }, { status: 403 });
   }
@@ -53,8 +53,8 @@ export async function PUT(req: Request, { params }: { params: Promise<{ id: stri
     where: { id },
     data: {
       role: parsed.data.role,
-      // Eine Rollen-Änderung wirkt sofort: Sessions invalidieren, damit der
-      // User mit dem neuen Permission-Set durchgespült wird.
+      // A role change takes effect immediately: invalidate sessions so the
+      // user is forced through with the new permission set.
       sessionEpoch: before.sessionEpoch + 1,
     },
   });

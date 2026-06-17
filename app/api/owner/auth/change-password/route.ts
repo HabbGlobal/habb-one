@@ -1,13 +1,13 @@
 /**
  * POST /api/owner/auth/change-password
  *
- * Self-Service-Passwortwechsel für den eingeloggten Owner. Pflicht:
- *   - aktuelle Owner-Session
- *   - korrektes aktuelles Passwort (verhindert "logged-in tab takeover")
- *   - neues Passwort ≥ 12 Zeichen
+ * Self-service password change for the logged-in owner. Required:
+ *   - current owner session
+ *   - correct current password (prevents "logged-in tab takeover")
+ *   - new password at least 12 characters
  *
- * Andere Owner-Sessions bleiben absichtlich gültig — wer alle anderen
- * Sitzungen kicken will, nutzt explizit /revoke-other-sessions.
+ * Other owner sessions intentionally remain valid. To end all other sessions,
+ * explicitly use /revoke-other-sessions.
  */
 
 import { NextResponse } from "next/server";
@@ -55,8 +55,8 @@ export async function POST(req: Request) {
     return NextResponse.json({ error: "WRONG_PASSWORD" }, { status: 400 });
   }
 
-  // Schutz gegen Trivial-Reuse: wenn das "neue" Passwort identisch zum alten
-  // ist, lehnen wir ab. Vermeidet Audit-Lärm und unnötiges Re-Hashing.
+  // Protect against trivial reuse: reject when the "new" password is identical
+  // to the old one. Avoids audit noise and unnecessary re-hashing.
   const sameAsOld = await bcrypt.compare(parsed.data.newPassword, account.passwordHash);
   if (sameAsOld) {
     return NextResponse.json({ error: "SAME_PASSWORD" }, { status: 400 });

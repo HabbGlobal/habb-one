@@ -1,8 +1,8 @@
 /**
  * POST /api/owner/auth/totp/disable
  *
- * Entfernt den TOTP-Recovery-Faktor des eigenen Accounts vollständig.
- * Passkey bleibt davon unberührt.
+ * Completely removes the TOTP recovery factor from the owner's own account.
+ * Passkey remains unaffected.
  */
 
 import { NextResponse } from "next/server";

@@ -239,7 +239,7 @@ export function CreateTenantButton() {
                   value={reason}
                   onChange={(e) => setReason(e.target.value)}
                   rows={2}
-                  placeholder="e.g. Contract signed — onboarding Müller AG"
+                  placeholder="e.g. Contract signed — onboarding Mueller AG"
                   className={inputCls}
                 />
               </Field>

@@ -44,7 +44,7 @@ export function SigninClient({
         router.replace("/owner/enroll-passkey");
         router.refresh();
       } catch (err) {
-        setError(err instanceof Error ? err.message : "Unbekannter Fehler.");
+        setError(err instanceof Error ? err.message : "Unknown error.");
       }
     });
   };

@@ -1,12 +1,12 @@
 "use client";
 
-// Per-User-Permission-Editor (3-State pro Recht):
-//   ⬚ "default" — kein Override, Rolle entscheidet
-//   ✓ "grant"   — explizit zusätzlich erlaubt (additiv)
-//   ✕ "deny"    — explizit entzogen (subtraktiv, gewinnt über Rolle)
+// Per-user permission editor (3 states per permission):
+//   ⬚ "default": no override, role decides
+//   ✓ "grant"  : explicitly additionally allowed (additive)
+//   ✕ "deny"   : explicitly revoked (subtractive, wins over role)
 //
-// Wird sowohl vom Tenant-SUPERADMIN als auch vom Owner benutzt; die
-// Server-Action kommt als Prop, damit beide Stellen die gleiche UI nutzen.
+// Used by both the tenant SUPERADMIN and the owner; the server action is passed
+// as a prop so both places can use the same UI.
 
 import { useMemo, useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
@@ -18,14 +18,14 @@ import type { Permission, PermissionDefinition } from "@/lib/permissions";
 export type OverrideState = "default" | "grant" | "deny";
 
 export interface UserPermissionsEditorProps {
-  /** Mapping permission → "grant"|"deny" — alles Übrige gilt als "default". */
+  /** Mapping permission -> "grant"|"deny"; everything else counts as "default". */
   initialOverrides: Partial<Record<Permission, OverrideState>>;
-  /** Effektive Permissions IHRER Rolle (also Default + Tenant-Override) — für die "Default-Spalte". */
+  /** Effective permissions of this role (default + tenant override) for the "Default" column. */
   rolePermissions: Set<Permission>;
   permissionDefs: PermissionDefinition[];
   onSave: (overrides: Record<Permission, OverrideState>) => Promise<void>;
   onResetAll: () => Promise<void>;
-  /** Anzeige-Info: für wen geht's? */
+  /** Display info: who this is for. */
   userLabel: string;
   roleLabel: string;
 }
@@ -123,7 +123,8 @@ export function UserPermissionsEditor({
     setSuccess(null);
   };
 
-  // Effektives Recht pro Zeile berechnen (für Anzeige rechts): role + override
+  // Calculate the effective permission per row for the right-side display:
+  // role + override.
   const effectiveOf = (perm: Permission): boolean => {
     if (state[perm] === "grant") return true;
     if (state[perm] === "deny") return false;

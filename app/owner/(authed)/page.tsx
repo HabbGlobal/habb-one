@@ -5,16 +5,16 @@ import { Activity, Building2, Users, KeyRound } from "lucide-react";
 export const dynamic = "force-dynamic";
 
 /**
- * Owner-Dashboard. Skeleton mit echten Zahlen wo trivial, sonst Placeholder
- * für PR 2+ (MRR, Health-Ampel, Aktivitäts-Heatmap kommen später).
+ * Owner dashboard. Skeleton with real numbers where trivial; otherwise
+ * placeholders for PR 2+ (MRR, health indicator, activity heatmap later).
  */
 export default async function OwnerDashboardPage() {
   const ctx = await getOwnerContext();
-  if (!ctx) return null; // layout redirects, dies ist nur für Type-Safety
+  if (!ctx) return null; // layout redirects; this is only for type safety
 
   const [tenantCount, activeTenantCount, userCount, recentAuditEvents] = await Promise.all([
     prisma.company.count(),
-    prisma.company.count(), // PR 2 fügt suspended-Filter hinzu
+    prisma.company.count(), // PR 2 adds suspended filter
     prisma.user.count({ where: { isActive: true } }),
     prisma.ownerAuditLog.findMany({
       take: 10,

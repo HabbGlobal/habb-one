@@ -1,11 +1,11 @@
 "use client";
 
 /**
- * Schmaler Tab-Switcher für Owner-Listen-Ansichten ("Aktive" vs "Archiv").
- * Bewusst klein gehalten — keine externe Tabs-Lib, nur drei Links mit
- * Aktiv-Highlight basierend auf dem aktuellen Pfad.
+ * Narrow tab switcher for owner list views ("Active" vs "Archive").
+ * Intentionally small: no external tabs library, only links with active
+ * highlighting based on the current path.
  *
- * Counts werden vom Server-Component-Parent vorberechnet und durchgereicht.
+ * Counts are precomputed by the server-component parent and passed through.
  */
 
 import Link from "next/link";

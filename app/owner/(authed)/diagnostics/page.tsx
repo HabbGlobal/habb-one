@@ -58,9 +58,9 @@ export default async function OwnerDiagnosticsPage() {
     }),
   ]);
 
-  // Immer ALLE aktiven Tenanten anzeigen — Snapshot optional. Ohne
-  // bisherigen Lauf: Status "unknown / noch nie geprüft", aber Zeile
-  // (mit "Check") ist da → kein Henne-Ei-Problem vor dem ersten Cron.
+  // Always show ALL active tenants; the snapshot is optional. Without a prior
+  // run, status is "unknown / never checked", but the row with "Check" is
+  // still present, avoiding a first-cron bootstrap problem.
   const byStatus = { healthy: 0, warning: 0, critical: 0, unknown: 0 };
   let scoreSum = 0;
   let scored = 0;

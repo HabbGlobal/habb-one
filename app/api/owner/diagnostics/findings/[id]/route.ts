@@ -1,7 +1,7 @@
 /**
  * PATCH /api/owner/diagnostics/findings/[id]  { status, reason? }
- * Finding bestätigen / lösen / ignorieren. OWNER_ADMIN. Auditiert.
- * 'ignored' verlangt eine Begründung (≥ 5 Zeichen).
+ * Acknowledge, resolve, or ignore a finding. OWNER_ADMIN. Audited.
+ * 'ignored' requires a reason (at least 5 characters).
  */
 import { NextResponse } from "next/server";
 import { z } from "zod";

@@ -13,13 +13,13 @@ export const dynamic = "force-dynamic";
 export const revalidate = 0;
 
 /**
- * Outer Owner-Layout. Verantwortlich für:
- *   - Feature-Flag-Check (Portal aus → 404)
- *   - Top-Banner (immer sichtbar, visuelles "ich bin im Owner-Portal")
+ * Outer owner layout. Responsible for:
+ *   - Feature-flag check (portal off -> 404)
+ *   - Top banner (always visible, visual "I am in the owner portal" cue)
  *
- * KEIN Auth-Check hier — der gehört in das geschützte Route-Group-Layout
- * `(authed)/layout.tsx`, damit Login + Passkey-Enrollment frei zugänglich
- * bleiben.
+ * No auth check here; that belongs in the protected route-group layout
+ * `(authed)/layout.tsx`, so login and passkey enrollment remain freely
+ * accessible.
  */
 export default function OwnerLayout({ children }: { children: React.ReactNode }) {
   if (!isOwnerPortalEnabled()) {
