@@ -1,10 +1,11 @@
 ﻿"use server";
 
-// Server-Actions fÃ¼r Abwesenheits-Typen.
+// Server actions for absence types.
 //
-// Berechtigt: jeder mit `absences.write` (Default: ADMIN + PLANNER) â€”
-// also CEO/GeschÃ¤ftsleitung und Sekretariat. Tenant-Isolation: ein
-// User darf nur die Typen seiner eigenen Firma anlegen/Ã¤ndern.
+// Authorized: anyone with `absences.write` (default: ADMIN + PLANNER)
+// i.e. CEO/Management and Secretariat.
+// Tenant isolation: a user may only create/edit types
+// belonging to their own company.
 
 import { z } from "zod";
 import { revalidatePath } from "next/cache";
@@ -44,22 +45,23 @@ function parseOrThrow<T extends z.ZodTypeAny>(schema: T, input: unknown): z.infe
   return parsed.data;
 }
 
-// â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// ─────────────────────────────────────────
 // Schemas
-// â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// ─────────────────────────────────────────
 
 const KEY_REGEX = /^[a-z][a-z0-9_]{1,30}$/;
 
 const baseSchema = z.object({
-  // Stabiler interner SchlÃ¼ssel â€” wird in i18n und Reports referenziert.
-  // Nur lowercase + underscore. Nicht mehr Ã¤nderbar nach Erzeugung.
+  // Stable internal key — referenced in i18n and reports.
+  // Only lowercase letters + underscore.
+  // Cannot be changed after creation.
   key: z
     .string()
-    .min(2, "SchlÃ¼ssel mindestens 2 Zeichen.")
-    .max(30, "SchlÃ¼ssel max. 30 Zeichen.")
-    .regex(KEY_REGEX, "Nur Kleinbuchstaben, Ziffern, Unterstrich (Start mit Buchstabe)."),
-  labelDe: z.string().min(1, "Label Deutsch fehlt.").max(60),
-  labelEn: z.string().min(1, "Label Englisch fehlt.").max(60),
+    .min(2, "Key must be at least 2 characters.")
+    .max(30, "Key must be at most 30 characters.")
+    .regex(KEY_REGEX, "Only lowercase letters, digits, underscore (must start with a letter)."),
+  labelDe: z.string().min(1, "German label is required.").max(60),
+  labelEn: z.string().min(1, "English label is required.").max(60),
   category: z.enum(CATEGORIES),
   isPaid: z.boolean(),
   reducesTarget: z.boolean(),
@@ -67,32 +69,31 @@ const baseSchema = z.object({
   requiresApproval: z.boolean(),
   colorHex: z
     .string()
-    .regex(/^#[0-9a-fA-F]{6}$/, "Farbe muss #RRGGBB sein.")
+    .regex(/^#[0-9a-fA-F]{6}$/, "Color must be in #RRGGBB format.")
     .default("#2563eb"),
 });
 
 const createSchema = baseSchema;
-const updateSchema = baseSchema.omit({ key: true }); // key bleibt fix
+const updateSchema = baseSchema.omit({ key: true }); // key remains fixed
 
 export type CreateAbsenceTypeInput = z.input<typeof createSchema>;
 export type UpdateAbsenceTypeInput = z.input<typeof updateSchema>;
 
-// â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// ─────────────────────────────────────────
 // Actions
-// â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// ─────────────────────────────────────────
 
 export async function createAbsenceType(input: unknown) {
   const user = await requireWriter();
   const data = parseOrThrow(createSchema, input);
 
-  // Key muss innerhalb der Firma eindeutig sein â€” gleicher Key bei
-  // anderer Firma ist OK (multi-tenant via Composite-Unique).
+  // key remains fixed
   const existing = await prisma.absenceType.findFirst({
     where: { companyId: user.companyId, key: data.key },
     select: { id: true },
   });
   if (existing) {
-    throw new Error(`SchlÃ¼ssel "${data.key}" existiert bereits in deiner Firma.`);
+    throw new Error(`Key "${data.key}" already exists in your company.`);
   }
 
   const created = await prisma.absenceType.create({
@@ -130,9 +131,9 @@ export async function updateAbsenceType(id: string, input: unknown) {
   const data = parseOrThrow(updateSchema, input);
 
   const before = await prisma.absenceType.findUnique({ where: { id } });
-  if (!before) throw new Error("Typ nicht gefunden.");
+  if (!before) throw new Error("Type not found.");
   if (before.companyId !== user.companyId) {
-    throw new Error("Typ gehÃ¶rt nicht zu deiner Firma.");
+    throw new Error("Type does not belong to your company.");
   }
 
   await prisma.absenceType.update({
@@ -173,17 +174,18 @@ export async function updateAbsenceType(id: string, input: unknown) {
 }
 
 /**
- * Soft-Delete (Archivierung). Bestehende Absences mit diesem Typ bleiben
- * unangetastet â€” nur das Anlegen NEUER Absences mit diesem Typ wird
- * blockiert (in der Liste ausgeblendet).
+ * Soft delete (archive).
+ * Existing absences using this type remain untouched.
+ * Only the creation of NEW absences using this type is blocked
+ * (hidden from selection lists).
  */
 export async function archiveAbsenceType(id: string) {
   const user = await requireWriter();
 
   const before = await prisma.absenceType.findUnique({ where: { id } });
-  if (!before) throw new Error("Typ nicht gefunden.");
+  if (!before) throw new Error("Type not found.");
   if (before.companyId !== user.companyId) {
-    throw new Error("Typ gehÃ¶rt nicht zu deiner Firma.");
+    throw new Error("Type does not belong to your company.");
   }
   if (before.archivedAt) return; // Idempotent
 
@@ -211,9 +213,9 @@ export async function restoreAbsenceType(id: string) {
   const user = await requireWriter();
 
   const before = await prisma.absenceType.findUnique({ where: { id } });
-  if (!before) throw new Error("Typ nicht gefunden.");
+  if (!before) throw new Error("Type not found.");
   if (before.companyId !== user.companyId) {
-    throw new Error("Typ gehÃ¶rt nicht zu deiner Firma.");
+    throw new Error("Type does not belong to your company.");
   }
   if (!before.archivedAt) return;
 
@@ -228,7 +230,7 @@ export async function restoreAbsenceType(id: string) {
     action: "UPDATE",
     entityType: "AbsenceType",
     entityId: id,
-    reason: "Reaktiviert",
+    reason: "Reactivated",
     oldValue: { archivedAt: before.archivedAt.toISOString(), isActive: false },
     newValue: { archivedAt: null, isActive: true },
   });
