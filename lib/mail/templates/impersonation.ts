@@ -1,28 +1,28 @@
 /**
- * Consent-OTP-Mail für Owner-Impersonation. Der Tenant-User erhält den
- * Klartext-Code (nur hier!) und ist die einzige Person, die ihn an den
- * Owner weiterreichen kann — verbal, sicher.
+ * Consent OTP email for Owner impersonation. The tenant user receives the
+ * plaintext code only here and is the only person who can pass it securely to
+ * the owner.
  *
- * Plain-Templates wie bei den anderen Mails (kein react-email).
+ * Plain templates like the other emails; no react-email dependency.
  */
 
 export interface ImpersonationConsentMailInput {
   recipientName: string;
-  /** Anzeigename des Owners, der die Anfrage gestellt hat. */
+  /** Display name of the owner who made the request. */
   ownerName: string;
-  /** "HABB Global (PVT) LTD Support" o.ä. */
+  /** For example, "HABB Global (PVT) LTD Support". */
   ownerLabel: string;
-  /** Klartext-OTP — geht NIRGENDS sonst hin als in diese Mail. */
+  /** Plaintext OTP. It is sent nowhere except this email. */
   otp: string;
-  /** Begründung des Owners (Pflicht-Eingabe in der Konsole). */
+  /** Owner's reason, required by the console. */
   reason: string;
-  /** Optionaler Ticket-Reference-String. */
+  /** Optional ticket reference. */
   ticketRef?: string | null;
-  /** "READONLY" → nur Lesen, "FULL" → auch Schreibrechte. */
+  /** "READONLY" allows reads only; "FULL" also permits changes. */
   scope: "READONLY" | "FULL";
-  /** Wie lange die Sitzung maximal läuft. */
+  /** Maximum session duration. */
   durationMinutes: number;
-  /** Wann der OTP selbst abläuft (15 Min nach Anfrage). */
+  /** When the OTP expires, 15 minutes after the request. */
   expiresAt: Date;
   companyName: string;
 }
@@ -34,61 +34,59 @@ export function buildImpersonationConsentMail(input: ImpersonationConsentMailInp
     timeStyle: "short",
   });
   const scopeLabel =
-    input.scope === "READONLY" ? "Nur Lesezugriff" : "Vollzugriff (inkl. Änderungen)";
-  const subject = `Support-Zugriff auf ${input.companyName} — Bestätigungscode`;
+    input.scope === "READONLY" ? "Read-only access" : "Full access (including changes)";
+  const subject = `Support access to ${input.companyName} — confirmation code`;
 
-  const text = `Guten Tag ${input.recipientName}
+  const text = `Hello ${input.recipientName}
 
-${input.ownerLabel} (${input.ownerName}) bittet um Erlaubnis, sich für einen
-Support-Fall vorübergehend mit Ihrem HABB One-Konto anzumelden.
+${input.ownerLabel} (${input.ownerName}) is requesting permission to temporarily
+sign in to your HABB One account for a support case.
 
-  Bestätigungscode:   ${input.otp}
-  Berechtigung:       ${scopeLabel}
-  Maximale Dauer:     ${input.durationMinutes} Minuten
-  Gültig bis:         ${expires} (Schweizer Zeit)
+  Confirmation code:  ${input.otp}
+  Access level:       ${scopeLabel}
+  Maximum duration:   ${input.durationMinutes} minutes
+  Valid until:        ${expires} (Swiss time)
 
-Begründung: ${input.reason}${input.ticketRef ? `\nTicket: ${input.ticketRef}` : ""}
+Reason: ${input.reason}${input.ticketRef ? `\nTicket: ${input.ticketRef}` : ""}
 
-So funktioniert es:
-  1. ${input.ownerName} ruft Sie an oder schreibt Ihnen.
-  2. Geben Sie den Code NUR DIESER Person und NUR dann durch, wenn Sie sicher
-     sind, dass Sie wirklich mit ${input.ownerLabel} sprechen.
-  3. ${input.ownerName} tippt den Code in der HABB Global (PVT) LTD-Konsole ein, danach
-     beginnt die Sitzung. Sie sehen während der Sitzung selbst einen
-     "Support unterstützt gerade"-Banner in der App.
-  4. Jede Aktion wird protokolliert; nach ${input.durationMinutes} Minuten
-     beendet sich die Sitzung automatisch.
+How it works:
+  1. ${input.ownerName} calls or messages you.
+  2. Give the code only to this person and only when you are certain that you
+     are speaking with ${input.ownerLabel}.
+  3. ${input.ownerName} enters the code in the HABB Global (PVT) LTD console,
+     which starts the session. A support-active banner remains visible in your app.
+  4. Every action is audited, and the session ends automatically after
+     ${input.durationMinutes} minutes.
 
-Sie wollen NICHT zustimmen? Tun Sie nichts. Der Code läuft automatisch ab.
+Do not want to approve? Do nothing. The code expires automatically.
 
-Wenn Ihnen etwas verdächtig vorkommt, antworten Sie auf diese E-Mail oder
-melden Sie sich direkt bei ${input.ownerLabel} — verwenden Sie dabei NICHT
-die Nummer, die ein eventueller Anrufer Ihnen mitgeteilt hat.
+If anything seems suspicious, reply to this email or contact ${input.ownerLabel}
+directly. Do not use a phone number provided by a potential caller.
 
-Vielen Dank für Ihr Vertrauen
+Thank you for your trust
 ${input.ownerLabel}`;
 
   const html = `<!doctype html>
-<html lang="de">
+<html lang="en">
   <body style="font-family:system-ui,-apple-system,'Segoe UI',sans-serif;color:#1A1A1A;line-height:1.55;max-width:560px;margin:24px auto;padding:0 16px;">
     <p style="font-size:14px;color:#6B6B6B;">${input.ownerLabel}</p>
-    <h1 style="font-size:22px;margin:6px 0 18px;">Support-Zugriff auf ${escapeHtml(input.companyName)}</h1>
-    <p>Guten Tag ${escapeHtml(input.recipientName)},</p>
-    <p><strong>${escapeHtml(input.ownerName)}</strong> bittet um Erlaubnis, sich für einen Support-Fall vorübergehend mit Ihrem HABB One-Konto anzumelden.</p>
+    <h1 style="font-size:22px;margin:6px 0 18px;">Support access to ${escapeHtml(input.companyName)}</h1>
+    <p>Hello ${escapeHtml(input.recipientName)},</p>
+    <p><strong>${escapeHtml(input.ownerName)}</strong> is requesting permission to temporarily sign in to your HABB One account for a support case.</p>
     <div style="margin:24px 0;padding:18px;border:1px solid #E7E5E4;border-radius:8px;background:#FAFAF9;">
-      <p style="margin:0 0 6px;font-size:11px;text-transform:uppercase;letter-spacing:0.08em;color:#6B6B6B;">Bestätigungscode</p>
+      <p style="margin:0 0 6px;font-size:11px;text-transform:uppercase;letter-spacing:0.08em;color:#6B6B6B;">Confirmation code</p>
       <p style="margin:0;font-family:'SF Mono',Menlo,monospace;font-size:28px;letter-spacing:0.18em;color:#0A0A0A;">${escapeHtml(input.otp)}</p>
     </div>
     <table cellpadding="0" cellspacing="0" style="font-size:14px;margin:8px 0 18px;">
-      <tr><td style="padding:3px 12px 3px 0;color:#6B6B6B;">Berechtigung</td><td>${escapeHtml(scopeLabel)}</td></tr>
-      <tr><td style="padding:3px 12px 3px 0;color:#6B6B6B;">Maximale Dauer</td><td>${input.durationMinutes} Minuten</td></tr>
-      <tr><td style="padding:3px 12px 3px 0;color:#6B6B6B;">Gültig bis</td><td>${escapeHtml(expires)} (Schweizer Zeit)</td></tr>
-      <tr><td style="padding:3px 12px 3px 0;color:#6B6B6B;vertical-align:top;">Begründung</td><td>${escapeHtml(input.reason)}</td></tr>
+      <tr><td style="padding:3px 12px 3px 0;color:#6B6B6B;">Access level</td><td>${escapeHtml(scopeLabel)}</td></tr>
+      <tr><td style="padding:3px 12px 3px 0;color:#6B6B6B;">Maximum duration</td><td>${input.durationMinutes} minutes</td></tr>
+      <tr><td style="padding:3px 12px 3px 0;color:#6B6B6B;">Valid until</td><td>${escapeHtml(expires)} (Swiss time)</td></tr>
+      <tr><td style="padding:3px 12px 3px 0;color:#6B6B6B;vertical-align:top;">Reason</td><td>${escapeHtml(input.reason)}</td></tr>
       ${input.ticketRef ? `<tr><td style="padding:3px 12px 3px 0;color:#6B6B6B;">Ticket</td><td>${escapeHtml(input.ticketRef)}</td></tr>` : ""}
     </table>
-    <p style="font-size:13px;">Geben Sie den Code <strong>nur ${escapeHtml(input.ownerName)}</strong> und nur dann, wenn Sie sicher sind, mit ${escapeHtml(input.ownerLabel)} zu sprechen. Tippen Sie ihn nicht in fremde Formulare ein.</p>
-    <p style="font-size:13px;color:#6B6B6B;">Während der Sitzung sehen Sie selbst einen «Support unterstützt gerade»-Banner in der App. Jede Aktion wird protokolliert; nach ${input.durationMinutes} Minuten beendet sich die Sitzung automatisch.</p>
-    <p style="font-size:12px;color:#6B6B6B;margin-top:32px;">Sie wollen nicht zustimmen? Tun Sie nichts — der Code läuft automatisch ab.</p>
+    <p style="font-size:13px;">Give the code <strong>only to ${escapeHtml(input.ownerName)}</strong> and only when you are certain that you are speaking with ${escapeHtml(input.ownerLabel)}. Do not enter it into an unfamiliar form.</p>
+    <p style="font-size:13px;color:#6B6B6B;">A support-active banner remains visible in your app during the session. Every action is audited, and the session ends automatically after ${input.durationMinutes} minutes.</p>
+    <p style="font-size:12px;color:#6B6B6B;margin-top:32px;">Do not want to approve? Do nothing. The code expires automatically.</p>
   </body>
 </html>`;
 
