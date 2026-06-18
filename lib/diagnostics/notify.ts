@@ -1,14 +1,14 @@
 /**
- * E-Mail-Orchestrierung für Owner-Diagnostics (Phase 2).
+ * Email orchestration for Owner diagnostics, phase 2.
  *
- * - Hourly Digest: EINE Mail/Stunde, alle Mandanten zusammengefasst.
- * - Immediate: high/critical Findings + Security-Events ab medium,
- *   dedupliziert (Re-Notify frühestens nach 6 h, siehe dedupe.ts).
- * - Jede Mail wird in DiagnosticEmailNotification protokolliert
- *   (pending → sent/failed/skipped).
+ * - Hourly digest: one email per hour summarizing all tenants.
+ * - Immediate alerts: high and critical findings plus security events from
+ *   medium upward, deduplicated with a six-hour minimum re-notification delay.
+ * - Every email is recorded in DiagnosticEmailNotification with a pending,
+ *   sent, failed, or skipped status.
  *
- * Empfänger: DIAGNOSTICS_EMAIL_TO, sonst OWNER_NOTIFY_EMAIL.
- * Absender: bestehende Infra (MAIL_FROM via sendMail). KEINE PII.
+ * Recipient: DIAGNOSTICS_EMAIL_TO, falling back to OWNER_NOTIFY_EMAIL.
+ * Sender: existing infrastructure using MAIL_FROM through sendMail. No PII.
  */
 
 import { prisma } from "@/lib/prisma";
@@ -68,7 +68,7 @@ async function record(
   }
 }
 
-/** Letzter Sofort-Versand-Zeitpunkt für einen dedupeKey (oder null). */
+/** Most recent immediate send time for a dedupe key, or null. */
 async function lastImmediateAt(dedupeKey: string): Promise<Date | null> {
   const last = await prisma.diagnosticEmailNotification.findFirst({
     where: { dedupeKey, status: "sent" },
@@ -86,8 +86,8 @@ export interface NotifySummary {
 }
 
 /**
- * Wird vom Cron NACH dem Diagnose-Lauf aufgerufen. Best-effort —
- * Fehler dürfen den Cron nie kippen (Aufrufer kapselt zusätzlich).
+ * Called by the cron job after the diagnostics run. Best effort: email errors
+ * must never fail the cron job, and the caller provides an additional guard.
  */
 export async function sendDiagnosticsDigestAndAlerts(): Promise<NotifySummary> {
   const recipient = resolveRecipient();
@@ -95,7 +95,7 @@ export async function sendDiagnosticsDigestAndAlerts(): Promise<NotifySummary> {
     return { recipient: null, digestSent: false, immediateSent: 0, skipped: true };
   }
 
-  // ── Hourly Digest (1×/Stunde, dedupe über Stunden-Bucket) ────────
+  // ── Hourly digest, deduplicated by hourly bucket ─────────────────
   const digestKey = `digest:${hourBucket()}`;
   const digestExists = await prisma.diagnosticEmailNotification.findFirst({
     where: { dedupeKey: digestKey, notificationType: "hourly_digest" },
@@ -143,7 +143,7 @@ export async function sendDiagnosticsDigestAndAlerts(): Promise<NotifySummary> {
     digestSent = r === "sent";
   }
 
-  // ── Immediate: high/critical Findings (letzte 70 Min) ────────────
+  // ── Immediate high/critical findings from the last 70 minutes ────
   let immediateSent = 0;
   const since = new Date(Date.now() - 70 * 60_000);
 
@@ -196,7 +196,7 @@ export async function sendDiagnosticsDigestAndAlerts(): Promise<NotifySummary> {
     if (r === "sent") immediateSent++;
   }
 
-  // ── Immediate: Security-Events ab medium (letzte 70 Min) ─────────
+  // ── Immediate security events from medium upward, last 70 minutes ─
   const sec = await prisma.securityEvent.findMany({
     where: {
       severity: { in: ["medium", "high", "critical"] },
@@ -247,7 +247,7 @@ export async function sendDiagnosticsDigestAndAlerts(): Promise<NotifySummary> {
   return { recipient, digestSent, immediateSent, skipped: false };
 }
 
-/** Manueller Test-Mail-Versand (Phase-3-UI nutzt das). */
+/** Sends a manual test email used by the phase 3 UI. */
 export async function sendManualTestEmail(): Promise<{
   ok: boolean;
   recipient: string | null;

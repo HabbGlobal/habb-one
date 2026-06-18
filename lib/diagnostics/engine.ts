@@ -1,9 +1,10 @@
 /**
- * Diagnose-Orchestrator pro Mandant: Run anlegen → Checks + Detection
- * → Findings deduplizieren/auto-resolven → SecurityEvents schreiben →
- * Score/Snapshot → Run finalisieren. Idempotent über dedupeKey.
+ * Per-tenant diagnostics orchestrator: create run, execute checks and
+ * detection, deduplicate or auto-resolve findings, write security events,
+ * calculate score and snapshot, then finalize the run. Idempotent by dedupeKey.
  *
- * KEINE externe KI. E-Mail-Versand ist Phase 2 (hier nur Datenstand).
+ * No external AI. Email delivery is handled in phase 2; this module stores
+ * diagnostic state only.
  */
 
 import { Prisma } from "@prisma/client";
@@ -26,7 +27,7 @@ export interface DiagnosticOutcome {
   securityEvents: number;
 }
 
-const TOTAL_CHECKS = 8; // structurelle + metrische Check-Gruppen (Phase 1)
+const TOTAL_CHECKS = 8; // Structural and metric check groups in phase 1.
 
 export async function runDiagnosticsForCompany(
   companyId: string,
@@ -71,9 +72,9 @@ export async function runDiagnosticsForCompany(
           },
         });
       } else {
-        // Wiederauftreten: lastSeenAt aktualisieren; resolved/ignored
-        // NICHT automatisch reaktivieren (Owner-Entscheid respektieren),
-        // außer es war 'resolved' (echtes Reopen bei Rückfall).
+        // Recurrence: update lastSeenAt. Do not automatically reactivate
+        // ignored findings, respecting the owner's decision. Resolved findings
+        // are reopened when the issue returns.
         await prisma.diagnosticFinding.update({
           where: { id: prev.id },
           data: {
@@ -90,7 +91,7 @@ export async function runDiagnosticsForCompany(
       }
     }
 
-    // Auto-resolve: vormals offene Keys, die jetzt fehlen.
+    // Auto-resolve previously open keys that are absent from this run.
     const openKeys = existing
       .filter((e) => e.status === "open" || e.status === "acknowledged")
       .map((e) => e.dedupeKey);
@@ -121,7 +122,7 @@ export async function runDiagnosticsForCompany(
     }
     securityCount = events.length;
 
-    // ── Score aus aktuellem Stand ─────────────────────────────────
+    // ── Calculate score from the current state ────────────────────
     const openNow = await prisma.diagnosticFinding.findMany({
       where: { companyId, status: { in: ["open", "acknowledged"] } },
       select: { severity: true },
@@ -177,7 +178,7 @@ export async function runDiagnosticsForCompany(
         checksFailed: crit,
         checksWarning: warn,
         checksPassed: Math.max(0, TOTAL_CHECKS - crit - warn),
-        summary: `Score ${score} (${status}), ${findingCount} offene Findings, ${securityCount} Security-Events.`,
+        summary: `Score ${score} (${status}), ${findingCount} open findings, ${securityCount} security events.`,
       },
     });
 
@@ -195,17 +196,17 @@ export async function runDiagnosticsForCompany(
   } catch (e) {
     failed = true;
     const finishedAt = new Date();
-    const message = e instanceof Error ? e.message : "Unbekannter Fehler";
+    const message = e instanceof Error ? e.message : "Unknown error";
     await prisma.diagnosticRun.update({
       where: { id: run.id },
       data: {
         status: "failed",
         finishedAt,
         durationMs: finishedAt.getTime() - startedAt.getTime(),
-        summary: `Diagnose fehlgeschlagen: ${message}`,
+        summary: `Diagnostics failed: ${message}`,
       },
     });
-    // Snapshot trotzdem mit "diagnostics failed"-Abzug aktualisieren.
+    // Still update the snapshot with the diagnostics-failed penalty.
     const { score, status } = computeHealth({
       findingSeverities: [],
       securitySeverities: [],

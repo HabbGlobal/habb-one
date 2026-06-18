@@ -1,39 +1,39 @@
 /**
- * Regelbasierte Angriffs-/Anomalie-Erkennung — rein, schwellwert-
- * basiert, nachvollziehbar, OHNE externe KI.
+ * Rule-based attack and anomaly detection. Pure, threshold-based,
+ * explainable, and without external AI.
  *
- * Eingabe sind aggregierte Kennzahlen eines Zeitfensters (von der
- * Engine aus AuditLog/OwnerAuditLog berechnet) — KEINE Rohdaten,
- * keine PII. Jede Regel liefert eine klare Evidence-Struktur.
+ * Input consists of aggregated metrics for a time window, calculated by the
+ * engine from AuditLog and OwnerAuditLog. It contains no raw data or PII.
+ * Every rule returns a clear evidence structure.
  */
 
 import type { SecurityEventCandidate } from "./types";
 
 export interface DetectionInput {
-  /** Zeitfenster in Minuten, auf das sich die Zahlen beziehen. */
+  /** Time window in minutes to which the metrics apply. */
   windowMinutes: number;
   failedLogins: number;
-  /** Distinkte Konten mit Fehl-Logins (Credential-Stuffing/Spraying). */
+  /** Distinct accounts with failed logins (credential stuffing/spraying). */
   failedLoginDistinctAccounts: number;
   passwordResetRequests: number;
   newSessions: number;
   forbiddenOrNotFound: number;
   ownerRouteAccessByNonOwner: number;
   rlsOrPermissionErrors: number;
-  /** Listen-/Export-/Download-Aktionen (Exfiltrations-Heuristik). */
+  /** List, export, and download actions used by the exfiltration heuristic. */
   bulkReadActions: number;
   exportActions: number;
-  /** Aktionen außerhalb 06–22 Uhr Europe/Zurich. */
+  /** Actions outside 06:00–22:00 Europe/Zurich. */
   offHoursActions: number;
-  /** Requests vom häufigsten IP-Hash. */
+  /** Requests from the most frequent IP hash. */
   topIpHashRequestCount: number;
-  /** Distinkte IP-Hashes (viele wechselnde Fingerprints = Bot). */
+  /** Distinct IP hashes; many rotating fingerprints may indicate a bot. */
   distinctIpHashes: number;
-  /** Verdacht auf firmenübergreifenden Zugriff (Tenant-Isolation). */
+  /** Suspected cross-tenant access. */
   crossTenantAccessAttempts: number;
 }
 
-// ── Schwellwerte (zentral, dokumentiert) ──────────────────────────────
+// ── Thresholds (centralized and documented) ──────────────────────────
 const T = {
   bruteForce: 15,
   credentialStuffingAccounts: 8,
@@ -63,7 +63,7 @@ function ev(
 }
 
 /**
- * Wendet alle Regeln an. Reihenfolge stabil → deterministische Tests.
+ * Applies all rules in a stable order for deterministic tests.
  */
 export function detectSecurityEvents(
   input: DetectionInput,
@@ -78,7 +78,7 @@ export function detectSecurityEvents(
         input.failedLogins >= T.bruteForce * 3 ? "high" : "medium",
         "auth",
         Math.min(100, 30 + input.failedLogins),
-        "Ungewöhnlich viele fehlgeschlagene Logins im Zeitfenster.",
+        "Unusually many failed login attempts within the time window.",
         { ...w, failedLogins: input.failedLogins, threshold: T.bruteForce },
       ),
     );
@@ -91,7 +91,7 @@ export function detectSecurityEvents(
         "high",
         "auth",
         70,
-        "Fehl-Logins gegen viele unterschiedliche Konten (Stuffing/Spraying).",
+        "Failed login attempts against many different accounts (stuffing/spraying).",
         {
           ...w,
           distinctAccounts: input.failedLoginDistinctAccounts,
@@ -108,7 +108,7 @@ export function detectSecurityEvents(
         "medium",
         "auth",
         45,
-        "Auffällig viele Passwort-Reset-Anfragen.",
+        "Unusually many password reset requests.",
         { ...w, count: input.passwordResetRequests, threshold: T.passwordResetFlood },
       ),
     );
@@ -121,7 +121,7 @@ export function detectSecurityEvents(
         "medium",
         "auth",
         40,
-        "Sehr viele neue Sessions in kurzer Zeit.",
+        "A very high number of new sessions in a short time.",
         { ...w, newSessions: input.newSessions, threshold: T.sessionFlood },
       ),
     );
@@ -134,7 +134,7 @@ export function detectSecurityEvents(
         "medium",
         "api",
         50,
-        "Viele 401/403/404 — möglicher Enumeration-/Scan-Versuch.",
+        "Many 401/403/404 responses indicate a possible enumeration or scanning attempt.",
         { ...w, count: input.forbiddenOrNotFound, threshold: T.enumeration },
       ),
     );
@@ -147,7 +147,7 @@ export function detectSecurityEvents(
         "high",
         "api",
         80,
-        "Zugriff auf Owner-/Admin-Routen durch Nicht-Owner.",
+        "A non-owner attempted to access owner or admin routes.",
         { ...w, attempts: input.ownerRouteAccessByNonOwner },
       ),
     );
@@ -160,7 +160,7 @@ export function detectSecurityEvents(
         "medium",
         "api",
         45,
-        "Wiederholte Permission-/Isolations-Fehler.",
+        "Repeated permission or isolation errors.",
         { ...w, count: input.rlsOrPermissionErrors, threshold: T.rlsErrors },
       ),
     );
@@ -173,7 +173,7 @@ export function detectSecurityEvents(
         "critical",
         "database",
         95,
-        "Verdacht auf firmenübergreifenden Datenzugriff (Tenant-Isolation).",
+        "Suspected cross-tenant data access.",
         { ...w, attempts: input.crossTenantAccessAttempts },
       ),
     );
@@ -189,7 +189,7 @@ export function detectSecurityEvents(
         input.exportActions >= T.exfilExports ? "high" : "medium",
         "api",
         input.exportActions >= T.exfilExports ? 75 : 55,
-        "Auffällig viele Listen-/Export-Zugriffe — mögliche Datenexfiltration.",
+        "Unusually many list or export operations indicate possible data exfiltration.",
         {
           ...w,
           bulkReads: input.bulkReadActions,
@@ -207,7 +207,7 @@ export function detectSecurityEvents(
         "low",
         "system",
         25,
-        "Viel Aktivität außerhalb üblicher Nutzungszeiten.",
+        "High activity outside normal usage hours.",
         { ...w, count: input.offHoursActions, threshold: T.offHoursBulk },
       ),
     );
@@ -220,7 +220,7 @@ export function detectSecurityEvents(
         "medium",
         "api",
         50,
-        "Sehr viele Requests von einem einzelnen IP-Hash (Bot/Tool).",
+        "A very high number of requests from one IP hash may indicate a bot or automated tool.",
         {
           ...w,
           topIpHashRequestCount: input.topIpHashRequestCount,
@@ -237,7 +237,7 @@ export function detectSecurityEvents(
         "medium",
         "api",
         55,
-        "Viele wechselnde IP-Fingerprints — verteilter/automatisierter Zugriff.",
+        "Many rotating IP fingerprints indicate distributed or automated access.",
         {
           ...w,
           distinctIpHashes: input.distinctIpHashes,
