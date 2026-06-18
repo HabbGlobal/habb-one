@@ -1,8 +1,7 @@
 /**
  * POST /api/owner/team/[id]/enable: reactivate owner.
- * Wir verwenden dieselbe DISABLED-Audit-Action, aber mit
- * unterschiedlichem Payload — so muss kein neuer Enum-Wert per
- * migration is added.
+ * Reuses the DISABLED audit action with a different payload, avoiding the
+ * need for a new enum value and migration.
  */
 
 import { NextResponse } from "next/server";

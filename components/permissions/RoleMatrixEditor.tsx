@@ -15,7 +15,7 @@ import { Save, RotateCcw, Lock, Check } from "lucide-react";
 import type { Permission, PermissionDefinition } from "@/lib/permissions";
 import {
   CONFIGURABLE_ROLES,
-  ROLE_LABELS_DE,
+  ROLE_LABELS,
   type ConfigurableRole,
 } from "@/lib/roles";
 
@@ -108,12 +108,12 @@ export function RoleMatrixEditor({
   };
 
   const resetRole = (role: ConfigurableRole) => {
-    if (!confirm(`Reset role "${ROLE_LABELS_DE[role]}" to default?`)) return;
+    if (!confirm(`Reset role "${ROLE_LABELS[role]}" to default?`)) return;
     start(async () => {
       try {
         await onResetRole(role);
         setState((prev) => ({ ...prev, [role]: new Set(defaults[role]) }));
-        setSuccess(`Role ${ROLE_LABELS_DE[role]} reset to defaults.`);
+        setSuccess(`Role ${ROLE_LABELS[role]} reset to defaults.`);
         router.refresh();
         setTimeout(() => setSuccess(null), 4000);
       } catch (err) {
@@ -170,7 +170,7 @@ export function RoleMatrixEditor({
               <th className="font-medium px-3 py-2 min-w-[140px] bg-habb-paper">
                 <div className="flex items-center justify-center gap-1">
                   <Lock className="h-3 w-3 text-muted-foreground" />
-                  <span>{ROLE_LABELS_DE.SUPERADMIN}</span>
+                  <span>{ROLE_LABELS.SUPERADMIN}</span>
                 </div>
                 <div className="text-[10px] font-normal text-muted-foreground">
                   always all permissions
@@ -179,7 +179,7 @@ export function RoleMatrixEditor({
               {CONFIGURABLE_ROLES.map((r) => (
                 <th key={r} className="font-medium px-3 py-2 min-w-[140px]">
                   <div className="flex flex-col items-center">
-                    <span>{ROLE_LABELS_DE[r]}</span>
+                    <span>{ROLE_LABELS[r]}</span>
                     <button
                       type="button"
                       onClick={() => resetRole(r)}
@@ -276,7 +276,7 @@ function GroupRows({
                     checked={checked}
                     disabled={disabled}
                     onChange={() => onToggle(role, def.key)}
-                    aria-label={`${def.label} for ${ROLE_LABELS_DE[role]}`}
+                    aria-label={`${def.label} for ${ROLE_LABELS[role]}`}
                   />
                 </label>
               </td>

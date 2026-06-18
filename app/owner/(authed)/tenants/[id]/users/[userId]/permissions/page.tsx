@@ -7,7 +7,7 @@ import {
   loadPermissionMatrix,
   type Permission,
 } from "@/lib/permissions";
-import { effectiveRole, roleLabelDe, isSuperAdmin } from "@/lib/roles";
+import { effectiveRole, roleLabel, isSuperAdmin } from "@/lib/roles";
 import { OwnerUserPermissionsEditor } from "./OwnerUserPermissionsEditor";
 
 export const dynamic = "force-dynamic";
@@ -69,7 +69,7 @@ export default async function OwnerUserPermissionsPage({
           Personal permissions - {user.name || user.email}
         </h2>
         <p className="text-xs text-habb-muted mt-0.5">
-          {user.email} · Role: <strong>{roleLabelDe(user.role)}</strong> ·
+          {user.email} · Role: <strong>{roleLabel(user.role)}</strong> ·
           Tenant: <strong>{tenant.name}</strong>
           {user.deletedAt && (
             <span className="ml-2 inline-block rounded-full bg-amber-100 px-2 py-0.5 text-amber-900">
@@ -97,7 +97,7 @@ export default async function OwnerUserPermissionsPage({
           rolePermissions={rolePermissions}
           permissionDefs={[...PERMISSION_DEFINITIONS]}
           userLabel={user.name || user.email}
-          roleLabel={roleLabelDe(user.role)}
+          roleLabel={roleLabel(user.role)}
         />
       )}
     </section>

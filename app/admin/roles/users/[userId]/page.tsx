@@ -8,7 +8,7 @@ import {
   loadPermissionMatrix,
   type Permission,
 } from "@/lib/permissions";
-import { effectiveRole, isSuperAdmin, roleLabelDe } from "@/lib/roles";
+import { effectiveRole, isSuperAdmin, roleLabel } from "@/lib/roles";
 import { TenantUserPermissionsEditor } from "./TenantUserPermissionsEditor";
 
 export const dynamic = "force-dynamic";
@@ -66,7 +66,7 @@ export default async function TenantUserPermissionsPage({
           Personal Permissions — {user.name || user.email}
         </h1>
         <p className="text-xs text-muted-foreground mt-0.5">
-          {user.email} · Rolle: <strong>{roleLabelDe(user.role)}</strong>
+          {user.email} · Role: <strong>{roleLabel(user.role)}</strong>
         </p>
       </div>
 
@@ -87,7 +87,7 @@ export default async function TenantUserPermissionsPage({
           rolePermissions={rolePermissions}
           permissionDefs={[...PERMISSION_DEFINITIONS]}
           userLabel={user.name || user.email}
-          roleLabel={roleLabelDe(user.role)}
+          roleLabel={roleLabel(user.role)}
         />
       )}
     </section>
