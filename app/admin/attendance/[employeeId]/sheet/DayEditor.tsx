@@ -1,9 +1,9 @@
 "use client";
 
-// Voll-Bearbeitung eines Tages: mehrere Arbeits- und Pausen-Blöcke
-// mit Beginn/Ende. Speichern überschreibt ALLE Punches+Breaks dieses
-// Tages mit den Werten aus dem Formular (replaceTimeEntryDay).
-// Pflicht-Grund — wandert ins Audit-Log.
+// Full-day editing: multiple work and break blocks
+// with start/end times. Saving overwrites ALL punches + breaks for the day
+// with the values from the form (replaceTimeEntryDay).
+// Reason is required — stored in the audit log.
 
 import { useState, useTransition, useEffect } from "react";
 import { useRouter } from "next/navigation";
@@ -25,10 +25,10 @@ export interface AbsenceTypeOption {
 }
 
 interface BlockState {
-  uid: string; // nur fürs UI-Keying
+  uid: string; // for UI keying only
   type: "WORK" | "HOME_OFFICE" | "BREAK";
   start: string; // HH:MM
-  end: string; // HH:MM
+  end: string;   // HH:MM
   note: string;
 }
 
@@ -43,13 +43,13 @@ interface Props {
 let uidCounter = 0;
 const nextUid = () => `b${++uidCounter}`;
 
-/** Aus den geladenen Punches + Breaks die Initial-Blöcke ableiten,
- *  damit der Editor mit dem aktuellen Stand startet. */
+/** Derive initial blocks from the loaded punches + breaks
+ *  so the editor starts with the current state. */
 function deriveInitialBlocks(day: DayPayload): BlockState[] {
   const out: BlockState[] = [];
 
-  // Arbeitsblöcke aus CLOCK_IN/CLOCK_OUT-Paaren. Home Office wird am
-  // CLOCK_IN-Flag erkannt.
+  // Work blocks from CLOCK_IN/CLOCK_OUT pairs.
+  // Home Office is detected from the CLOCK_IN flag.
   let currentIn: { start: string; homeOffice: boolean } | null = null;
   for (const p of day.punches) {
     if (p.type === "CLOCK_IN") {
@@ -66,8 +66,8 @@ function deriveInitialBlocks(day: DayPayload): BlockState[] {
     }
   }
   if (currentIn) {
-    // Offener Arbeits-Block (sollte hier nicht vorkommen — Editor blockt
-    // wenn live aktiv ist — aber defensiv)
+    // Open work block (should not happen here — editor blocks
+    // when live and active — but handled defensively)
     out.push({
       uid: nextUid(),
       type: currentIn.homeOffice ? "HOME_OFFICE" : "WORK",
@@ -77,7 +77,7 @@ function deriveInitialBlocks(day: DayPayload): BlockState[] {
     });
   }
 
-  // Pausen-Blöcke
+  // Break blocks
   for (const b of day.breaks) {
     out.push({
       uid: nextUid(),
@@ -88,7 +88,7 @@ function deriveInitialBlocks(day: DayPayload): BlockState[] {
     });
   }
 
-  // Sortierung nach Start-Zeit
+  // Sort by start time
   return out.sort((a, b) => a.start.localeCompare(b.start));
 }
 
@@ -99,8 +99,8 @@ export function DayEditor({ employeeId, day, absenceTypes, open, onClose }: Prop
   const [error, setError] = useState<string | null>(null);
   const [pending, start] = useTransition();
 
-  // Absence-State: "" = keine. Mehrtages-Absences sind read-only (über
-  // /admin/absences zu pflegen) → dann sind die Felder gesperrt.
+  // Absence state: "" = none. Multi-day absences are read-only
+  // (managed via /admin/absences) → fields are locked.
   const multiDayAbsence = day.absence?.isMultiDay ? day.absence : null;
   const editableAbsence = day.absence && !day.absence.isMultiDay ? day.absence : null;
   const [absenceTypeId, setAbsenceTypeId] = useState<string>(
@@ -147,15 +147,15 @@ export function DayEditor({ employeeId, day, absenceTypes, open, onClose }: Prop
   };
 
   const validate = (): string | null => {
-    // Gleiche Regeln wie serverseitig (geteilter Validator): Pausen
-    // dürfen INNERHALB der Arbeitszeit liegen; nur Arbeit∩Arbeit,
-    // Pause∩Pause und Pause-ausserhalb-Arbeit sind unzulässig.
+    // Same rules as server-side (shared validator): breaks
+    // must lie WITHIN work time; only work∩work,
+    // break∩break and break-outside-work are invalid.
     const blockError = validateDayBlocks(
       blocks.map((b) => ({ type: b.type, start: b.start, end: b.end })),
     );
     if (blockError) return blockError;
     if (reason.trim().length < 5) {
-      return "Grund (mind. 5 Zeichen) erforderlich.";
+      return "Reason (min. 5 characters) is required.";
     }
     return null;
   };
@@ -180,8 +180,8 @@ export function DayEditor({ employeeId, day, absenceTypes, open, onClose }: Prop
             end: b.end,
             note: b.note || undefined,
           })),
-          // Mehrtages-Absences NICHT vom Sheet aus anfassen (undefined =
-          // "nicht ändern"). Sonst: gewählter Typ oder null (= entfernen).
+          // Do NOT touch multi-day absences from the sheet (undefined =
+          // "no change"). Otherwise: selected type or null (= remove).
           absence: multiDayAbsence
             ? undefined
             : absenceTypeId
@@ -209,21 +209,22 @@ export function DayEditor({ employeeId, day, absenceTypes, open, onClose }: Prop
       />
       <Card className="fixed inset-x-4 top-8 z-50 mx-auto max-w-2xl max-h-[88vh] overflow-y-auto border-habb-line shadow-lg">
         <CardHeader>
-          <CardTitle>Tag bearbeiten — {formatDateDe(day.date)}</CardTitle>
+          <CardTitle>Edit Day — {formatDateEn(day.date)}</CardTitle>
         </CardHeader>
         <CardContent>
           <form onSubmit={submit} className="space-y-5">
             <div className="rounded-md border border-habb-line bg-habb-paper px-3 py-2 text-xs text-habb-muted">
-              <strong className="text-habb-ink">So erfassen:</strong>{" "}
-              <em>Arbeit</em> / <em>Home Office</em> = gesamte Anwesenheit
-              (z. B. 08:00–17:15) — Home Office zählt gleich wie Arbeit.{" "}
-              <em>Pause</em> liegt INNERHALB der Arbeitszeit (z. B. Mittag
-              12:00–12:30) und wird als unbezahlte Pause abgezogen. Arbeitszeit
-              = Anwesenheit − Pausen.
+              <strong className="text-habb-ink">How to record:</strong>{" "}
+              <em>Work</em> / <em>Home Office</em> = total attendance
+              (e.g. 08:00–17:15) — Home Office counts the same as Work.{" "}
+              <em>Break</em> lies WITHIN the work time (e.g. lunch
+              12:00–12:30) and is deducted as unpaid break. Working time
+              = Attendance − Breaks.
             </div>
+
             <div className="space-y-2">
               <div className="flex items-center justify-between">
-                <Label>Zeit-Blöcke</Label>
+                <Label>Time Blocks</Label>
                 <div className="flex flex-wrap gap-2">
                   <Button
                     type="button"
@@ -232,7 +233,7 @@ export function DayEditor({ employeeId, day, absenceTypes, open, onClose }: Prop
                     onClick={() => addBlock("WORK")}
                   >
                     <Plus className="mr-1 h-3.5 w-3.5" />
-                    <Briefcase className="mr-1 h-3.5 w-3.5" /> Arbeit
+                    <Briefcase className="mr-1 h-3.5 w-3.5" /> Work
                   </Button>
                   <Button
                     type="button"
@@ -250,15 +251,14 @@ export function DayEditor({ employeeId, day, absenceTypes, open, onClose }: Prop
                     onClick={() => addBlock("BREAK")}
                   >
                     <Plus className="mr-1 h-3.5 w-3.5" />
-                    <Coffee className="mr-1 h-3.5 w-3.5" /> Pause
+                    <Coffee className="mr-1 h-3.5 w-3.5" /> Break
                   </Button>
                 </div>
               </div>
 
               {blocks.length === 0 ? (
                 <p className="rounded border border-dashed border-habb-line p-3 text-center text-xs text-habb-muted">
-                  Keine Blöcke. Klick auf {`„Arbeit"`}, {`„Home Office"`} oder{" "}
-                  {`„Pause"`} um anzulegen.
+                  No blocks. Click &quot;Work&quot;, &quot;Home Office&quot; or &quot;Break&quot; to add one.
                 </p>
               ) : (
                 <ul className="space-y-2">
@@ -276,9 +276,9 @@ export function DayEditor({ employeeId, day, absenceTypes, open, onClose }: Prop
                         }
                         className="h-9 rounded-md border border-habb-line bg-white px-2 text-sm"
                       >
-                        <option value="WORK">Arbeit</option>
+                        <option value="WORK">Work</option>
                         <option value="HOME_OFFICE">Home Office</option>
-                        <option value="BREAK">Pause</option>
+                        <option value="BREAK">Break</option>
                       </select>
                       <Input
                         type="time"
@@ -296,7 +296,7 @@ export function DayEditor({ employeeId, day, absenceTypes, open, onClose }: Prop
                         type="text"
                         value={b.note}
                         onChange={(e) => updateBlock(b.uid, { note: e.target.value })}
-                        placeholder="Kommentar (optional)"
+                        placeholder="Comment (optional)"
                         maxLength={200}
                       />
                       <Button
@@ -314,29 +314,29 @@ export function DayEditor({ employeeId, day, absenceTypes, open, onClose }: Prop
               )}
             </div>
 
-            {/* ── Abwesenheit ──────────────────────────────────── */}
+            {/* ── Absence ──────────────────────────────────── */}
             <div className="space-y-2 rounded-md border border-habb-line p-3">
               <div className="flex items-center gap-2">
                 <Plane className="h-4 w-4 text-habb-muted" />
-                <Label>Abwesenheit</Label>
+                <Label>Absence</Label>
               </div>
 
               {multiDayAbsence ? (
                 <div className="flex items-start gap-2 rounded-md bg-habb-paper p-3 text-xs text-habb-muted">
                   <Info className="mt-0.5 h-4 w-4 shrink-0" />
                   <div>
-                    Dieser Tag ist Teil einer <strong>mehrtägigen Abwesenheit</strong>
+                    This day is part of a <strong>multi-day absence</strong>
                     {" "}
                     <span
                       className="inline-block h-2 w-2 rounded-full align-middle"
                       style={{ backgroundColor: multiDayAbsence.colorHex }}
                     />{" "}
-                    <strong>{multiDayAbsence.labelDe}</strong>. Sie kann hier nicht
-                    geändert werden — bitte über{" "}
+                    <strong>{multiDayAbsence.labelDe}</strong>. It cannot be
+                    changed here — please edit it via{" "}
                     <Link href="/admin/absences" className="underline">
-                      Ferien &amp; Absenzen
-                    </Link>{" "}
-                    bearbeiten. Arbeitszeiten oben kannst du trotzdem erfassen.
+                      Vacations &amp; Absences
+                    </Link>
+                    . You can still record working hours above.
                   </div>
                 </div>
               ) : (
@@ -347,7 +347,7 @@ export function DayEditor({ employeeId, day, absenceTypes, open, onClose }: Prop
                       onChange={(e) => setAbsenceTypeId(e.target.value)}
                       className="h-9 rounded-md border border-habb-line bg-white px-2 text-sm"
                     >
-                      <option value="">— keine Abwesenheit —</option>
+                      <option value="">— No absence —</option>
                       {absenceTypes.map((t) => (
                         <option key={t.id} value={t.id}>
                           {t.labelDe}
@@ -366,7 +366,7 @@ export function DayEditor({ employeeId, day, absenceTypes, open, onClose }: Prop
                               : "bg-white text-habb-muted hover:bg-habb-paper"
                           }`}
                         >
-                          Ganzer Tag
+                          Full Day
                         </button>
                         <button
                           type="button"
@@ -377,16 +377,16 @@ export function DayEditor({ employeeId, day, absenceTypes, open, onClose }: Prop
                               : "bg-white text-habb-muted hover:bg-habb-paper"
                           }`}
                         >
-                          Halber Tag
+                          Half Day
                         </button>
                       </div>
                     )}
                   </div>
                   {absenceTypeId && (
                     <p className="text-xs text-habb-muted">
-                      Wird als genehmigte Abwesenheit für diesen Tag erfasst
+                      Will be recorded as an approved absence for this day
                       {absenceHalfDay
-                        ? " (halber Tag → halbe Soll-Reduktion; Arbeitszeit oben zusätzlich möglich)."
+                        ? " (half day → half target reduction; working hours above can still be added)."
                         : "."}
                     </p>
                   )}
@@ -396,8 +396,8 @@ export function DayEditor({ employeeId, day, absenceTypes, open, onClose }: Prop
 
             <div className="space-y-1">
               <Label htmlFor="reason">
-                Grund der Änderung{" "}
-                <span className="text-xs text-habb-muted">(Audit-Pflicht)</span>
+                Reason for Change{" "}
+                <span className="text-xs text-habb-muted">(required for audit)</span>
               </Label>
               <Input
                 id="reason"
@@ -416,14 +416,16 @@ export function DayEditor({ employeeId, day, absenceTypes, open, onClose }: Prop
             )}
 
             <div className="rounded-md border border-habb-line bg-habb-paper p-3 text-xs text-habb-muted">
-              <strong>Hinweis:</strong> Beim Speichern werden alle bisherigen
-              Stempelungen + Pausen dieses Tages gelöscht und durch die
-              Blöcke oben ersetzt. Im Audit-Log wird der Vorher-/Nachher-
-              Stand mit Grund und deinem Namen gespeichert.
+              <strong>Note:</strong> Saving will delete all existing punches
+              and breaks for this day and replace them with the blocks above.
+              The audit log will record the before/after state along with the
+              reason and your name.
             </div>
 
             <div className="flex justify-end gap-2">
-              <Button type="button" variant="ghost" onClick={onClose} disabled={pending}>Cancel</Button>
+              <Button type="button" variant="ghost" onClick={onClose} disabled={pending}>
+                Cancel
+              </Button>
               <Button type="submit" disabled={pending}>
                 {pending ? "Saving..." : "Save"}
               </Button>
@@ -435,34 +437,34 @@ export function DayEditor({ employeeId, day, absenceTypes, open, onClose }: Prop
   );
 }
 
-const WEEKDAY_LABELS_DE: Record<string, string> = {
-  MON: "Montag",
-  TUE: "Dienstag",
-  WED: "Mittwoch",
-  THU: "Donnerstag",
-  FRI: "Freitag",
-  SAT: "Samstag",
-  SUN: "Sonntag",
+const WEEKDAY_LABELS_EN: Record<string, string> = {
+  MON: "Monday",
+  TUE: "Tuesday",
+  WED: "Wednesday",
+  THU: "Thursday",
+  FRI: "Friday",
+  SAT: "Saturday",
+  SUN: "Sunday",
 };
 
-const MONTH_LABELS_DE = [
-  "Januar",
-  "Februar",
-  "März",
+const MONTH_LABELS_EN = [
+  "January",
+  "February",
+  "March",
   "April",
-  "Mai",
-  "Juni",
-  "Juli",
+  "May",
+  "June",
+  "July",
   "August",
   "September",
-  "Oktober",
+  "October",
   "November",
-  "Dezember",
+  "December",
 ];
 
-function formatDateDe(dateStr: string): string {
+function formatDateEn(dateStr: string): string {
   const [y, m, d] = dateStr.split("-").map(Number);
   const idx = (new Date(y, m - 1, d).getDay() + 6) % 7;
   const wd = (["MON", "TUE", "WED", "THU", "FRI", "SAT", "SUN"] as const)[idx];
-  return `${WEEKDAY_LABELS_DE[wd]}, ${d}. ${MONTH_LABELS_DE[m - 1]} ${y}`;
+  return `${WEEKDAY_LABELS_EN[wd]}, ${d} ${MONTH_LABELS_EN[m - 1]} ${y}`;
 }

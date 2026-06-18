@@ -37,7 +37,7 @@ export function LiveLockBanner({
   const [success, setSuccess] = useState<string | null>(null);
 
   const sinceLabel = sinceIso
-    ? new Date(sinceIso).toLocaleTimeString("de-CH", {
+    ? new Date(sinceIso).toLocaleTimeString("en-GB", {
         hour: "2-digit",
         minute: "2-digit",
       })
@@ -169,8 +169,8 @@ function PinPad({
   return (
     <div className="ml-8 space-y-3 rounded-lg border border-habb-line bg-white p-4">
       <p className="text-xs text-habb-muted">
-        Employee PIN (4 digits). Verified as on the kiosk + then
-        clocked out regularly.
+        Employee PIN (4 digits). Verified the same as on the kiosk, then
+        clocked out normally.
       </p>
 
       <div className="flex justify-center gap-2">
@@ -225,7 +225,9 @@ function PinPad({
       </div>
 
       <div className="flex justify-end gap-2">
-        <Button variant="ghost" size="sm" onClick={onCancel} disabled={pending}>Cancel</Button>
+        <Button variant="ghost" size="sm" onClick={onCancel} disabled={pending}>
+          Cancel
+        </Button>
         {pending && <span className="text-xs text-habb-muted">Checking PIN…</span>}
       </div>
     </div>
@@ -320,12 +322,14 @@ function OverrideForm({
 
       <p className="text-xs text-habb-muted">
         Via admin override the employee will be marked as clocked out
-        without requiring a PIN. Your name + the stated reason will appear
+        without requiring a PIN. Your name and the stated reason will appear
         in the audit log. Only use this when the PIN is not at hand.
       </p>
 
       <div className="flex justify-end gap-2">
-        <Button type="button" variant="ghost" size="sm" onClick={onCancel} disabled={pending}>Cancel</Button>
+        <Button type="button" variant="ghost" size="sm" onClick={onCancel} disabled={pending}>
+          Cancel
+        </Button>
         <Button type="submit" size="sm" disabled={pending}>
           {pending ? "Clocking out…" : "Clock out now"}
         </Button>
