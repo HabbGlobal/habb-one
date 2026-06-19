@@ -1,11 +1,11 @@
 "use server";
 
-// Server-Actions für Maschinen-Verwaltung.
-// Pattern wie bei Customers/Employees:
-//   1. Permission-Check (`machines.read|write`)
-//   2. Zod-Validierung
-//   3. Transaktion bei Multi-Row-Änderung
-//   4. Audit-Log
+// Server actions for machine management.
+// Pattern same as Customers/Employees:
+//   1. Permission check (`machines.read|write`)
+//   2. Zod validation
+//   3. Transaction for multi-row changes
+//   4. Audit log
 
 import { z } from "zod";
 import { revalidatePath } from "next/cache";
@@ -14,7 +14,7 @@ import { auth } from "@/lib/auth";
 import { hasPermission } from "@/lib/permissions";
 import { recordAudit } from "@/lib/audit";
 
-// Default Werkstatt-Wochenkalender (Mo–Fr 07:30–12:00 / 13:00–17:00, Sa+So leer).
+// Default workshop weekly schedule (Mon–Fri 07:30–12:00 / 13:00–17:00, Sat+Sun empty).
 const DEFAULT_WORKING_HOURS = {
   mon: [{ from: "07:30", to: "12:00" }, { from: "13:00", to: "17:00" }],
   tue: [{ from: "07:30", to: "12:00" }, { from: "13:00", to: "17:00" }],
@@ -65,7 +65,7 @@ function parseOrThrow<T extends z.ZodTypeAny>(schema: T, input: unknown): z.infe
   return parsed.data;
 }
 
-/** WorkArea-Zugehörigkeit prüfen — schützt vor Cross-Tenant. */
+/** Verify WorkArea ownership — protects against cross-tenant access. */
 async function assertAreaInCompany(
   areaId: string | null | undefined,
   companyId: string,
@@ -82,8 +82,8 @@ export async function createMachine(input: unknown) {
   const data = parseOrThrow(machineCoreSchema, input);
   const user = await requireWriter();
 
-  // Name unique-Check pro Firma (Schema hat globalen unique, aber wir wollen
-  // Kollisionen früh + verständlich fangen).
+  // Per-company name uniqueness check (schema has a global unique constraint,
+  // but we want to catch collisions early with a clear message).
   const dup = await prisma.machine.findFirst({
     where: { companyId: user.companyId, name: data.name, deletedAt: null },
     select: { id: true },
@@ -130,7 +130,7 @@ export async function updateMachine(id: string, input: unknown) {
     where: { id, companyId: user.companyId },
   });
 
-  // Name-Kollision prüfen (nur wenn Name geändert hat).
+  // Check for name collision (only if the name has changed).
   if (before.name !== data.name) {
     const dup = await prisma.machine.findFirst({
       where: {
@@ -188,8 +188,8 @@ export async function updateMachine(id: string, input: unknown) {
 }
 
 /**
- * Schnell-Update für Bereichs-Zuordnung (Inline-Editor in der Liste).
- * Spart einen Round-Trip durch das volle Form.
+ * Quick update for work area assignment (inline editor in the list view).
+ * Saves a round trip through the full form.
  */
 export async function setMachineWorkArea(
   machineId: string,

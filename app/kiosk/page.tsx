@@ -14,17 +14,18 @@ import { KioskLogoutButton } from "./KioskLogoutButton";
 import { KioskBrandHeader } from "@/components/kiosk/KioskBrandHeader";
 import { KioskBrandFooter } from "@/components/kiosk/KioskBrandFooter";
 
-// Kiosk-Startbildschirm: Mitarbeiter-Kacheln mit LIVE-Status (eingestempelt /
-// Pause / abwesend / ausgestempelt). So sieht jeder im Werkstatt sofort, dass
-// die Zeit weiterläuft, auch wenn niemand auf der Action-Page eingeloggt ist.
+// Kiosk home screen: employee tiles with LIVE status (clocked in /
+// on break / absent / clocked out). This lets anyone in the workshop
+// see at a glance that time is still running, even when nobody is
+// logged in on the action page.
 //
-// Sicherheits-Schichten:
-//   1. Wenn die Firma ein Kiosk-Passwort gesetzt hat UND das Tablet noch
-//      nicht freigeschaltet ist → KioskLockScreen.
-//   2. Sonst: Mitarbeiter-Liste der Firma (gefiltert auf companyId).
+// Security layers:
+//   1. If the company has set a kiosk password AND the tablet has not
+//      yet been unlocked → KioskLockScreen.
+//   2. Otherwise: employee list for the company (filtered by companyId).
 //
-// Datenschutz: Nur öffentliche Information (Name + Status + "seit HH:MM"-
-// Zeit). KEIN Saldo, keine Sollstunden, keine Wochenstunden.
+// Privacy: only public information (name + status + "since HH:MM"
+// time). NO balance, no target hours, no weekly hours.
 
 // Always render fresh — backs a real-time UI.
 export const dynamic = "force-dynamic";
@@ -34,10 +35,10 @@ export default async function KioskHomePage() {
   const tApp = await getTranslations("app");
   const tKiosk = await getTranslations("kiosk");
 
-  // ─── Account-Pfad (KIOSK_OPERATOR) ────────────────────────────
-  // Wenn ein Tablet-Konto via NextAuth eingeloggt ist, ersetzt das den
-  // anonymen Kiosk-Lock-Mechanismus komplett — die Firma kommt aus dem
-  // User-Profil, der Lock-Screen wird übersprungen.
+  // ─── Account path (KIOSK_OPERATOR) ────────────────────────────
+  // If a tablet account is logged in via NextAuth, this replaces the
+  // anonymous kiosk lock mechanism entirely — the company comes from
+  // the user profile and the lock screen is skipped.
   const session = await auth();
   const accountCompanyId =
     session?.user && isKioskOperator(session.user.role)
@@ -46,9 +47,9 @@ export default async function KioskHomePage() {
 
   const lockedCompanyId = accountCompanyId ?? (await readKioskLock());
 
-  // ─── Lock-Screen-Pfad (anonymes Tablet) ───────────────────────
-  // Wenn es überhaupt eine Firma mit gesetztem Kiosk-Passwort gibt UND
-  // das aktuelle Tablet nicht freigeschaltet ist → Lock-Screen zeigen.
+  // ─── Lock screen path (anonymous tablet) ───────────────────────
+  // If there is any company with a kiosk password set AND the current
+  // tablet is not unlocked → show the lock screen.
   if (!lockedCompanyId) {
     const protectedCompanies = await prisma.company.findMany({
       where: { kioskPasswordHash: { not: null } },
@@ -65,20 +66,20 @@ export default async function KioskHomePage() {
         />
       );
     }
-    // Keine Firma hat ein Kiosk-Passwort gesetzt → wie bisher offen
-    // (Single-Tenant-Default für habb global vor dem Multi-Tenant-Setup).
+    // No company has a kiosk password set → remain open as before
+    // (single-tenant default before the multi-tenant setup).
   }
 
-  // ─── Tenant-isolierter Pfad ──────────────────────────────────
-  // companyId entweder aus Account-Session, Lock-Cookie ODER (wenn keiner
-  // gesetzt) aus der einzigen existierenden Firma.
+  // ─── Tenant-isolated path ──────────────────────────────────
+  // companyId comes from the account session, the lock cookie,
+  // OR (if neither is set) from the single existing company.
   let companyId: string | null = lockedCompanyId;
   if (!companyId) {
     const all = await prisma.company.findMany({ select: { id: true }, take: 2 });
     companyId = all.length === 1 ? all[0].id : null;
   }
   if (!companyId) {
-    // Fallback: keine Firma, leerer State
+    // Fallback: no company configured, empty state
     return (
       <main className="min-h-screen bg-habb-paper p-6 flex items-center justify-center">
         <p className="text-habb-muted">No company configured.</p>
@@ -101,8 +102,8 @@ export default async function KioskHomePage() {
   const todayDateStr = localDateString(serverNow);
   const todayMidnightUtc = new Date(`${todayDateStr}T00:00:00.000Z`);
 
-  // Pro Mitarbeiter den Tages-Status + letzte CLOCK_IN/BREAK_START laden.
-  // Wir batchen die TimePunch-Query damit nicht N+1.
+  // Load today's status + last CLOCK_IN/BREAK_START per employee.
+  // We batch the TimePunch query to avoid N+1.
   const [summaries, todayPunches, activeAbsences, company] = await Promise.all([
     Promise.all(
       employees.map((e) =>
@@ -138,7 +139,7 @@ export default async function KioskHomePage() {
     }),
   ]);
 
-  // Pro Mitarbeiter: letzte CLOCK_IN bzw. BREAK_START rauspicken.
+  // Per employee: pick out the last CLOCK_IN or BREAK_START.
   const punchesByEmp = new Map<string, typeof todayPunches>();
   for (const p of todayPunches) {
     const list = punchesByEmp.get(p.employeeId) ?? [];
