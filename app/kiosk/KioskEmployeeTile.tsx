@@ -1,16 +1,16 @@
 "use client";
 
-// Mitarbeiter-Kachel auf der öffentlichen Kiosk-Übersicht.
+// Employee tile on the public kiosk overview.
 //
-// Zeigt einen Live-Counter ab der CLOCK_IN-Zeit, damit jeder im Werkstatt
-// sieht: ja, die Zeit LÄUFT — auch wenn niemand auf der Actions-Seite
-// eingeloggt ist. Server liefert die letzte CLOCK_IN-Zeit + den aktuellen
-// Status; Client tickt jede Sekunde weiter.
+// Shows a live counter from the CLOCK_IN time so everyone in the workshop
+// can see that time is running, even when nobody is signed in on the actions
+// page. The server provides the latest CLOCK_IN time and current status;
+// the client updates the counter every second.
 //
-// Datenschutz: Wir zeigen NUR öffentliche Information:
-//   - Name (eh schon da)
-//   - Status (eingestempelt / Pause / abwesend)
-//   - "seit HH:MM" + Counter (kein Saldo, keine Sollstunden)
+// Privacy: show public information only:
+//   - Name
+//   - Status (clocked in / on break / absent)
+//   - "since HH:MM" and counter (no balance or target hours)
 
 import Link from "next/link";
 import { useEffect, useState } from "react";
@@ -25,13 +25,13 @@ interface Props {
   lastName: string;
   employeeNumber: string;
   status: KioskStatus;
-  /** ISO-Datum der letzten CLOCK_IN- bzw. BREAK_START-Zeit. */
+  /** ISO timestamp of the latest CLOCK_IN or BREAK_START event. */
   sinceIso: string | null;
-  /** "07:30"-Anzeige der Start-Zeit. */
+  /** Display value for the start time, such as "07:30". */
   sinceLabel: string | null;
-  /** Bei ABSENT: kurzes Label (z. B. "Ferien"). */
+  /** Short label when absent, such as "Vacation". */
   absenceLabel: string | null;
-  /** Bei OUT mit gestempelten Stunden: Anzeige "X.Yh heute" (kein Saldo). */
+  /** Today's worked time when clocked out; this is not the balance. */
   todayWorkedLabel: string | null;
   serverNowIso: string;
 }
@@ -55,8 +55,8 @@ export function KioskEmployeeTile({
     return () => clearInterval(id);
   }, [status]);
 
-  // Live-Dauer berechnen ab Server-Start. Wir nutzen serverNowIso als
-  // Referenz, damit Client/Server-Zeitversatz keine Rolle spielt.
+  // Calculate the live duration using the server time as the reference,
+  // preventing client/server clock differences from affecting the result.
   let liveCounter: string | null = null;
   if (sinceIso && (status === "IN" || status === "BREAK")) {
     const sinceMs = new Date(sinceIso).getTime();
@@ -98,11 +98,11 @@ export function KioskEmployeeTile({
               <div className="space-y-0.5">
                 <div className="inline-flex items-center gap-1.5 text-xs font-semibold text-habb-success uppercase tracking-wider">
                   <span className="inline-block w-2 h-2 rounded-full bg-habb-success animate-pulse" />
-                  Eingestempelt
+                  Clocked in
                 </div>
                 {sinceLabel && (
                   <div className="text-xs text-habb-muted">
-                    seit {sinceLabel}
+                    since {sinceLabel}
                   </div>
                 )}
                 {liveCounter && (
@@ -116,11 +116,11 @@ export function KioskEmployeeTile({
               <div className="space-y-0.5">
                 <div className="inline-flex items-center gap-1.5 text-xs font-semibold text-habb-warning uppercase tracking-wider">
                   <Coffee className="h-3 w-3" />
-                  In Pause
+                  On break
                 </div>
                 {sinceLabel && (
                   <div className="text-xs text-habb-muted">
-                    seit {sinceLabel}
+                    since {sinceLabel}
                   </div>
                 )}
                 {liveCounter && (
@@ -134,17 +134,17 @@ export function KioskEmployeeTile({
               <div className="space-y-0.5">
                 <div className="inline-flex items-center gap-1.5 text-xs font-medium text-habb-muted uppercase tracking-wider">
                   <LogOut className="h-3 w-3" />
-                  Ausgestempelt
+                  Clocked out
                 </div>
                 {todayWorkedLabel && (
                   <div className="text-xs text-habb-muted">
-                    Heute: {todayWorkedLabel}
+                    Today: {todayWorkedLabel}
                   </div>
                 )}
                 {!todayWorkedLabel && (
                   <div className="inline-flex items-center gap-1 text-xs text-habb-muted">
                     <LogIn className="h-3 w-3" />
-                    Tippen zum Einstempeln
+                    Tap to clock in
                   </div>
                 )}
               </div>
@@ -153,7 +153,7 @@ export function KioskEmployeeTile({
               <div className="space-y-0.5">
                 <div className="inline-flex items-center gap-1.5 text-xs font-semibold text-habb-red uppercase tracking-wider">
                   <Plane className="h-3 w-3" />
-                  {absenceLabel ?? "Abwesend"}
+                  {absenceLabel ?? "Absent"}
                 </div>
               </div>
             )}
