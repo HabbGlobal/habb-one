@@ -77,7 +77,7 @@ function parseOrThrow<T extends z.ZodTypeAny>(schema: T, input: unknown): z.infe
 function explainPrismaError(err: unknown): string | null {
   if (err instanceof Prisma.PrismaClientKnownRequestError) {
     if (err.code === "P2002") {
-      const target = (err.meta?.target as string[] | undefined)?.join(", ") ?? "Feld";
+      const target = (err.meta?.target as string[] | undefined)?.join(", ") ?? "field";
       if (target.includes("orderNumber")) {
         return "This order number already exists — please try again.";
       }
@@ -275,8 +275,8 @@ export async function updateDraftOrder(orderId: string, input: unknown) {
   const totals = computeOrderTotals(data.items, params, isExpress, discountPct);
 
   await prisma.$transaction(async (tx) => {
-    // Items + Steps werden komplett neu aufgebaut — einfacher als Diff,
-    // bleibt korrekt weil DRAFT noch nicht in der Planung ist.
+    // Items + steps are fully rebuilt — simpler than diffing,
+    // remains correct since DRAFT has not yet entered scheduling.
     await tx.orderItem.deleteMany({ where: { orderId } });
     await tx.order.update({
       where: { id: orderId },
@@ -526,7 +526,7 @@ export async function applyProcessTemplate(args: { templateId: string }) {
     }));
   }
 
-  // Fallback: Code template (should not occur after seed)
+  // Fallback: code template (should not occur after seed)
   const skeletons = expandTemplate(args.templateId);
   return skeletons;
 }
@@ -630,8 +630,8 @@ export async function bulkHardDeleteOrders(rawIds: unknown) {
 }
 
 // ─────────────────────────────────────────
-// Spritzwerk-Recommender — Schritte vorschlagen
-// (analog zu recommendQuoteProcessSteps)
+// Coating-shop recommender — suggest steps
+// (analogous to recommendQuoteProcessSteps)
 // ─────────────────────────────────────────
 
 const recommendOrderSchema = z.object({

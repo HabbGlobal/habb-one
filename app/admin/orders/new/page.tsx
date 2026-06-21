@@ -57,7 +57,7 @@ export default async function NewOrderPage() {
 
       <Card>
         <CardHeader>
-          <CardTitle className="text-base">Auftragsdaten</CardTitle>
+          <CardTitle className="text-base">Order Details</CardTitle>
         </CardHeader>
         <CardContent>
           <OrderWizard

@@ -1,12 +1,13 @@
 "use client";
 
-// Eine Tabellenzeile pro ProcessStep mit Schätzung / Ist / Verrechnet —
-// und für ADMIN inline-editierbar:
-//   • Quelle wählen (ACTUAL / ESTIMATED / MANUAL)
-//   • Bei MANUAL Minutenzahl eingeben
+// One table row per ProcessStep showing Estimated / Actual / Billable values,
+// and editable inline for ADMIN users:
 //
-// Änderungen werden direkt via setStepBilling persistiert; Detail-Page
-// revalidiert sich anschließend.
+//   • Select the source (ACTUAL / ESTIMATED / MANUAL)
+//   • Enter a minute value when MANUAL is selected
+//
+// Changes are persisted immediately via setStepBilling; the detail page
+// is revalidated afterward.
 
 import { useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
@@ -116,7 +117,7 @@ export function StepBillingRow({
         )}
       </span>
 
-      {/* Verrechnet (effektiv) — wenn nicht editiert */}
+      {/* Billable (effective) — if not edited */}
       {!editing ? (
         <>
           <span className="col-span-1 tabular-nums text-right font-semibold text-emerald-700">
@@ -150,16 +151,16 @@ export function StepBillingRow({
         </>
       ) : (
         <>
-          {/* Editor — Quelle + ggf. Minuten-Override */}
+          {/* Editor — Source and optional minute override */}
           <span className="col-span-2">
             <Select
               value={source}
               onChange={(e) => setSource(e.target.value as ProcessStepDTO["billingTimeSource"])}
               className="text-xs h-7"
             >
-              <option value="ACTUAL">Ist (Scan)</option>
-              <option value="ESTIMATED">Schätzung</option>
-              <option value="MANUAL">Manuell</option>
+              <option value="ACTUAL">Actual (Scan)</option>
+              <option value="ESTIMATED">Estimated</option>
+              <option value="MANUAL">Manual</option>
             </Select>
           </span>
           <span className="col-span-1">

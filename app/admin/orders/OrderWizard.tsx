@@ -2,11 +2,11 @@
 
 // Multi-section order editor (used both for "new" and "edit" of DRAFT
 // orders). Layout:
-//   1) Header data â€” Customer, addresses, contact person, dates, priority
-//   2) Positions â€” per position: master data + process flow (with template)
+//   1) Header data — Customer, addresses, contact person, dates, priority
+//   2) Positions — per position: master data + process flow (with template)
 //
 // State is local. On submit we POST the full payload through the server
-// action `createOrder` / `updateDraftOrder` â€” no optimistic UI.
+// action `createOrder` / `updateDraftOrder` — no optimistic UI.
 
 import { useMemo, useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
@@ -46,9 +46,9 @@ import {
   GLOSS_LEVEL_LABEL,
 } from "@/lib/order/labels";
 
-// â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// ─────────────────────────────────────────
 // Types
-// â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// ─────────────────────────────────────────
 
 export interface CustomerOption {
   id: string;
@@ -118,9 +118,9 @@ interface Props {
   initial?: OrderWizardInitial;
 }
 
-// â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// ─────────────────────────────────────────
 // Defaults
-// â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// ─────────────────────────────────────────
 
 function makeEmptyItem(position: number): ItemDraft {
   return {
@@ -154,9 +154,9 @@ function todayPlus(days: number): string {
   return d.toISOString().slice(0, 10);
 }
 
-// â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// ─────────────────────────────────────────
 // Component
-// â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// ─────────────────────────────────────────
 
 export function OrderWizard({
   mode,
@@ -169,7 +169,7 @@ export function OrderWizard({
   const [pending, start] = useTransition();
   const [error, setError] = useState<string | null>(null);
 
-  // â”€â”€ core â”€â”€
+  // ── core ──
   const [customerId, setCustomerId] = useState(initial?.core.customerId ?? "");
   const [contactPersonId, setContactPersonId] = useState(initial?.core.contactPersonId ?? "");
   const [shippingAddressId, setShippingAddressId] = useState(
@@ -193,7 +193,7 @@ export function OrderWizard({
   const [notes, setNotes] = useState(initial?.core.notes ?? "");
   const [customerNotes, setCustomerNotes] = useState(initial?.core.customerNotes ?? "");
 
-  // â”€â”€ items â”€â”€
+  // ── items ──
   const [items, setItems] = useState<ItemDraft[]>(() => {
     if (initial?.items?.length) {
       return initial.items.map((it, i) => ({
@@ -231,7 +231,7 @@ export function OrderWizard({
     [customers, customerId],
   );
 
-  // â”€â”€ item helpers â”€â”€
+  // ── item helpers ──
   const updateItem = (idx: number, patch: Partial<ItemDraft>) => {
     setItems((prev) => prev.map((it, i) => (i === idx ? { ...it, ...patch } : it)));
   };
@@ -249,7 +249,7 @@ export function OrderWizard({
     setItems((prev) => prev.filter((_, i) => i !== idx));
   };
 
-  // â”€â”€ steps inside an item â”€â”€
+  // ── steps inside an item ──
   const updateStep = (itemIdx: number, stepIdx: number, patch: Partial<StepDraft>) => {
     setItems((prev) =>
       prev.map((it, i) => {
@@ -320,8 +320,8 @@ export function OrderWizard({
       processCode: code,
       machineTypeRequired: r.machine,
       skillRequired: r.skill,
-      // Don't reset wait if user has customised it â€” but if it's still the
-      // current-default, adopt the new default.
+      // Don't reset wait if user has customised it — but if it's still the
+      // current default, adopt the new default.
       waitMinutesAfter: r.defaultWaitMinutes,
     });
   };
@@ -355,7 +355,7 @@ export function OrderWizard({
     });
   };
 
-  // Recommender â€” suggests steps, user decides whether to accept.
+  // Recommender — suggests steps, user decides whether to accept.
   const [suggestion, setSuggestion] = useState<{
     itemIdx: number;
     steps: {
@@ -416,7 +416,7 @@ export function OrderWizard({
     setSuggestion(null);
   };
 
-  // â”€â”€ submit â”€â”€
+  // ── submit ──
   const submit = () => {
     setError(null);
     if (items.some((it) => it.steps.length === 0)) {
@@ -480,13 +480,13 @@ export function OrderWizard({
     });
   };
 
-  // â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+  // ─────────────────────────────────────────
   // Render
-  // â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+  // ─────────────────────────────────────────
 
   return (
     <div className="space-y-6">
-      {/* â”€â”€ Step 1: Header â”€â”€ */}
+      {/* ── Step 1: Header ── */}
       <section className="space-y-3">
         <h2 className="font-medium text-sm text-muted-foreground uppercase tracking-wider">
           1. Header
@@ -503,10 +503,10 @@ export function OrderWizard({
                 setBillingAddressId("");
               }}
             >
-              <option value="">â€” Select customer â€”</option>
+              <option value="">— Select customer —</option>
               {customers.map((c) => (
                 <option key={c.id} value={c.id}>
-                  {c.customerNumber} Â· {c.label}
+                  {c.customerNumber} · {c.label}
                 </option>
               ))}
             </Select>
@@ -520,7 +520,7 @@ export function OrderWizard({
                   value={contactPersonId}
                   onChange={(e) => setContactPersonId(e.target.value)}
                 >
-                  <option value="">â€” none â€”</option>
+                  <option value="">— none —</option>
                   {customer.contacts.map((ct) => (
                     <option key={ct.id} value={ct.id}>
                       {ct.label}
@@ -536,7 +536,7 @@ export function OrderWizard({
                   value={shippingAddressId}
                   onChange={(e) => setShippingAddressId(e.target.value)}
                 >
-                  <option value="">â€” keine â€”</option>
+                  <option value="">— none —</option>
                   {customer.addresses
                     .filter((a) => a.type === "SHIPPING" || a.type === "BOTH")
                     .map((a) => (
@@ -553,7 +553,7 @@ export function OrderWizard({
                   value={billingAddressId}
                   onChange={(e) => setBillingAddressId(e.target.value)}
                 >
-                  <option value="">â€” keine â€”</option>
+                  <option value="">— none —</option>
                   {customer.addresses
                     .filter((a) => a.type === "BILLING" || a.type === "BOTH")
                     .map((a) => (
@@ -625,7 +625,7 @@ export function OrderWizard({
         </div>
       </section>
 
-      {/* â”€â”€ Step 2: Items â”€â”€ */}
+      {/* ── Step 2: Items ── */}
       <section className="space-y-3">
         <div className="flex items-center justify-between">
           <h2 className="font-medium text-sm text-muted-foreground uppercase tracking-wider">
@@ -643,7 +643,7 @@ export function OrderWizard({
                 Pos. {it.position}
                 {it.description && (
                   <span className="ml-2 text-muted-foreground font-normal">
-                    â€” {it.description}
+                    — {it.description}
                   </span>
                 )}
               </CardTitle>
@@ -659,7 +659,7 @@ export function OrderWizard({
             <CardContent className="space-y-4">
               <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
                 <div className="space-y-1">
-                  <Label>Pos.-Nr.</Label>
+                  <Label>Position no.</Label>
                   <Input
                     type="number"
                     value={it.position}
@@ -689,7 +689,7 @@ export function OrderWizard({
                   />
                 </div>
                 <div className="space-y-1">
-                  <Label>Surface (mÂ²) *</Label>
+                  <Label>Surface (m²) *</Label>
                   <Input
                     type="number"
                     step={0.01}
@@ -766,7 +766,7 @@ export function OrderWizard({
                       })
                     }
                   >
-                    <option value="">â€”</option>
+                    <option value="">—</option>
                     {(Object.keys(COLOR_SYSTEM_LABEL) as Array<keyof typeof COLOR_SYSTEM_LABEL>).map((k) => (
                       <option key={k} value={k}>
                         {COLOR_SYSTEM_LABEL[k]}
@@ -790,7 +790,7 @@ export function OrderWizard({
                       updateItem(idx, { glossLevel: e.target.value as ItemDraft["glossLevel"] })
                     }
                   >
-                    <option value="">â€”</option>
+                    <option value="">—</option>
                     {(Object.keys(GLOSS_LEVEL_LABEL) as Array<keyof typeof GLOSS_LEVEL_LABEL>).map((k) => (
                       <option key={k} value={k}>
                         {GLOSS_LEVEL_LABEL[k]}
@@ -813,7 +813,7 @@ export function OrderWizard({
                       })
                     }
                   >
-                    <option value="">â€” select â€”</option>
+                    <option value="">— select —</option>
                     <option value="INDOOR">Indoor</option>
                     <option value="OUTDOOR">Outdoor</option>
                     <option value="BOTH">Indoor + Outdoor</option>
@@ -861,7 +861,7 @@ export function OrderWizard({
                       }}
                       className="w-44"
                     >
-                      <option value="">â€” Template â€”</option>
+                      <option value="">— Template —</option>
                       {templates.map((t) => (
                         <option key={t.id} value={t.id}>
                           {t.label}
@@ -945,7 +945,7 @@ export function OrderWizard({
                             }
                             className="text-xs"
                           >
-                            {/* Grouped by stage â€” Preparation â†’ Sandblasting â†’ â€¦ */}
+                            {/* Grouped by stage — Preparation → Sandblasting → … */}
                             {(["Preparation", "Sandblasting", "Wet Painting", "Powder Coating", "Post-processing"] as const).map((group) => (
                               <optgroup key={group} label={group}>
                                 {PROCESS_CODES.filter((c) => PROCESS_GROUP[c] === group).map((c) => (
@@ -987,7 +987,7 @@ export function OrderWizard({
                             }
                             className="text-xs"
                           >
-                            <option value="">â€” keine â€”</option>
+                            <option value="">— none —</option>
                             {MACHINE_TYPES.map((m) => (
                               <option key={m} value={m}>
                                 {MACHINE_LABEL[m]}
@@ -1029,7 +1029,7 @@ export function OrderWizard({
         ))}
       </section>
 
-      {/* â”€â”€ Errors + Submit â”€â”€ */}
+      {/* ── Errors + Submit ── */}
       {error && (
         <div className="rounded-lg border border-destructive bg-destructive/10 px-3 py-2 text-sm text-destructive">
           {error}
@@ -1054,7 +1054,7 @@ export function OrderWizard({
         </div>
       </div>
 
-      {/* Paint shop recommendation â€” Vorschau-Modal */}
+      {/* Paint shop recommendation — preview modal */}
       {suggestion && (
         <div
           className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4"
@@ -1074,7 +1074,7 @@ export function OrderWizard({
                 </h2>
                 <p className="text-xs text-muted-foreground mt-0.5">
                   Suggestion based on material + application + gloss.
-                  Applying replaces the current steps â€” editable afterwards.
+                  Applying replaces the current steps — editable afterwards.
                 </p>
               </div>
               <button
@@ -1083,7 +1083,7 @@ export function OrderWizard({
                 className="p-1 rounded hover:bg-habb-paper text-muted-foreground"
                 aria-label="Close"
               >
-                âœ•
+                ✕
               </button>
             </div>
 
@@ -1091,7 +1091,7 @@ export function OrderWizard({
               {suggestion.warnings.length > 0 && (
                 <div className="rounded-md bg-amber-50 border border-amber-200 px-3 py-2 text-sm text-amber-900 space-y-1">
                   {suggestion.warnings.map((w, i) => (
-                    <div key={i}>âš  {w}</div>
+                    <div key={i}>⚠ {w}</div>
                   ))}
                 </div>
               )}
@@ -1114,10 +1114,10 @@ export function OrderWizard({
                       <span className="text-xs text-muted-foreground">
                         {SKILL_LABEL[s.skillRequired]}
                         {s.machineTypeRequired
-                          ? ` Â· ${MACHINE_LABEL[s.machineTypeRequired]}`
+                          ? ` · ${MACHINE_LABEL[s.machineTypeRequired]}`
                           : ""}
                         {s.waitMinutesAfter > 0
-                          ? ` Â· ${s.waitMinutesAfter} Min Wartezeit`
+                          ? ` · ${s.waitMinutesAfter} min wait time`
                           : ""}
                       </span>
                     </div>

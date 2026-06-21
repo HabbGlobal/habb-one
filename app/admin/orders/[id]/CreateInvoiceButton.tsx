@@ -18,7 +18,7 @@ export function CreateInvoiceButton({
   const [error, setError] = useState<string | null>(null);
 
   if (hasInvoice) {
-    return null; // Schon eine Rechnung → kein Button mehr
+    return null; // Invoice already exists → no button displayed anymore
   }
 
   const click = () => {

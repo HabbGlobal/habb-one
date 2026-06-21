@@ -104,8 +104,7 @@ export function OrderStatusActions({
 
   if (allowedNext.length === 0) {
     return (
-      <p className="text-sm text-muted-foreground italic">Status<strong>{statusLabel(currentStatus)}</strong> ist final — keine
-        weiteren Übergänge möglich.
+      <p className="text-sm text-muted-foreground italic">Status<strong>{statusLabel(currentStatus)}</strong>Final state — no further transitions are possible.
       </p>
     );
   }
@@ -131,9 +130,9 @@ export function OrderStatusActions({
       {target && (
         <div className="rounded-lg border bg-muted/30 p-3 space-y-2">
           <Label>
-            Begründung für Übergang nach {statusLabel(target)}{" "}
+            Reason for transition to{statusLabel(target)}{" "}
             <span className="text-xs text-muted-foreground">
-              (wird im Statusverlauf gespeichert)
+              (Stored in the status history.)
             </span>
           </Label>
           <Textarea

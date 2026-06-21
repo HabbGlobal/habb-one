@@ -67,9 +67,9 @@ function fmtCHF(n: number | null): string {
 function fmtMin(n: number): string {
   const h = Math.floor(n / 60);
   const m = n % 60;
-  if (h === 0) return `${m} Min`;
+  if (h === 0) return `${m} min`;
   if (m === 0) return `${h} h`;
-  return `${h} h ${m} Min`;
+  return `${h} h ${m} min`;
 }
 
 export default async function OrderDetailPage({
@@ -122,10 +122,10 @@ export default async function OrderDetailPage({
   const canWrite = hasPermission(session.user.role, "orders.write");
   const canConfirm = hasPermission(session.user.role, "orders.confirm");
   const canCancel = hasPermission(session.user.role, "orders.cancel");
-  // Nur ADMIN darf die Verrechnungs-Quelle pro Schritt überschreiben.
+  // Only ADMIN may override the billing source per step.
   const canAdminBilling = session.user.role === "ADMIN";
 
-  // Schedule-Einträge in DTO konvertieren (für SchedulingSection)
+  // Convert schedule entries to DTO (for SchedulingSection)
   const scheduledSteps: ScheduledStepDTO[] = order.scheduleEntries.map((e) => ({
     entryId: e.id,
     stepId: e.processStepId,
@@ -143,7 +143,7 @@ export default async function OrderDetailPage({
   }));
   const canScheduleWrite = hasPermission(session.user.role, "schedule.write");
 
-  // Aggregate über alle Items für die Zeit-Übersicht-Karte
+  // Aggregate across all items for the time overview card
   const totalEstimated = dto.items.reduce((s, it) => s + it.totalEstimatedMinutes, 0);
   const totalBilled = dto.items.reduce((s, it) => s + it.totalBilledMinutes, 0);
   const totalActual = dto.items.every((it) => it.totalActualMinutes != null)
@@ -262,40 +262,40 @@ export default async function OrderDetailPage({
             )}
             {dto.hasSnapshot && (
               <Badge variant="info" className="gap-1">
-                <Lock className="h-3 w-3" /> Snapshot eingefroren
+                <Lock className="h-3 w-3" /> Snapshot frozen
               </Badge>
             )}
             {isLate && (
               <Badge variant="destructive" className="gap-1">
-                <AlertTriangle className="h-3 w-3" /> Überfällig
+                <AlertTriangle className="h-3 w-3" /> Overdue
               </Badge>
             )}
           </div>
           <p className="text-sm text-muted-foreground mt-1">
-            Kunde:{" "}
+            Customer:{" "}
             <Link
               href={`/admin/customers/${dto.customerId}`}
               className="underline hover:text-foreground"
             >
               {dto.customerDisplayName}
             </Link>
-            {dto.contactPersonName && ` · Kontakt: ${dto.contactPersonName}`}
+            {dto.contactPersonName && ` · Contact: ${dto.contactPersonName}`}
           </p>
         </div>
         <div className="flex flex-wrap items-center gap-2">
           <Button asChild variant="outline" size="sm">
             <a href={`/api/admin/orders/${dto.id}/confirmation.pdf`} target="_blank">
-              <FileText className="h-4 w-4 mr-1" /> Auftragsbestätigung
+              <FileText className="h-4 w-4 mr-1" /> Order confirmation
             </a>
           </Button>
           <Button asChild variant="outline" size="sm">
             <a href={`/api/admin/orders/${dto.id}/delivery-note.pdf`} target="_blank">
-              <Download className="h-4 w-4 mr-1" /> Lieferschein
+              <Download className="h-4 w-4 mr-1" /> Delivery note
             </a>
           </Button>
           <Button asChild variant="outline" size="sm">
             <a href={`/api/admin/orders/${dto.id}/qr-label.pdf`} target="_blank">
-              <QrCode className="h-4 w-4 mr-1" /> QR-Etikett
+              <QrCode className="h-4 w-4 mr-1" /> QR label
             </a>
           </Button>
           <Button asChild size="sm">
@@ -313,7 +313,7 @@ export default async function OrderDetailPage({
         </div>
       </div>
 
-      {/* Auto-refresh wenn Auftrag live ist (Scans möglich) */}
+      {/* Auto-refresh while the order is live (scans possible) */}
       <AutoRefresh
         enabled={["CONFIRMED", "IN_PROGRESS", "ON_HOLD"].includes(dto.status)}
       />
@@ -321,25 +321,25 @@ export default async function OrderDetailPage({
       {/* ── Quick facts ── */}
       <Card>
         <CardContent className="p-4 grid grid-cols-2 md:grid-cols-5 gap-4 text-sm">
-          <Fact label="Eingang" value={fmtDate(dto.receivedAt)} />
+          <Fact label="Received" value={fmtDate(dto.receivedAt)} />
           <Fact
-            label="Liefertermin"
+            label="Delivery date"
             value={fmtDate(dto.promisedAt)}
             highlight={isLate}
           />
           <Fact
-            label="Interne Deadline"
+            label="Internal deadline"
             value={fmtDate(dto.internalDeadline)}
           />
-          <Fact label="Tracking-ID" value={dto.trackingId} mono />
-          <Fact label="Total (netto)" value={fmtCHF(dto.totalNetCHF)} bold />
+          <Fact label="Tracking ID" value={dto.trackingId} mono />
+          <Fact label="Total (net)" value={fmtCHF(dto.totalNetCHF)} bold />
         </CardContent>
       </Card>
 
       {/* ── Status workflow ── */}
       <Card>
         <CardHeader>
-          <CardTitle className="text-base">Status-Workflow</CardTitle>
+          <CardTitle className="text-base">Status Workflow</CardTitle>
         </CardHeader>
         <CardContent>
           <OrderStatusActions
@@ -351,15 +351,15 @@ export default async function OrderDetailPage({
           />
           {dto.status === "DRAFT" && (
             <p className="text-xs text-muted-foreground mt-3">
-              Beim Übergang <strong>Entwurf → Bestätigt</strong> werden die
-              aktuellen Berechnungs-Parameter eingefroren — Preis und
-              Schritt-Dauern ändern sich danach nicht mehr.
+              On the transition <strong>Draft → Confirmed</strong>, the
+              current calculation parameters are frozen — price and
+              step durations will no longer change afterward.
             </p>
           )}
         </CardContent>
       </Card>
 
-      {/* ── Planung (nur für aktive Aufträge sichtbar) ── */}
+      {/* ── Scheduling (only visible for active orders) ── */}
       {["CONFIRMED", "IN_PROGRESS", "ON_HOLD"].includes(dto.status) && (
         <Card>
           <CardHeader>
@@ -382,7 +382,7 @@ export default async function OrderDetailPage({
         <Card>
           <CardHeader>
             <CardTitle className="text-base flex items-center gap-2">
-              <Pencil className="h-4 w-4" /> Auftrag bearbeiten
+              <Pencil className="h-4 w-4" /> Edit order
             </CardTitle>
           </CardHeader>
           <CardContent>
@@ -397,34 +397,34 @@ export default async function OrderDetailPage({
         </Card>
       ) : (
         <>
-          {/* Time-Total-Karte über den Positionen */}
+          {/* Time totals card above the line items */}
           <Card>
             <CardHeader>
-              <CardTitle className="text-base">Zeit-Übersicht</CardTitle>
+              <CardTitle className="text-base">Time Overview</CardTitle>
             </CardHeader>
             <CardContent>
               <div className="grid grid-cols-3 gap-4 text-sm">
                 <div>
-                  <div className="text-xs text-muted-foreground">Schätzung gesamt</div>
+                  <div className="text-xs text-muted-foreground">Total estimated</div>
                   <div className="text-lg font-semibold tabular-nums">
                     {fmtMin(totalEstimated)}
                   </div>
                 </div>
                 <div>
-                  <div className="text-xs text-muted-foreground">Ist gesamt (Scans)</div>
+                  <div className="text-xs text-muted-foreground">Total actual (scans)</div>
                   <div className="text-lg font-semibold tabular-nums">
                     {totalActual != null ? (
                       fmtMin(totalActual)
                     ) : (
                       <span className="text-base text-muted-foreground italic">
-                        unvollständig
+                        incomplete
                       </span>
                     )}
                   </div>
                 </div>
                 <div>
                   <div className="text-xs text-muted-foreground">
-                    Verrechnet (Auswahl pro Schritt)
+                    Billed (per-step selection)
                   </div>
                   <div className="text-lg font-semibold tabular-nums text-emerald-700">
                     {fmtMin(totalBilled)}
@@ -433,8 +433,8 @@ export default async function OrderDetailPage({
               </div>
               {canAdminBilling && (
                 <p className="text-xs text-muted-foreground mt-3">
-                  Tippe auf das Stift-Symbol einer Zeile um die Verrechnungs-Quelle
-                  zu ändern (Ist / Schätzung / Manuell). Nur ADMIN.
+                  Tap the pencil icon on a row to change the billing source
+                  (Actual / Estimated / Manual). ADMIN only.
                 </p>
               )}
             </CardContent>
@@ -442,7 +442,7 @@ export default async function OrderDetailPage({
 
           <Card>
             <CardHeader>
-              <CardTitle className="text-base">Positionen</CardTitle>
+              <CardTitle className="text-base">Line items</CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">
               {dto.items.map((it) => (
@@ -453,7 +453,7 @@ export default async function OrderDetailPage({
                   <div className="flex items-start justify-between">
                     <div>
                       <div className="font-medium">
-                        Pos. {it.position} — {it.description}
+                        Item {it.position} — {it.description}
                       </div>
                       <div className="text-xs text-muted-foreground">
                         {it.quantity}× · {it.surfaceM2} m² · {materialLabel(it.material)} · {complexityLabel(it.complexity)}
@@ -462,13 +462,13 @@ export default async function OrderDetailPage({
                     </div>
                     <div className="text-right text-xs">
                       <div className="text-muted-foreground">
-                        Schätzung: {fmtMin(it.totalEstimatedMinutes)}
+                        Estimated: {fmtMin(it.totalEstimatedMinutes)}
                       </div>
                       {it.totalActualMinutes != null && (
-                        <div>Ist: {fmtMin(it.totalActualMinutes)}</div>
+                        <div>Actual: {fmtMin(it.totalActualMinutes)}</div>
                       )}
                       <div className="font-semibold text-emerald-700">
-                        Verrechnet: {fmtMin(it.totalBilledMinutes)}
+                        Billed: {fmtMin(it.totalBilledMinutes)}
                       </div>
                       {it.unitPriceCHF != null && (
                         <div className="text-muted-foreground tabular-nums mt-1">
@@ -478,16 +478,16 @@ export default async function OrderDetailPage({
                     </div>
                   </div>
 
-                  {/* Header für Step-Tabelle */}
+                  {/* Header for step table */}
                   <div className="mt-3 grid grid-cols-12 gap-2 px-2 text-[10px] uppercase tracking-wider text-muted-foreground">
                     <span className="col-span-1">#</span>
-                    <span className="col-span-3">Prozess</span>
-                    <span className="col-span-1">MA</span>
+                    <span className="col-span-3">Process</span>
+                    <span className="col-span-1">Skill</span>
                     <span className="col-span-1">Machine</span>
-                    <span className="col-span-1 text-right">Schätz.</span>
-                    <span className="col-span-1 text-right">Ist</span>
-                    <span className="col-span-1 text-right">Verr.</span>
-                    <span className="col-span-2 text-right">Quelle</span>
+                    <span className="col-span-1 text-right">Est.</span>
+                    <span className="col-span-1 text-right">Actual</span>
+                    <span className="col-span-1 text-right">Billed</span>
+                    <span className="col-span-2 text-right">Source</span>
                     <span className="col-span-1 text-right">{canAdminBilling ? "Edit" : "Status"}</span>
                   </div>
 
@@ -513,7 +513,7 @@ export default async function OrderDetailPage({
           {dto.notes && (
             <Card>
               <CardHeader>
-                <CardTitle className="text-sm">Interne Notizen</CardTitle>
+                <CardTitle className="text-sm">Internal notes</CardTitle>
               </CardHeader>
               <CardContent className="text-sm whitespace-pre-line">
                 {dto.notes}
@@ -523,7 +523,7 @@ export default async function OrderDetailPage({
           {dto.customerNotes && (
             <Card>
               <CardHeader>
-                <CardTitle className="text-sm">Kunden-Notizen</CardTitle>
+                <CardTitle className="text-sm">Customer notes</CardTitle>
               </CardHeader>
               <CardContent className="text-sm whitespace-pre-line">
                 {dto.customerNotes}
@@ -537,12 +537,12 @@ export default async function OrderDetailPage({
       <Card>
         <CardHeader>
           <CardTitle className="text-base flex items-center gap-2">
-            <HistoryIcon className="h-4 w-4" /> Statusverlauf
+            <HistoryIcon className="h-4 w-4" /> Status History
           </CardTitle>
         </CardHeader>
         <CardContent>
           {dto.history.length === 0 ? (
-            <p className="text-sm text-muted-foreground">Keine Einträge.</p>
+            <p className="text-sm text-muted-foreground">No entries.</p>
           ) : (
             <ul className="text-sm divide-y">
               {dto.history.map((h) => (
@@ -556,7 +556,7 @@ export default async function OrderDetailPage({
                   <span className="font-medium">
                     {h.fromStatus
                       ? `${statusLabel(h.fromStatus)} → ${statusLabel(h.toStatus)}`
-                      : `Erfasst (${statusLabel(h.toStatus)})`}
+                      : `Created (${statusLabel(h.toStatus)})`}
                   </span>
                   {h.comment && (
                     <span className="text-xs text-muted-foreground italic">
