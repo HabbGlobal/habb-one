@@ -50,7 +50,7 @@ export default async function NewQuotePage() {
 
       <Card>
         <CardHeader>
-          <CardTitle className="text-base">Quotes-Daten</CardTitle>
+          <CardTitle className="text-base">Quotation Data</CardTitle>
         </CardHeader>
         <CardContent>
           <QuoteWizard

@@ -527,7 +527,7 @@ export async function bulkDeleteDraftQuotes(rawIds: unknown) {
 }
 
 // ─────────────────────────────────────────
-// Apply Process-Template — analog applyProcessTemplate in Order-Action
+// Apply Process-Template — analogous to applyProcessTemplate in Order-Action
 // ─────────────────────────────────────────
 
 export async function applyQuoteProcessTemplate(args: { templateId: string }) {

@@ -159,7 +159,7 @@ export function QuoteWizard({ mode, customers, templates, processResources, init
   const vatCHF = Math.round((totalNet * vatRate) / 100 * 100) / 100;
   const totalGross = Math.round((totalNet + vatCHF) * 100) / 100;
 
-  // ── Item-Helpers ──
+  // ── Item helpers ──
   const updateItem = (idx: number, patch: Partial<ItemDraft>) => {
     setItems((prev) => prev.map((it, i) => (i === idx ? { ...it, ...patch } : it)));
   };
@@ -177,7 +177,7 @@ export function QuoteWizard({ mode, customers, templates, processResources, init
     setItems((prev) => prev.filter((_, i) => i !== idx));
   };
 
-  // ── Step-Helpers ──
+  // ── Step helpers ──
   const updateStep = (itemIdx: number, stepIdx: number, patch: Partial<StepDraft>) => {
     setItems((prev) =>
       prev.map((it, i) => {
@@ -367,7 +367,7 @@ export function QuoteWizard({ mode, customers, templates, processResources, init
                 machineTypeRequired: s.machineTypeRequired,
                 skillRequired: s.skillRequired,
                 waitMinutesAfter: s.waitMinutesAfter,
-                notes: s.rationale, // Take rationale as note
+                notes: s.rationale, // use rationale as step note
               })),
             }
           : it,
@@ -521,7 +521,7 @@ export function QuoteWizard({ mode, customers, templates, processResources, init
             <CardContent className="space-y-4">
               <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
                 <div className="space-y-1">
-                  <Label>Pos.-Nr.</Label>
+                  <Label>Position no.</Label>
                   <Input
                     type="number"
                     value={it.position}
@@ -560,7 +560,7 @@ export function QuoteWizard({ mode, customers, templates, processResources, init
                         unitPriceCHF: Number(e.target.value.replace(",", ".")),
                       })
                     }
-                    placeholder="z. B. 125.50"
+                    placeholder="e.g. 125.50"
                   />
                 </div>
                 <div className="space-y-1">
@@ -953,7 +953,7 @@ export function QuoteWizard({ mode, customers, templates, processResources, init
         </div>
       </div>
 
-      {/* Paint shop recommendation — Preview modal before accepting */}
+      {/* Paint shop recommendation — preview modal before accepting */}
       {suggestion && (
         <div
           className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4"

@@ -126,7 +126,7 @@ export function ParameterEditDialog({
         <CardContent className="space-y-4">
           <div className="grid grid-cols-2 gap-3">
             <div className="space-y-1">
-              <Label>Aktuell</Label>
+              <Label>Current Value</Label>
               <div className="rounded-md border bg-muted/30 px-3 py-2 text-sm font-mono">
                 {param.currentValue}
                 {param.unit && <span className="ml-1 text-muted-foreground">{param.unit}</span>}
@@ -142,7 +142,7 @@ export function ParameterEditDialog({
           </div>
 
           <div className="space-y-1">
-            <Label>Neuer Wert</Label>
+            <Label>New Value</Label>
             <div className="flex items-center gap-2">
               <Input
                 type={isNumeric ? "number" : "text"}
@@ -185,7 +185,7 @@ export function ParameterEditDialog({
               placeholder="z. B. Neuer Pulverlieferant XY-Polyester, schneller Brennvorgang lt. Datenblatt"
             />
             <p className="text-xs text-muted-foreground">
-              Wird im Audit-Log gespeichert.
+              Changes are recorded in the audit log.
             </p>
           </div>
 

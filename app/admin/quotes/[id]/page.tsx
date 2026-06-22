@@ -166,7 +166,7 @@ export default async function QuoteDetailPage({
             <Badge variant={STATUS_VARIANT[dto.status]}>{quoteStatusLabel(dto.status)}</Badge>
             {dto.hasSnapshot && (
               <Badge variant="info" className="gap-1">
-                <Lock className="h-3 w-3" /> Snapshot eingefroren
+                <Lock className="h-3 w-3" /> Snapshot Frozen
               </Badge>
             )}
             {isConverted && dto.convertedToOrderId && (
@@ -237,7 +237,7 @@ export default async function QuoteDetailPage({
         <Card>
           <CardHeader>
             <CardTitle className="text-base flex items-center gap-2">
-              <Pencil className="h-4 w-4" /> Offerte bearbeiten
+              <Pencil className="h-4 w-4" /> Edit Quotation (or Edit Quote)
             </CardTitle>
           </CardHeader>
           <CardContent>
@@ -253,7 +253,7 @@ export default async function QuoteDetailPage({
       ) : (
         <Card>
           <CardHeader>
-            <CardTitle className="text-base">Positionen</CardTitle>
+            <CardTitle className="text-base">Items (or Line Items)</CardTitle>
           </CardHeader>
           <CardContent className="space-y-4">
             {dto.items.map((it) => (
@@ -289,7 +289,7 @@ export default async function QuoteDetailPage({
                       {fmtCHF(it.totalPriceCHF)}
                     </div>
                     <div className="text-xs text-muted-foreground">
-                      {fmtMin(it.totalEstimatedMinutes)} Aufwand
+                      {fmtMin(it.totalEstimatedMinutes)} Effort
                     </div>
                   </div>
                 </div>
@@ -332,7 +332,7 @@ export default async function QuoteDetailPage({
                 </div>
               </div>
               <div>
-                <div className="text-xs text-muted-foreground">Total netto</div>
+                <div className="text-xs text-muted-foreground">Total Net Amount</div>
                 <div className="font-medium tabular-nums">{fmtCHF(dto.totalNetCHF)}</div>
               </div>
               <div>
@@ -352,7 +352,7 @@ export default async function QuoteDetailPage({
       {dto.notes && dto.status !== "DRAFT" && (
         <Card>
           <CardHeader>
-            <CardTitle className="text-sm">Notizen</CardTitle>
+            <CardTitle className="text-sm">Notes</CardTitle>
           </CardHeader>
           <CardContent className="text-sm whitespace-pre-line">{dto.notes}</CardContent>
         </Card>

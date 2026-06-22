@@ -44,7 +44,7 @@ export function QuoteList({ rows }: { rows: QuoteListItemDTO[] }) {
   if (rows.length === 0) {
     return (
       <div className="text-center text-muted-foreground py-10 text-sm">
-        Keine Offerten in dieser Ansicht.
+        No offers in this view.
       </div>
     );
   }
@@ -75,10 +75,10 @@ export function QuoteList({ rows }: { rows: QuoteListItemDTO[] }) {
                   {quoteStatusLabel(q.status)}
                 </Badge>
                 {q.isExpired && (
-                  <span className="text-[10px] text-destructive">abgelaufen</span>
+                  <span className="text-[10px] text-destructive">expired</span>
                 )}
                 {q.convertedToOrderId && (
-                  <span className="text-[10px] text-muted-foreground">→ Auftrag</span>
+                  <span className="text-[10px] text-muted-foreground">→ order</span>
                 )}
               </div>
             </TableCell>
