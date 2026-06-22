@@ -1,6 +1,6 @@
 "use client";
 
-// Tenant-SUPERADMIN-Wrapper um den geteilten Editor.
+// Tenant SUPERADMIN wrapper around the shared editor.
 
 import {
   UserPermissionsEditor,

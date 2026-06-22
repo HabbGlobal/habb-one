@@ -112,7 +112,7 @@ export function AreaCellModal({
             </h3>
             {employees.length === 0 ? (
               <p className="text-sm text-muted-foreground italic">
-                Niemand eingeplant.
+                No one scheduled.
               </p>
             ) : (
               <ul className="space-y-1.5">
@@ -172,12 +172,11 @@ export function AreaCellModal({
                   disabled={pending || !pickEmployee}
                   onClick={onAdd}
                 >
-                  <Plus className="h-4 w-4 mr-1" /> Zuweisen
+                  <Plus className="h-4 w-4 mr-1" /> Assign
                 </Button>
               </div>
               <p className="text-xs text-muted-foreground mt-2">
-                Default-Schicht 07:30–16:30 (Pause 30 Min.). Anpassen im
-                normalen Plan-Tab.
+                Default shift 07:30–16:30 (30 min break). Adjust in the normal schedule tab.
               </p>
             </div>
           )}

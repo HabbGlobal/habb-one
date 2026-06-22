@@ -1,7 +1,6 @@
 "use client";
 
-// Einfache Client-Komponente: Klick triggert `scheduleAll`, zeigt
-// Pending-Spinner + Resultat. Refresh nach Erfolg.
+// Simple client component: clicking triggers `scheduleAll`, shows loading spinner + result. Refresh after success.
 
 import { useState, useTransition } from "react";
 import { useRouter } from "next/navigation";

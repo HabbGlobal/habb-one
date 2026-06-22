@@ -1,12 +1,12 @@
 "use server";
 
-// Server-Actions für manuelle Zeit-Korrekturen (Gleitzeit-Anpassungen)
-// in der Personalabrechnung. Erfassbar von CEO + Sekretariat
-// (`timeEntries.correct`). Signierte Minuten fliessen in den kumulierten
-// Saldo des Lohn-Reports ein.
+// Server actions for manual time corrections (flextime adjustments)
+// in payroll accounting. Can be entered by CEO + secretary
+// (`timeEntries.correct`). Signed minutes are included in the cumulative
+// balance of the payroll report.
 //
-// Erwartete Fehler → strukturiertes { ok:false, error } (Production
-// maskiert geworfene Fehler sonst zu einer generischen Meldung).
+// Expected errors → structured { ok:false, error } (in production,
+// thrown errors are masked into a generic message).
 
 import { z } from "zod";
 import { revalidatePath } from "next/cache";
@@ -34,7 +34,7 @@ async function requireCorrector() {
 const createSchema = z.object({
   employeeId: z.string().min(1),
   date: z.string().regex(/^\d{4}-\d{2}-\d{2}$/, "Datum fehlt."),
-  // Richtung + Stunden getrennt, damit kein Vorzeichen-Wirrwarr entsteht.
+  // Direction + hours are separated to avoid sign confusion.
   direction: z.enum(["ADD", "SUBTRACT"]),
   hours: z.coerce
     .number()
