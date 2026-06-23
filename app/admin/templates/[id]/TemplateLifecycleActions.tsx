@@ -51,7 +51,7 @@ export function TemplateLifecycleActions({
             }
             disabled={pending}
           >
-            <Archive className="h-4 w-4 mr-1" /> Archivieren
+            <Archive className="h-4 w-4 mr-1" /> Archive
           </Button>
         )}
         {(isArchived || isDeleted) && (
@@ -61,7 +61,7 @@ export function TemplateLifecycleActions({
             onClick={() => run(() => restoreTemplate(templateId))}
             disabled={pending}
           >
-            <RotateCcw className="h-4 w-4 mr-1" /> Wiederherstellen
+            <RotateCcw className="h-4 w-4 mr-1" /> Restore
           </Button>
         )}
         {!isDeleted && (

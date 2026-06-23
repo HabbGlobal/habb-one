@@ -101,12 +101,10 @@ export function CompanyLogoForm({ hasLogo, logoVersion }: Props) {
       </CardHeader>
       <CardContent className="space-y-4">
         <p className="text-sm text-muted-foreground">
-          Wird auf allen generierten Dokumenten (Offerten, Rechnungen,
-          Lieferscheine, Berichte) oben rechts eingebettet und in der Sidebar
-          neben dem Firmennamen angezeigt.
+          Will be embedded at the top right of all generated documents (quotes, invoices, delivery notes, reports) and displayed in the sidebar next to the company name.
         </p>
 
-        {/* Aktuelles oder Vorschau-Logo */}
+        {/* Current or preview logo */}
         <div className="flex items-center gap-4 flex-wrap">
           <div className="rounded-lg border-2 border-dashed border-habb-line bg-habb-paper w-44 h-28 flex items-center justify-center overflow-hidden">
             {previewUrl ? (
@@ -125,7 +123,7 @@ export function CompanyLogoForm({ hasLogo, logoVersion }: Props) {
               />
             ) : (
               <span className="text-xs text-muted-foreground italic">
-                kein Logo
+                No logo
               </span>
             )}
           </div>
@@ -145,7 +143,7 @@ export function CompanyLogoForm({ hasLogo, logoVersion }: Props) {
                 onChange={(e) => {
                   const f = e.target.files?.[0];
                   if (f) onPick(f);
-                  // Reset damit gleiches File neu pickbar ist
+                  // Reset so the same file can be selected again
                   e.target.value = "";
                 }}
                 disabled={pending}
@@ -153,11 +151,11 @@ export function CompanyLogoForm({ hasLogo, logoVersion }: Props) {
             </label>
             {stagedFile && (
               <div className="text-xs text-muted-foreground">
-                Bereit zum Hochladen — {(stagedFile.sizeBytes / 1024).toFixed(0)} KB
+                Ready to upload — {(stagedFile.sizeBytes / 1024).toFixed(0)} KB
               </div>
             )}
             <div className="text-xs text-muted-foreground">
-              PNG oder JPG, max. 1 MB. Empfohlen: ~400×200 px transparent (PNG).
+              PNG or JPG, max. 1 MB. Recommended: ~400×200 px transparent (PNG).
             </div>
           </div>
         </div>
@@ -183,7 +181,7 @@ export function CompanyLogoForm({ hasLogo, logoVersion }: Props) {
               className="text-destructive"
             >
               <Trash2 className="h-4 w-4 mr-1" />
-              Logo entfernen
+              Remove logo
             </Button>
           )}
           {stagedFile && (

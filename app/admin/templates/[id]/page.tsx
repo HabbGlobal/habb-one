@@ -72,7 +72,7 @@ export default async function EditTemplatePage({
       {canWrite ? (
         <Card>
           <CardHeader>
-            <CardTitle className="text-base">Vorlage bearbeiten</CardTitle>
+            <CardTitle className="text-base">Edit Template</CardTitle>
           </CardHeader>
           <CardContent>
             <TemplateForm mode="edit" initial={initial} />
@@ -81,7 +81,7 @@ export default async function EditTemplatePage({
       ) : (
         <Card>
           <CardHeader>
-            <CardTitle className="text-base">Schritte (read-only)</CardTitle>
+            <CardTitle className="text-base">Steps (read-only)</CardTitle>
           </CardHeader>
           <CardContent>
             <ul className="text-sm space-y-1 font-mono">
