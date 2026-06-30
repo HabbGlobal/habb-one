@@ -123,7 +123,7 @@ function Wordmark({ size }: { size: "sm" | "lg" }) {
   const cls = size === "lg" ? "text-xl" : "text-base";
   return (
     <span className={`font-semibold tracking-tight ${cls}`}>
-      habb<span className="text-habb-red">.ch</span>
+      HABB <span className="text-habb-red">One</span>
     </span>
   );
 }
