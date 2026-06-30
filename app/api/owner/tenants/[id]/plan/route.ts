@@ -1,11 +1,11 @@
 /**
- * PUT /api/owner/tenants/[id]/plan — Tenant-Plan wechseln.
+ * PUT /api/owner/tenants/[id]/plan: switch tenant plan.
  *
- * Plan steuert Modul-Sichtbarkeit und Limits (Phase v2). Daten-Migration
- * findet beim Plan-Wechsel NICHT statt — UI passt sich live an.
+ * Plan controls module visibility and limits (phase v2). Data migration does
+ * NOT happen on plan change; the UI adapts live.
  *
- * Audit-Action: TENANT_STAMMDATEN_UPDATED mit explizitem Plan-Diff im
- * Payload — kein neuer Enum-Wert nötig.
+ * Audit action: TENANT_STAMMDATEN_UPDATED with an explicit plan diff in the
+ * payload; no new enum value needed.
  */
 
 import { NextResponse } from "next/server";
@@ -48,11 +48,10 @@ export async function PUT(req: Request, { params }: { params: Promise<{ id: stri
     return NextResponse.json({ error: "NO_CHANGE" }, { status: 409 });
   }
 
-  // Plan + Modul-Entitlements atomar: der Plan-Wechsel schaltet die
-  // plan-gesteuerten Module sofort frei/aus (Nav + Route-Guard lesen die
-  // Entitlements live). Manuelle Owner-Sonderfreischaltungen/-sperren
-  // bleiben dabei erhalten — nur automatisch materialisierte Zeilen werden
-  // bereinigt, damit der neue Plan greift.
+  // Plan + module entitlements are atomic: the plan change immediately
+  // enables/disables plan-controlled modules (nav + route guard read live
+  // entitlements). Manual owner special grants/blocks are preserved; only
+  // automatically materialized rows are cleaned up so the new plan applies.
   await prisma.$transaction(async (tx) => {
     await tx.company.update({
       where: { id },

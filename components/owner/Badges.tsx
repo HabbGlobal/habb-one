@@ -14,7 +14,7 @@ const PLAN_STYLE: Record<TenantPlan, string> = {
 
 const PLAN_LABEL: Record<TenantPlan, string> = {
   TRIAL: "Trial",
-  TIME_ONLY: "Zeiterfassung",
+  TIME_ONLY: "Time Tracking",
   STARTER: "Starter",
   PRO: "Pro",
   ENTERPRISE: "Enterprise",
@@ -39,7 +39,7 @@ export function TenantStatusBadge({ suspendedAt }: StatusBadgeProps) {
     return (
       <span className="inline-flex items-center gap-1.5 rounded-full border border-habb-red/30 bg-habb-red/5 px-2 py-0.5 text-[11px] font-medium uppercase tracking-wide text-habb-red">
         <span className="h-1.5 w-1.5 rounded-full bg-habb-red" />
-        Suspendiert
+        Suspended
       </span>
     );
   }

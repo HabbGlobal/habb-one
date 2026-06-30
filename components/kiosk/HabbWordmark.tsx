@@ -1,11 +1,10 @@
-// Kleines "habb. one"-Wordmark — überall im Kiosk konsistent.
+// Compact "habb. one" wordmark used consistently throughout the kiosk.
 //
-// "habb." in habb-ink, der Punkt in habb-red als subtiler Akzent
-// (gleicher Visual-Trick wie auf HABB Global (PVT) LTD). "one" daneben in habb-muted
-// damit das Produkt-Sub-Wordmark dezent bleibt.
+// "habb." uses habb-ink with a subtle habb-red dot, while "one" uses
+// habb-muted so the product sub-wordmark remains understated.
 
 interface Props {
-  /** Größen-Variante. "lg" auf hellen Landing-Headern, "sm" im Footer. */
+  /** Size variant: "lg" for prominent headers and "sm" for the footer. */
   size?: "sm" | "md" | "lg";
   className?: string;
 }

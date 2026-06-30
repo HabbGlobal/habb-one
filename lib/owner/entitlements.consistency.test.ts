@@ -1,13 +1,13 @@
 /**
- * Regressions-Tests für die EINE Wahrheit der Modul-Durchsetzung:
+ * Regression tests for the ONE source of truth for module enforcement:
  *
- * Der Owner-Modul-Tab (`getEffectiveEntitlements`) MUSS exakt dieselbe
- * effektive Modul-Menge zeigen wie das, was der Kunde tatsächlich bekommt
- * (`getEnabledModules`, Sidebar + Route-Guard). Beide = Plan-Basis + Overrides.
+ * The owner module tab (`getEffectiveEntitlements`) MUST show exactly the same
+ * effective module set as what the customer actually receives
+ * (`getEnabledModules`, sidebar + route guard). Both = plan base + overrides.
  *
- * Früher basierte die Owner-Sicht auf plan-unabhängigen MODULE_DEFAULTS und
- * konnte daher abweichen, wenn keine Override-Zeilen existierten. Dieser Test
- * verriegelt die Konsistenz.
+ * Previously, the owner view was based on plan-independent MODULE_DEFAULTS and
+ * could therefore diverge when no override rows existed. This test locks that
+ * consistency down.
  */
 
 import { describe, it, expect, vi, beforeEach } from "vitest";
@@ -35,8 +35,8 @@ function setup(
   plan: TenantPlan,
   overrides: { module: TenantModule; enabled: boolean }[] = [],
 ) {
-  // getEnabledModules liest company.entitlements (via include),
-  // getEffectiveEntitlements liest company.plan + tenantEntitlement.findMany.
+  // getEnabledModules reads company.entitlements (via include),
+  // getEffectiveEntitlements reads company.plan + tenantEntitlement.findMany.
   mockCompanyFindUnique.mockResolvedValue({
     plan,
     entitlements: overrides.map((o) => ({ module: o.module, enabled: o.enabled })),
@@ -67,15 +67,15 @@ async function bothViews() {
   return { owner, enforced };
 }
 
-describe("Owner-Sicht == Kunden-Durchsetzung", () => {
-  it("ohne Overrides: TIME_ONLY-Plan => genau TIME_KIOSK, beide Sichten gleich", async () => {
+describe("Owner view == customer enforcement", () => {
+  it("without overrides: TIME_ONLY plan => exactly TIME_KIOSK, both views equal", async () => {
     setup("TIME_ONLY");
     const { owner, enforced } = await bothViews();
     expect(enforced).toEqual(["TIME_KIOSK"]);
     expect(owner).toEqual(enforced);
   });
 
-  it("ohne Overrides: STARTER-Plan, beide Sichten identisch (und kein WORKSHOP_PLAN)", async () => {
+  it("without overrides: STARTER plan, both views identical and no WORKSHOP_PLAN", async () => {
     setup("STARTER");
     const { owner, enforced } = await bothViews();
     expect(owner).toEqual(enforced);
@@ -83,14 +83,14 @@ describe("Owner-Sicht == Kunden-Durchsetzung", () => {
     expect(enforced).toContain("TIME_KIOSK");
   });
 
-  it("Upgrade-Override: Modul zusätzlich freigeschaltet erscheint in beiden", async () => {
+  it("upgrade override: additionally enabled module appears in both", async () => {
     setup("TIME_ONLY", [{ module: "WORKSHOP_PLAN", enabled: true }]);
     const { owner, enforced } = await bothViews();
     expect(enforced).toEqual(["TIME_KIOSK", "WORKSHOP_PLAN"]);
     expect(owner).toEqual(enforced);
   });
 
-  it("Downgrade-Override: ein Plan-Modul gesperrt verschwindet in beiden", async () => {
+  it("downgrade override: a blocked plan module disappears from both", async () => {
     setup("STARTER", [{ module: "INVOICES_QR", enabled: false }]);
     const { owner, enforced } = await bothViews();
     expect(enforced).not.toContain("INVOICES_QR");
@@ -98,61 +98,61 @@ describe("Owner-Sicht == Kunden-Durchsetzung", () => {
   });
 });
 
-describe("Quellen-Isolation (kein Tautologie-Test)", () => {
-  // Beweist, dass jede Funktion aus IHRER eigenen Query liest:
+describe("Source isolation, not a tautology test", () => {
+  // Proves that each function reads from ITS own query:
   //   getEnabledModules         -> company.findUnique(include entitlements)
   //   getEffectiveEntitlements  -> tenantEntitlement.findMany
-  // Dazu füttern wir die beiden Kanäle BEWUSST mit unterschiedlichen Daten.
-  // Würde eine Funktion versehentlich aus der falschen Quelle lesen, schlägt
-  // genau dieser Test fehl (die "agree"-Tests oben würden es nicht merken).
-  it("getEnabledModules liest company.entitlements — nicht tenantEntitlement.findMany", async () => {
+  // We intentionally feed both channels different data. If a function
+  // accidentally reads from the wrong source, exactly this test fails; the
+  // "agree" tests above would not notice.
+  it("getEnabledModules reads company.entitlements, not tenantEntitlement.findMany", async () => {
     mockCompanyFindUnique.mockResolvedValue({
       plan: "TIME_ONLY",
-      entitlements: [{ module: "WORKSHOP_PLAN", enabled: true }], // nur dieser Kanal
+      entitlements: [{ module: "WORKSHOP_PLAN", enabled: true }], // only this channel
     });
     mockEntitlementFindMany.mockResolvedValue([
       { module: "CRM", enabled: true, monthlyLimit: null, updatedAt: null, updatedByOwnerAccountId: null }, // Poison
     ]);
     const { getEnabledModules } = await fresh();
     const enforced = Array.from(await getEnabledModules("c1"));
-    expect(enforced).toContain("WORKSHOP_PLAN"); // aus company.entitlements
-    expect(enforced).not.toContain("CRM"); // findMany wurde NICHT gelesen
+    expect(enforced).toContain("WORKSHOP_PLAN"); // from company.entitlements
+    expect(enforced).not.toContain("CRM"); // findMany was NOT read
   });
 
-  it("getEffectiveEntitlements liest tenantEntitlement.findMany — nicht company.entitlements", async () => {
+  it("getEffectiveEntitlements reads tenantEntitlement.findMany, not company.entitlements", async () => {
     mockCompanyFindUnique.mockResolvedValue({
       plan: "TIME_ONLY",
       entitlements: [{ module: "WORKSHOP_PLAN", enabled: true }], // Poison
     });
     mockEntitlementFindMany.mockResolvedValue([
-      { module: "CRM", enabled: true, monthlyLimit: null, updatedAt: null, updatedByOwnerAccountId: null }, // nur dieser Kanal
+      { module: "CRM", enabled: true, monthlyLimit: null, updatedAt: null, updatedByOwnerAccountId: null }, // only this channel
     ]);
     const { getEffectiveEntitlements } = await fresh();
     const enabled = (await getEffectiveEntitlements("c1"))
       .filter((e) => e.enabled)
       .map((e) => e.module);
-    expect(enabled).toContain("CRM"); // aus findMany
-    expect(enabled).not.toContain("WORKSHOP_PLAN"); // company.entitlements wurde NICHT gelesen
+    expect(enabled).toContain("CRM"); // from findMany
+    expect(enabled).not.toContain("WORKSHOP_PLAN"); // company.entitlements was NOT read
   });
 });
 
-describe("reconcileEntitlementsForPlanChange — Overrides überleben Plan-Wechsel", () => {
-  it("löscht NUR automatisch materialisierte Zeilen (Autor = null)", async () => {
+describe("reconcileEntitlementsForPlanChange: overrides survive plan changes", () => {
+  it("deletes ONLY automatically materialized rows (author = null)", async () => {
     const deleteMany = vi.fn().mockResolvedValue({ count: 5 });
     const client = { tenantEntitlement: { deleteMany } } as unknown as Parameters<
       Awaited<ReturnType<typeof fresh>>["reconcileEntitlementsForPlanChange"]
     >[0];
     const { reconcileEntitlementsForPlanChange } = await fresh();
     await reconcileEntitlementsForPlanChange(client, "c1");
-    // Owner-Overrides (updatedByOwnerAccountId != null) bleiben verschont.
+    // Owner overrides (updatedByOwnerAccountId != null) are spared.
     expect(deleteMany).toHaveBeenCalledWith({
       where: { companyId: "c1", updatedByOwnerAccountId: null },
     });
   });
 
-  it("eine manuelle Sonderfreischaltung gilt auf JEDEM Plan weiter", async () => {
-    // getEnabledModules liest company.entitlements; die Owner-Override-Zeile
-    // bleibt nach reconcile erhalten und wirkt auf den aktuellen Plan oben drauf.
+  it("a manual special grant continues to apply on EVERY plan", async () => {
+    // getEnabledModules reads company.entitlements; the owner override row
+    // remains after reconcile and applies on top of the current plan.
     const { getEnabledModules } = await fresh();
     const onPlan = async (plan: TenantPlan) => {
       mockCompanyFindUnique.mockResolvedValue({
@@ -165,15 +165,15 @@ describe("reconcileEntitlementsForPlanChange — Overrides überleben Plan-Wechs
     expect(await onPlan("STARTER")).toContain("WORKSHOP_PLAN");
   });
 
-  it("eine manuelle Sperre eines Plan-Moduls bleibt nach Plan-Wechsel bestehen", async () => {
+  it("a manual block of a plan module remains after plan change", async () => {
     const { getEnabledModules } = await fresh();
-    // STARTER enthält INVOICES_QR; Owner sperrt es manuell (enabled=false).
+    // STARTER contains INVOICES_QR; owner blocks it manually (enabled=false).
     mockCompanyFindUnique.mockResolvedValue({
       plan: "STARTER",
       entitlements: [{ module: "INVOICES_QR", enabled: false }],
     });
     expect(Array.from(await getEnabledModules("c1"))).not.toContain("INVOICES_QR");
-    // Auch nach Wechsel auf PRO (enthält INVOICES_QR ebenfalls) bleibt es gesperrt.
+    // Even after switching to PRO, which also contains INVOICES_QR, it remains blocked.
     mockCompanyFindUnique.mockResolvedValue({
       plan: "PRO",
       entitlements: [{ module: "INVOICES_QR", enabled: false }],
@@ -183,7 +183,7 @@ describe("reconcileEntitlementsForPlanChange — Overrides überleben Plan-Wechs
 });
 
 describe("inPlan-Provenance", () => {
-  it("markiert nur Plan-Module als inPlan (TIME_ONLY => nur TIME_KIOSK)", async () => {
+  it("marks only plan modules as inPlan (TIME_ONLY => only TIME_KIOSK)", async () => {
     setup("TIME_ONLY");
     const { getEffectiveEntitlements } = await fresh();
     const ents = await getEffectiveEntitlements("c1");
@@ -191,7 +191,7 @@ describe("inPlan-Provenance", () => {
     expect(inPlan).toEqual(["TIME_KIOSK"]);
   });
 
-  it("ein Upgrade-Override ist enabled, aber NICHT inPlan (=> Provenance 'Manuell +')", async () => {
+  it("an upgrade override is enabled, but NOT inPlan (=> provenance 'Manual +')", async () => {
     setup("TIME_ONLY", [{ module: "CRM", enabled: true }]);
     const { getEffectiveEntitlements } = await fresh();
     const crm = (await getEffectiveEntitlements("c1")).find((e) => e.module === "CRM")!;

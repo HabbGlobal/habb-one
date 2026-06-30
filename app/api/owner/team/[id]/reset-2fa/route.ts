@@ -1,10 +1,9 @@
 /**
- * POST /api/owner/team/[id]/reset-2fa — alle Passkeys eines Owners
- * löschen, webauthnEnrolledAt zurücksetzen. Beim nächsten Login wird
- * der Enroll-Flow erzwungen.
+ * POST /api/owner/team/[id]/reset-2fa: delete all passkeys for an owner and
+ * reset webauthnEnrolledAt. Enrollment flow is forced on next login.
  *
- * Use-Cases: verlorenes Yubikey, Mitarbeitenden-Wechsel, kompromittierter
- * Passkey-Verdacht. Passwort + E-Mail bleiben unverändert.
+ * Use cases: lost YubiKey, staff change, suspected compromised passkey.
+ * Password + email remain unchanged.
  */
 
 import { NextResponse } from "next/server";

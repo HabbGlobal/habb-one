@@ -1,12 +1,11 @@
 "use client";
 
-// Geteilte Matrix-UI für Permissions × Rollen.
-// - Wird vom Tenant-SUPERADMIN (`/admin/roles`) und vom Owner
-//   (`/owner/tenants/[id]/roles`) gleichermaßen benutzt.
-// - Die konkreten Server-Actions kommen als Props rein, weil die
-//   Owner-Variante einen `tenantId` mitschickt und die Tenant-Variante
-//   den `companyId` aus der Session zieht.
-// - Markiert pro Zelle, ob der aktuelle Wert vom statischen Default abweicht.
+// Shared matrix UI for permissions x roles.
+// - Used by both the tenant SUPERADMIN (`/admin/roles`) and the owner
+//   (`/owner/tenants/[id]/roles`).
+// - Concrete server actions are passed as props because the owner variant sends
+//   a `tenantId`, while the tenant variant gets `companyId` from the session.
+// - Marks each cell when the current value differs from the static default.
 
 import { useMemo, useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
@@ -16,7 +15,7 @@ import { Save, RotateCcw, Lock, Check } from "lucide-react";
 import type { Permission, PermissionDefinition } from "@/lib/permissions";
 import {
   CONFIGURABLE_ROLES,
-  ROLE_LABELS_DE,
+  ROLE_LABELS,
   type ConfigurableRole,
 } from "@/lib/roles";
 
@@ -24,11 +23,11 @@ export interface RoleMatrixEditorProps {
   initialMatrix: Record<ConfigurableRole, Permission[]>;
   defaults: Record<ConfigurableRole, Permission[]>;
   permissionDefs: PermissionDefinition[];
-  /** Save-Action: nimmt die vollständige Matrix entgegen. */
+  /** Save action: accepts the complete matrix. */
   onSave: (matrix: Record<ConfigurableRole, Permission[]>) => Promise<void>;
-  /** Reset-Action für eine einzelne Rolle. */
+  /** Reset action for a single role. */
   onResetRole: (role: ConfigurableRole) => Promise<void>;
-  /** Optionaler Hinweis-Text unter der Karten-Header. */
+  /** Optional hint text below the card header. */
   headerHint?: string;
 }
 
@@ -109,12 +108,12 @@ export function RoleMatrixEditor({
   };
 
   const resetRole = (role: ConfigurableRole) => {
-    if (!confirm(`Reset role "${ROLE_LABELS_DE[role]}" to default?`)) return;
+    if (!confirm(`Reset role "${ROLE_LABELS[role]}" to default?`)) return;
     start(async () => {
       try {
         await onResetRole(role);
         setState((prev) => ({ ...prev, [role]: new Set(defaults[role]) }));
-        setSuccess(`Role ${ROLE_LABELS_DE[role]} reset to defaults.`);
+        setSuccess(`Role ${ROLE_LABELS[role]} reset to defaults.`);
         router.refresh();
         setTimeout(() => setSuccess(null), 4000);
       } catch (err) {
@@ -171,7 +170,7 @@ export function RoleMatrixEditor({
               <th className="font-medium px-3 py-2 min-w-[140px] bg-habb-paper">
                 <div className="flex items-center justify-center gap-1">
                   <Lock className="h-3 w-3 text-muted-foreground" />
-                  <span>{ROLE_LABELS_DE.SUPERADMIN}</span>
+                  <span>{ROLE_LABELS.SUPERADMIN}</span>
                 </div>
                 <div className="text-[10px] font-normal text-muted-foreground">
                   always all permissions
@@ -180,7 +179,7 @@ export function RoleMatrixEditor({
               {CONFIGURABLE_ROLES.map((r) => (
                 <th key={r} className="font-medium px-3 py-2 min-w-[140px]">
                   <div className="flex flex-col items-center">
-                    <span>{ROLE_LABELS_DE[r]}</span>
+                    <span>{ROLE_LABELS[r]}</span>
                     <button
                       type="button"
                       onClick={() => resetRole(r)}
@@ -189,7 +188,7 @@ export function RoleMatrixEditor({
                       title="Reset to default values"
                     >
                       <RotateCcw className="h-3 w-3" />
-                      Standard
+                      Default
                     </button>
                   </div>
                 </th>
@@ -277,7 +276,7 @@ function GroupRows({
                     checked={checked}
                     disabled={disabled}
                     onChange={() => onToggle(role, def.key)}
-                    aria-label={`${def.label} for ${ROLE_LABELS_DE[role]}`}
+                    aria-label={`${def.label} for ${ROLE_LABELS[role]}`}
                   />
                 </label>
               </td>

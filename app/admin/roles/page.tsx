@@ -10,8 +10,8 @@ import {
 } from "@/lib/permissions";
 import {
   CONFIGURABLE_ROLES,
-  ROLE_LABELS_DE,
-  ROLE_DESCRIPTIONS_DE,
+  ROLE_LABELS,
+  ROLE_DESCRIPTIONS,
   isSuperAdmin,
   type ConfigurableRole,
 } from "@/lib/roles";
@@ -20,7 +20,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { ShieldCheck, Users, ChevronRight } from "lucide-react";
 import Link from "next/link";
 import { RoleMatrixEditor } from "./RoleMatrixEditor";
-import { roleLabelDe } from "@/lib/roles";
+import { roleLabel } from "@/lib/roles";
 
 export default async function RolesPage() {
   const session = await auth();
@@ -94,15 +94,15 @@ export default async function RolesPage() {
         <CardContent>
           <ul className="grid grid-cols-1 md:grid-cols-2 gap-3 text-sm">
             <li className="rounded border bg-habb-paper px-3 py-2">
-              <div className="font-medium">{ROLE_LABELS_DE.SUPERADMIN}</div>
+              <div className="font-medium">{ROLE_LABELS.SUPERADMIN}</div>
               <div className="text-muted-foreground text-xs mt-1">
-                {ROLE_DESCRIPTIONS_DE.SUPERADMIN}
+                {ROLE_DESCRIPTIONS.SUPERADMIN}
               </div>
             </li>
             {CONFIGURABLE_ROLES.map((r) => (
               <li key={r} className="rounded border bg-habb-paper px-3 py-2">
                 <div className="font-medium flex items-center justify-between">
-                  <span>{ROLE_LABELS_DE[r]}</span>
+                  <span>{ROLE_LABELS[r]}</span>
                   {overridesPerRole[r] > 0 && (
                     <span className="text-[10px] uppercase tracking-wider rounded-full bg-amber-100 text-amber-900 px-2 py-0.5">
                       customized
@@ -110,7 +110,7 @@ export default async function RolesPage() {
                   )}
                 </div>
                 <div className="text-muted-foreground text-xs mt-1">
-                  {ROLE_DESCRIPTIONS_DE[r]}
+                  {ROLE_DESCRIPTIONS[r]}
                 </div>
               </li>
             ))}
@@ -182,7 +182,7 @@ async function PerUserOverridesSection({ companyId }: { companyId: string }) {
                         )}
                       </div>
                       <div className="text-xs text-muted-foreground">
-                        {u.email} · {roleLabelDe(u.role)}
+                        {u.email} · {roleLabel(u.role)}
                       </div>
                     </div>
                     <ChevronRight className="h-4 w-4 text-muted-foreground" />

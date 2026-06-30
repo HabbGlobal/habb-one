@@ -1,7 +1,7 @@
 "use server";
 
-// Owner-Server-Actions für Per-User-Permission-Overrides.
-// Schreibt in UserPermission; Audit-Trail in OwnerAuditLog.
+// Owner server actions for per-user permission overrides.
+// Writes to UserPermission; audit trail goes to OwnerAuditLog.
 
 import { revalidatePath } from "next/cache";
 import { z } from "zod";
@@ -28,9 +28,9 @@ const saveSchema = z.object({
 export type SaveOwnerUserPermissionsInput = z.input<typeof saveSchema>;
 
 /**
- * Setzt die Per-User-Permission-Overrides für einen User. Übergeben wird
- * pro Permission der Zielzustand: "default" (kein Eintrag), "grant"
- * (allowed=true) oder "deny" (allowed=false).
+ * Set per-user permission overrides for a user. The target state is passed per
+ * permission: "default" (no row), "grant" (allowed=true), or "deny"
+ * (allowed=false).
  */
 export async function ownerSaveUserPermissions(input: SaveOwnerUserPermissionsInput) {
   const guard = await requireOwner({ minRole: "OWNER_ADMIN" });
@@ -43,19 +43,19 @@ export async function ownerSaveUserPermissions(input: SaveOwnerUserPermissionsIn
     where: { id: data.userId },
     select: { id: true, companyId: true, role: true, email: true, name: true, deletedAt: true },
   });
-  if (!user) throw new Error("User nicht gefunden.");
+  if (!user) throw new Error("User not found.");
   if (user.companyId !== data.tenantId) {
-    throw new Error("User gehört nicht zu diesem Tenanten.");
+    throw new Error("User does not belong to this tenant.");
   }
   if (user.deletedAt) {
-    throw new Error("User ist gelöscht.");
+    throw new Error("User is deleted.");
   }
-  // SUPERADMIN behält per Definition immer alle Rechte — Overrides
-  // werden ignoriert (siehe lib/permissions.ts), daher verbieten wir
-  // sie hier explizit, damit der User nicht denkt, sie würden greifen.
+  // SUPERADMIN always keeps all permissions by definition. Overrides are
+  // ignored (see lib/permissions.ts), so explicitly forbid them here to avoid
+  // suggesting that they would take effect.
   if (isSuperAdmin(user.role)) {
     throw new Error(
-      "SUPERADMIN hat per Design immer alle Rechte — Per-User-Overrides sind hier nicht zulässig.",
+      "SUPERADMIN always has all permissions by design. Per-user overrides are not allowed here.",
     );
   }
 
@@ -63,11 +63,11 @@ export async function ownerSaveUserPermissions(input: SaveOwnerUserPermissionsIn
   const overrideEntries: Array<{ permission: string; allowed: boolean }> = [];
   for (const [perm, state] of Object.entries(data.overrides)) {
     if (!isKnownPermission(perm)) {
-      throw new Error(`Unbekannte Permission: ${perm}`);
+      throw new Error(`Unknown permission: ${perm}`);
     }
     if (state === "grant") overrideEntries.push({ permission: perm, allowed: true });
     else if (state === "deny") overrideEntries.push({ permission: perm, allowed: false });
-    // "default" → kein Eintrag (alte ggf. löschen)
+    // "default" means no row; old rows are removed if present.
   }
 
   const before = await prisma.userPermission.findMany({
@@ -90,9 +90,9 @@ export async function ownerSaveUserPermissions(input: SaveOwnerUserPermissionsIn
     }
   });
 
-  // Caches invalidieren: Tenant-Matrix bleibt, aber der Per-User-Cache
-  // im selben Process muss frisch geladen werden — sonst sieht der nächste
-  // Same-Process-Request alte Werte.
+  // Invalidate caches: the tenant matrix remains, but the per-user cache in
+  // the same process must be reloaded or the next same-process request sees
+  // stale values.
   invalidatePermissionMatrix(user.companyId);
   invalidateUserPermissionCache();
 
@@ -104,7 +104,7 @@ export async function ownerSaveUserPermissions(input: SaveOwnerUserPermissionsIn
     targetUserId: user.id,
     payloadBefore: { overrides: before } as Prisma.InputJsonValue,
     payloadAfter: { overrides: overrideEntries } as Prisma.InputJsonValue,
-    reason: `Per-User-Rechte für ${user.email} aktualisiert`,
+    reason: `Per-user permissions for ${user.email} updated`,
   });
 
   revalidatePath(`/owner/tenants/${data.tenantId}/users/${data.userId}/permissions`);
@@ -116,7 +116,7 @@ const resetSchema = z.object({
   userId: z.string().min(1),
 });
 
-/** Löscht alle Per-User-Overrides eines Users (kein Eintrag → Role entscheidet). */
+/** Delete all per-user overrides for a user; no row means the role decides. */
 export async function ownerResetUserPermissions(input: z.input<typeof resetSchema>) {
   const guard = await requireOwner({ minRole: "OWNER_ADMIN" });
   if (!guard.ok) throw new Error("FORBIDDEN");
@@ -128,9 +128,9 @@ export async function ownerResetUserPermissions(input: z.input<typeof resetSchem
     where: { id: data.userId },
     select: { id: true, companyId: true, email: true },
   });
-  if (!user) throw new Error("User nicht gefunden.");
+  if (!user) throw new Error("User not found.");
   if (user.companyId !== data.tenantId) {
-    throw new Error("User gehört nicht zu diesem Tenanten.");
+    throw new Error("User does not belong to this tenant.");
   }
 
   const before = await prisma.userPermission.findMany({
@@ -151,13 +151,12 @@ export async function ownerResetUserPermissions(input: z.input<typeof resetSchem
     targetUserId: user.id,
     payloadBefore: { overrides: before } as Prisma.InputJsonValue,
     payloadAfter: { overrides: [], reset: true } as Prisma.InputJsonValue,
-    reason: `Per-User-Rechte für ${user.email} zurückgesetzt`,
+    reason: `Per-user permissions for ${user.email} reset`,
   });
 
   revalidatePath(`/owner/tenants/${data.tenantId}/users/${data.userId}/permissions`);
 }
 
-// `ALL_PERMISSIONS` hier nur referenziert, damit TS auf einen Import
-// neuer Permissions hin compilen lässt; aktuell brauchen wir es nicht
-// runtime-mässig.
+// `ALL_PERMISSIONS` is referenced here so TS keeps compiling when new
+// permissions are imported; it is not currently needed at runtime.
 void ALL_PERMISSIONS;

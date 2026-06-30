@@ -1,10 +1,10 @@
 /**
- * Unit-Tests für Token-Mint und -Verify. Wir testen hier *nicht* die
- * DB-abhängigen Helfer (`createOwnerSession`, `getOwnerContext`) — die
- * laufen gegen die echte Prisma-Instanz und gehören in einen Integration-
- * Test-Lauf, falls wir den später einrichten. Die JWT-Routinen alleine
- * sind pure Funktionen und reichen für die kritischste Sicherheits-Zusicherung:
- * dass kein Token, das nicht mit unserem Secret signiert ist, gültig erscheint.
+ * Unit tests for token minting and verification. We do *not* test the
+ * DB-dependent helpers (`createOwnerSession`, `getOwnerContext`) here; those
+ * run against the real Prisma instance and belong in an integration test run if
+ * we add one later. The JWT routines alone are pure functions and cover the
+ * most critical security guarantee: no token that is not signed with our secret
+ * appears valid.
  */
 
 import { describe, it, expect, beforeEach } from "vitest";

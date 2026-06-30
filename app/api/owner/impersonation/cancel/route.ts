@@ -1,9 +1,9 @@
 /**
  * POST /api/owner/impersonation/cancel
  *
- * Bricht eine Consent-Anfrage ab, BEVOR der OTP verifiziert wurde — z.B.
- * weil der Kunde am Telefon doch nicht antworten kann. Markiert den Token
- * als cancelled, damit der OTP nicht mehr eingelöst werden kann.
+ * Cancels a consent request BEFORE the OTP was verified, for example because
+ * the customer cannot answer the phone after all. Marks the token as cancelled
+ * so the OTP can no longer be redeemed.
  */
 
 import { NextResponse } from "next/server";

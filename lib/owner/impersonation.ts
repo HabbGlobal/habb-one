@@ -1,20 +1,20 @@
 /**
- * Owner-Impersonation — Owner kann sich mit Consent-OTP des Kunden als
- * Tenant-User in der App bewegen.
+ * Owner impersonation: owner can move through the app as a tenant user with
+ * the customer's consent OTP.
  *
- * Sicherheits-Eigenschaften:
- *   - OTP-Klartext wird NIE persistiert — nur bcrypt-Hash in
- *     `ImpersonationConsentToken.codeHash`. Klartext lebt einmalig in der
- *     Consent-Mail an den Kunden.
- *   - Separater Cookie (`habb-impersonation`) mit eigenem JWT-Issuer; kann
- *     nie als Tenant-User- oder Owner-Session missgedeutet werden.
- *   - Server-Session als Source-of-Truth: `ImpersonationSession`-Row mit
- *     `endedAt`/`expiresAt` — Cookie ohne aktive Row ist wertlos.
- *   - Banner in der Admin-App und Audit-Eintrag pro Lifecycle-Schritt.
+ * Security properties:
+ *   - OTP plaintext is NEVER persisted; only the bcrypt hash is stored in
+ *     `ImpersonationConsentToken.codeHash`. Plaintext exists only once in the
+ *     consent email to the customer.
+ *   - Separate cookie (`habb-impersonation`) with its own JWT issuer; can
+ *     never be mistaken for a tenant-user or owner session.
+ *   - Server session as source of truth: `ImpersonationSession` row with
+ *     `endedAt`/`expiresAt`; a cookie without an active row is worthless.
+ *   - Banner in the admin app and audit entry for each lifecycle step.
  *
- * Mutations-Counter und Scope-Enforcement (READONLY blockt Schreibops)
- * werden in einer Folge-Iteration in den Server-Actions verdrahtet —
- * Schema ist bereits darauf vorbereitet (`mutationsCount`, `scope`).
+ * Mutation counter and scope enforcement (READONLY blocks write operations)
+ * will be wired into server actions in a later iteration. The schema is
+ * already prepared for this (`mutationsCount`, `scope`).
  */
 
 import { SignJWT, jwtVerify } from "jose";
@@ -26,12 +26,12 @@ import type { ImpersonationScope } from "@prisma/client";
 
 const JWT_ISSUER = "habb-impersonation";
 const COOKIE_NAME = "habb-impersonation";
-/** Wie lange der OTP gültig ist, bis der Owner ihn eingegeben haben muss. */
+/** How long the OTP remains valid before the owner must enter it. */
 export const CONSENT_TTL_MINUTES = 15;
-/** Maximal erlaubte Sitzungsdauer pro Anfrage. */
+/** Maximum allowed session duration per request. */
 export const MAX_SESSION_DURATION_MINUTES = 240; // 4 h
 export const MIN_SESSION_DURATION_MINUTES = 5;
-/** Maximale OTP-Falscheingaben bevor der Token gesperrt wird. */
+/** Maximum failed OTP attempts before the token is locked. */
 export const MAX_OTP_ATTEMPTS = 5;
 
 function secret(): Uint8Array {
@@ -46,7 +46,7 @@ function secret(): Uint8Array {
 // OTP
 // ─────────────────────────────────────────────────────────────
 
-/** 6-stelliger numerischer OTP — kollisionsarm gleich gewichtet. */
+/** 6-digit numeric OTP with low collision risk and even weighting. */
 export function generateOtp(): string {
   return String(randomInt(0, 1_000_000)).padStart(6, "0");
 }
@@ -60,7 +60,7 @@ export async function compareOtp(otp: string, hash: string): Promise<boolean> {
 }
 
 // ─────────────────────────────────────────────────────────────
-// JWT für die laufende Impersonation
+// JWT for the running impersonation.
 // ─────────────────────────────────────────────────────────────
 
 export interface ImpersonationClaims {
@@ -139,7 +139,7 @@ export async function clearImpersonationCookie(): Promise<void> {
 export { COOKIE_NAME as IMPERSONATION_COOKIE_NAME };
 
 // ─────────────────────────────────────────────────────────────
-// Aktive Impersonation lesen
+// Read active impersonation.
 // ─────────────────────────────────────────────────────────────
 
 export interface ActiveImpersonation {
@@ -158,9 +158,9 @@ export interface ActiveImpersonation {
 }
 
 /**
- * Vollständige Validierung: JWT signiert + DB-Row existiert + nicht
- * beendet + nicht abgelaufen. Wird vom Tenant-`auth()`-Wrapper aufgerufen,
- * deshalb robust gegen alle Fehlerquellen — wirft nie.
+ * Full validation: JWT signed + DB row exists + not ended + not expired.
+ * Called by the tenant `auth()` wrapper, so it is robust against all error
+ * sources and never throws.
  */
 export async function getActiveImpersonation(): Promise<ActiveImpersonation | null> {
   let token: string | undefined;

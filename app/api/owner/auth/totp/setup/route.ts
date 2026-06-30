@@ -1,14 +1,13 @@
 /**
  * POST /api/owner/auth/totp/setup
  *
- * Erzeugt ein neues TOTP-Secret für den eingeloggten Owner, legt es
- * verschlüsselt ab (noch NICHT aktiv — totpEnrolledAt bleibt null bis
- * /confirm) und liefert QR + Klartext-Secret zurück, damit der Owner
- * es in seine Authenticator-App übernehmen kann.
+ * Creates a new TOTP secret for the logged-in owner, stores it encrypted
+ * (NOT active yet; totpEnrolledAt stays null until /confirm), and returns QR +
+ * plaintext secret so the owner can add it to their authenticator app.
  *
- * Self-Service für den eigenen Account — der Owner ist bereits voll
- * 2FA-authentifiziert (Passkey-Session). TOTP ist reiner Recovery-
- * Faktor, kein Portalzugang.
+ * Self-service for the owner's own account. The owner is already fully
+ * 2FA-authenticated (passkey session). TOTP is a pure recovery factor, not
+ * portal access.
  */
 
 import { NextResponse } from "next/server";
@@ -36,7 +35,7 @@ export async function POST() {
     where: { id: guard.ctx.ownerAccountId },
     data: {
       totpSecretEnc: encryptSecret(secret),
-      // Bewusst NICHT aktivieren — erst nach erfolgreichem /confirm.
+      // Intentionally NOT activated until successful /confirm.
       totpEnrolledAt: null,
       totpFailedAttempts: 0,
       totpLockedUntil: null,

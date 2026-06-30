@@ -1,7 +1,7 @@
 /**
  * POST /api/owner/diagnostics/test-email
- * Manuelle Test-Mail (Mail-Konfig prüfen). OWNER_ADMIN. Rate-Limit:
- * max. 1 / 60 s (DB-basiert über manual_test-Notification). Auditiert.
+ * Manual test email (check mail configuration). OWNER_ADMIN. Rate limit:
+ * max. 1 / 60 s (DB-based via manual_test notification). Audited.
  */
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";

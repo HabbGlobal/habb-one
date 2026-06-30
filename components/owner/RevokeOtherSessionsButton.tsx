@@ -5,9 +5,9 @@ import { useRouter } from "next/navigation";
 import { Loader2, LogOut } from "lucide-react";
 
 /**
- * Beendet alle anderen Owner-Sessions (außer der aktuell verwendeten).
- * Owner muss aktuelles Passwort bestätigen — verhindert, dass ein
- * unbefugter Browser-Tab fremde Sessions kicken kann.
+ * Ends all other owner sessions except the currently used one. The owner must
+ * confirm with the current password, which prevents an unauthorized browser tab
+ * from kicking other sessions.
  */
 export function RevokeOtherSessionsButton({ count }: { count: number }) {
   const router = useRouter();
@@ -29,8 +29,8 @@ export function RevokeOtherSessionsButton({ count }: { count: number }) {
         const data = await res.json().catch(() => ({}));
         setError(
           data?.error === "WRONG_PASSWORD"
-            ? "Passwort ist falsch."
-            : "Action fehlgeschlagen.",
+            ? "Password is incorrect."
+            : "Action failed.",
         );
         return;
       }

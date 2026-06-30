@@ -17,11 +17,10 @@ export async function POST(req: Request) {
   const parsed = schema.safeParse(body);
   if (!parsed.success) return NextResponse.json({ error: "INVALID" }, { status: 400 });
 
-  // Firma 3-Wege auflösen (Account-Session ODER Lock-Cookie ODER Single-
-  // Company) — kein hartes Lock-Cookie mehr verlangen, sonst schlägt das
-  // Stempeln auf Account-/Single-Tenant-Kiosken fehl ("Aktion
-  // fehlgeschlagen"). Der Employee MUSS aber zu dieser Firma gehören;
-  // expectedCompanyId in punch.ts erzwingt das (Anti-Cross-Tenant).
+  // Resolve the company through the account session, lock cookie, or
+  // single-company fallback. Do not require a lock cookie because account and
+  // single-tenant kiosks may not have one. The employee must still belong to
+  // this company; expectedCompanyId in punch.ts enforces tenant isolation.
   const { effectiveCompanyId } = await resolveKioskCompany();
   if (!effectiveCompanyId) {
     return NextResponse.json({ error: "UNAUTH" }, { status: 401 });
@@ -36,8 +35,8 @@ export async function POST(req: Request) {
     else await breakEnd(employeeId, opts);
     // Sliding window: a successful action keeps the kiosk session alive.
     await extendKioskSession(employeeId);
-    // Sliding refresh nur für den Lock-Cookie-Pfad — Account-Session-
-    // Kioske haben kein Lock-Cookie, das verlängert werden müsste.
+    // Refresh only the lock-cookie path. Account-session kiosks have no lock
+    // cookie that needs extending.
     const lockCookie = await readKioskLock();
     if (lockCookie) await extendKioskLock(lockCookie);
     return NextResponse.json({ ok: true, action, at: new Date().toISOString() });

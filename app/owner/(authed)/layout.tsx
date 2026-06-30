@@ -6,9 +6,9 @@ import { OwnerLogoutButton } from "@/components/owner/OwnerLogoutButton";
 export const dynamic = "force-dynamic";
 
 /**
- * Geschütztes Owner-Layout. Sitzt unter dem äusseren `app/owner/layout.tsx`
- * und ist nur für alle Routen unterhalb `(authed)/*` aktiv. Login- und
- * Enrollment-Routen sind bewusst NICHT in dieser Gruppe → kein Auth-Check.
+ * Protected owner layout. Sits below the outer `app/owner/layout.tsx` and is
+ * active only for routes under `(authed)/*`. Login and enrollment routes are
+ * intentionally NOT in this group, so they do not run this auth check.
  */
 export default async function AuthedOwnerLayout({
   children,
