@@ -1,13 +1,13 @@
 /**
- * Mail-Templates für den Tenant-Registrierungs-Lifecycle. Fünf Mails:
- *   1. Verify-Mail (Self-Registration → User klickt Link)
- *   2. Submitted (nach Verify: "wir prüfen deine Anfrage")
- *   3. Approved (Owner hat freigegeben)
- *   4. Rejected (Owner hat abgelehnt mit Grund)
- *   5. Owner-Notification (intern: neue Anfrage wartet auf Freigabe)
+ * Email templates for the tenant registration lifecycle:
+ *   1. Verification email after self-registration
+ *   2. Submission received after verification
+ *   3. Approval by an owner
+ *   4. Rejection by an owner with a reason
+ *   5. Internal owner notification for a request awaiting review
  *
- * Bewusst minimal HTML/Text, kein Templating-Framework — solange wir
- * nur diese fünf haben, lohnt das Setup nicht.
+ * HTML and text are intentionally minimal. A templating framework is not
+ * justified while there are only these five emails.
  */
 
 function escapeHtml(s: string): string {
@@ -39,7 +39,7 @@ function shell(title: string, bodyHtml: string): string {
 </html>`;
 }
 
-// ─── 1. Verify-Mail ───────────────────────────────────────────────────
+// ─── 1. Verification email ───────────────────────────────────────────
 
 export interface VerifyMailInput {
   recipientName: string;
@@ -99,7 +99,7 @@ Did you NOT register? Do nothing — the link will expire.
   return { subject, text, html };
 }
 
-// ─── 2. Submitted (nach Verify) ───────────────────────────────────────
+// ─── 2. Submitted after verification ─────────────────────────────────
 
 export interface SubmittedMailInput {
   recipientName: string;
@@ -230,7 +230,7 @@ Your HABB One Team
   return { subject, text, html };
 }
 
-// ─── 5. Owner-Notification (intern) ───────────────────────────────────
+// ─── 5. Internal owner notification ──────────────────────────────────
 
 export interface OwnerNewRegistrationMailInput {
   companyName: string;
@@ -239,14 +239,14 @@ export interface OwnerNewRegistrationMailInput {
   phone: string | null;
   city: string | null;
   country: string | null;
-  /** Absolute URL zur Registrierungs-Liste im Owner-Portal. */
+  /** Absolute URL to the registration list in the Owner Portal. */
   reviewUrl: string;
 }
 
 /**
- * Interne Mail an den Owner: eine neue Registrierung hat die E-Mail-
- * Verifizierung bestanden und wartet jetzt auf Freigabe/Ablehnung.
- * Bewusst sachlich (kein Marketing-Ton) — das ist eine Ops-Mail.
+ * Internal email to the owner: a new registration has passed email
+ * verification and is awaiting approval or rejection. The tone is
+ * intentionally factual because this is an operational email.
  */
 export function buildOwnerNewRegistrationMail(input: OwnerNewRegistrationMailInput) {
   const subject = `New registration waiting for approval: ${input.companyName}`;

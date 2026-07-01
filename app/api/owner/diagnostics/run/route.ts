@@ -1,7 +1,7 @@
 /**
  * POST /api/owner/diagnostics/run  { companyId }
- * Manuelle Diagnose eines Mandanten. OWNER_ADMIN. Rate-Limit: max.
- * 1 manueller Lauf / Mandant / 60 s (DB-basiert, serverless-sicher).
+ * Manual diagnostics for one tenant. OWNER_ADMIN. Rate limit: max.
+ * 1 manual run / tenant / 60 s (DB-based, serverless-safe).
  */
 import { NextResponse } from "next/server";
 import { z } from "zod";

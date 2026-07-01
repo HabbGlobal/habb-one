@@ -34,7 +34,7 @@ export function FindingActions({ findingId }: { findingId: string }) {
         return;
       }
       const j = await res.json().catch(() => ({}));
-      setErr(j?.message || "Action fehlgeschlagen.");
+      setErr(j?.message || "Action failed.");
     });
 
   return (

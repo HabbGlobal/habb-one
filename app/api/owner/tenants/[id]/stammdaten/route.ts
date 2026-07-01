@@ -1,12 +1,12 @@
 /**
  * PUT /api/owner/tenants/[id]/stammdaten
  *
- * Erlaubt dem Owner, ausgewählte Stammdaten-Felder eines Mandanten zu
- * ändern. HR-/Operations-Config bleibt bewusst dem Tenant-Admin überlassen
- * (Default-Stunden, Schwellwerte, Rundung, …) — wir editieren hier nur
- * Identitäts- und Rechnungs-Felder.
+ * Allows the owner to change selected master-data fields for a tenant.
+ * HR/operations configuration intentionally remains with the tenant admin
+ * (default hours, thresholds, rounding, etc.); this endpoint edits only
+ * identity and billing fields.
  *
- * Sudo + Reason + Audit-Trail wie bei allen destruktiven Owner-Aktionen.
+ * Sudo + reason + audit trail, like all destructive owner actions.
  */
 
 import { NextResponse } from "next/server";
@@ -20,7 +20,7 @@ import { ownerAudit } from "@/lib/owner/audit";
 const ALLOWED_LANGUAGES = ["de", "fr", "it", "en"] as const;
 
 const schema = z.object({
-  name: z.string().trim().min(2, "Name muss mindestens 2 Zeichen lang sein.").max(200),
+  name: z.string().trim().min(2, "Name must be at least 2 characters long.").max(200),
   address: z.string().trim().max(200).nullable(),
   city: z.string().trim().max(120).nullable(),
   country: z.string().trim().min(2).max(3).toUpperCase(),
@@ -30,7 +30,7 @@ const schema = z.object({
   qrIban: z.string().trim().max(34).nullable(),
   invoiceCreditorName: z.string().trim().max(200).nullable(),
   invoicePaymentTerms: z.number().int().min(0).max(365),
-  reason: z.string().trim().min(10, "Begründung muss mindestens 10 Zeichen lang sein."),
+  reason: z.string().trim().min(10, "Reason must be at least 10 characters long."),
 });
 
 type StammdatenInput = z.infer<typeof schema>;
@@ -76,7 +76,7 @@ export async function PUT(req: Request, { params }: { params: Promise<{ id: stri
 
   const data: StammdatenInput = parsed.data;
 
-  // Normalise: leere Strings, die wir als nullable behandeln, → null.
+  // Normalize empty strings that we treat as nullable to null.
   const norm = {
     name: data.name,
     address: emptyToNull(data.address),
@@ -114,8 +114,8 @@ function emptyToNull(s: string | null): string | null {
 }
 
 /**
- * Schreibt in den Audit nur die tatsächlich geänderten Felder mit before/
- * after. Spart Lärm und macht spätere Suche im Audit-Log einfacher.
+ * Write only fields that actually changed to the audit log, with before/after.
+ * This keeps noise down and makes later audit-log searches easier.
  */
 function diffFields(
   before: Record<string, unknown>,

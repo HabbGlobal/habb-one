@@ -7,7 +7,7 @@ import {
   loadPermissionMatrix,
   type Permission,
 } from "@/lib/permissions";
-import { effectiveRole, roleLabelDe, isSuperAdmin } from "@/lib/roles";
+import { effectiveRole, roleLabel, isSuperAdmin } from "@/lib/roles";
 import { OwnerUserPermissionsEditor } from "./OwnerUserPermissionsEditor";
 
 export const dynamic = "force-dynamic";
@@ -38,12 +38,12 @@ export default async function OwnerUserPermissionsPage({
   });
   if (!user || user.companyId !== tenantId) notFound();
 
-  // Effektive Permissions der Role (Default + Tenant-Override)
+  // Effective role permissions (defaults + tenant overrides).
   const matrix = await loadPermissionMatrix(tenantId);
   const eff = effectiveRole(user.role);
   const rolePermissions = new Set<Permission>(matrix[eff] ?? []);
 
-  // Bestehende Per-User-Overrides laden
+  // Load existing per-user overrides.
   const existing = await prisma.userPermission.findMany({
     where: { userId: user.id },
     select: { permission: true, allowed: true },
@@ -63,17 +63,17 @@ export default async function OwnerUserPermissionsPage({
           className="inline-flex items-center gap-1 text-xs text-habb-muted hover:text-habb-ink"
         >
           <ChevronLeft className="h-3 w-3" />
-          User-Liste
+          User list
         </Link>
         <h2 className="mt-2 text-lg font-semibold">
-          Persönliche Rechte — {user.name || user.email}
+          Personal permissions - {user.name || user.email}
         </h2>
         <p className="text-xs text-habb-muted mt-0.5">
-          {user.email} · Role: <strong>{roleLabelDe(user.role)}</strong> ·
+          {user.email} · Role: <strong>{roleLabel(user.role)}</strong> ·
           Tenant: <strong>{tenant.name}</strong>
           {user.deletedAt && (
             <span className="ml-2 inline-block rounded-full bg-amber-100 px-2 py-0.5 text-amber-900">
-              gelöscht
+              deleted
             </span>
           )}
         </p>
@@ -81,13 +81,13 @@ export default async function OwnerUserPermissionsPage({
 
       {isSuper ? (
         <div className="rounded-lg border border-habb-line bg-habb-paper px-4 py-3 text-sm text-habb-ink">
-          <strong>SUPERADMIN</strong> hat per Design immer alle Rechte —
-          Per-User-Overrides sind hier nicht zulässig. Wenn du Rechte
-          einschränken willst, ändere bitte zuerst die Role des Users.
+          <strong>SUPERADMIN</strong> always has all permissions by design.
+          Per-user overrides are not allowed here. To restrict permissions,
+          change the user's role first.
         </div>
       ) : user.deletedAt ? (
         <div className="rounded-lg border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-900">
-          Dieser User ist gelöscht — Rechte werden nicht mehr verwendet.
+          This user is deleted. Permissions are no longer used.
         </div>
       ) : (
         <OwnerUserPermissionsEditor
@@ -97,7 +97,7 @@ export default async function OwnerUserPermissionsPage({
           rolePermissions={rolePermissions}
           permissionDefs={[...PERMISSION_DEFINITIONS]}
           userLabel={user.name || user.email}
-          roleLabel={roleLabelDe(user.role)}
+          roleLabel={roleLabel(user.role)}
         />
       )}
     </section>

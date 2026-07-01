@@ -7,11 +7,10 @@ import { PLANS, formatUsd } from "@/lib/pricing/plans";
 
 export const dynamic = "force-dynamic";
 
-// Preise + Tagline kommen aus lib/pricing/plans.ts — Single Source of
-// Truth zwischen öffentlicher Pricing-Seite und Owner-Konsole.
-// Enterprise hat priceUSD === null ("Auf Anfrage") und zählt damit nicht
-// zur MRR-Schätzung — individuelle Verträge müsste der Owner separat
-// erfassen.
+// Prices + taglines come from lib/pricing/plans.ts, the single source of
+// truth between the public pricing page and the owner console.
+// Enterprise has priceUSD === null ("On request") and is not included in
+// the MRR estimate. Individual contracts must be tracked separately.
 const planPrices = new Map<string, number | null>(
   PLANS.map((p) => [p.key, p.priceUSD]),
 );
@@ -39,7 +38,7 @@ export default async function BillingPage() {
     orderBy: [{ plan: "asc" }, { name: "asc" }],
   });
 
-  // Plan-Verteilung
+  // Plan distribution
   const byPlan = new Map<string, typeof tenants>();
   for (const t of tenants) {
     const arr = byPlan.get(t.plan) ?? [];
@@ -75,9 +74,9 @@ export default async function BillingPage() {
         Changing plans here is mandatory for module visibility and limits to apply correctly.
       </p>
 
-      {/* Plan-Overview: pro Plan eine Card mit MRR und Tenantenzahl.
-          Liste kommt aus der Pricing-Definition — neue Pläne erscheinen
-          automatisch, ohne hier zu hardcoden. */}
+      {/* Plan overview: one card per plan with MRR and tenant count.
+          The list comes from the pricing definition, so new plans appear
+          automatically without hardcoding them here. */}
       <section className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-5">
         {PLANS.map((p) => p.key).map((plan) => {
           const list = byPlan.get(plan) ?? [];
@@ -121,7 +120,7 @@ export default async function BillingPage() {
         })}
       </section>
 
-      {/* Tenanten-Tabelle mit Plan-Wechsel */}
+      {/* Tenant table with plan changes */}
       <section className="rounded-lg border border-habb-line bg-white overflow-hidden">
         <header className="border-b border-habb-line px-5 py-3 flex items-center gap-2">
           <Building2 className="h-4 w-4 text-habb-muted" />

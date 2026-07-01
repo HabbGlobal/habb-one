@@ -1,18 +1,17 @@
 /**
- * Einheitliche Auflösung "welcher Mandant betreibt dieses Kiosk-Tablet?".
+ * Centralized resolution of which tenant operates this kiosk tablet.
  *
- * Drei Quellen, in Prioritätsreihenfolge:
- *   1. Account-Session: ist ein KIOSK_OPERATOR via NextAuth eingeloggt,
- *      kommt die Firma aus dem User-Profil (Lock-Screen entfällt).
- *   2. Kiosk-Lock-Cookie: anonymes Tablet, morgens via Kiosk-Passwort
- *      auf eine Firma freigeschaltet.
- *   3. Single-Company-Fallback: existiert genau EINE Firma (klassisches
- *      Single-Tenant-Setup vor Multi-Tenant), nimm die.
+ * Three sources, in priority order:
+ *   1. Account session: when a KIOSK_OPERATOR is signed in through NextAuth,
+ *      use the company from the user profile and skip the lock screen.
+ *   2. Kiosk lock cookie: an anonymous tablet unlocked for a specific company
+ *      with the kiosk password.
+ *   3. Single-company fallback: when exactly one company exists, use it.
  *
- * Vor dem Security-Refactor lag diese Logik nur in /kiosk/page.tsx; die
- * Actions-Seite verlangte fälschlich HART das Lock-Cookie und schickte
- * Account-/Single-Tenant-Kioske nach PIN-Eingabe zurück auf die Kachel-
- * Liste ("passiert nichts"). Jetzt teilen sich beide Seiten diese Quelle.
+ * Before the security refactor, this logic existed only in /kiosk/page.tsx.
+ * The actions page incorrectly required a lock cookie and sent account-based
+ * and single-tenant kiosks back to the employee list after PIN entry. Both
+ * pages now use this shared resolver.
  */
 
 import { auth } from "@/lib/auth";
@@ -21,9 +20,9 @@ import { readKioskLock } from "@/lib/kiosk-lock";
 import { prisma } from "@/lib/prisma";
 
 export interface KioskCompanyResolution {
-  /** Firma aus Account-Session ODER Lock-Cookie (für Lock-Screen-Logik). */
+  /** Company from the account session or lock cookie, used by lock-screen logic. */
   lockedCompanyId: string | null;
-  /** Endgültige Firma inkl. Single-Company-Fallback. null = unklar. */
+  /** Final company including the single-company fallback; null means unresolved. */
   effectiveCompanyId: string | null;
 }
 

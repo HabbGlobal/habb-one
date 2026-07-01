@@ -81,7 +81,7 @@ export function OwnerAuthShell({ currentStep, title, subtitle, children }: AuthS
 
 function Stepper({ current }: { current: 1 | 2 }) {
   return (
-    <ol className="flex items-center gap-2" aria-label="Anmeldefortschritt">
+    <ol className="flex items-center gap-2" aria-label="Sign-in progress">
       {STEPS.map((step, idx) => {
         const active = current === step.n;
         const done = step.n < current;
@@ -123,7 +123,7 @@ function Wordmark({ size }: { size: "sm" | "lg" }) {
   const cls = size === "lg" ? "text-xl" : "text-base";
   return (
     <span className={`font-semibold tracking-tight ${cls}`}>
-      habb<span className="text-habb-red">.ch</span>
+      HABB <span className="text-habb-red">One</span>
     </span>
   );
 }

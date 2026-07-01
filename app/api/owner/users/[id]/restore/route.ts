@@ -1,15 +1,13 @@
 /**
  * POST /api/owner/users/[id]/restore
  *
- * Stellt einen zuvor soft-gelöschten Tenant-User wieder her. Das ist die
- * Umkehroperation zu `/delete` — `deletedAt` zurück auf null, `isActive`
- * wieder true. Sessions waren beim Delete via `sessionEpoch++` invalidiert
- * worden; wir bumpen NICHT nochmal, weil ohnehin niemand mehr eingeloggt
- * sein kann.
+ * Restores a previously soft-deleted tenant user. This is the reverse operation
+ * of `/delete`: `deletedAt` back to null and `isActive` true again. Sessions
+ * were invalidated on delete via `sessionEpoch++`; we do NOT bump again because
+ * nobody can still be logged in anyway.
  *
- * Email-Konflikte können nicht auftreten: solange die Row existiert, hält
- * sie ihren unique-Slot. Erst der finale Cron-Purge nach 30 Tagen löst
- * den Slot frei.
+ * Email conflicts cannot occur: as long as the row exists, it keeps its unique
+ * slot. Only the final cron purge after 30 days frees the slot.
  */
 
 import { NextResponse } from "next/server";
@@ -23,7 +21,7 @@ import { requireOwner } from "@/lib/owner/auth";
 import { ownerAudit } from "@/lib/owner/audit";
 
 const schema = z.object({
-  reason: z.string().trim().min(10, "Begründung muss mindestens 10 Zeichen lang sein."),
+  reason: z.string().trim().min(10, "Reason must be at least 10 characters long."),
 });
 
 export async function POST(req: Request, { params }: { params: Promise<{ id: string }> }) {
@@ -65,8 +63,8 @@ export async function POST(req: Request, { params }: { params: Promise<{ id: str
     return NextResponse.json({ error: "NOT_DELETED" }, { status: 409 });
   }
   if (user.company.suspendedAt) {
-    // Mandant ist suspendiert → User-Restore macht keinen Sinn, der Login
-    // würde sowieso scheitern. Owner muss erst Mandant reaktivieren.
+    // Tenant is suspended, so restoring the user makes no sense because login
+    // would fail anyway. The owner must reactivate the tenant first.
     return NextResponse.json({ error: "COMPANY_SUSPENDED" }, { status: 400 });
   }
 

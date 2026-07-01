@@ -36,7 +36,7 @@ export default async function TenantUsersPage({
     },
   });
 
-  // Pro User die Anzahl Per-User-Overrides (für Badge).
+  // Count per-user overrides for the badge.
   const overrideCounts = await prisma.userPermission.groupBy({
     by: ["userId"],
     where: { companyId: id },
@@ -51,10 +51,10 @@ export default async function TenantUsersPage({
     <section className="space-y-3">
       <header className="flex flex-wrap items-end justify-between gap-3">
         <div>
-          <h2 className="text-sm font-medium text-habb-ink">User von {tenant.name}</h2>
+          <h2 className="text-sm font-medium text-habb-ink">Users for {tenant.name}</h2>
           <p className="mt-0.5 text-xs text-habb-muted">
-            {users.length} Account{users.length === 1 ? "" : "s"} insgesamt
-            {users.some((u) => u.deletedAt) ? " (inkl. gelöscht)" : ""}
+            {users.length} account{users.length === 1 ? "" : "s"} total
+            {users.some((u) => u.deletedAt) ? " (including deleted)" : ""}
           </p>
         </div>
         <CreateUserButton tenantId={tenant.id} tenantName={tenant.name} />
@@ -68,7 +68,7 @@ export default async function TenantUsersPage({
               <th scope="col" className="px-5 py-3">Email</th>
               <th scope="col" className="px-5 py-3">Role</th>
               <th scope="col" className="px-5 py-3">Status</th>
-              <th scope="col" className="px-5 py-3">Letzter Login</th>
+              <th scope="col" className="px-5 py-3">Last login</th>
               <th scope="col" className="px-5 py-3 text-right">Actions</th>
             </tr>
           </thead>
@@ -76,7 +76,7 @@ export default async function TenantUsersPage({
             {users.length === 0 && (
               <tr>
                 <td colSpan={6} className="px-5 py-12 text-center text-sm text-habb-muted">
-                  Keine User in diesem Tenanten.
+                  No users for this tenant.
                 </td>
               </tr>
             )}
@@ -89,7 +89,7 @@ export default async function TenantUsersPage({
                   <span className={u.deletedAt ? "line-through" : ""}>{u.name}</span>
                   {u.mustChangePassword && !u.deletedAt && (
                     <span className="ml-2 inline-flex rounded-full border border-habb-warning/30 bg-habb-warning/5 px-1.5 text-[10px] uppercase tracking-wide text-habb-warning">
-                      muss ändern
+                      must change
                     </span>
                   )}
                 </td>
@@ -99,7 +99,7 @@ export default async function TenantUsersPage({
                   {u.deletedAt ? (
                     <span className="inline-flex items-center gap-1 text-xs text-habb-muted">
                       <span className="h-1.5 w-1.5 rounded-full bg-habb-muted" />
-                      Gelöscht
+                      Deleted
                     </span>
                   ) : u.lockedAt ? (
                     <span
@@ -124,10 +124,10 @@ export default async function TenantUsersPage({
                       <Link
                         href={`/owner/tenants/${tenant.id}/users/${u.id}/permissions`}
                         className="inline-flex items-center gap-1 rounded-md border border-habb-line bg-white px-2 py-1 text-xs font-medium text-habb-ink hover:bg-habb-paper"
-                        title="Persönliche Rechte für diesen User"
+                        title="Personal permissions for this user"
                       >
                         <ShieldCheck className="h-3 w-3" />
-                        Rechte
+                        Permissions
                         {(overridesByUser.get(u.id) ?? 0) > 0 && (
                           <span className="ml-0.5 inline-flex items-center justify-center rounded-full bg-amber-100 px-1.5 text-[10px] font-medium text-amber-900">
                             {overridesByUser.get(u.id)}

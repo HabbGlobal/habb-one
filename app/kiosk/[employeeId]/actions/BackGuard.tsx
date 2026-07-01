@@ -1,34 +1,29 @@
 "use client";
 
-// Client-seitiger Anti-Replay-Schutz für die Kiosk-Actions-Seite.
+// Client-side replay protection for the kiosk actions page.
 //
-// Browser haben einen "Back/Forward Cache" (bfcache), der Seiten
-// vollständig (inkl. JS-State, ohne Server-Roundtrip) wiederherstellt.
-// Das bedeutet: Wenn ein Mitarbeiter Pin-eingibt, auf der Actions-Seite
-// landet und dann zurück navigiert, KANN der bfcache die Seite per
-// Browser-Forward-Knopf wieder anzeigen — OHNE dass unsere Server-
-// Auth-Prüfung (readKioskSession) erneut läuft.
+// Browsers have a back/forward cache (bfcache) that can restore an entire page,
+// including JavaScript state, without a server round trip. After an employee
+// enters a PIN and leaves the actions page, browser forward navigation could
+// restore it without running readKioskSession again.
 //
-// Verteidigung in 3 Schichten:
-//   1. `Cache-Control: no-store` via Middleware → die meisten Browser
-//      disqualifizieren die Seite damit komplett vom bfcache.
-//   2. Server-Action im Zurück-Button löscht `kiosk_session` SOFORT.
-//   3. Dieser Listener: erkennt bfcache-Restore und erzwingt einen
-//      kompletten Reload — der Server prüft die (jetzt gelöschte)
-//      Session und redirected zur PIN-Eingabe.
+// Three layers of protection:
+//   1. `Cache-Control: no-store` from middleware prevents most browsers from
+//      placing the page in bfcache.
+//   2. The server action behind the Back button immediately deletes
+//      `kiosk_session`.
+//   3. This listener detects a bfcache restore and forces a full reload. The
+//      server then checks the deleted session and redirects to PIN entry.
 //
-// Es würde reichen, eine der 3 Schichten zu haben — aber wir wollen
-// auf Werkstatt-Tablets mit unbekannten Browsern absolut sicher sein.
+// The layered approach protects workshop tablets running unknown browsers.
 
 import { useEffect } from "react";
 
 export function BackGuard() {
   useEffect(() => {
     const onPageShow = (event: PageTransitionEvent) => {
-      // `persisted` ist true, wenn die Seite aus dem bfcache kommt
-      // (also ohne Server-Roundtrip wiederhergestellt wurde). Wir
-      // erzwingen dann einen Full-Reload, damit der Server-Auth-Check
-      // erneut läuft.
+      // `persisted` is true when the page was restored from bfcache without a
+      // server round trip. Force a full reload so server authentication runs.
       if (event.persisted) {
         window.location.reload();
       }

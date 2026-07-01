@@ -6,12 +6,12 @@ import { requireOwner } from "@/lib/owner/auth";
 import { ownerAudit } from "@/lib/owner/audit";
 
 const schema = z.object({
-  reason: z.string().trim().min(10, "Begründung muss mindestens 10 Zeichen lang sein."),
+  reason: z.string().trim().min(10, "Reason must be at least 10 characters long."),
 });
 
 /**
- * Soft-Delete. Setzt `deletedAt`; ein Cron räumt nach 30 Tagen final auf.
- * Aktive Sessions werden via `sessionEpoch++` invalidiert.
+ * Soft delete. Sets `deletedAt`; a cron job permanently cleans up after
+ * 30 days. Active sessions are invalidated via `sessionEpoch++`.
  */
 export async function POST(req: Request, { params }: { params: Promise<{ id: string }> }) {
   if (!isOwnerPortalEnabled()) return ownerPortalDisabledResponse();

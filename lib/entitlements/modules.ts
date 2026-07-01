@@ -1,23 +1,22 @@
 /**
- * Plan → Modul-Durchsetzung (Tenant-Seite).
+ * Plan-to-module enforcement for tenants.
  *
- * Single Source of Truth für "welche Module hat ein Plan" ist
- * `lib/pricing/plans.ts` (PLANS[].modules). Hier wird daraus die
- * effektive Modul-Menge eines Mandanten abgeleitet:
+ * The single source of truth for which modules a plan contains is
+ * `lib/pricing/plans.ts` through PLANS[].modules. This module derives the
+ * tenant's effective module set:
  *
- *   Basis      = Module des aktuellen Company.plan
- *   Override   = explizite TenantEntitlement-Zeilen (enabled true/false)
+ *   Base       = modules in the current Company.plan
+ *   Override   = explicit TenantEntitlement rows (enabled true/false)
  *
- * Dadurch ist die Durchsetzung auch dann korrekt, wenn (noch) keine
- * Entitlement-Zeilen existieren — der Plan allein bestimmt dann alles.
+ * Enforcement therefore remains correct even when no entitlement rows exist;
+ * in that case, the plan alone determines all modules.
  *
- * WICHTIG (Modell): Override-Zeilen sind ABWEICHUNGEN vom Plan. Eine vom
- * Owner manuell gesetzte Zeile trägt `updatedByOwnerAccountId` und gilt als
- * "Sonderfreischaltung/-sperre" — sie ÜBERLEBT einen Plan-Wechsel. Beim
- * Plan-Wechsel werden nur die automatisch materialisierten Zeilen (ohne
- * Owner-Autor) bereinigt, damit der neue Plan greift — siehe
- * `reconcileEntitlementsForPlanChange`. `syncEntitlementsToPlan` (Voll-
- * Materialisierung) ist nur noch für Backfill-Skripte gedacht.
+ * Model invariant: override rows represent deviations from the plan. A row
+ * manually set by an owner carries `updatedByOwnerAccountId` and survives plan
+ * changes. During a plan change, only automatically materialized rows without
+ * an owner author are removed so the new plan takes effect. See
+ * `reconcileEntitlementsForPlanChange`. Full materialization through
+ * `syncEntitlementsToPlan` is intended only for backfill scripts.
  */
 
 import type { Prisma, TenantModule, TenantPlan } from "@prisma/client";
@@ -25,7 +24,7 @@ import { prisma } from "@/lib/prisma";
 import { PLANS } from "@/lib/pricing/plans";
 import { ALL_MODULES } from "@/lib/owner/entitlements";
 
-/** Plan → enthaltene Module, direkt aus der Pricing-Definition. */
+/** Modules included in each plan, derived directly from the pricing definition. */
 export const PLAN_MODULES: Record<TenantPlan, TenantModule[]> =
   Object.fromEntries(PLANS.map((p) => [p.key, p.modules])) as Record<
     TenantPlan,
@@ -33,8 +32,8 @@ export const PLAN_MODULES: Record<TenantPlan, TenantModule[]> =
   >;
 
 /**
- * Effektive Modul-Menge eines Mandanten: Plan-Basis + explizite
- * Entitlement-Overrides.
+ * Effective module set for a tenant: plan base plus explicit entitlement
+ * overrides.
  */
 export async function getEnabledModules(
   companyId: string,
@@ -57,17 +56,16 @@ export async function getEnabledModules(
 }
 
 /**
- * Plan-Wechsel: bringt die Modul-Durchsetzung auf den neuen Plan, OHNE
- * manuelle Sonderfreischaltungen/-sperren zu zerstören.
+ * Reconciles module enforcement with a new plan without removing manual owner
+ * grants or blocks.
  *
- * Modell: Eine vom Owner manuell gesetzte Override-Zeile trägt immer
- * `updatedByOwnerAccountId` (die Entitlement-Route setzt es; die Voll-
- * Materialisierung NICHT). Beim Plan-Wechsel löschen wir genau die
- * automatisch materialisierten Zeilen (Autor = null) — die plan-gesteuerten
- * Module folgen damit wieder dem (neuen) Plan. Owner-Overrides bleiben
- * erhalten und gelten als Abweichung weiter auf den neuen Plan oben drauf.
+ * A manually set owner override always carries `updatedByOwnerAccountId`. The
+ * entitlement route sets it, while full materialization does not. During a
+ * plan change, only automatically materialized rows with no author are
+ * removed. Plan-controlled modules then follow the new plan, while owner
+ * overrides remain as deviations layered on top.
  *
- * In derselben Transaktion wie das `company.plan`-Update aufrufen.
+ * Call this in the same transaction as the `company.plan` update.
  */
 export async function reconcileEntitlementsForPlanChange(
   client: Prisma.TransactionClient | typeof prisma,
@@ -79,12 +77,12 @@ export async function reconcileEntitlementsForPlanChange(
 }
 
 /**
- * Schreibt für JEDES Modul eine explizite TenantEntitlement-Zeile
- * passend zum Plan (Voll-Materialisierung).
+ * Writes an explicit TenantEntitlement row for every module according to the
+ * plan, fully materializing its state.
  *
- * NUR noch für Backfill-Skripte gedacht — NICHT mehr beim Plan-Wechsel
- * verwenden, da es manuelle Owner-Overrides überschreiben würde. Der
- * Plan-Wechsel nutzt `reconcileEntitlementsForPlanChange`.
+ * Intended only for backfill scripts. Do not use this during plan changes,
+ * because it would overwrite manual owner overrides. Plan changes use
+ * `reconcileEntitlementsForPlanChange`.
  */
 export async function syncEntitlementsToPlan(
   client: Prisma.TransactionClient | typeof prisma,

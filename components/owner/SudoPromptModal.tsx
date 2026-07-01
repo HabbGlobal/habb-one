@@ -7,17 +7,17 @@ interface SudoPromptProps {
   open: boolean;
   onClose: () => void;
   onSuccess: () => void;
-  /** Action, die gleich ausgeführt wird — wird als Kontext angezeigt. */
+  /** Action about to be executed, shown as context. */
   actionLabel: string;
 }
 
 /**
- * Step-up Auth Modal. Owner gibt sein Passwort nochmal ein; bei Erfolg
- * läuft `onSuccess()` und die ursprüngliche destruktive Action kann
- * wiederholt werden (Server gewährt jetzt Sudo).
+ * Step-up auth modal. Owner enters their password again; on success,
+ * `onSuccess()` runs and the original destructive action can be retried
+ * because the server now grants sudo.
  *
- * Wirft Fokus-Trap nicht aktiv ein — die Modal-Komponente ist klein,
- * Tab-Reihenfolge ist eindeutig. Esc + Click-Outside schliessen.
+ * Does not actively install a focus trap; the modal is small and tab order is
+ * clear. Escape and outside click close it.
  */
 export function SudoPromptModal({ open, onClose, onSuccess, actionLabel }: SudoPromptProps) {
   const [pending, start] = useTransition();
@@ -52,7 +52,7 @@ export function SudoPromptModal({ open, onClose, onSuccess, actionLabel }: SudoP
       if (res.ok) {
         onSuccess();
       } else {
-        setError("Passwort ist nicht korrekt.");
+        setError("Password is incorrect.");
       }
     });
   };

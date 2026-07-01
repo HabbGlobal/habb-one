@@ -3,10 +3,10 @@ import { getActiveImpersonation } from "@/lib/owner/impersonation";
 import { EndImpersonationButton } from "./EndImpersonationButton";
 
 /**
- * Persistenter Banner, der in der Tenant-App genau dann erscheint, wenn
- * ein HABB Global (PVT) LTD-Owner gerade als angemeldeter User unterwegs ist.
- * Server-Component — liest die Impersonation aus dem Cookie pro Request
- * und blendet sich aus, sobald die Sitzung beendet/abgelaufen ist.
+ * Persistent banner shown in the tenant app while a HABB Global (PVT) LTD
+ * owner is signed in as a tenant user. This server component reads the
+ * impersonation cookie on every request and disappears when the session ends
+ * or expires.
  */
 export async function ImpersonationBanner() {
   const imp = await getActiveImpersonation();
@@ -16,7 +16,7 @@ export async function ImpersonationBanner() {
     0,
     Math.round((imp.expiresAt.getTime() - Date.now()) / 60_000),
   );
-  const scopeLabel = imp.scope === "READONLY" ? "Nur Lesezugriff" : "Vollzugriff";
+  const scopeLabel = imp.scope === "READONLY" ? "Read-only access" : "Full access";
 
   return (
     <div className="sticky top-0 z-40 bg-habb-red text-white shadow-sm">
@@ -25,9 +25,9 @@ export async function ImpersonationBanner() {
         <div className="min-w-0 flex-1">
           <span className="font-semibold">HABB Global (PVT) LTD Support</span>{" "}
           <span className="opacity-90">
-            ({imp.ownerName}) ist gerade als{" "}
-            <span className="font-medium">{imp.targetUserName}</span> in deinem
-            Mandanten {imp.targetCompanyName} angemeldet.
+            ({imp.ownerName}) is currently signed in as{" "}
+            <span className="font-medium">{imp.targetUserName}</span> for tenant{" "}
+            {imp.targetCompanyName}.
           </span>
           <span className="ml-2 hidden md:inline opacity-80">
             · {scopeLabel} · expires in {minutesLeft} min

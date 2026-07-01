@@ -1,8 +1,8 @@
 /**
  * GET /api/owner/auth/passkey/signin-options
  *
- * Liefert WebAuthn-Authentication-Optionen für den Ceremony-Owner.
- * Aktualisiert den Ceremony-Cookie mit der frischen Challenge.
+ * Returns WebAuthn authentication options for the ceremony owner.
+ * Updates the ceremony cookie with the fresh challenge.
  */
 
 import { NextResponse } from "next/server";

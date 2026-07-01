@@ -18,10 +18,9 @@ export async function POST() {
 
   const ctx = await getOwnerContext();
   if (ctx) {
-    // Wenn der Owner gerade eine Impersonation laufen hat, beenden wir die
-    // bei Logout sauber mit. Sonst bleibt der Cookie hängen und der nächste
-    // /admin-Aufruf würde mit einem "geisterhaften" Owner-Identitätswechsel
-    // weiterlaufen.
+    // End any active impersonation cleanly on logout. Otherwise the cookie
+    // remains and the next /admin request would carry a "ghost" owner identity
+    // switch.
     const imp = await getActiveImpersonation();
     if (imp && imp.ownerAccountId === ctx.ownerAccountId) {
       await prisma.impersonationSession.update({

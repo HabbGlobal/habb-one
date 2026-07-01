@@ -1,11 +1,11 @@
 /**
  * POST /api/owner/auth/passkey/enroll-verify
  *
- * Verifiziert die WebAuthn-Attestation der Registrierung. Bei Erfolg:
- *   1. Credential in DB persistieren
- *   2. `webauthnEnrolledAt` auf jetzt setzen
- *   3. OwnerSession + Session-Cookie erstellen → Owner ist eingeloggt
- *   4. Ceremony-Cookie löschen
+ * Verifies the WebAuthn attestation for registration. On success:
+ *   1. Persist credential in the DB
+ *   2. Set `webauthnEnrolledAt` to now
+ *   3. Create OwnerSession + session cookie -> owner is signed in
+ *   4. Clear ceremony cookie
  *   5. Audit: OWNER_2FA_ENROLLED + OWNER_LOGIN_OK
  */
 
