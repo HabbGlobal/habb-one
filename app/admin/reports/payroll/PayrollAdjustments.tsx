@@ -1,8 +1,8 @@
 "use client";
 
 // Manual time corrections (flextime) per employee/month.
-// Liste + Erfassen-Form + Löschen. Nur sichtbar/aktiv mit
-// `timeEntries.correct` (canEdit). Fliesst in den kumulierten Saldo.
+// List + entry form + delete. Only visible/active with
+// `timeEntries.correct` (canEdit). Flow into the cumulative balance.
 
 import { useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
@@ -22,7 +22,7 @@ export interface AdjustmentRow {
 
 interface Props {
   employeeId: string;
-  /** Default-Datum für neue Korrekturen (Monatsmitte des gewählten Monats). */
+  /** Default date for new corrections (mid-month of selected month). */
   defaultDate: string;
   adjustments: AdjustmentRow[];
   totalMinutes: number;

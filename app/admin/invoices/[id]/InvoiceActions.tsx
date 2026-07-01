@@ -106,7 +106,7 @@ export function InvoiceActions({
   const onReminder = () => {
     if (
       !confirm(
-        `Mahnung Stufe ${Math.min(3, reminderLevel + 1)} erfassen? (Versand der PDF-Mahnung erfolgt manuell.)`,
+        'Record reminder level ${Math.min(3, reminderLevel + 1)}? (The sending of the PDF reminder is done manually.)',
       )
     )
       return;
@@ -150,10 +150,10 @@ export function InvoiceActions({
 
       {showPaid && (
         <div className="rounded-lg border bg-muted/30 p-3 space-y-3">
-          <div className="text-sm font-medium">Als bezahlt markieren</div>
+          <div className="text-sm font-medium">Mark as paid</div>
           <div className="grid grid-cols-2 gap-3">
             <div className="space-y-1">
-              <Label className="text-xs">Zahlungsdatum *</Label>
+              <Label className="text-xs">Payment date *</Label>
               <Input
                 type="date"
                 value={paidAt}
@@ -161,7 +161,7 @@ export function InvoiceActions({
               />
             </div>
             <div className="space-y-1">
-              <Label className="text-xs">Betrag CHF</Label>
+              <Label className="text-xs">Amount (CHF)</Label>
               <Input
                 type="number"
                 step={0.01}
@@ -183,7 +183,7 @@ export function InvoiceActions({
             >Cancel</Button>
             <Button onClick={onMarkPaid} size="sm" disabled={pending}>
               <CheckCircle2 className="h-4 w-4 mr-1" />
-              Als bezahlt markieren
+              Mark as paid
             </Button>
           </div>
         </div>

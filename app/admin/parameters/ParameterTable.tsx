@@ -135,7 +135,7 @@ export function ParameterTable({
         <CardContent className="p-0">
           {grouped.length === 0 ? (
             <p className="text-sm text-muted-foreground p-6">
-              Keine Parameter gefunden.
+              No parameters found
             </p>
           ) : (
             <div>

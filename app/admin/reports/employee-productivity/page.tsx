@@ -80,7 +80,7 @@ export default async function EmployeeProductivityPage({
       <div className="grid grid-cols-3 gap-3">
         <Card>
           <CardContent className="p-4">
-            <div className="text-xs text-muted-foreground">Scan-Stunden gesamt</div>
+            <div className="text-xs text-muted-foreground">Total scan hours</div>
             <div className="text-2xl font-semibold tabular-nums mt-1">
               {fmtHours(report.totals.totalMinutes)}
             </div>
@@ -88,7 +88,7 @@ export default async function EmployeeProductivityPage({
         </Card>
         <Card>
           <CardContent className="p-4">
-            <div className="text-xs text-muted-foreground">Davon billable</div>
+            <div className="text-xs text-muted-foreground">Of which billable</div>
             <div className="text-2xl font-semibold tabular-nums mt-1 text-emerald-700">
               {fmtHours(report.totals.billableMinutes)}
             </div>
@@ -177,9 +177,7 @@ export default async function EmployeeProductivityPage({
       </Card>
 
       <p className="text-xs text-muted-foreground">
-        Total-Stunden = Σ Scan-Intervalle (Pause-clean). Billable = Schritte deren Order
-        nicht <em>storniert</em> ist UND deren Verrechnungs-Quelle nicht
-        <em> Schätzung</em> ist (also ACTUAL oder MANUAL).
+        Total hours = Σ scan intervals (pause-clean). Billable = steps whose order is not <em>cancelled</em> AND whose billing source is not <em>estimate</em> (i.e., ACTUAL or MANUAL).
       </p>
     </div>
   );

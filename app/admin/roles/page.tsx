@@ -26,16 +26,16 @@ export default async function RolesPage() {
   const session = await auth();
   if (!session?.user) redirect("/login");
 
-  // Strikt: Nur SUPERADMIN.
+  // Strict: SUPERADMIN only.
   if (!isSuperAdmin(session.user.role)) redirect("/admin");
 
   const companyId = session.user.companyId;
 
-  // 1) Aktuelle Matrix laden (Defaults ∪ DB-Overrides).
+  // 1) Load current matrix (defaults ∪ DB overrides).
   const matrix = await loadPermissionMatrix(companyId);
 
-  // 2) Override-Zeilen separat laden, damit die UI "abweichend vom Default"
-  //    markieren kann.
+  // 2) Load override rows separately so the UI can mark
+//    entries as "different from default".
   const overrideRows = await prisma.rolePermission.findMany({
     where: { companyId },
     select: { role: true, permission: true, allowed: true, updatedAt: true },
@@ -51,7 +51,7 @@ export default async function RolesPage() {
     initialMatrix[role] = ALL_PERMISSIONS.filter((p) => allowedSet.has(p));
   }
 
-  // Defaults pro Rolle, damit das UI "abweichend" markieren kann.
+  // Default permissions per role, used so the UI can highlight differences.
   const defaults: Record<ConfigurableRole, Permission[]> = {
     ADMIN: getStaticDefaults("ADMIN" as UserRole),
     PLANNER: getStaticDefaults("PLANNER" as UserRole),

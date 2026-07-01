@@ -120,12 +120,12 @@ export function SchedulingSection({
     });
   };
 
-  // Konflikte aggregieren (alle Einträge zusammen)
+  // Aggregate conflicts (combine all entries)
   const allConflicts = steps.flatMap((s) =>
     s.conflicts.map((c) => ({ ...c, stepLabel: `Step ${s.sequence}` })),
   );
-  // Deduplizieren pro Message — Auftrags-übergreifende Konflikte erscheinen
-  // sonst pro Eintrag wiederholt.
+  // Deduplicate by message — otherwise, conflicts that span
+// multiple orders would be repeated for each entry.
   const uniqueConflicts = Array.from(
     new Map(allConflicts.map((c) => [`${c.type}|${c.message}`, c])).values(),
   );
@@ -165,7 +165,7 @@ export function SchedulingSection({
         </div>
       )}
 
-      {/* Konflikte */}
+      {/* Conflicts */}
       {uniqueConflicts.length > 0 && (
         <div className="rounded-lg border-2 border-destructive/40 bg-destructive/5 px-3 py-2 text-sm">
           <div className="font-medium text-destructive flex items-center gap-1">
@@ -184,7 +184,7 @@ export function SchedulingSection({
         </div>
       )}
 
-      {/* Geplante Schritte */}
+      {/* Planned Steps */}
       {steps.length > 0 && (
         <div className="rounded-lg border bg-muted/20">
           <table className="w-full text-xs">
@@ -194,7 +194,7 @@ export function SchedulingSection({
                 <th className="text-left px-2 py-1.5">Step</th>
                 <th className="text-left px-2 py-1.5">Machine</th>
                 <th className="text-left px-2 py-1.5">Day</th>
-                <th className="text-left px-2 py-1.5">Zeit</th>
+                <th className="text-left px-2 py-1.5">Time</th>
                 <th className="text-right px-2 py-1.5 w-16"></th>
               </tr>
             </thead>
