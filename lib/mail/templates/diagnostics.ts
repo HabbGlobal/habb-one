@@ -22,7 +22,7 @@ function escapeHtml(s: string): string {
 function shell(title: string, bodyHtml: string): string {
   return `<!doctype html><html lang="en"><body style="font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Helvetica,Arial,sans-serif;background:#FAFAF9;margin:0;padding:0;color:#1A1A1A;">
   <div style="max-width:600px;margin:0 auto;padding:32px 24px;">
-    <div style="font-weight:600;font-size:18px;">habb<span style="color:#DA0E15">.ch</span> · Diagnostics</div>
+    <div style="font-weight:600;font-size:18px;">HABB <span style="color:#DA0E15">One</span> · Diagnostics</div>
     <h1 style="font-size:20px;font-weight:600;margin:20px 0 12px 0;">${escapeHtml(title)}</h1>
     ${bodyHtml}
     <p style="margin:24px 0;"><a href="${DASH}" style="display:inline-block;background:#0A0A0A;color:#fff;padding:12px 22px;border-radius:8px;text-decoration:none;font-weight:500;">Open Owner Dashboard</a></p>
