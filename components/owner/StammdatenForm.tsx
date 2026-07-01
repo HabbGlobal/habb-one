@@ -25,9 +25,9 @@ interface Props {
 }
 
 const LANGUAGES: { value: string; label: string }[] = [
-  { value: "de", label: "Deutsch" },
-  { value: "fr", label: "Français" },
-  { value: "it", label: "Italiano" },
+  { value: "de", label: "German" },
+  { value: "fr", label: "French" },
+  { value: "it", label: "Italian" },
   { value: "en", label: "English" },
 ];
 
@@ -220,7 +220,7 @@ export function StammdatenForm({ initial }: Props) {
             <input
               value={form.vatNumber ?? ""}
               onChange={(e) => setForm({ ...form, vatNumber: e.target.value })}
-              placeholder="CHE-123.456.789 MWST"
+              placeholder="CHE-123.456.789 VAT"
               className={inputCls}
             />
           </Field>

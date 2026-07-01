@@ -90,7 +90,7 @@ interface Props {
   }>;
 }
 
-const WEEKDAY_LABELS_DE: Record<string, string> = {
+const WEEKDAY_LABELS: Record<string, string> = {
   MON: "Monday",
   TUE: "Tuesday",
   WED: "Wednesday",
@@ -100,7 +100,7 @@ const WEEKDAY_LABELS_DE: Record<string, string> = {
   SUN: "Sunday",
 };
 
-const MONTH_LABELS_DE = [
+const MONTH_LABELS = [
   "January",
   "February",
   "March",
@@ -122,9 +122,9 @@ function formatHmm(minutes: number): string {
   return `${h}:${mm.toString().padStart(2, "0")}`;
 }
 
-function formatDateDe(dateStr: string): string {
+function formatDate(dateStr: string): string {
   const [y, m, d] = dateStr.split("-").map(Number);
-  return `${WEEKDAY_LABELS_DE[weekdayFromDate(y, m, d)]}, ${d}. ${MONTH_LABELS_DE[m - 1]} ${y}`;
+  return `${WEEKDAY_LABELS[weekdayFromDate(y, m, d)]}, ${d} ${MONTH_LABELS[m - 1]} ${y}`;
 }
 
 function weekdayFromDate(y: number, m: number, d: number): string {
@@ -219,7 +219,7 @@ export function SheetClient({
         </ul>
       </nav>
 
-      {/* Live-Lock-Banner */}
+      {/* Live Lock Banner */}
       {isLive && canCorrect && (
         <LiveLockBanner
           employeeId={employee.id}
@@ -232,7 +232,7 @@ export function SheetClient({
         />
       )}
 
-      {/* Wochen-Progress */}
+      {/* Week Progress */}
       <section className="rounded-lg border border-habb-line bg-white px-4 py-3">
         <div className="flex items-baseline justify-between">
           <p className="text-xs uppercase tracking-wider text-habb-muted">
@@ -250,9 +250,9 @@ export function SheetClient({
         </div>
       </section>
 
-      {/* Zwei-Spalten-Layout: Kalender links, Tageliste rechts */}
+      {/* Two-column layout: Calendar left, Day list right */}
       <div className="grid gap-6 lg:grid-cols-[280px_1fr]">
-        {/* ── Kalender ─────────────────────────── */}
+        {/* ── Calendar ─────────────────────────── */}
         <aside>
           <div className="rounded-lg border border-habb-line bg-white p-4">
             <div className="flex items-center justify-between">
@@ -264,7 +264,7 @@ export function SheetClient({
                 <ChevronLeft className="h-4 w-4" />
               </Link>
               <p className="text-sm font-semibold text-habb-ink">
-                {MONTH_LABELS_DE[month - 1]} {year}
+                {MONTH_LABELS[month - 1]} {year}
               </p>
               <Link
                 href={`/admin/attendance/${employee.id}/sheet?y=${nextYear}&m=${nextMonth}`}
@@ -286,7 +286,7 @@ export function SheetClient({
           </div>
         </aside>
 
-        {/* ── Tageliste ────────────────────────── */}
+        {/* ── Day list ────────────────────────── */}
         <section className="space-y-4">
           {days.map((d) => (
             <DayRow
@@ -302,7 +302,7 @@ export function SheetClient({
         </section>
       </div>
 
-      {/* Day-Editor */}
+      {/* Day Editor */}
       {editingDay && (
         <DayEditor
           employeeId={employee.id}
@@ -317,7 +317,7 @@ export function SheetClient({
 }
 
 // ─────────────────────────────────────────
-// Kalender-Grid
+// Calendar Grid
 // ─────────────────────────────────────────
 
 function Calendar({
@@ -331,9 +331,9 @@ function Calendar({
   days: DayPayload[];
   todayIso: string;
 }) {
-  // Erster Tag des Monats — auf welchem Wochentag liegt er?
+  // First day of the month — which weekday does it fall on?
   const firstDay = new Date(year, month - 1, 1);
-  const startWeekday = (firstDay.getDay() + 6) % 7; // Mo=0
+  const startWeekday = (firstDay.getDay() + 6) % 7; // Mon=0
   const dayMap = new Map(days.map((d) => [d.date, d]));
   const totalDays = new Date(year, month, 0).getDate();
 
@@ -363,7 +363,7 @@ function Calendar({
         const isLive = c.day.isOpen || c.day.isOnBreak;
         const dayNum = c.date.slice(-2).replace(/^0/, "");
 
-        // Abwesenheit → Tag in der Typ-Farbe (mit Alpha). Sonst Klassen.
+        // Absence → day in the type colour (with alpha). Otherwise classes.
         let bg = "bg-white";
         let inlineStyle: React.CSSProperties | undefined;
         if (isLive) bg = "bg-habb-success/20";
@@ -372,7 +372,7 @@ function Calendar({
           inlineStyle = { backgroundColor: `${absence.colorHex}22` };
         } else if (isHoliday) bg = "bg-blue-100";
         else if (hasWork) bg = "bg-habb-success/10";
-        else if (hasTarget) bg = "bg-amber-100"; // Arbeitstag ohne Erfassung = Lücke
+        else if (hasTarget) bg = "bg-amber-100"; // workday with no record = gap
 
         return (
           <div
@@ -395,7 +395,8 @@ function Legend() {
   return (
     <ul className="mt-3 space-y-1 text-[10px] text-habb-muted">
       <li className="flex items-center gap-2">
-        <span className="inline-block h-3 w-3 rounded-sm ring-2 ring-habb-red" />Today</li>
+        <span className="inline-block h-3 w-3 rounded-sm ring-2 ring-habb-red" /> Today
+      </li>
       <li className="flex items-center gap-2">
         <span className="inline-block h-3 w-3 rounded-sm bg-habb-success/10" /> Time recorded
       </li>
@@ -416,7 +417,7 @@ function Legend() {
 }
 
 // ─────────────────────────────────────────
-// Day-Row (rechte Spalte)
+// Day Row (right column)
 // ─────────────────────────────────────────
 
 function DayRow({
@@ -433,8 +434,8 @@ function DayRow({
   isLiveBlocked: boolean;
   onEdit: () => void;
 }) {
-  // Blöcke (Arbeitsphasen aus Punches + Pausen aus Breaks) zur Anzeige sortieren.
-  // Home-Office-Spannen werden anhand des CLOCK_IN-Flags unterschieden.
+  // Sort blocks (work phases from punches + breaks) for display.
+  // Home Office spans are distinguished by the CLOCK_IN flag.
   const workBlocks: Array<{
     start: string;
     end: string | null;
@@ -488,7 +489,7 @@ function DayRow({
       } bg-white`}
     >
       <header className="flex items-baseline justify-between gap-3 border-b border-habb-line px-4 py-2">
-        <h3 className="text-sm font-semibold text-habb-ink">{formatDateDe(day.date)}</h3>
+        <h3 className="text-sm font-semibold text-habb-ink">{formatDate(day.date)}</h3>
         <div className="text-xs tabular-nums text-habb-muted">
           {formatHmm(day.workedMinutes)} / {formatHmm(day.targetMinutes)} h
           {day.balanceMinutes !== 0 && (

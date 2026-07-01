@@ -36,7 +36,7 @@ export default async function OnboardingPage() {
       <header className="flex items-start justify-between">
         <div>
           <Link href="/" className="text-sm font-semibold tracking-tight">
-            habb<span className="text-habb-red">.ch</span>
+            HABB <span className="text-habb-red">One</span>
           </Link>
           <h1 className="mt-6 text-2xl font-semibold tracking-tight text-habb-black">
             Welcome, {session.user.name}

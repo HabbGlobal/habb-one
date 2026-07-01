@@ -1,11 +1,11 @@
 /**
  * POST /api/owner/impersonation/end
  *
- * Beendet die aktuell laufende Impersonation. Wird vom Banner-Button
- * "Sitzung beenden" und vom Owner-Logout aufgerufen.
+ * Ends the currently running impersonation. Called by the banner button
+ * "End session" and by owner logout.
  *
- * Idempotent: wenn keine Session läuft, antworten wir trotzdem 200 und
- * räumen den Cookie weg.
+ * Idempotent: when no session is running, still returns 200 and clears the
+ * cookie.
  */
 
 import { NextResponse } from "next/server";

@@ -1,14 +1,13 @@
-// Public-Logo-Endpoint speziell für den Kiosk.
+// Public company-logo endpoint specifically for the kiosk.
 //
-// Der reguläre `/api/company/logo` verlangt eine NextAuth-Session und
-// gibt IMMER nur das Logo der EIGENEN Firma zurück — der Kiosk hat aber
-// keine Session und braucht das Logo einer SPEZIFISCHEN Firma (per ID).
+// The regular `/api/company/logo` endpoint requires a NextAuth session and
+// returns only the authenticated user's company logo. The kiosk has no user
+// session and needs the logo of a specific company identified by ID.
 //
-// Sicherheits-Abwägung: das Firmen-Logo ist nicht sensibel
-// (steht auf Rechnungen, der Website, Visitenkarten). Der Kiosk-Endpoint
-// ist deshalb bewusst public — Authentication wäre kein realer Schutz
-// (alles auf der Kiosk-Seite ist öffentlich erreichbar) und würde nur
-// die UX kaputtmachen.
+// Security consideration: a company logo is not sensitive information; it is
+// already displayed on invoices, websites, and business cards. This endpoint
+// is intentionally public because authentication would add no meaningful
+// protection and would make the kiosk experience more fragile.
 
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
@@ -30,8 +29,8 @@ export async function GET(
     return new NextResponse(null, { status: 404 });
   }
 
-  // ETag-basiertes Caching — der Browser kann das Logo lange behalten,
-  // Änderungen werden über die `?v=`-Cache-Busting-URL signalisiert.
+  // Use ETag-based caching so the browser can retain the logo. Changes are
+  // signaled through the cache-busting `?v=` URL.
   const etag = `"logo-${company.updatedAt.getTime()}"`;
   return new NextResponse(
     Buffer.from(company.logoData) as unknown as BodyInit,

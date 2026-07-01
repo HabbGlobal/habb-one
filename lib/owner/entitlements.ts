@@ -1,26 +1,26 @@
 /**
- * Modul-Entitlements pro Mandant.
+ * Module entitlements per tenant.
  *
- * Effektiver Zustand = Plan-Basis + explizite Overrides:
- *   Basis    = Module des aktuellen Company.plan (PLANS[].modules)
- *   Override = TenantEntitlement-Zeile (enabled true/false)
+ * Effective state = plan base + explicit overrides:
+ *   Base     = modules of the current Company.plan (PLANS[].modules)
+ *   Override = TenantEntitlement row (enabled true/false)
  *
- * Das ist EXAKT dieselbe Logik wie `getEnabledModules` (lib/entitlements/
- * modules.ts), die der Kunde tatsächlich durchgesetzt bekommt (Sidebar +
- * Route-Guard). So zeigt der Owner-Modul-Tab garantiert das, was der Kunde
- * wirklich hat — auch wenn (noch) keine Override-Zeilen existieren.
+ * This is EXACTLY the same logic as `getEnabledModules` (lib/entitlements/
+ * modules.ts), which is what the customer actually gets enforced (sidebar +
+ * route guard). This guarantees the owner module tab shows what the customer
+ * really has, even when no override rows exist yet.
  *
- * `MODULE_DEFAULTS` liefert nur noch Labels/Beschreibungen; die `enabled`-
- * Felder dort sind NICHT mehr maßgeblich für die Durchsetzung.
+ * `MODULE_DEFAULTS` now only provides labels/descriptions; its `enabled` fields
+ * are no longer authoritative for enforcement.
  */
 
 import { prisma } from "@/lib/prisma";
 import type { TenantModule, TenantPlan } from "@prisma/client";
 import { PLANS } from "@/lib/pricing/plans";
 
-/** Plan → enthaltene Module, direkt aus der Pricing-Definition. Bewusst hier
- *  (statt Import aus lib/entitlements/modules) berechnet, um einen Import-
- *  Zyklus zu vermeiden (modules.ts importiert ALL_MODULES von hier). */
+/** Plan -> included modules, directly from the pricing definition. Computed
+ *  here instead of importing from lib/entitlements/modules to avoid an import
+ *  cycle because modules.ts imports ALL_MODULES from here. */
 const PLAN_MODULE_SET = new Map<string, Set<TenantModule>>(
   PLANS.map((p) => [p.key, new Set<TenantModule>(p.modules)]),
 );
@@ -29,7 +29,7 @@ function planModuleSet(plan: TenantPlan): Set<TenantModule> {
   return PLAN_MODULE_SET.get(plan) ?? new Set<TenantModule>();
 }
 
-/** Ist dieses Modul Teil des angegebenen Plans? */
+/** Is this module part of the given plan? */
 export function planContainsModule(plan: TenantPlan, module: TenantModule): boolean {
   return planModuleSet(plan).has(module);
 }

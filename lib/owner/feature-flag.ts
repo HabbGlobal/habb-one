@@ -1,8 +1,8 @@
 /**
  * Single switch that turns the entire Owner Portal on or off — at the route
  * level, at the API level, and at the middleware level. Used so that if a
- * security issue is discovered in production we can dunkel schalten without
- * a code revert.
+ * security issue is discovered in production, we can disable it without a
+ * code revert.
  *
  * Default: OFF. The portal is invisible unless explicitly enabled via env.
  * That keeps the foundation code in the tree while PR 1+ are still in flux.

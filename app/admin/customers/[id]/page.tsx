@@ -191,8 +191,8 @@ export default async function CustomerDetailPage({
                       <div>
                         <div className="font-mono">{o.orderNumber}</div>
                         <div className="text-xs text-muted-foreground">
-                          Eingang {o.receivedAt.toLocaleDateString("en-GB")} ·
-                          Liefertermin {o.promisedAt.toLocaleDateString("en-GB")}
+                          Received {o.receivedAt.toLocaleDateString("en-GB")} ·
+                          Due {o.promisedAt.toLocaleDateString("en-GB")}
                         </div>
                       </div>
                       <div className="flex items-center gap-3">
@@ -251,9 +251,9 @@ export default async function CustomerDetailPage({
                       <div>
                         <div className="font-mono">{i.invoiceNumber}</div>
                         <div className="text-xs text-muted-foreground">
-                          Ausgestellt {i.issuedAt.toLocaleDateString("en-GB")} ·
-                          fällig {i.dueAt.toLocaleDateString("en-GB")}
-                          {i.paidAt && ` · bezahlt ${i.paidAt.toLocaleDateString("en-GB")}`}
+                          Issued {i.issuedAt.toLocaleDateString("en-GB")} ·
+                          due {i.dueAt.toLocaleDateString("en-GB")}
+                          {i.paidAt && ` · paid ${i.paidAt.toLocaleDateString("en-GB")}`}
                         </div>
                       </div>
                       <div className="flex items-center gap-3">
@@ -280,9 +280,9 @@ export default async function CustomerDetailPage({
                 value={String(stats.openOrders)}
                 tone={stats.openOrders > 0 ? "warning" : "muted"}
               />
-              <Stat label="Umsatz YTD" value={formatCHF(stats.revenueYTD)} />
+              <Stat label="Revenue YTD" value={formatCHF(stats.revenueYTD)} />
               <Stat
-                label="Ø Auftragswert"
+                label="Avg. order value"
                 value={formatCHF(stats.avgOrderValue)}
               />
               <Stat
@@ -298,7 +298,7 @@ export default async function CustomerDetailPage({
                 value={`${customer.paymentTerms} Days`}
               />
               <Stat
-                label="Standard discount"
+                label="Default discount"
                 value={
                   customer.defaultDiscount
                     ? `${Number(customer.defaultDiscount)}%`

@@ -38,25 +38,25 @@ export default async function RegistrationsPage() {
       <header>
         <p className="text-xs uppercase tracking-[0.18em] text-habb-muted">Platform</p>
         <h1 className="mt-1 text-2xl font-semibold tracking-tight text-habb-black">
-          Registrierungs-Anfragen
+          Registration Requests
         </h1>
         <p className="mt-1 text-sm text-habb-muted">
-          {pending.length} Anfrage{pending.length === 1 ? "" : "n"} ausstehend
+          {pending.length} request{pending.length === 1 ? "" : "s"} pending
         </p>
       </header>
 
       <SectionTabs
         tabs={[
-          { href: "/owner/registrations", label: "Offen", count: pending.length },
-          { href: "/owner/registrations/archive", label: "Archiv", count: rejectedCount },
+          { href: "/owner/registrations", label: "Open", count: pending.length },
+          { href: "/owner/registrations/archive", label: "Archive", count: rejectedCount },
         ]}
       />
 
       {pending.length === 0 ? (
         <section className="rounded-lg border border-dashed border-habb-line bg-white px-5 py-10 text-center">
-          <h2 className="text-sm font-medium text-habb-ink">Keine offenen Anfragen</h2>
+          <h2 className="text-sm font-medium text-habb-ink">No open requests</h2>
           <p className="mt-1 text-xs text-habb-muted">
-            Neue Self-Registrations landen automatisch hier, sobald die Email bestätigt ist.
+            New self-registrations appear here automatically after email verification.
           </p>
         </section>
       ) : (
@@ -75,23 +75,23 @@ export default async function RegistrationsPage() {
                       <h2 className="text-base font-semibold text-habb-black">{r.name}</h2>
                       {emailVerified ? (
                         <span className="rounded-full border border-habb-success/30 bg-habb-success/5 px-2 py-0.5 text-[10px] uppercase tracking-wide text-habb-success">
-                          Mail verifiziert
+                          Email verified
                         </span>
                       ) : (
                         <span className="rounded-full border border-habb-warning/30 bg-habb-warning/5 px-2 py-0.5 text-[10px] uppercase tracking-wide text-habb-warning">
-                          Mail unbestätigt
+                          Email unverified
                         </span>
                       )}
                     </div>
                     <dl className="mt-2 grid grid-cols-1 gap-x-6 gap-y-1 text-xs sm:grid-cols-2">
                       <Row label="Phone" value={r.phone || "—"} />
                       <Row
-                        label="Adresse"
+                        label="Address"
                         value={[r.address, r.city, r.country].filter(Boolean).join(", ") || "—"}
                       />
                       <Row label="Admin" value={admin ? `${admin.name} <${admin.email}>` : "—"} />
                       <Row
-                        label="Eingegangen"
+                        label="Received"
                         value={
                           r.registrationSubmittedAt
                             ? r.registrationSubmittedAt.toLocaleString("de-CH")
@@ -106,15 +106,15 @@ export default async function RegistrationsPage() {
                       <RegistrationActions companyId={r.id} companyName={r.name} />
                     ) : (
                       <p className="text-xs text-habb-muted sm:text-right">
-                        Mail-Bestätigung steht aus. Genehmigung erst möglich, wenn der Admin
-                        den Verify-Link geklickt hat.
+                        Email verification is pending. Approval is only available after the admin
+                        clicks the verification link.
                       </p>
                     )}
                     <Link
                       href={`/owner/tenants/${r.id}`}
                       className="text-xs text-habb-muted underline-offset-2 hover:underline"
                     >
-                      Tenanten-Profil öffnen →
+                      Open tenant profile →
                     </Link>
                   </div>
                 </div>

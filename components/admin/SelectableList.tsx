@@ -59,7 +59,7 @@ export function SelectableList<T>({
   editHref,
   view,
   bulk,
-  emptyText = "Keine Einträge.",
+  emptyText = "No entries.",
 }: SelectableListProps<T>) {
   const [selected, setSelected] = useState<Set<string>>(new Set());
   const [isPending, start] = useTransition();
@@ -73,6 +73,7 @@ export function SelectableList<T>({
   const toggleAll = () => {
     setSelected(allSelected ? new Set() : new Set(allIds));
   };
+
   const toggleOne = (id: string) => {
     setSelected((s) => {
       const next = new Set(s);
@@ -89,16 +90,20 @@ export function SelectableList<T>({
   ) => {
     if (!fn || selected.size === 0) return;
     if (confirmText && !confirm(confirmText)) return;
+
     const ids = Array.from(selected);
+
     start(async () => {
       try {
         await fn(ids);
         setSelected(new Set());
-        setFeedback(`${label}: ${ids.length} Eintrag${ids.length === 1 ? "" : "e"}`);
+        setFeedback(
+          `${label}: ${ids.length} item${ids.length === 1 ? "" : "s"}`
+        );
         router.refresh();
         setTimeout(() => setFeedback(null), 3000);
       } catch (err) {
-        const msg = err instanceof Error ? err.message : "Fehler";
+        const msg = err instanceof Error ? err.message : "Error";
         alert(msg);
       }
     });
@@ -109,9 +114,11 @@ export function SelectableList<T>({
       {selected.size > 0 && bulk && (
         <div className="sticky top-0 z-10 flex items-center gap-2 rounded-lg border bg-card px-4 py-2 shadow-sm">
           <span className="text-sm font-medium">
-            {selected.size} ausgewählt
+            {selected.size} selected
           </span>
+
           <span className="flex-1" />
+
           {view === "active" && bulk.archive && (
             <Button
               variant="outline"
@@ -119,9 +126,11 @@ export function SelectableList<T>({
               disabled={isPending}
               onClick={() => runBulk("Archived", bulk.archive)}
             >
-              <Archive className="mr-2 h-4 w-4" /> Archivieren
+              <Archive className="mr-2 h-4 w-4" />
+              Archive
             </Button>
           )}
+
           {view !== "deleted" && bulk.delete && (
             <Button
               variant="destructive"
@@ -135,18 +144,23 @@ export function SelectableList<T>({
                 )
               }
             >
-              <Trash2 className="mr-2 h-4 w-4" />Delete</Button>
+              <Trash2 className="mr-2 h-4 w-4" />
+              Delete
+            </Button>
           )}
+
           {view !== "active" && bulk.restore && (
             <Button
               variant="outline"
               size="sm"
               disabled={isPending}
-              onClick={() => runBulk("Wiederhergestellt", bulk.restore)}
+              onClick={() => runBulk("Restored", bulk.restore)}
             >
-              <RotateCcw className="mr-2 h-4 w-4" /> Wiederherstellen
+              <RotateCcw className="mr-2 h-4 w-4" />
+              Restore
             </Button>
           )}
+
           {view === "deleted" && bulk.hardDelete && (
             <Button
               variant="destructive"
@@ -154,21 +168,23 @@ export function SelectableList<T>({
               disabled={isPending}
               onClick={() =>
                 runBulk(
-                  "Endgültig gelöscht",
+                  "Permanently deleted",
                   bulk.hardDelete,
-                  `${selected.size} Eintrag/Einträge ENDGÜLTIG löschen? Diese Aktion kann nicht rückgängig gemacht werden.`
+                  `Permanently delete ${selected.size} item(s)? This action cannot be undone.`
                 )
               }
             >
-              <Trash2 className="mr-2 h-4 w-4" /> Endgültig löschen
+              <Trash2 className="mr-2 h-4 w-4" />
+              Permanently Delete
             </Button>
           )}
         </div>
       )}
 
       {feedback && (
-        <div className="rounded-lg border border-green-200 bg-green-50 px-4 py-2 text-sm text-green-800 flex items-center gap-2">
-          <Check className="h-4 w-4" /> {feedback}
+        <div className="flex items-center gap-2 rounded-lg border border-green-200 bg-green-50 px-4 py-2 text-sm text-green-800">
+          <Check className="h-4 w-4" />
+          {feedback}
         </div>
       )}
 
@@ -185,32 +201,37 @@ export function SelectableList<T>({
                     if (el) el.indeterminate = partiallySelected;
                   }}
                   onChange={toggleAll}
-                  aria-label="Alle auswählen"
+                  aria-label="Select all"
                 />
               </TableHead>
             )}
+
             {columns.map((c, i) => (
               <TableHead key={i} className={c.className}>
                 {c.header}
               </TableHead>
             ))}
+
             {editHref && <TableHead className="w-12"></TableHead>}
           </TableRow>
         </TableHeader>
+
         <TableBody>
           {rows.length === 0 && (
             <TableRow>
               <TableCell
                 colSpan={columns.length + (bulk ? 1 : 0) + (editHref ? 1 : 0)}
-                className="text-center text-muted-foreground py-10"
+                className="py-10 text-center text-muted-foreground"
               >
                 {emptyText}
               </TableCell>
             </TableRow>
           )}
+
           {rows.map((row) => {
             const id = getId(row);
             const isSelected = selected.has(id);
+
             return (
               <TableRow
                 key={id}
@@ -223,20 +244,22 @@ export function SelectableList<T>({
                       className="h-4 w-4 cursor-pointer"
                       checked={isSelected}
                       onChange={() => toggleOne(id)}
-                      aria-label="Auswählen"
+                      aria-label="Select"
                     />
                   </TableCell>
                 )}
+
                 {columns.map((c, i) => (
                   <TableCell key={i} className={c.className}>
                     {c.cell(row)}
                   </TableCell>
                 ))}
+
                 {editHref && (
                   <TableCell>
                     <Link
                       href={editHref(row)}
-                      className="inline-flex items-center justify-center h-8 w-8 rounded hover:bg-accent transition"
+                      className="inline-flex h-8 w-8 items-center justify-center rounded transition hover:bg-accent"
                       aria-label="Edit"
                       title="Edit"
                     >

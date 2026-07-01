@@ -1,10 +1,10 @@
 /**
- * Per-Tenant-Checks: strukturelle Findings + Aggregation der
- * Detection-Kennzahlen aus AuditLog (Fenster = letzte 60 Min).
+ * Per-tenant checks: structural findings and aggregation of detection metrics
+ * from AuditLog (window = last 60 minutes).
  *
- * Phase 1 implementiert die belastbar ableitbaren Signale. Nicht
- * geloggte Signale (Reads/Exports/404/Owner-Route-Abuse pro Tenant)
- * bleiben bewusst 0 statt erfunden — siehe docs/diagnostics.md.
+ * Phase 1 implements signals that can be derived reliably. Signals that are
+ * not logged (reads, exports, 404s, owner-route abuse per tenant) deliberately
+ * remain 0 instead of being fabricated. See docs/diagnostics.md.
  */
 
 import { prisma } from "@/lib/prisma";
@@ -22,8 +22,8 @@ export interface TenantCheckResult {
 }
 
 function isOffHoursZurich(d: Date): boolean {
-  // Grobe Europe/Zurich-Stunde (UTC+1; Phase 1 ohne DST-Feinheit —
-  // reicht für die Heuristik "außerhalb 06–22").
+  // Approximate Europe/Zurich hour (UTC+1; Phase 1 does not account for DST,
+  // which is sufficient for the "outside 06:00–22:00" heuristic).
   const h = (d.getUTCHours() + 1) % 24;
   return h < 6 || h >= 22;
 }
@@ -50,28 +50,27 @@ export async function runTenantChecks(
       findings.push({
         category: "configuration",
         severity: "high",
-        title: "Keine SystemParameter hinterlegt",
+        title: "No system parameters configured",
         message:
-          "Für diesen Mandanten existieren keine Kalkulations-Parameter. Offerten-/Auftragsberechnung schlägt fehl.",
+          "No calculation parameters exist for this tenant. Quote and order calculations will fail.",
         recommendation:
-          "Backfill der SystemParameter ausführen bzw. Parameter im Admin pflegen.",
+          "Backfill the system parameters or configure them in the admin portal.",
         dedupeKey: buildDedupeKey("configuration", "no_system_params"),
       });
     }
-    // Hinweis: Keine Entitlement-Zeilen ist KEIN Fehler mehr — im neuen
-    // Modell bedeutet das schlicht „keine manuellen Abweichungen", der Plan
-    // bestimmt dann alle Module. Override-Zeilen entstehen nur bei manuellen
-    // Sonderfreischaltungen/-sperren.
+    // Having no entitlement rows is no longer an error. In the current model,
+    // it simply means there are no manual overrides and the plan determines
+    // all modules. Override rows are created only for manual grants or blocks.
     const planModules = PLAN_MODULES[company.plan] ?? [];
     if (planModules.includes("INVOICES_QR") && !company.qrIban) {
       findings.push({
         category: "configuration",
         severity: "high",
-        title: "QR-IBAN fehlt trotz aktivem Rechnungs-Modul",
+        title: "QR-IBAN missing while invoice module is active",
         message:
-          "Das Rechnungs-/QR-Modul ist im Plan, aber es ist keine QR-IBAN hinterlegt — QR-Rechnungen sind nicht erzeugbar.",
+          "The invoice and QR module is included in the plan, but no QR-IBAN is configured. QR invoices cannot be generated.",
         recommendation:
-          "QR-IBAN in den Firmen-Stammdaten (Owner → Stammdaten) hinterlegen.",
+          "Configure the QR-IBAN in the tenant master data in the Owner Portal.",
         dedupeKey: buildDedupeKey("configuration", "missing_qr_iban"),
       });
     }
@@ -79,16 +78,16 @@ export async function runTenantChecks(
       findings.push({
         category: "availability",
         severity: "info",
-        title: "Mandant ist suspendiert",
-        message: "Login für diesen Mandanten ist deaktiviert.",
+        title: "Tenant is suspended",
+        message: "Login is disabled for this tenant.",
         recommendation:
-          "Falls unbeabsichtigt: Mandant im Owner-Portal reaktivieren.",
+          "If this was not intentional, reactivate the tenant in the Owner Portal.",
         dedupeKey: buildDedupeKey("availability", "suspended"),
       });
     }
   }
 
-  // ── Auth/Security-Metriken aus AuditLog (Fenster 60 Min) ─────────
+  // ── Auth/security metrics from AuditLog (60-minute window) ───────
   const since = new Date(Date.now() - WINDOW_MINUTES * 60_000);
   const rows = await prisma.auditLog.findMany({
     where: { companyId, createdAt: { gte: since } },
@@ -115,12 +114,12 @@ export async function runTenantChecks(
     failedLoginDistinctAccounts: new Set(
       failed.map((r) => r.userId).filter(Boolean),
     ).size,
-    passwordResetRequests: 0, // Phase 1: kein dedizierter Tenant-Audit
+    passwordResetRequests: 0, // Phase 1: no dedicated tenant audit event
     newSessions: logins.length,
-    forbiddenOrNotFound: 0, // Phase 1: kein Request-Level-Logging
-    ownerRouteAccessByNonOwner: 0, // platformseitig, nicht per Tenant
+    forbiddenOrNotFound: 0, // Phase 1: no request-level logging
+    ownerRouteAccessByNonOwner: 0, // platform-wide, not per tenant
     rlsOrPermissionErrors: 0,
-    bulkReadActions: 0, // AuditLog = Mutationen, keine Reads
+    bulkReadActions: 0, // AuditLog records mutations, not reads
     exportActions: 0,
     offHoursActions: rows.filter((r) => isOffHoursZurich(r.createdAt)).length,
     topIpHashRequestCount: topIp,
@@ -128,16 +127,16 @@ export async function runTenantChecks(
     crossTenantAccessAttempts: 0,
   };
 
-  // ── Auth-Finding aus Metrik ableiten (sichtbar im Dashboard) ─────
+  // ── Derive an auth finding from metrics (visible in dashboard) ───
   if (failed.length >= 15) {
     findings.push({
       category: "auth",
       severity: failed.length >= 45 ? "high" : "medium",
-      title: "Viele fehlgeschlagene Logins",
-      message: `${failed.length} Fehl-Logins in den letzten ${WINDOW_MINUTES} Minuten.`,
+      title: "Many failed login attempts",
+      message: `${failed.length} failed login attempts in the last ${WINDOW_MINUTES} minutes.`,
       technicalDetails: { failedLogins: failed.length, windowMinutes: WINDOW_MINUTES },
       recommendation:
-        "Betroffene Konten prüfen, ggf. temporär sperren / Rate-Limit verschärfen.",
+        "Review the affected accounts and consider temporarily locking them or tightening the rate limit.",
       dedupeKey: buildDedupeKey("auth", "failed_login_spike"),
     });
   }

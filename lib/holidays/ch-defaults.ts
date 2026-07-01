@@ -1,17 +1,17 @@
 /**
- * Universelle Schweizer Feiertage, die in praktisch allen Kantonen als
- * arbeitsfreier Tag gelten — als neutrales Default-Set für jeden HABB
- * One-Mandanten. Kantonale Spezialitäten (Karfreitag, Ostermontag,
- * Auffahrt, Pfingstmontag, Berchtoldstag …) muss der Tenant unter
- * `/admin/holidays` selbst pflegen, weil sie kantonsabhängig sind.
+ * Universal Swiss public holidays observed as non-working days in nearly all
+ * cantons. This is a neutral default set for every HABB One tenant. Cantonal
+ * holidays such as Good Friday, Easter Monday, Ascension Day, Whit Monday,
+ * and Berchtold's Day must be maintained by each tenant under
+ * `/admin/holidays`.
  *
- * Nur fixe Daten — Easter-basierte Feiertage berechnen wir bewusst nicht,
- * damit kein falsches Datum reinrutscht.
+ * Only fixed dates are included. Easter-based holidays are intentionally not
+ * calculated here to avoid inserting an incorrect date.
  *
- * Verwendet von:
- *   - lib/owner/tenant-bootstrap.ts  (bei Neuanlage)
- *   - app/api/cron/holidays/route.ts (Vercel-Cron, einmal täglich)
- *   - scripts/backfill-holidays.ts   (manuell für Backfill)
+ * Used by:
+ *   - lib/owner/tenant-bootstrap.ts when creating a tenant
+ *   - app/api/cron/holidays/route.ts in the daily Vercel cron job
+ *   - scripts/backfill-holidays.ts for manual backfills
  */
 
 export interface SwissBaseHoliday {
@@ -38,9 +38,9 @@ export interface HolidayInsertRow {
 }
 
 /**
- * Generiert die Insert-Rows für die angegebenen Jahre.
- * Daten werden in UTC um 00:00 angelegt, damit der `@db.Date`-Cast in
- * Postgres konsistent das richtige Kalenderdatum trifft.
+ * Generates insert rows for the requested years. Dates are created at
+ * 00:00 UTC so the Postgres `@db.Date` cast consistently preserves the
+ * intended calendar date.
  */
 export function buildSwissHolidayRows(
   companyId: string,

@@ -17,7 +17,7 @@ interface NavItem {
   href: string;
   label: string;
   icon: typeof LayoutDashboard;
-  /** Sichtbar nur für mindestens diese Role. */
+  /** Visible only for at least this role. */
   minRole?: OwnerRole;
 }
 

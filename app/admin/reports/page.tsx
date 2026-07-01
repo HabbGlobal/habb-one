@@ -1,5 +1,5 @@
-// Reports hub. An overview page with all available reports —
-// grouped by Personnel (existing) and ERP (phase 5b).
+// Period filter for ERP reports. Sync with URL search params so
+// server components reload data fresh.
 
 import Link from "next/link";
 import { prisma } from "@/lib/prisma";

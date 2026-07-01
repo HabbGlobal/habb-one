@@ -1,19 +1,19 @@
 /**
- * Owner-Auth-Library — strikt separate Auth-Schicht für HABB Global (PVT) LTD-Owner-Accounts.
+ * Owner auth library: strictly separate auth layer for HABB Global (PVT) LTD owner accounts.
  *
- * Bewusste Designentscheidungen:
- *   - NICHT NextAuth. NextAuth ist für Tenant-User. Wir bauen mit `jose`
- *     eigene JWTs mit eigenem Issuer (`habb-owner`) und eigenem Cookie-Namen
- *     (`habb-owner-session`). Damit kann kein Tenant-Cookie und kein
- *     Tenant-Token jemals als Owner-Token akzeptiert werden.
- *   - Server-Session als Source-of-Truth. Der Cookie trägt nur die Session-ID;
- *     Lookup in `OwnerSession` entscheidet endgültig über Gültigkeit. So
- *     funktioniert sofortige Revocation (`revokedAt`) und sliding-idle TTL.
- *   - 2-Phasen-Auth ohne 2. DB-Spalte: Zwischen Passwort-Verify und
- *     Passkey-Verify hält ein kurz-lebiges "Ceremony"-JWT (separater Cookie,
- *     5 Min) den Zwischenstand. Erst nach Passkey-Verify wird die eigentliche
- *     `OwnerSession`-Row angelegt.
- *   - Keine Logs vom Token, dem Hash, der IP-Adresse → nur via Audit-Tabelle.
+ * Intentional design decisions:
+ *   - NOT NextAuth. NextAuth is for tenant users. We build our own JWTs with
+ *     `jose`, a dedicated issuer (`habb-owner`), and a dedicated cookie name
+ *     (`habb-owner-session`). This prevents tenant cookies or tenant tokens
+ *     from ever being accepted as owner tokens.
+ *   - Server session as source of truth. The cookie carries only the session
+ *     ID; lookup in `OwnerSession` decides final validity. This enables
+ *     immediate revocation (`revokedAt`) and sliding idle TTL.
+ *   - Two-phase auth without a second DB column: between password verification
+ *     and passkey verification, a short-lived "Ceremony" JWT (separate cookie,
+ *     5 min) holds the intermediate state. The real `OwnerSession` row is
+ *     created only after passkey verification.
+ *   - No logs of the token, hash, or IP address except through the audit table.
  */
 
 import { SignJWT, jwtVerify, errors as joseErrors } from "jose";
@@ -43,16 +43,16 @@ function secret(): Uint8Array {
 }
 
 // ─────────────────────────────────────────────────────────────
-// CEREMONY TOKEN — kurzlebig zwischen Passwort und Passkey
+// CEREMONY TOKEN: short-lived between password and passkey.
 // ─────────────────────────────────────────────────────────────
 
 export interface CeremonyClaims {
-  /** Owner-Account, dessen Passwort bereits verifiziert ist. */
+  /** Owner account whose password has already been verified. */
   ownerAccountId: string;
-  /** Welche WebAuthn-Operation läuft. */
+  /** Which WebAuthn operation is running. */
   stage: "ENROLL" | "SIGNIN";
-  /** Aktive WebAuthn-Challenge (base64url) — server-signiert, daher
-   *  sicher im Cookie ablegbar ohne DB-State. */
+  /** Active WebAuthn challenge (base64url), server-signed and therefore safe
+   *  to store in a cookie without DB state. */
   challenge: string;
 }
 
@@ -83,7 +83,7 @@ export async function verifyCeremonyToken(token: string): Promise<CeremonyClaims
 }
 
 // ─────────────────────────────────────────────────────────────
-// SESSION TOKEN — nach erfolgreichem 2-Faktor-Login
+// SESSION TOKEN: after successful 2-factor login.
 // ─────────────────────────────────────────────────────────────
 
 export interface SessionClaims {
@@ -123,8 +123,8 @@ export async function verifySessionToken(token: string): Promise<SessionClaims> 
 // ─────────────────────────────────────────────────────────────
 
 /**
- * Cookie-Wert ist der Session-Token. DB-Persistenz speichert SHA-256 davon,
- * damit ein DB-Leak den Cookie nicht direkt re-spielbar macht.
+ * Cookie value is the session token. DB persistence stores SHA-256 of it so a
+ * DB leak does not make the cookie directly replayable.
  */
 function hashToken(token: string): string {
   return createHash("sha256").update(token).digest("hex");
@@ -181,7 +181,7 @@ export async function grantSudo(sessionId: string): Promise<void> {
 }
 
 // ─────────────────────────────────────────────────────────────
-// CONTEXT — von Server-Components / API-Routes aufgerufen
+// CONTEXT: called by server components / API routes.
 // ─────────────────────────────────────────────────────────────
 
 export interface OwnerContext {
@@ -194,13 +194,12 @@ export interface OwnerContext {
 }
 
 /**
- * Liest den Session-Cookie, validiert ihn gegen die DB und gibt den
- * Owner-Kontext zurück. NULL wenn nicht eingeloggt, Cookie abgelaufen,
- * Session revoked oder Token-Manipulation erkannt.
+ * Reads the session cookie, validates it against the DB, and returns owner
+ * context. NULL when not logged in, cookie expired, session revoked, or token
+ * manipulation is detected.
  *
- * Wirft NIE — nicht authentifizierte Zugriffe sind keine Fehler, sondern
- * ein erwartbarer Zustand. Aufrufer entscheidet, ob er redirected oder
- * 401 antwortet (siehe `requireOwner()`).
+ * NEVER throws. Unauthenticated access is not an error, but an expected state.
+ * The caller decides whether to redirect or return 401 (see `requireOwner()`).
  */
 export async function getOwnerContext(): Promise<OwnerContext | null> {
   const jar = await cookies();
@@ -256,7 +255,7 @@ function timingEqualHex(a: string, b: string): boolean {
 }
 
 // ─────────────────────────────────────────────────────────────
-// GUARDS — für API-Routes
+// GUARDS: for API routes.
 // ─────────────────────────────────────────────────────────────
 
 const ROLE_ORDER: Record<OwnerRole, number> = {
@@ -266,9 +265,9 @@ const ROLE_ORDER: Record<OwnerRole, number> = {
 };
 
 export interface RequireOwnerOptions {
-  /** Minimale Rolle, ab der der Zugriff erlaubt ist. */
+  /** Minimum role required for access. */
   minRole?: OwnerRole;
-  /** Erfordert frischen Sudo-Status (Step-up Auth innerhalb 5 Min). */
+  /** Requires fresh sudo status (step-up auth within 5 min). */
   sudo?: boolean;
 }
 
@@ -277,8 +276,8 @@ export type RequireOwnerResult =
   | { ok: false; status: 401 | 403 };
 
 /**
- * Universeller Guard für `/api/owner/*` Routen. Aufrufer macht entweder
- * `if (!result.ok) return new Response(...)` oder destrukturiert ctx.
+ * Universal guard for `/api/owner/*` routes. Caller either does
+ * `if (!result.ok) return new Response(...)` or destructures ctx.
  */
 export async function requireOwner(
   opts: RequireOwnerOptions = {},
@@ -342,7 +341,7 @@ export async function clearCeremonyCookie(): Promise<void> {
 }
 
 // ─────────────────────────────────────────────────────────────
-// REQUEST-CONTEXT — IP / User-Agent für Audit
+// REQUEST CONTEXT: IP / User-Agent for audit.
 // ─────────────────────────────────────────────────────────────
 
 export async function readRequestContext(): Promise<{ ip: string | null; ua: string | null }> {

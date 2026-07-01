@@ -1,9 +1,8 @@
 /**
- * POST /api/owner/team — neuen Owner-Account anlegen (OWNER_ROOT only)
+ * POST /api/owner/team - create a new owner account (OWNER_ROOT only)
  *
- * Server generiert ein 16-Zeichen-Initial-Passwort und gibt es genau
- * EINMAL zurück (Show-once Modal im UI). Passkey-Enrollment ist Pflicht
- * beim ersten Login.
+ * Server generates a 16-character initial password and returns it exactly ONCE
+ * (show-once modal in the UI). Passkey enrollment is required on first login.
  */
 
 import { NextResponse } from "next/server";
@@ -23,8 +22,8 @@ const schema = z.object({
 });
 
 function generateInitialPassword(): string {
-  // 16 Zeichen aus url-safe base64 — entropy ≈ 96 Bit, gut genug als
-  // Einmalpasswort das beim ersten Login geändert wird.
+  // 16 characters from URL-safe base64 - about 96 bits of entropy, enough for a
+  // One-time password that is changed on first login.
   return randomBytes(12).toString("base64url").slice(0, 16);
 }
 
@@ -48,7 +47,7 @@ export async function POST(req: Request) {
     );
   }
 
-  // E-Mail-Konflikt: existing OwnerAccount mit derselben Adresse?
+  // Email conflict: existing OwnerAccount with the same address?
   const existing = await prisma.ownerAccount.findUnique({
     where: { email: parsed.data.email },
     select: { id: true },

@@ -8,7 +8,7 @@ import { sendMail } from "@/lib/mail/send";
 import { buildRegistrationRejectedMail } from "@/lib/mail/templates/tenant-lifecycle";
 
 const schema = z.object({
-  reason: z.string().trim().min(10, "Begründung muss mindestens 10 Zeichen lang sein.").max(500),
+  reason: z.string().trim().min(10, "Reason must be at least 10 characters long.").max(500),
 });
 
 export async function POST(req: Request, { params }: { params: Promise<{ id: string }> }) {

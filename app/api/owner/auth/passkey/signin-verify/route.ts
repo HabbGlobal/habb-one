@@ -1,8 +1,8 @@
 /**
  * POST /api/owner/auth/passkey/signin-verify
  *
- * Verifiziert die Authenticator-Antwort, bumpt den Counter, erstellt
- * OwnerSession + Session-Cookie, löscht Ceremony-Cookie, schreibt Audit.
+ * Verifies the authenticator response, bumps the counter, creates OwnerSession
+ * + session cookie, clears ceremony cookie, writes audit.
  */
 
 import { NextResponse } from "next/server";

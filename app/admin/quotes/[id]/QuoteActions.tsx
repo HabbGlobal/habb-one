@@ -131,23 +131,23 @@ export function QuoteActions({
             disabled={pending}
           >
             <ArrowRightLeft className="h-4 w-4 mr-1" />
-            In Auftrag umwandeln
+            Convert to Order
           </Button>
         )}
       </div>
 
       {isConverted && (
         <p className="text-sm text-muted-foreground italic">
-          Diese Offerte wurde bereits in einen Auftrag umgewandelt.
+          This quotation has already been converted into an order.
         </p>
       )}
 
       {showConvert && (
         <div className="rounded-lg border bg-muted/30 p-3 space-y-3">
-          <div className="text-sm font-medium">Offerte in Auftrag umwandeln</div>
+          <div className="text-sm font-medium">Convert Quotation to Order</div>
           <div className="grid grid-cols-2 gap-3">
             <div className="space-y-1">
-              <Label className="text-xs">Liefertermin *</Label>
+              <Label className="text-xs">Delivery Date *</Label>
               <Input
                 type="date"
                 value={promisedAt}
@@ -162,10 +162,10 @@ export function QuoteActions({
                   setPriority(e.target.value as "LOW" | "NORMAL" | "HIGH" | "EXPRESS")
                 }
               >
-                <option value="LOW">Niedrig</option>
+                <option value="LOW">Low</option>
                 <option value="NORMAL">Normal</option>
-                <option value="HIGH">Hoch</option>
-                <option value="EXPRESS">Express (Zuschlag!)</option>
+                <option value="HIGH">High</option>
+                <option value="EXPRESS">Express</option>
               </Select>
             </div>
           </div>

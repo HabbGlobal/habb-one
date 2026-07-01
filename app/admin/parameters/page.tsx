@@ -78,8 +78,9 @@ export default async function ParametersPage() {
         <div>
           <h1 className="text-2xl font-semibold">System-Parameter</h1>
           <p className="text-sm text-muted-foreground">
-            Zeit-, Temperatur-, Faktor- und Preisparameter — wirkt sofort auf
-            DRAFT orders, frozen at CONFIRMED+ via snapshot.
+            Time, temperature, factor, and price parameters —
+take effect immediately for DRAFT orders and are frozen
+for CONFIRMED and later statuses via snapshot.
           </p>
         </div>
         <div className="flex gap-2">

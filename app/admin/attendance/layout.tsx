@@ -5,8 +5,8 @@ export default async function AttendanceModuleLayout({
 }: {
   children: React.ReactNode;
 }) {
-  // Gleicher Modul-Gate wie /admin/time-entries — die Anwesenheit ist die
-  // Admin-Sicht auf die TIME_KIOSK-Daten.
+  // Same module gate as /admin/time-entries — Attendance is the
+// administrative view of the TIME_KIOSK data.
   await requireModule("TIME_KIOSK");
   return <>{children}</>;
 }

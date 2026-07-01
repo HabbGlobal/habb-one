@@ -42,8 +42,8 @@ export async function saveUserPermissions(input: SaveUserPermissionsInput) {
     select: { id: true, companyId: true, role: true, email: true, deletedAt: true },
   });
   if (!user) throw new Error("User not found.");
-  // Strikte Tenant-Trennung: ein SUPERADMIN darf nur seine eigenen User
-  // editieren. Cross-Tenant würde sonst über die URL gehen.
+  // Strict tenant isolation: a SUPERADMIN can only edit their own users.
+// Cross-tenant access would otherwise be possible via URL manipulation.
   if (user.companyId !== session.user.companyId) {
     throw new Error("User does not belong to your tenant.");
   }

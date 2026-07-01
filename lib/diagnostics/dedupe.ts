@@ -1,10 +1,10 @@
 /**
- * Finding-Dedupe & E-Mail-Dedupe — rein & nachvollziehbar.
+ * Finding and email deduplication. Pure and explainable.
  *
- * dedupeKey identifiziert ein Problem stabil über Läufe hinweg
- * (category + ruleId + optionalem Scope). Gleiches Problem → selber
- * Key → kein neues Finding, nur lastSeenAt-Update. Verschwindet das
- * Problem in einem Lauf, wird das offene Finding auto-resolved.
+ * A dedupeKey identifies an issue consistently across runs using category,
+ * ruleId, and an optional scope. The same issue produces the same key, so only
+ * lastSeenAt is updated instead of creating another finding. If the issue
+ * disappears from a run, the open finding is automatically resolved.
  */
 
 import type { Severity } from "./types";
@@ -18,8 +18,8 @@ export function buildDedupeKey(
 }
 
 /**
- * Auto-Resolve-Diff: welche zuvor offenen dedupeKeys tauchen im
- * aktuellen Lauf NICHT mehr auf → gelten als behoben.
+ * Returns previously open dedupe keys that no longer appear in the current
+ * run and can therefore be considered resolved.
  */
 export function findResolvedKeys(
   previouslyOpenKeys: string[],
@@ -30,18 +30,19 @@ export function findResolvedKeys(
 }
 
 /**
- * E-Mail-Dedupe-Regel.
+ * Email deduplication rule.
  *
- * - info/low/medium: NICHT einzeln sofort mailen (nur Hourly Digest).
- * - high/critical & Security ab medium: sofort mailen, aber re-mail
- *   für denselben dedupeKey erst nach `reNotifyHours` (Default 6 h).
+ * - Info, low, and medium findings are included only in the hourly digest.
+ * - High and critical findings, plus security events from medium upward, are
+ *   sent immediately. The same dedupe key is sent again only after the
+ *   re-notification interval, which defaults to six hours.
  */
 const IMMEDIATE_RE_NOTIFY_HOURS = 6;
 
 export interface EmailDedupeInput {
   severity: Severity;
   isSecurity: boolean;
-  /** Letzte Sofort-Mail für diesen dedupeKey (null = noch nie). */
+  /** Most recent immediate email for this dedupe key, or null if never sent. */
   lastNotifiedAt: Date | null;
   now?: Date;
 }

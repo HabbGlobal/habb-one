@@ -1,7 +1,6 @@
 ﻿"use server";
 
-// Server-Actions fÃ¼r die Rollen-Matrix-Verwaltung. Ausschliesslich
-// SUPERADMIN-zugÃ¤nglich.
+// Server actions for role matrix management. Accessible only to SUPERADMIN.
 
 import { revalidatePath } from "next/cache";
 import { z } from "zod";
@@ -33,9 +32,9 @@ const updateSchema = z.object({
 export type UpdatePermissionInput = z.input<typeof updateSchema>;
 
 /**
- * Setzt eine einzelne Override-Zeile in der Matrix.
- * Wenn der Override-Wert dem statischen Default entspricht, wird die
- * Override-Zeile gelÃ¶scht (sauber halten).
+ * Sets a single override entry in the matrix.
+ * If the override value matches the static default, the override row
+ * is deleted (keeps data clean).
  */
 export async function updateRolePermission(input: UpdatePermissionInput) {
   const session = await auth();
@@ -77,11 +76,10 @@ const bulkSchema = z.object({
 export type SaveMatrixInput = z.input<typeof bulkSchema>;
 
 /**
- * Speichert die ganze Matrix in einem Rutsch (UI klickt "Save" einmal).
- * Strategie:
- *  - Pro (role, perm) berechnen wir den gewÃ¼nschten Override-Eintrag.
- *  - Bestehende Overrides werden via deleteMany gelÃ¶scht und dann
- *    neu eingefÃ¼gt (TX).
+ * Saves the entire matrix in one operation (UI triggers a single "Save").
+ * Strategy:
+ *  - For each (role, perm), compute the desired override entry.
+ *  - Existing overrides are deleted via deleteMany and then re-inserted (transaction).
  */
 export async function saveRoleMatrix(input: SaveMatrixInput) {
   const session = await auth();
@@ -101,7 +99,7 @@ export async function saveRoleMatrix(input: SaveMatrixInput) {
   }
 
   await prisma.$transaction(async (tx) => {
-    // Alle bisherigen Overrides fÃ¼r die konfigurierbaren Rollen lÃ¶schen
+    // Delete all existing overrides for configurable roles.
     await tx.rolePermission.deleteMany({
       where: {
         companyId: session.user.companyId,
@@ -139,13 +137,11 @@ export async function saveRoleMatrix(input: SaveMatrixInput) {
 
   invalidatePermissionMatrix(session.user.companyId);
   revalidatePath("/admin/roles");
-  revalidatePath("/admin", "layout"); // Sidebar evtl. Ã¤ndern
+  revalidatePath("/admin", "layout"); // Sidebar may change.
 }
 
-/**
- * Setzt die Matrix fÃ¼r eine Rolle wieder auf die statischen Defaults
- * (= alle Override-Zeilen fÃ¼r diese Rolle lÃ¶schen).
- */
+// Reset the matrix for a role back to static defaults
+// (= delete all override rows for that role).
 export async function resetRoleToDefaults(role: (typeof CONFIGURABLE_ROLES)[number]) {
   const session = await auth();
   if (!session?.user) throw new Error("Not authenticated.");

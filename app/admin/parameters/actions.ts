@@ -48,8 +48,8 @@ export async function updateParameter(input: unknown) {
   const data = parseOrThrow(updateSchema, input);
   const user = await requireAdmin();
 
-  // Composite PK [companyId, key] â€” verhindert per Design, dass ein
-  // Mandant einen Parameter eines anderen Tenants editiert.
+ // Composite PK [companyId, key] — By design, prevents a tenant
+// from editing another tenant's parameters.
   const param = await prisma.systemParameter.findUnique({
     where: { companyId_key: { companyId: user.companyId, key: data.key } },
   });

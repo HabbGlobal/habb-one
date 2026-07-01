@@ -64,7 +64,7 @@ export function TenantTable({ tenants }: { tenants: Row[] }) {
           <input
             value={q}
             onChange={(e) => setQ(e.target.value)}
-            placeholder="Tenant suchen…"
+            placeholder="Search tenants..."
             className="rounded-md border border-habb-line bg-white py-1.5 pl-8 pr-3 text-sm focus:outline-none focus:ring-2 focus:ring-habb-red"
           />
         </div>
@@ -161,7 +161,7 @@ export function TenantTable({ tenants }: { tenants: Row[] }) {
                   colSpan={8}
                   className="px-5 py-6 text-center text-sm text-habb-muted"
                 >
-                  Keine Tenanten.
+                  No tenants.
                 </td>
               </tr>
             )}

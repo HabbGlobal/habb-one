@@ -3,7 +3,7 @@
 // Server actions for the secretary / admin monthly scheduling module.
 //
 // Lifecycle of a ScheduleMonth:
-//   DRAFT â†’ PUBLISHED â†’ CHANGED_AFTER_PUBLISHING â†’ PUBLISHED â†’ ... â†’ ARCHIVED
+//   DRAFT → PUBLISHED → CHANGED_AFTER_PUBLISHING → PUBLISHED → ... → ARCHIVED
 //
 // Editing entries on a PUBLISHED month flips the month into
 // CHANGED_AFTER_PUBLISHING and writes a ScheduleChangeLog row so we can show
@@ -263,9 +263,9 @@ export async function revertToDraft(monthId: string) {
   revalidatePath("/admin/schedule");
 }
 
-// â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// ─────────────────────────────────────────
 // Bulk range planning
-// â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// ─────────────────────────────────────────
 
 const bulkSchema = z.object({
   monthId: z.string().cuid().optional().nullable(),
@@ -584,9 +584,9 @@ export async function copyFromPreviousMonth(year: number, month: number) {
   return { created: result.count };
 }
 
-// â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// ─────────────────────────────────────────
 // Auto-planner: distribute employees across areas for the month
-// â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// ─────────────────────────────────────────
 
 const autoPlanSchema = z.object({
   year: z.number().int().min(2000).max(2100),
@@ -743,8 +743,8 @@ export async function autoPlanMonth(input: unknown) {
           plannedBreakMinutes: data.defaultBreakMinutes,
           plannedMinutes: defaultPlannedMinutes,
           workAreaId: a.areaId,
-          // Markiere Eintrag als auto-generiert, damit Bulk-Delete ihn
-          // selektiv wegputzen kann ohne manuelle Schichten anzufassen.
+          // Mark entry as auto-generated so bulk-delete can selectively
+          // remove it without touching manually created shifts.
           source: "AUTO",
           createdById: user.id,
           updatedById: user.id,
@@ -758,8 +758,8 @@ export async function autoPlanMonth(input: unknown) {
           plannedBreakMinutes:
             before?.type === "WORK" ? undefined : data.defaultBreakMinutes,
           plannedMinutes: before?.type === "WORK" ? undefined : defaultPlannedMinutes,
-          // ABSICHTLICH KEIN source-Update: ein manuell editierter Eintrag
-          // bleibt MANUAL, auch wenn der Auto-Planner ihn neu zuweist.
+          // Intentionally NOT updating source: a manually edited entry
+          // stays MANUAL even if the auto-planner reassigns it.
           updatedById: user.id,
         },
       });
@@ -772,7 +772,7 @@ export async function autoPlanMonth(input: unknown) {
       });
     }
   }, {
-    // Sequential upserts Ã— ~100 entries can take 5-15 s on a remote DB.
+    // Sequential upserts × ~100 entries can take 5–15 s on a remote DB.
     // Bump well beyond Prisma's 5 s default to avoid the transaction being
     // closed mid-loop.
     maxWait: 10_000,
@@ -790,7 +790,7 @@ export async function autoPlanMonth(input: unknown) {
       written,
       unfilled: result.unfilledSlots.length,
     },
-    reason: `Auto-Plan ${data.year}-${data.month}`,
+    reason: `Auto-plan ${data.year}-${data.month}`,
   });
 
   revalidatePath("/admin/schedule");
@@ -806,42 +806,42 @@ export async function autoPlanMonth(input: unknown) {
   };
 }
 
-// â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
-// Bulk-Delete: Auto-Planung wegputzen
-// â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// ─────────────────────────────────────────
+// Bulk delete: clear auto-planned entries
+// ─────────────────────────────────────────
 
 const bulkDeleteSchema = z.object({
-  /** Bereich: Woche oder ganzer Monat. */
+  /** Scope: week or entire month. */
   scope: z.enum(["week", "month"]),
   /**
-   * Anker-Datum fÃ¼r den Bereich.
-   *  - scope=week: Beliebiger Tag in der ISO-Woche â†’ Mo-So wird abgeleitet.
-   *  - scope=month: Beliebiger Tag im Monat â†’ der ganze Monat wird genommen.
+   * Anchor date for the scope.
+   *  - scope=week: any day in the ISO week → Mon–Sun is derived.
+   *  - scope=month: any day in the month → the entire month is used.
    */
   anchorDate: z.string().regex(/^\d{4}-\d{2}-\d{2}$/),
   /**
-   * Welche Quelle gelÃ¶scht wird:
-   *  - "AUTO": nur automatisch geplante EintrÃ¤ge
-   *  - "AUTO_AND_COPIED": auto + aus Vormonat kopierte (alles "nicht-manuell")
-   *  - "ALL": alles im Bereich (auch manuell). Als letzte Reset-Option.
+   * Which source to delete:
+   *  - "AUTO": only automatically planned entries
+   *  - "AUTO_AND_COPIED": auto + copied from previous month (everything "non-manual")
+   *  - "ALL": everything in the scope (including manual). Last-resort reset option.
    */
   filter: z.enum(["AUTO", "AUTO_AND_COPIED", "ALL"]),
-  /** Optional: nur fÃ¼r eine Liste von Mitarbeitenden. Leer = alle. */
+  /** Optional: restrict to a list of employees. Empty = all. */
   employeeIds: z.array(z.string().cuid()).optional(),
-  /** Optional: nur fÃ¼r einen Bereich. */
+  /** Optional: restrict to one work area. */
   workAreaId: z.string().cuid().optional().nullable(),
 });
 
 export type BulkDeleteInput = z.input<typeof bulkDeleteSchema>;
 
 /**
- * Berechnet das (UTC-)Datums-Fenster fÃ¼r `scope` + `anchorDate`.
- * Woche = ISO-Woche Mo-So.
+ * Computes the (UTC) date window for `scope` + `anchorDate`.
+ * Week = ISO week Mon–Sun.
  */
 function rangeFor(scope: "week" | "month", anchorDate: string): { from: Date; to: Date } {
   const anchor = new Date(`${anchorDate}T00:00:00.000Z`);
   if (scope === "week") {
-    const wd = (anchor.getUTCDay() + 6) % 7; // Mo=0, So=6
+    const wd = (anchor.getUTCDay() + 6) % 7; // Mon=0, Sun=6
     const monday = new Date(anchor);
     monday.setUTCDate(monday.getUTCDate() - wd);
     const sunday = new Date(monday);
@@ -864,14 +864,14 @@ function sourceFilterToWhere(
     case "AUTO_AND_COPIED":
       return { source: { in: ["AUTO", "COPIED"] } };
     case "ALL":
-      return {}; // kein Filter â€” auch MANUAL wird gelÃ¶scht
+      return {}; // no filter — MANUAL entries are also deleted
   }
 }
 
 /**
- * ZÃ¤hlt nur, wie viele EintrÃ¤ge die gegebenen Filter-Kriterien matchen wÃ¼rden.
- * Wird vom UI VOR dem LÃ¶schen aufgerufen, damit der BestÃ¤tigungs-Dialog
- * sagen kann: "23 EintrÃ¤ge werden gelÃ¶scht."
+ * Counts how many entries match the given filter criteria without deleting.
+ * Called by the UI BEFORE deletion so the confirmation dialog can say:
+ * "23 entries will be deleted."
  */
 export async function countBulkDeletableEntries(input: unknown): Promise<{
   total: number;
@@ -919,14 +919,14 @@ export async function countBulkDeletableEntries(input: unknown): Promise<{
 }
 
 /**
- * LÃ¶scht ScheduleEntries gemÃ¤ss Filter im gewÃ¤hlten Zeitraum.
+ * Deletes ScheduleEntries matching the filter within the chosen time range.
  *
- * Sicherheitsnetz:
- *   - Nur User mit `schedule.write`-Permission.
- *   - Tenant-isoliert Ã¼ber `scheduleMonth.companyId`.
- *   - Audit-Log-Eintrag mit gelÃ¶schter Anzahl + Filter-Beschreibung.
- *   - Wenn der betroffene Monat PUBLISHED war: Status auf
- *     CHANGED_AFTER_PUBLISHING setzen (analog zu allen anderen Mutationen).
+ * Safety net:
+ *   - Only users with `schedule.write` permission.
+ *   - Tenant-isolated via `scheduleMonth.companyId`.
+ *   - Audit log entry with deleted count + filter description.
+ *   - If the affected month was PUBLISHED: flip status to
+ *     CHANGED_AFTER_PUBLISHING (consistent with all other mutations).
  */
 export async function bulkDeleteScheduleEntries(input: unknown): Promise<{
   deleted: number;
@@ -947,7 +947,7 @@ export async function bulkDeleteScheduleEntries(input: unknown): Promise<{
     ...(data.workAreaId ? { workAreaId: data.workAreaId } : {}),
   };
 
-  // Vorab betroffene Monate finden, damit wir PUBLISHED â†’ CHANGED setzen kÃ¶nnen.
+  // Find affected months upfront so we can flip PUBLISHED → CHANGED.
   const affectedMonths = await prisma.scheduleEntry.findMany({
     where,
     select: { scheduleMonthId: true },
@@ -958,7 +958,7 @@ export async function bulkDeleteScheduleEntries(input: unknown): Promise<{
   const result = await prisma.$transaction(
     async (tx) => {
       const del = await tx.scheduleEntry.deleteMany({ where });
-      // Monate, die vorher PUBLISHED waren, auf CHANGED_AFTER_PUBLISHING setzen.
+      // Flip months that were PUBLISHED to CHANGED_AFTER_PUBLISHING.
       if (affectedMonthIds.length > 0 && del.count > 0) {
         await tx.scheduleMonth.updateMany({
           where: {
@@ -978,7 +978,7 @@ export async function bulkDeleteScheduleEntries(input: unknown): Promise<{
     userId: user.id,
     action: "DELETE",
     entityType: "ScheduleEntry",
-    entityId: data.anchorDate, // kein einzelnes Subjekt â€” Datum als Anker
+    entityId: data.anchorDate, // no single subject — date used as anchor
     newValue: {
       bulkDelete: true,
       scope: data.scope,
@@ -989,7 +989,7 @@ export async function bulkDeleteScheduleEntries(input: unknown): Promise<{
       employeeIds: data.employeeIds ?? null,
       workAreaId: data.workAreaId ?? null,
     },
-    reason: `Bulk-Delete ${data.filter} im ${data.scope === "week" ? "Wochen" : "Monats"}-Bereich`,
+    reason: `Bulk delete ${data.filter} in ${data.scope === "week" ? "week" : "month"} range`,
   });
 
   revalidatePath("/admin/schedule");
@@ -998,20 +998,20 @@ export async function bulkDeleteScheduleEntries(input: unknown): Promise<{
   return { deleted: result.count, scope: data.scope, filter: data.filter };
 }
 
-// â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
-// Aus Werkstatt-Plan â†’ Personal-Plan ableiten
-// â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// ─────────────────────────────────────────
+// Derive personnel plan from workshop plan
+// ─────────────────────────────────────────
 
 const deriveSchema = z.object({
-  /** Anker â€” beliebiger Tag im Zielmonat (oder Mo der Zielwoche). */
+  /** Anchor — any day in the target month (or Mon of the target week). */
   anchorDate: z.string().regex(/^\d{4}-\d{2}-\d{2}$/),
-  /** Bereich: Woche oder Monat. */
+  /** Scope: week or month. */
   scope: z.enum(["week", "month"]),
-  /** Wenn true: bereits vorhandene AUTO-EintrÃ¤ge dÃ¼rfen Ã¼berschrieben werden. */
+  /** When true: existing AUTO entries may be overwritten. */
   overwriteAuto: z.boolean().default(false),
-  /** Wenn true: nur rechnen + Konflikte zurÃ¼ckgeben, nichts schreiben. */
+  /** When true: only compute and return conflicts, nothing is written. */
   dryRun: z.boolean().default(false),
-  /** Standard-Schicht fÃ¼r neu erzeugte WORK-EintrÃ¤ge. */
+  /** Default shift for newly created WORK entries. */
   defaultStart: z.string().regex(/^\d{2}:\d{2}$/).default("07:30"),
   defaultEnd: z.string().regex(/^\d{2}:\d{2}$/).default("16:30"),
   defaultBreakMinutes: z.coerce.number().int().min(0).max(180).default(30),
@@ -1050,14 +1050,14 @@ function rangeForDerive(
 }
 
 /**
- * Liest den Werkstatt-Plan fÃ¼r den gewÃ¤hlten Zeitraum, mappt Maschinen-
- * Buchungen Ã¼ber `Machine.workAreaId` auf WorkAreas, und ergÃ¤nzt im
- * Personal-Plan automatisch WORK-EintrÃ¤ge fÃ¼r die nÃ¶tigen Mitarbeiter.
+ * Reads the workshop plan for the chosen time range, maps machine bookings
+ * via `Machine.workAreaId` to WorkAreas, and automatically adds WORK entries
+ * for the required employees in the personnel plan.
  *
- * Sicherheits-Pattern:
- *   - SCHREIBT NIE Ã¼ber MANUAL- oder COPIED-EintrÃ¤ge.
- *   - AUTO-EintrÃ¤ge werden nur Ã¼berschrieben, wenn `overwriteAuto=true`.
- *   - Mit `dryRun=true` kann das UI eine Vorschau zeigen, bevor geschrieben wird.
+ * Safety pattern:
+ *   - NEVER overwrites MANUAL or COPIED entries.
+ *   - AUTO entries are only overwritten when `overwriteAuto=true`.
+ *   - With `dryRun=true` the UI can show a preview before writing.
  */
 export async function derivePersonnelFromWorkshopPlan(
   input: unknown,
@@ -1066,10 +1066,10 @@ export async function derivePersonnelFromWorkshopPlan(
   const user = await requireWriter();
   const { from, to, year, month } = rangeForDerive(data.scope, data.anchorDate);
 
-  // 1) Werkstatt-Buchungen im Zeitraum laden
-  // Lifecycle-Filter: nur AuftrÃ¤ge aktiver Kunden, nicht archiviert/gelÃ¶scht.
-  // Stornierte AuftrÃ¤ge schlieÃŸen wir explizit aus â€” sie sollen keinen
-  // Personal-Bedarf auslÃ¶sen.
+  // 1) Load workshop bookings in the time range.
+  // Lifecycle filter: only orders of active customers, not archived/deleted.
+  // Cancelled orders are explicitly excluded — they should not generate
+  // staffing demand.
   const bookings = await prisma.orderScheduleEntry.findMany({
     where: {
       order: {
@@ -1089,7 +1089,7 @@ export async function derivePersonnelFromWorkshopPlan(
     },
   });
 
-  // 2) Maschinen, Bereiche, Mitarbeiter, Absences laden â€” alles parallel
+  // 2) Load machines, areas, employees, absences — all in parallel.
   const [machineRows, areaRows, employeeRows, absenceRows, existingRows] =
     await Promise.all([
       prisma.machine.findMany({
@@ -1134,7 +1134,7 @@ export async function derivePersonnelFromWorkshopPlan(
           endDate: true,
         },
       }),
-      // Bestehende Personal-Plan-EintrÃ¤ge im Zeitraum
+      // Existing personnel plan entries in the time range
       prisma.scheduleEntry.findMany({
         where: {
           scheduleMonth: { companyId: user.companyId },
@@ -1150,7 +1150,7 @@ export async function derivePersonnelFromWorkshopPlan(
       }),
     ]);
 
-  // 3) Pure-Logic-Inputs zusammenbauen
+  // 3) Assemble pure-logic inputs.
   const workshopBookings: WorkshopBooking[] = [];
   for (const b of bookings) {
     if (!b.machineId) continue;
@@ -1194,7 +1194,7 @@ export async function derivePersonnelFromWorkshopPlan(
     workAreaId: e.workAreaId,
   }));
 
-  // 4) Logik laufen lassen
+  // 4) Run the logic.
   const result = derivePersonnelFromWorkshop({
     bookings: workshopBookings,
     machines,
@@ -1211,7 +1211,7 @@ export async function derivePersonnelFromWorkshopPlan(
     return { ...result, written: 0 };
   }
 
-  // 5) Persistieren â€” Monats-Row(s) sicherstellen + EintrÃ¤ge upserten
+  // 5) Persist — ensure month row(s) exist + upsert entries.
   const computeMinutes = (start: string, end: string, breakMin: number): number => {
     const [sh, sm] = start.split(":").map(Number);
     const [eh, em] = end.split(":").map(Number);
@@ -1223,13 +1223,13 @@ export async function derivePersonnelFromWorkshopPlan(
     data.defaultBreakMinutes,
   );
 
-  // ScheduleMonth-Rows pro betroffenem (year, month) sicherstellen
+  // Ensure ScheduleMonth rows for each affected (year, month).
   const monthYearKeys = new Set<string>();
   for (const a of result.assignments) {
     const [y, m] = a.date.split("-").map(Number);
     monthYearKeys.add(`${y}|${m}`);
   }
-  const monthRowMap = new Map<string, string>(); // "y|m" â†’ monthId
+  const monthRowMap = new Map<string, string>(); // "y|m" → monthId
   for (const key of monthYearKeys) {
     const [y, m] = key.split("|").map(Number);
     const row = await prisma.scheduleMonth.upsert({
@@ -1252,7 +1252,7 @@ export async function derivePersonnelFromWorkshopPlan(
     monthRowMap.set(key, row.id);
   }
 
-  // PUBLISHED-Months tracken (Status-Flip nach dem Schreiben)
+  // Track PUBLISHED months (status flip after writing).
   const publishedMonthIds: string[] = [];
   for (const [key, id] of monthRowMap) {
     const [y, m] = key.split("|").map(Number);
@@ -1294,8 +1294,8 @@ export async function derivePersonnelFromWorkshopPlan(
             updatedById: user.id,
           },
           update: {
-            // Nur Ã¼berschreiben wenn der bestehende Eintrag Ã¼berschreibbar ist.
-            // Die Logik hat das schon vorgeprÃ¼ft â€” hier vertrauen wir darauf.
+            // Only overwrite if the existing entry is overwritable.
+            // The logic has already pre-checked this — we trust it here.
             type: "WORK",
             workAreaId: a.workAreaId,
             source: "AUTO",
@@ -1326,7 +1326,7 @@ export async function derivePersonnelFromWorkshopPlan(
       written,
       conflicts: result.conflicts.length,
     },
-    reason: `Personal aus Werkstatt-Plan abgeleitet (${data.scope})`,
+    reason: `Personnel derived from workshop plan (${data.scope})`,
   });
 
   revalidatePath("/admin/schedule");

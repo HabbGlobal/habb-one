@@ -122,19 +122,20 @@ export default async function InvoiceDetailPage({
             </Badge>
             {dto.qrBillReference && (
               <Badge variant="info" className="gap-1">
-                <Lock className="h-3 w-3" /> QR-Referenz vergeben
+                <Lock className="h-3 w-3" /> QR reference assigned
               </Badge>
             )}
             {dto.isOverdue && dto.status !== "OVERDUE" && (
               <Badge variant="destructive" className="gap-1">
-                <AlertTriangle className="h-3 w-3" />overdue</Badge>
+                <AlertTriangle className="h-3 w-3" /> Overdue
+              </Badge>
             )}
             {dto.reminderLevel > 0 && (
-              <Badge variant="warning">Mahnung Stufe {dto.reminderLevel}</Badge>
+              <Badge variant="warning">Reminder level {dto.reminderLevel}</Badge>
             )}
           </div>
           <p className="text-sm text-muted-foreground mt-1">
-            Kunde:{" "}
+            Customer:{" "}
             <Link
               href={`/admin/customers/${dto.customerId}`}
               className="underline hover:text-foreground"
@@ -157,21 +158,21 @@ export default async function InvoiceDetailPage({
         <div className="flex flex-wrap items-center gap-2">
           <Button asChild variant="outline" size="sm">
             <a href={`/api/admin/invoices/${dto.id}/qr-bill.pdf`} target="_blank">
-              <FileText className="h-4 w-4 mr-1" /> Rechnung (PDF)
+              <FileText className="h-4 w-4 mr-1" /> Invoice (PDF)
             </a>
           </Button>
         </div>
       </div>
 
-      {/* Hinweis wenn QR-IBAN fehlt */}
+      {/* Warning if QR-IBAN is missing */}
       {!company.qrIban && (
         <Card className="border-amber-200 bg-amber-50">
           <CardContent className="p-3 text-sm text-amber-900 flex items-start gap-2">
             <AlertTriangle className="h-5 w-5 shrink-0 mt-0.5" />
             <div>
-              Keine QR-IBAN konfiguriert. Bitte unter{" "}
+              No QR-IBAN configured. Please add one under{" "}
               <Link href="/admin/settings" className="underline">Settings</Link>{" "}
-              eintragen, sonst kann die Rechnung nicht versendet werden.
+              — without it, the invoice cannot be sent.
             </div>
           </CardContent>
         </Card>
@@ -192,11 +193,11 @@ export default async function InvoiceDetailPage({
         </CardContent>
       </Card>
 
-      {/* Status-Workflow */}
+      {/* Status Workflow */}
       {nextStatuses.length > 0 && (
         <Card>
           <CardHeader>
-            <CardTitle className="text-base">Status-Workflow</CardTitle>
+            <CardTitle className="text-base">Status Workflow</CardTitle>
           </CardHeader>
           <CardContent>
             <InvoiceActions
@@ -211,12 +212,12 @@ export default async function InvoiceDetailPage({
         </Card>
       )}
 
-      {/* Edit (DRAFT) oder Read-only Items */}
+      {/* Edit (DRAFT) or read-only items */}
       {dto.status === "DRAFT" && canWrite && editorInitial && customerOptions ? (
         <Card>
           <CardHeader>
             <CardTitle className="text-base flex items-center gap-2">
-              <Pencil className="h-4 w-4" /> Rechnung bearbeiten
+              <Pencil className="h-4 w-4" /> Edit invoice
             </CardTitle>
           </CardHeader>
           <CardContent>
@@ -234,7 +235,7 @@ export default async function InvoiceDetailPage({
       ) : (
         <Card>
           <CardHeader>
-            <CardTitle className="text-base">Positionen</CardTitle>
+            <CardTitle className="text-base">Line items</CardTitle>
           </CardHeader>
           <CardContent>
             <table className="w-full text-sm">
@@ -244,7 +245,7 @@ export default async function InvoiceDetailPage({
                   <th className="text-left py-2">Description</th>
                   <th className="text-right py-2 w-20">Qty</th>
                   <th className="text-right py-2 w-24">Unit price</th>
-                  <th className="text-right py-2 w-20">Rabatt</th>
+                  <th className="text-right py-2 w-20">Discount</th>
                   <th className="text-right py-2 w-28">Total</th>
                 </tr>
               </thead>
@@ -273,7 +274,7 @@ export default async function InvoiceDetailPage({
               <tfoot>
                 <tr className="border-t">
                   <td colSpan={5} className="py-2 text-right text-muted-foreground">
-                    Total netto
+                    Total net
                   </td>
                   <td className="py-2 text-right tabular-nums">
                     {fmtCHF(dto.totalNetCHF)}
@@ -287,7 +288,7 @@ export default async function InvoiceDetailPage({
                 </tr>
                 <tr className="border-t-2 border-foreground">
                   <td colSpan={5} className="py-2 text-right font-semibold">
-                    Total brutto
+                    Total gross
                   </td>
                   <td className="py-2 text-right tabular-nums font-semibold text-emerald-700">
                     {fmtCHF(dto.totalGrossCHF)}
@@ -299,7 +300,7 @@ export default async function InvoiceDetailPage({
         </Card>
       )}
 
-      {/* QR-Referenz Block (nur SENT+) */}
+      {/* QR reference block (SENT+ only) */}
       {dto.qrBillReference && (
         <Card>
           <CardHeader>
@@ -320,7 +321,7 @@ export default async function InvoiceDetailPage({
       {dto.notes && dto.status !== "DRAFT" && (
         <Card>
           <CardHeader>
-            <CardTitle className="text-sm">Notizen</CardTitle>
+            <CardTitle className="text-sm">Notes</CardTitle>
           </CardHeader>
           <CardContent className="text-sm whitespace-pre-line">{dto.notes}</CardContent>
         </Card>

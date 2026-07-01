@@ -1,8 +1,10 @@
-// Admin attendance overview — hybrid dashboard:
-//   - KPI cards at top: Present / On Break / Absent / Today total
-//   - List per employee with status badge + Today/Target + Week balance
+// Admin Attendance Overview — Hybrid Dashboard:
+//   - KPI cards at the top: Present / On Break / Absent / Today's Total
+//   - Employee list with status badge, today's hours vs target hours,
+//     and weekly balance
 //
-// Auto-refresh every 30 s. No server-side caching (`force-dynamic`).
+// Automatically refreshes every 30 seconds.
+// No server-side caching (`force-dynamic`).
 
 import Link from "next/link";
 import { redirect } from "next/navigation";

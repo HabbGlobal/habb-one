@@ -1,10 +1,10 @@
 /**
  * POST /api/owner/tenants
  *
- * Owner legt manuell einen neuen Mandanten an. Geht in den ACTIVE-Status
- * direkt (Owner vouched), kein E-Mail-Verify nötig. Initialer Admin bekommt
- * SUPERADMIN-Rolle — das ist der einzige sanktionierte Weg, SUPERADMIN
- * zu vergeben (über das Owner-Portal).
+ * Owner manually creates a new tenant. It goes directly to ACTIVE (owner
+ * vouched), with no email verification needed. The initial admin gets the
+ * SUPERADMIN role; this is the only sanctioned way to grant SUPERADMIN through
+ * the owner portal.
  */
 
 import { NextResponse } from "next/server";
@@ -24,7 +24,7 @@ const PHONE_REGEX = /^[+0-9 ()\-./]{6,32}$/;
 
 const schema = z.object({
   companyName: z.string().trim().min(2).max(200),
-  phone: z.string().trim().min(6).max(32).regex(PHONE_REGEX, "Telefonnummer enthält ungültige Zeichen."),
+  phone: z.string().trim().min(6).max(32).regex(PHONE_REGEX, "Phone number contains invalid characters."),
   address: z.string().trim().max(200).optional(),
   city: z.string().trim().max(120).optional(),
   country: z.string().trim().min(2).max(3).toUpperCase().default("CH"),
@@ -32,7 +32,7 @@ const schema = z.object({
   adminName: z.string().trim().min(2).max(120),
   preferredLanguage: z.enum(["de", "fr", "it", "en"]).default("de"),
   sendMode: z.enum(["MAGIC_LINK", "TEMP_PASSWORD"]),
-  reason: z.string().trim().min(10, "Begründung muss mindestens 10 Zeichen lang sein."),
+  reason: z.string().trim().min(10, "Reason must be at least 10 characters long."),
 });
 
 export async function POST(req: Request) {
@@ -61,13 +61,13 @@ export async function POST(req: Request) {
   });
   if (existing) {
     return NextResponse.json(
-      { error: "EMAIL_TAKEN", message: "Diese E-Mail ist bereits vergeben." },
+      { error: "EMAIL_TAKEN", message: "This email address is already taken." },
       { status: 409 },
     );
   }
 
-  // Passwort: bei TEMP einmalig anzeigen, bei MAGIC_LINK Random-Hash setzen
-  // (unzugänglich, bis Reset-Mail geklickt).
+  // Password: show once for TEMP; for MAGIC_LINK, set a random hash
+  // (inaccessible until the reset email is clicked).
   let tempPassword: string | null = null;
   let passwordHash: string;
   if (parsed.data.sendMode === "TEMP_PASSWORD") {
