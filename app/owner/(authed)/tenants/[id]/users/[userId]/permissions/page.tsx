@@ -83,7 +83,7 @@ export default async function OwnerUserPermissionsPage({
         <div className="rounded-lg border border-habb-line bg-habb-paper px-4 py-3 text-sm text-habb-ink">
           <strong>SUPERADMIN</strong> always has all permissions by design.
           Per-user overrides are not allowed here. To restrict permissions,
-          change the user's role first.
+          change the user&apos;s role first.
         </div>
       ) : user.deletedAt ? (
         <div className="rounded-lg border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-900">
