@@ -5,8 +5,8 @@ import { useRouter } from "next/navigation";
 import { Loader2, LogOut } from "lucide-react";
 
 /**
- * Client-Button im Impersonation-Banner. Beendet die Sitzung und führt
- * den Owner zurück ins Owner-Portal des betroffenen Mandanten.
+ * Client button in the impersonation banner. Ends the session and returns the
+ * owner to the affected tenant in the Owner Portal.
  */
 export function EndImpersonationButton() {
   const router = useRouter();
@@ -36,7 +36,7 @@ export function EndImpersonationButton() {
       ) : (
         <LogOut className="h-3.5 w-3.5" />
       )}
-      Sitzung beenden
+      End session
     </button>
   );
 }

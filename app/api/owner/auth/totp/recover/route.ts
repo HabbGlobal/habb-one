@@ -1,14 +1,14 @@
 /**
  * POST /api/owner/auth/totp/recover  { code }
  *
- * NOTFALL-Zugang. Voraussetzung: Passwort wurde bereits verifiziert
- * (gültiger Ceremony-Cookie, stage SIGNIN). Ein korrekter TOTP-Code
- * gewährt KEINEN Portalzugang — er setzt webauthnEnrolledAt zurück und
- * leitet den Owner zwingend in den Passkey-Enroll. Damit bleibt der
- * Passkey strukturell Pflicht; TOTP verhindert nur das Aussperren.
+ * Emergency access. Prerequisite: password has already been verified
+ * (valid ceremony cookie, stage SIGNIN). A correct TOTP code grants NO portal
+ * access; it resets webauthnEnrolledAt and forces the owner into passkey
+ * enrollment. Passkey therefore remains structurally required; TOTP only
+ * prevents lockout.
  *
- * Härtung: Lockout nach 5 Fehlversuchen (15 Min), Audit + E-Mail-Alarm
- * bei jeder Nutzung.
+ * Hardening: lockout after 5 failed attempts (15 min), audit + email alert on
+ * every use.
  */
 
 import { NextResponse } from "next/server";
@@ -94,7 +94,7 @@ export async function POST(req: Request) {
     );
   }
 
-  // Erfolg: KEIN Portalzugang. Nur Passkey-Enroll freischalten.
+  // Success: NO portal access. Only unlock passkey enrollment.
   await prisma.ownerAccount.update({
     where: { id: account.id },
     data: {
@@ -117,7 +117,7 @@ export async function POST(req: Request) {
     action: "OWNER_2FA_RECOVERY_USED",
   });
 
-  // Sicherheits-Benachrichtigung (best-effort, nicht-blockend).
+  // Security notification (best-effort, non-blocking).
   try {
     const when = new Intl.DateTimeFormat("de-CH", {
       timeZone: "Europe/Zurich",
@@ -125,28 +125,27 @@ export async function POST(req: Request) {
       timeStyle: "short",
     }).format(new Date());
     const textBody =
-      `Hallo ${account.name}\n\n` +
-      `Soeben wurde für deinen Owner-Account der Notfall-Zugang per ` +
-      `Authenticator-Code genutzt (${when} Schweizer Zeit, IP ${ip ?? "unbekannt"}).\n\n` +
-      `Es ist jetzt die Registrierung eines neuen Passkeys erforderlich. ` +
-      `Warst du das NICHT, ändere sofort dein Passwort und melde dich bei ` +
+      `Hello ${account.name}\n\n` +
+      `Emergency access by authenticator code was just used for your owner account ` +
+      `(${when} Swiss time, IP ${ip ?? "unknown"}).\n\n` +
+      `You must now register a new passkey. ` +
+      `If this was NOT you, change your password immediately and contact ` +
       `security@HABB Global (PVT) LTD.\n`;
     await sendMail({
       to: account.email,
-      subject: "Sicherheitshinweis: Notfall-Zugang (Authenticator) verwendet",
+      subject: "Security notice: emergency access (authenticator) used",
       text: textBody,
       html:
-        `<p>Hallo ${account.name},</p>` +
-        `<p>Soeben wurde für deinen Owner-Account der <strong>Notfall-Zugang per ` +
-        `Authenticator-Code</strong> genutzt (${when} Schweizer Zeit, IP ` +
-        `${ip ?? "unbekannt"}).</p>` +
-        `<p>Es ist jetzt die Registrierung eines neuen Passkeys erforderlich. ` +
-        `Warst du das <strong>nicht</strong>, ändere sofort dein Passwort und ` +
-        `melde dich bei <a href="mailto:security@HABB Global (PVT) LTD">security@HABB Global (PVT) LTD</a>.</p>`,
+        `<p>Hello ${account.name},</p>` +
+        `<p>Emergency access by <strong>authenticator code</strong> was just used ` +
+        `for your owner account (${when} Swiss time, IP ${ip ?? "unknown"}).</p>` +
+        `<p>You must now register a new passkey. If this was <strong>not</strong> you, ` +
+        `change your password immediately and contact ` +
+        `<a href="mailto:security@HABB Global (PVT) LTD">security@HABB Global (PVT) LTD</a>.</p>`,
       tag: "owner-recovery-used",
     });
   } catch {
-    // schweigend — der Audit-Log-Eintrag bleibt die Quelle der Wahrheit
+    // Silent: the audit log entry remains the source of truth.
   }
 
   return NextResponse.json({ ok: true, next: "enroll" });

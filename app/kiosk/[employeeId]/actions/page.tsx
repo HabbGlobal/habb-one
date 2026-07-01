@@ -28,21 +28,20 @@ export default async function KioskActionsPage({
   const tKiosk = await getTranslations("kiosk");
   const { employeeId } = await params;
 
-  // Kern-Schutz: nur wer per PIN authentifiziert ist (Kiosk-Session) darf
-  // die Actions-Seite DIESES employeeId sehen. Das ist die eigentliche
-  // Anti-Leak-Garantie — ohne gültige PIN-Session geht es zurück zur
-  // PIN-Eingabe.
+  // Core protection: only the employee authenticated by PIN may view the
+  // actions page for this employeeId. Without a valid kiosk session, return
+  // to the PIN entry page.
   const sessionEmployeeId = await readKioskSession();
   if (sessionEmployeeId !== employeeId) redirect(`/kiosk/${employeeId}`);
 
-  // Firma 3-Wege auflösen (Account-Session ODER Lock-Cookie ODER Single-
-  // Company). Kein hartes Lock-Cookie mehr verlangen — sonst landen
-  // Account-/Single-Tenant-Kioske nach PIN-Eingabe wieder auf der Liste.
+  // Resolve the company from the account session, lock cookie, or
+  // single-company fallback. Do not require a lock cookie because account
+  // and single-tenant kiosks may not have one.
   const { effectiveCompanyId } = await resolveKioskCompany();
   if (!effectiveCompanyId) redirect("/kiosk");
 
-  // Defense-in-Depth: der PIN-authentifizierte Employee MUSS zur Kiosk-
-  // Firma gehören.
+  // Defense in depth: the PIN-authenticated employee must belong to the
+  // company currently assigned to this kiosk.
   const employee = await prisma.employee.findFirst({
     where: { id: employeeId, companyId: effectiveCompanyId },
     include: {
@@ -87,7 +86,7 @@ export default async function KioskActionsPage({
 
   return (
     <main className="min-h-screen bg-habb-paper p-4 md:p-8">
-      {/* bfcache-Replay-Schutz: erzwingt Full-Reload bei Back/Forward-Restore */}
+      {/* Prevent bfcache replay by forcing a full reload after back/forward restore. */}
       <BackGuard />
       <div className="max-w-3xl mx-auto space-y-4">
         <KioskBrandHeader
@@ -97,9 +96,9 @@ export default async function KioskActionsPage({
           subtitle={tKiosk("title")}
           logoVersion={employee.company.updatedAt.getTime().toString()}
           rightSlot={
-            // WICHTIG: kein simpler Link! Der "Back"-Klick MUSS die
-            // Kiosk-PIN-Session sofort löschen, sonst kann der Nachfolger
-            // am Tablet via Browser-Forward auf diese Seite zurück.
+            // This must not be a simple link. Clicking Back must immediately
+            // clear the kiosk PIN session so the next tablet user cannot
+            // return to this page with browser forward navigation.
             <form action={endKioskSessionAction}>
               <button
                 type="submit"
@@ -174,7 +173,7 @@ export default async function KioskActionsPage({
             <p className="text-3xl font-semibold tabular-nums text-habb-ink">
               {vacation.remainingDays.toFixed(1)}{" "}
               <span className="text-lg font-normal text-habb-muted">
-                / {vacation.totalDays.toFixed(1)} Tage
+                / {vacation.totalDays.toFixed(1)} days
               </span>
             </p>
           </CardContent>

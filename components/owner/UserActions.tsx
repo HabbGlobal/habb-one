@@ -98,8 +98,8 @@ export function UserActionsMenu({ user }: Props) {
         const data = await res.json().catch(() => null);
         if (action.kind === "temp-password" && data?.tempPassword) {
           setTempPwd(data.tempPassword);
-          // Sudo-Reason wird hier nicht zurückgesetzt; tempPwd-Modal zeigt
-          // erst noch das Passwort an.
+          // Do not reset sudo reason here; the temp password modal still needs
+          // to show the password first.
           setOpenAction(null);
           setReason("");
           return;
@@ -222,9 +222,9 @@ type MenuItemDef =
     };
 
 /**
- * Portal-basiertes Action-Dropdown. Liegt in document.body, daher nicht von
- * `overflow-hidden` der Tabelle abgeschnitten. Positioniert sich rechts-
- * bündig unter dem Trigger; reagiert auf Resize/Scroll und auf Outside-Click.
+ * Portal-based action dropdown. Lives in document.body, so it is not clipped by
+ * the table's `overflow-hidden`. Positions right-aligned under the trigger and
+ * reacts to resize/scroll and outside click.
  */
 function ActionsDropdown({ items }: { items: MenuItemDef[] }) {
   const [open, setOpen] = useState(false);
@@ -235,14 +235,14 @@ function ActionsDropdown({ items }: { items: MenuItemDef[] }) {
 
   useEffect(() => setMounted(true), []);
 
-  // Position berechnen, wenn das Menü öffnet ODER sich Viewport ändert.
+  // Calculate position when the menu opens OR the viewport changes.
   useEffect(() => {
     if (!open) return;
     const place = () => {
       const t = triggerRef.current;
       if (!t) return;
       const r = t.getBoundingClientRect();
-      const menuWidth = 240; // siehe w-60 unten
+      const menuWidth = 240; // see w-60 below
       setPos({
         top: r.bottom + window.scrollY + 6,
         left: r.right + window.scrollX - menuWidth,
@@ -257,7 +257,7 @@ function ActionsDropdown({ items }: { items: MenuItemDef[] }) {
     };
   }, [open]);
 
-  // Outside-Click + Escape schliessen.
+  // Close on outside click + Escape.
   useEffect(() => {
     if (!open) return;
     const onClick = (e: MouseEvent) => {

@@ -1,13 +1,13 @@
 /**
- * WebAuthn / Passkey-Wrapper für Owner-2FA.
+ * WebAuthn / passkey wrapper for owner 2FA.
  *
- * RP-ID (Relying Party): wird aus der Request-Origin abgeleitet, **nicht**
- * statisch gesetzt — sonst funktioniert das lokal (`localhost`) und auf
- * Vercel (`*.vercel.app`) nicht ohne Code-Änderung. Browser akzeptieren
- * jeden Suffix der eTLD+1, daher OK.
+ * RP ID (Relying Party): derived from the request origin, **not** set
+ * statically. Otherwise local (`localhost`) and Vercel (`*.vercel.app`) would
+ * not work without code changes. Browsers accept any suffix of the eTLD+1, so
+ * this is OK.
  *
- * Speicherung: Public Keys werden als Bytes in `OwnerWebAuthnCredential`
- * abgelegt; der Counter wird bei jedem erfolgreichen Login erhöht.
+ * Storage: public keys are stored as bytes in `OwnerWebAuthnCredential`; the
+ * counter is increased on every successful login.
  */
 
 import {
@@ -27,15 +27,15 @@ import { prisma } from "@/lib/prisma";
 const RP_NAME = "HABB One Owner Console";
 
 /**
- * Proxy-sichere Origin-Ableitung für die WebAuthn-Ceremonies.
+ * Proxy-safe origin derivation for WebAuthn ceremonies.
  *
- * Hinter Vercel bzw. Cloudflare-proxied DNS ist `new URL(req.url).origin`
- * NICHT die Adresse aus der Browser-Adresszeile, sondern der interne/
- * kanonische Host (z. B. *.vercel.app). Daraus abgeleitet stimmt die
- * RP-ID dann nicht mit der tatsächlichen Domain (one.HABB Global (PVT) LTD) überein
- * und der Browser bricht die Passkey-Registrierung mit SecurityError ab.
- * Wir nehmen darum die `x-forwarded-*`-Header — das, was der Client
- * wirklich benutzt hat. Fällt sauber auf req.url zurück (lokal/Tests).
+ * Behind Vercel or Cloudflare-proxied DNS, `new URL(req.url).origin` is NOT
+ * the address from the browser address bar, but the internal/canonical host
+ * (for example *.vercel.app). An RP ID derived from that would not match the
+ * actual domain (one.HABB Global (PVT) LTD), and the browser would abort
+ * passkey registration with SecurityError. Therefore we use `x-forwarded-*`
+ * headers: what the client actually used. Falls back cleanly to req.url
+ * locally and in tests.
  */
 export function originFromRequest(req: Request): string {
   const h = req.headers;

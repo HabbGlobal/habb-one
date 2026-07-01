@@ -1,12 +1,12 @@
 "use client";
 
-// Lightweight auto-refresh: ruft `router.refresh()` alle N Sekunden,
-// damit die Server-Component-Daten (Schritte mit live-Stats, Status,
-// History) aktuell bleiben — ohne Page-Reload.
+// Lightweight auto-refresh: calls `router.refresh()` every N seconds
+// to keep Server Component data (steps with live stats, status,
+// history) up to date — without a full page reload.
 //
-// Nur dann aktiv, wenn der Auftrag in einem Live-Status ist (CONFIRMED /
-// IN_PROGRESS / ON_HOLD) — DRAFT/COMPLETED/CANCELLED ändert sich nicht
-// von alleine.
+// Only active when the order is in a live status (CONFIRMED,
+// IN_PROGRESS, or ON_HOLD). DRAFT, COMPLETED, and CANCELLED
+// states do not change automatically, so auto-refresh is disabled.
 
 import { useEffect } from "react";
 import { useRouter } from "next/navigation";

@@ -1,10 +1,11 @@
 "use client";
 
-// "Tablet sperren / Abmelden" am Schichtende. Zwei Modi:
-//   - mode="lock"    → anonymes Tablet: nur Kiosk-Lock-Cookie löschen,
-//                      Tablet zeigt danach wieder den Lock-Screen.
-//   - mode="account" → KIOSK_OPERATOR-Konto via NextAuth eingeloggt:
-//                      signOut() statt Lock-Cookie. Tablet landet auf /login.
+// "Lock tablet / Sign out" at the end of a shift. Two modes:
+//   - mode="lock"    → anonymous tablet: delete only the kiosk lock cookie;
+//                      the tablet then displays the lock screen again.
+//   - mode="account" → KIOSK_OPERATOR account signed in through NextAuth:
+//                      call signOut() instead of deleting the lock cookie,
+//                      then redirect the tablet to /login.
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
@@ -18,8 +19,8 @@ export function KioskLogoutButton({ mode = "lock" }: { mode?: "lock" | "account"
   const handle = async () => {
     const prompt =
       mode === "account"
-        ? "Vom Tablet abmelden? Beim nächsten Zugriff ist eine neue Anmeldung nötig."
-        : "Tablet sperren? Beim nächsten Zugriff wird das Kiosk-Passwort wieder verlangt.";
+        ? "Sign out from this tablet? A new login will be required next time."
+        : "Lock this tablet? The kiosk password will be required next time.";
     if (!confirm(prompt)) return;
     setPending(true);
     try {
@@ -42,10 +43,10 @@ export function KioskLogoutButton({ mode = "lock" }: { mode?: "lock" | "account"
       onClick={handle}
       disabled={pending}
       className="inline-flex items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground"
-      title={mode === "account" ? "Abmelden (Schicht-Ende)" : "Tablet sperren (Schicht-Ende)"}
+      title={mode === "account" ? "Sign out (end of shift)" : "Lock tablet (end of shift)"}
     >
       <LogOut className="h-4 w-4" />
-      {mode === "account" ? "Sign out" : "Suspend"}
+      {mode === "account" ? "Sign out" : "Lock tablet"}
     </button>
   );
 }

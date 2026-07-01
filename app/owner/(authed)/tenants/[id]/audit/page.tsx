@@ -30,14 +30,14 @@ export default async function TenantAuditPage({
   return (
     <section className="rounded-lg border border-habb-line bg-white">
       <header className="border-b border-habb-line px-5 py-3">
-        <h2 className="text-sm font-medium text-habb-ink">Owner-Actionen auf {tenant.name}</h2>
+        <h2 className="text-sm font-medium text-habb-ink">Owner actions for {tenant.name}</h2>
         <p className="mt-0.5 text-xs text-habb-muted">
-          Letzte 100 Audit-entries. Vollständige Suche im globalen Audit Log (kommt in PR&nbsp;2.1).
+          Latest 100 audit entries. Full search is available in the global audit log.
         </p>
       </header>
       {events.length === 0 ? (
         <p className="px-5 py-12 text-center text-sm text-habb-muted">
-          Noch keine Owner-Actionen für diesen Tenanten.
+          No owner actions for this tenant yet.
         </p>
       ) : (
         <ul className="divide-y divide-habb-line">

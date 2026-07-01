@@ -19,8 +19,8 @@ export default async function PasskeySigninPage() {
     redirect("/owner/login");
   }
 
-  // Notfall-Option nur anbieten, wenn der Account tatsächlich einen
-  // TOTP-Recovery-Faktor eingerichtet hat — sonst ist es eine Sackgasse.
+  // Offer the emergency option only when the account actually has a TOTP
+  // recovery factor set up; otherwise it is a dead end.
   const account = await prisma.ownerAccount.findUnique({
     where: { id: ownerAccountId },
     select: { totpEnrolledAt: true },

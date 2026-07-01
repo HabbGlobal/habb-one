@@ -1,17 +1,16 @@
 /**
  * POST /api/owner/tenants/[id]/users
  *
- * Legt einen neuen User für den Mandanten an. Zwei Init-Modi für das
- * Passwort:
- *   - "MAGIC_LINK"    : User erhält per Mail einen 1-Stunden-Reset-Link
- *                       und setzt das Passwort selbst. PasswordHash wird
- *                       mit unzugänglichem Zufallswert befüllt → ohne
- *                       Reset kein Login möglich.
- *   - "TEMP_PASSWORD" : Owner sieht einmalig ein 16-Zeichen-Passwort,
- *                       das er dem User mündlich/per Chat übermittelt.
- *                       mustChangePassword=true erzwingt den Wechsel.
+ * Creates a new user for the tenant. Two password initialization modes:
+ *   - "MAGIC_LINK"    : User receives a 1-hour reset link by email and sets
+ *                       the password themselves. passwordHash is filled with
+ *                       an inaccessible random value; without a reset, login
+ *                       is impossible.
+ *   - "TEMP_PASSWORD" : Owner sees a 16-character password once and passes it
+ *                       to the user verbally or by chat. mustChangePassword=true
+ *                       enforces a password change.
  *
- * Sudo + Reason + Audit wie alle destruktiven Owner-Aktionen.
+ * Sudo + reason + audit, like all destructive owner actions.
  */
 
 import { NextResponse } from "next/server";
@@ -29,12 +28,12 @@ import { buildPasswordResetMail } from "@/lib/mail/templates/password-reset";
 import type { UserRole } from "@prisma/client";
 
 const schema = z.object({
-  email: z.string().trim().toLowerCase().email("Bitte gültige E-Mail-Adresse eingeben."),
-  name: z.string().trim().min(2, "Name muss mindestens 2 Zeichen lang sein.").max(120),
+  email: z.string().trim().toLowerCase().email("Please enter a valid email address."),
+  name: z.string().trim().min(2, "Name must be at least 2 characters long.").max(120),
   role: z.enum(OWNER_ASSIGNABLE_ROLES as [UserRole, ...UserRole[]]),
   sendMode: z.enum(["MAGIC_LINK", "TEMP_PASSWORD"]),
   preferredLanguage: z.enum(["de", "fr", "it", "en"]).default("de"),
-  reason: z.string().trim().min(10, "Begründung muss mindestens 10 Zeichen lang sein."),
+  reason: z.string().trim().min(10, "Reason must be at least 10 characters long."),
 });
 
 export async function POST(req: Request, { params }: { params: Promise<{ id: string }> }) {
@@ -70,20 +69,20 @@ export async function POST(req: Request, { params }: { params: Promise<{ id: str
   });
   if (existing) {
     return NextResponse.json(
-      { error: "EMAIL_TAKEN", message: "Diese E-Mail ist bereits vergeben." },
+      { error: "EMAIL_TAKEN", message: "This email is already taken." },
       { status: 409 },
     );
   }
 
-  // Passwort initialisieren — Klartext fliesst NUR im TEMP_PASSWORD-Modus
-  // an den Owner zurück, nirgends in die DB oder Logs.
+  // Initialize the password. Plaintext is returned to the owner ONLY in
+  // TEMP_PASSWORD mode, never to the DB or logs.
   let tempPassword: string | null = null;
   let passwordHash: string;
   if (parsed.data.sendMode === "TEMP_PASSWORD") {
     tempPassword = generateTempPassword();
     passwordHash = await bcrypt.hash(tempPassword, 12);
   } else {
-    // Unzugänglicher Zufallswert — ohne Magic-Link kein Login möglich.
+    // Inaccessible random value: without the magic link, login is impossible.
     passwordHash = await bcrypt.hash(randomBytes(32).toString("base64"), 12);
   }
 
@@ -96,20 +95,20 @@ export async function POST(req: Request, { params }: { params: Promise<{ id: str
       role: parsed.data.role,
       passwordHash,
       preferredLanguage: parsed.data.preferredLanguage,
-      // Owner-erstellte User: E-Mail gilt als verifiziert (Owner vouched).
-      // Sonst blockt authorize() den Login mit "if (!user.emailVerifiedAt) return null".
+      // Owner-created users: email counts as verified (owner vouched).
+      // Otherwise authorize() blocks login with "if (!user.emailVerifiedAt) return null".
       emailVerifiedAt: now,
-      // Magic-Link-Modus: User setzt das Passwort ohnehin selbst neu beim
-      // ersten Klick — kein mustChangePassword. Temp-Passwort-Modus: erzwingt
-      // Wechsel (UI dafür folgt; bis dahin loggt der User trotzdem ein, weil
-      // die Flag in authorize() nicht geprüft wird).
+      // Magic-link mode: the user sets a new password on first click, so no
+      // mustChangePassword flag. Temp-password mode enforces a change. The UI
+      // for that follows; until then, the user can still log in because
+      // authorize() does not check this flag.
       mustChangePassword: parsed.data.sendMode === "TEMP_PASSWORD",
       isActive: true,
     },
     select: { id: true, email: true, name: true, role: true },
   });
 
-  // Magic-Link-Modus: Reset-Token + Mail anstossen.
+  // Magic-link mode: create reset token and send email.
   let mailDelivered = false;
   let mailExpiresAt: Date | null = null;
   if (parsed.data.sendMode === "MAGIC_LINK") {

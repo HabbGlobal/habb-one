@@ -66,7 +66,7 @@ export function CustomerListFilters() {
         aria-label="Filter open orders"
       >
         <option value="all">All customers</option>
-        <option value="yes">Mit offenen Aufträgen</option>
+        <option value="yes">With Open Orders</option>
       </Select>
     </div>
   );

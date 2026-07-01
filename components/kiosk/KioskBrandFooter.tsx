@@ -1,5 +1,5 @@
-// "Powered by Habb One"-Footer — auf jedem Kiosk-Bildschirm dezent
-// unten zentriert. Verlinkt auf HABB Global (PVT) LTD.
+// Subtle, centered "Powered by Habb One" footer used on every kiosk screen.
+// Links to HABB Global (PVT) LTD.
 
 import { HabbWordmark } from "./HabbWordmark";
 

@@ -1,8 +1,7 @@
 /**
- * PUT /api/owner/team/[id]/role — Rolle eines Owner-Accounts ändern.
- * OWNER_ROOT only. Eigenen Account kann man nicht degradieren (Self-
- * Protect); existierende Sessions werden revoked, damit die neue Rolle
- * beim nächsten Login frisch greift.
+ * PUT /api/owner/team/[id]/role: change the role of an owner account.
+ * OWNER_ROOT only. Own account cannot be downgraded (self-protect); existing
+ * sessions are revoked so the new role takes effect on next login.
  */
 
 import { NextResponse } from "next/server";
@@ -48,8 +47,8 @@ export async function PUT(req: Request, { params }: { params: Promise<{ id: stri
       where: { id },
       data: { role: parsed.data.role },
     });
-    // Bestehende Sessions invalidieren, damit die neue Rolle beim
-    // nächsten Login frisch greift (Token enthält die Rolle).
+    // Invalidate existing sessions so the new role takes effect on next login
+    // (the token contains the role).
     await tx.ownerSession.updateMany({
       where: { ownerAccountId: id, revokedAt: null },
       data: { revokedAt: new Date() },

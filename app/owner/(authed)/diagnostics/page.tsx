@@ -58,9 +58,9 @@ export default async function OwnerDiagnosticsPage() {
     }),
   ]);
 
-  // Immer ALLE aktiven Tenanten anzeigen — Snapshot optional. Ohne
-  // bisherigen Lauf: Status "unknown / noch nie geprüft", aber Zeile
-  // (mit "Check") ist da → kein Henne-Ei-Problem vor dem ersten Cron.
+  // Always show ALL active tenants; the snapshot is optional. Without a prior
+  // run, status is "unknown / never checked", but the row with "Check" is
+  // still present, avoiding a first-cron bootstrap problem.
   const byStatus = { healthy: 0, warning: 0, critical: 0, unknown: 0 };
   let scoreSum = 0;
   let scored = 0;
@@ -107,8 +107,8 @@ export default async function OwnerDiagnosticsPage() {
             Diagnostics &amp; Security-Monitoring
           </h1>
           <p className="mt-1 text-sm text-habb-muted">
-            Stündliche automatische Prüfung aller Tenanten · regelbasiert,
-            ohne externe KI.
+            Hourly automated checks for all tenants · rule-based, without
+            external AI.
           </p>
         </div>
         <TestEmailButton />
@@ -122,20 +122,20 @@ export default async function OwnerDiagnosticsPage() {
         <Kpi label="Critical" value={byStatus.critical} tone="danger" />
         <Kpi label="Unknown" value={byStatus.unknown} />
         <Kpi
-          label="Security kritisch (24h)"
+          label="Critical security (24h)"
           value={secCrit24}
           tone={secCrit24 > 0 ? "danger" : undefined}
           icon={<ShieldAlert className="h-4 w-4" />}
         />
-        <Kpi label="Offene Findings" value={openTotal} />
-        <Kpi label="Ø Health-Score" value={avgScore} />
+        <Kpi label="Open findings" value={openTotal} />
+        <Kpi label="Avg. health score" value={avgScore} />
         <Kpi
           label="Emails (24h)"
           value={emails24}
           icon={<Mail className="h-4 w-4" />}
         />
         <Kpi
-          label="Email-Fehler (24h)"
+          label="Email failures (24h)"
           value={emailsFailed24}
           tone={emailsFailed24 > 0 ? "danger" : undefined}
         />
@@ -157,18 +157,18 @@ export default async function OwnerDiagnosticsPage() {
       <section className="rounded-xl border border-habb-line bg-white">
         <div className="border-b border-habb-line px-5 py-3">
           <h2 className="text-sm font-semibold text-habb-ink">
-            Tenanten-Health
+            Tenant Health
           </h2>
         </div>
         <TenantTable tenants={tenants} />
       </section>
 
-      {/* Security + Email Ansicht */}
+      {/* Security + email view */}
       <div className="grid gap-6 lg:grid-cols-2">
         <ListCard
-          title="Security-Events (zuletzt)"
+          title="Security events (latest)"
           icon={<AlertTriangle className="h-4 w-4 text-habb-red" />}
-          empty="Keine Security-Events."
+          empty="No security events."
           rows={recentSec.map((e) => ({
             key: e.id,
             primary: `${e.eventType} · ${e.severity}`,
@@ -176,9 +176,9 @@ export default async function OwnerDiagnosticsPage() {
           }))}
         />
         <ListCard
-          title="Email-Benachrichtigungen (zuletzt)"
+          title="Email notifications (latest)"
           icon={<Mail className="h-4 w-4 text-habb-muted" />}
-          empty="Keine Emails."
+          empty="No emails."
           rows={recentEmails.map((m) => ({
             key: m.id,
             primary: `${m.subject}`,

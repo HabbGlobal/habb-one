@@ -1,9 +1,9 @@
 /**
  * GET /api/owner/auth/passkey/enroll-options
  *
- * Liefert WebAuthn-Registrierungs-Optionen für den Ceremony-Owner.
- * Schreibt die frische Challenge in einen ersetzten Ceremony-Cookie, damit
- * der nachfolgende `enroll-verify` sie timing-safe vergleichen kann.
+ * Returns WebAuthn registration options for the ceremony owner.
+ * Writes the fresh challenge into a replaced ceremony cookie so the subsequent
+ * `enroll-verify` can compare it timing-safely.
  */
 
 import { NextResponse } from "next/server";

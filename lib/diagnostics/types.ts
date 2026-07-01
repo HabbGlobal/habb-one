@@ -1,9 +1,10 @@
 /**
- * Owner-Diagnostics — gemeinsame Typen & Konstanten.
+ * Shared types and constants for Owner diagnostics.
  *
- * Bewusst String-Unions (kein Prisma-Enum): die Wertelisten der Spec
- * sind groß und entwickeln sich; ALTER-TYPE-Migrationen pro Erweiterung
- * wären unnötige Reibung. Validierung passiert App-seitig (TS + Zod).
+ * String unions are intentional instead of Prisma enums. The specification's
+ * value lists are large and evolving, and ALTER TYPE migrations for every
+ * extension would add unnecessary friction. Validation happens in the
+ * application through TypeScript and Zod.
  */
 
 export const SEVERITIES = ["info", "low", "medium", "high", "critical"] as const;
@@ -51,7 +52,7 @@ export const SECURITY_SOURCES = [
 ] as const;
 export type SecuritySource = (typeof SECURITY_SOURCES)[number];
 
-/** Ein noch-nicht-persistiertes Finding (Engine-Output). */
+/** A finding produced by the engine but not yet persisted. */
 export interface FindingCandidate {
   category: FindingCategory;
   severity: Severity;
@@ -59,11 +60,11 @@ export interface FindingCandidate {
   message: string;
   technicalDetails?: Record<string, unknown>;
   recommendation?: string;
-  /** Stabiler Schlüssel für Dedupe & Auto-Resolve (siehe dedupe.ts). */
+  /** Stable key used for deduplication and automatic resolution. */
   dedupeKey: string;
 }
 
-/** Ein noch-nicht-persistiertes Security-Event (Detection-Output). */
+/** A security event produced by detection but not yet persisted. */
 export interface SecurityEventCandidate {
   eventType: string;
   severity: Severity;

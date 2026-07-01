@@ -1,9 +1,9 @@
 import { randomBytes } from "crypto";
 
 /**
- * Erzeugt ein 16-stelliges Wegwerf-Passwort, das der Owner dem User
- * persönlich mitteilt. Charset bewusst ohne `0`/`O`/`I`/`l` und ohne
- * URL-Sonderzeichen — verbal/per Chat reibungslos durchgebbar.
+ * Generates a 16-character disposable password that the owner passes to the
+ * user personally. Charset intentionally excludes `0`/`O`/`I`/`l` and URL
+ * special characters, making it easy to pass verbally or by chat.
  */
 export function generateTempPassword(): string {
   const alphabet = "ABCDEFGHJKMNPQRSTUVWXYZabcdefghjkmnpqrstuvwxyz23456789";
@@ -17,9 +17,9 @@ export function generateTempPassword(): string {
 
 import type { UserRole } from "@prisma/client";
 
-/** Rollen, die der Owner setzen darf. SUPERADMIN bewusst nicht — das ist
- *  der Master-Account jedes Mandanten und kann nur via SQL / Bootstrap-Skript
- *  vergeben werden. */
+/** Roles the owner may assign. SUPERADMIN is intentionally excluded; it is the
+ *  master account of each tenant and can only be granted through SQL or the
+ *  bootstrap script. */
 export const OWNER_ASSIGNABLE_ROLES: UserRole[] = [
   "ADMIN",
   "PLANNER",

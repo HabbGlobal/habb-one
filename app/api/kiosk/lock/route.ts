@@ -1,12 +1,11 @@
-// API für Kiosk-Lock — Tablet entsperren / sperren.
+// Kiosk lock API for unlocking and locking the tablet.
 //
-// POST  { companyId, password }    → bei Match: setzt Cookie, returns { ok: true }
-// DELETE                            → löscht Cookie (Schicht-Ende-Logout)
+// POST  { companyId, password } → on match, set the cookie and return { ok: true }
+// DELETE                         → delete the cookie for end-of-shift logout
 //
-// Rate-Limit: nicht in dieser MVP — Auth-Versuche sind auf "alle 4-stelligen
-// Codes ausprobieren"-Niveau aufwendig (bcrypt 10 rounds = ~80ms pro Versuch),
-// dürfte für ein Werkstatt-iPad reichen. Wenn sich das als Problem zeigt,
-// fügen wir IP-basiertes Rate-Limiting via @upstash/ratelimit hinzu.
+// Rate limiting is not included in this MVP. Authentication attempts are
+// deliberately expensive because bcrypt uses 10 rounds. If abuse becomes a
+// concern, add IP-based rate limiting with @upstash/ratelimit.
 
 import { NextResponse } from "next/server";
 import { z } from "zod";
@@ -33,10 +32,8 @@ export async function POST(req: Request) {
   }
   const { companyId: hintedCompanyId, password } = parsed.data;
 
-  // Wenn keine companyId mitgegeben wurde UND nur eine Firma mit Kiosk-
-  // Passwort existiert, nutze diese. WICHTIG: nur Firmen mit gesetztem
-  // `kioskPasswordHash` zählen — andere Firmen sind hier irrelevant
-  // (z. B. zweite Firma in der DB ohne Kiosk-Konfiguration).
+  // If companyId is omitted and exactly one company has a kiosk password, use
+  // that company. Only companies with `kioskPasswordHash` are relevant here.
   let target;
   if (hintedCompanyId) {
     target = await prisma.company.findUnique({
@@ -83,7 +80,7 @@ export async function DELETE() {
   return NextResponse.json({ ok: true });
 }
 
-/** Optional: Status-Check fürs Client-Polling (UI weiß ob Lock noch gilt). */
+/** Optional status check for client polling so the UI knows whether the lock is valid. */
 export async function GET() {
   const companyId = await readKioskLock();
   return NextResponse.json({ unlocked: !!companyId, companyId });

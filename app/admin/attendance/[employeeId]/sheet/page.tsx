@@ -1,6 +1,6 @@
-// SAP-Style Stundenblatt für CEO + Sekretariat. Lädt einen Monat
-// auf einmal, zeigt Kalender links + Tageliste rechts. Bearbeitung
-// pro Tag im Sheet-Client gesteuert.
+// SAP-style timesheet for CEO + Secretariat. Loads one month
+// at a time, shows a calendar on the left + day list on the right.
+// Day-level editing is controlled in the Sheet Client.
 
 import Link from "next/link";
 import { notFound, redirect } from "next/navigation";
@@ -27,7 +27,7 @@ interface PageProps {
 
 function monthDates(year: number, month: number): string[] {
   const out: string[] = [];
-  const days = new Date(year, month, 0).getDate(); // letzter Tag des Monats
+  const days = new Date(year, month, 0).getDate(); // last day of the month
   for (let d = 1; d <= days; d++) {
     out.push(
       `${year}-${month.toString().padStart(2, "0")}-${d.toString().padStart(2, "0")}`,
@@ -68,15 +68,15 @@ export default async function SheetPage({ params, searchParams }: PageProps) {
   });
   if (!employee || employee.companyId !== session.user.companyId) notFound();
 
-  // Monats-Statistik (mit Soll/Ist pro Tag)
+  // Monthly statistics (with target/actual per day)
   const dates = monthDates(year, month);
   const dayStats = await getDayStatsForRange(employee.id, dates, now, {
     expectedCompanyId: session.user.companyId,
   });
 
-  // Aktive Absence-Typen der Firma — DYNAMISCH. Neue Typen, die in
-  // /admin/absences/types angelegt werden, erscheinen hier automatisch
-  // im Day-Editor-Dropdown (kein Hardcoding).
+  // Active absence types for the company — DYNAMIC. New types created in
+  // /admin/absences/types will automatically appear in the Day Editor
+  // dropdown here (no hardcoding).
   const absenceTypes = await prisma.absenceType.findMany({
     where: {
       companyId: session.user.companyId,
@@ -88,12 +88,12 @@ export default async function SheetPage({ params, searchParams }: PageProps) {
     select: { id: true, labelDe: true, colorHex: true, requiresApproval: true },
   });
 
-  // Live-Status (für Live-Lock-Banner)
+  // Live status (for the Live Lock Banner)
   const liveState = await getCurrentKioskState(employee.id, {
     expectedCompanyId: session.user.companyId,
   });
 
-  // Tages-Details: TimePunches + BreakEntries für die Tageliste
+  // Day details: TimePunches + BreakEntries for the day list
   const start = localMidnightUtc(dates[0]);
   const end = localMidnightUtc(dates[dates.length - 1]);
   const entries = await prisma.timeEntry.findMany({
@@ -105,7 +105,7 @@ export default async function SheetPage({ params, searchParams }: PageProps) {
   });
   const entryMap = new Map(entries.map((e) => [localDateString(e.workDate), e]));
 
-  // Per-Day-Payload für Client
+  // Per-day payload for the client
   const days = dayStats.map((d) => {
     const e = entryMap.get(d.date);
     return {
@@ -130,7 +130,7 @@ export default async function SheetPage({ params, searchParams }: PageProps) {
             isMultiDay: d.absence.isMultiDay,
           }
         : null,
-      // Blöcke für den Editor (Arbeit + Pause, sortiert)
+      // Blocks for the editor (work + break, sorted)
       punches:
         e?.punches.map((p) => ({
           id: p.id,
@@ -151,7 +151,7 @@ export default async function SheetPage({ params, searchParams }: PageProps) {
     };
   });
 
-  // Wochen-Aggregate — die aktuelle Woche (Mo–So) für den Progress-Bar.
+  // Weekly aggregates — the current week (Mon–Sun) for the progress bar.
   const todayStr = localDateString(now);
   const todayIdx = dates.indexOf(todayStr);
   let weekStartIdx = todayIdx >= 0 ? todayIdx : 0;
@@ -174,7 +174,7 @@ export default async function SheetPage({ params, searchParams }: PageProps) {
           className="inline-flex items-center gap-1 text-xs text-habb-muted hover:text-habb-ink"
         >
           <ChevronLeft className="h-3 w-3" />
-          Anwesenheit
+          Attendance
         </Link>
       </div>
 

@@ -58,7 +58,7 @@ export async function POST(req: Request, { params }: { params: Promise<{ id: str
     },
   });
 
-  // Approval-Mail an den initialen Admin (best-effort).
+  // Send an approval email to the initial admin (best effort).
   const admin = company.users[0];
   let mailDelivered = false;
   if (admin) {

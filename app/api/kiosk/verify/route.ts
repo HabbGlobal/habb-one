@@ -17,10 +17,10 @@ export async function POST(req: Request) {
     return NextResponse.json({ error: "INVALID" }, { status: 400 });
   }
 
-  // Tenant-Isolation: Firma 3-Wege auflösen (Account-Session ODER
-  // Lock-Cookie ODER Single-Company). Ist sie auflösbar, MUSS der
-  // PIN-User zu dieser Firma gehören — gilt jetzt auch für Account-
-  // Session-Kioske, nicht nur für Lock-Cookie-Tablets.
+  // Tenant isolation: resolve the company through the account session, lock
+  // cookie, or single-company fallback. When resolved, the PIN user must
+  // belong to that company. This applies to both account-session kiosks and
+  // lock-cookie tablets.
   const { effectiveCompanyId } = await resolveKioskCompany();
   if (effectiveCompanyId) {
     const employee = await prisma.employee.findUnique({

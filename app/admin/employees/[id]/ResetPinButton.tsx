@@ -19,9 +19,9 @@ export function ResetPinButton({ employeeId }: { employeeId: string }) {
         const newPin = await resetEmployeePin(employeeId);
         setPin(newPin);
       } catch (e) {
-        // Server-Action-Fehler NICHT unbehandelt lassen — sonst zeigt
-        // Next.js nur eine generische Digest-Fehlerseite. Stattdessen
-        // die echte Meldung inline anzeigen.
+        // Do NOT leave server action errors unhandled — otherwise
+        // Next.js will only display a generic digest error page.
+        // Instead, show the actual error message inline.
         setError(
           e instanceof Error && e.message
             ? e.message

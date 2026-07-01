@@ -82,7 +82,7 @@ export default async function MachineUtilizationPage({
       <div className="grid grid-cols-3 gap-3">
         <Card>
           <CardContent className="p-4">
-            <div className="text-xs text-muted-foreground">Verfügbar gesamt</div>
+            <div className="text-xs text-muted-foreground">Total available</div>
             <div className="text-2xl font-semibold tabular-nums mt-1">
               {fmtHours(report.totals.availableMinutes)}
             </div>
@@ -90,7 +90,7 @@ export default async function MachineUtilizationPage({
         </Card>
         <Card>
           <CardContent className="p-4">
-            <div className="text-xs text-muted-foreground">Gebucht gesamt</div>
+            <div className="text-xs text-muted-foreground">Total booked</div>
             <div className="text-2xl font-semibold tabular-nums mt-1">
               {fmtHours(report.totals.bookedMinutes)}
             </div>
@@ -98,7 +98,7 @@ export default async function MachineUtilizationPage({
         </Card>
         <Card>
           <CardContent className="p-4">
-            <div className="text-xs text-muted-foreground">Auslastung gesamt</div>
+            <div className="text-xs text-muted-foreground">Overall utilization</div>
             <div className="text-2xl font-semibold tabular-nums mt-1">
               {report.totals.utilizationPct.toFixed(1)} %
             </div>

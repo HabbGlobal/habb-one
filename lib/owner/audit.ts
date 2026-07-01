@@ -1,15 +1,15 @@
 /**
- * Zentrale Audit-Schreib-Funktion für das Owner-Portal.
+ * Central audit write function for the owner portal.
  *
- * Jede Aktion eines Owners — Lese-Aktionen auf Kundendaten eingeschlossen —
- * muss durch diesen Helper laufen. So gibt es genau **eine** Stelle, an
- * der wir kontrollieren, dass IP/UA/Request-ID konsistent erfasst werden
- * und keine sensiblen Felder (Klartext-Passwörter, OTP-Codes) im Payload
- * landen.
+ * Every owner action, including read actions on customer data, must go through
+ * this helper. That gives us exactly **one** place where we ensure IP/UA/request
+ * ID are recorded consistently and no sensitive fields (plaintext passwords,
+ * OTP codes) land in the payload.
  *
- * Die `OwnerAuditLog`-Tabelle ist append-only — kein Update, kein Delete.
- * App-DB-User muss per `REVOKE UPDATE, DELETE ON "OwnerAuditLog"` hart
- * eingeschränkt sein (Runbook in docs/owner-portal/architecture.md).
+ * The `OwnerAuditLog` table is append-only: no update, no delete. The app DB
+ * user must be strictly restricted with
+ * `REVOKE UPDATE, DELETE ON "OwnerAuditLog"` (runbook in
+ * docs/owner-portal/architecture.md).
  */
 
 import { prisma } from "@/lib/prisma";

@@ -8,10 +8,9 @@ import { SudoPromptModal } from "./SudoPromptModal";
 type OwnerRole = "OWNER_SUPPORT" | "OWNER_ADMIN" | "OWNER_ROOT";
 
 /**
- * Create-Owner-Modal. Owner-Root erfasst Email + Name + Role, der
- * Server generiert ein Initial-Passwort (Show-Once-Modal), das per
- * sicherem Kanal an den neuen Owner übergeben wird. Passkey-Enrollment
- * erfolgt beim ersten Login.
+ * Create-owner modal. Owner root enters email, name, and role. The server
+ * generates an initial password in a show-once modal, which is passed to the
+ * new owner through a secure channel. Passkey enrollment happens on first login.
  */
 export function CreateOwnerButton() {
   const router = useRouter();
@@ -127,8 +126,8 @@ export function CreateOwnerButton() {
                   defaultValue="OWNER_SUPPORT"
                   className="block w-full rounded-md border border-habb-line bg-white px-3 py-2 text-sm"
                 >
-                  <option value="OWNER_SUPPORT">Support (Read-only mit Consent)</option>
-                  <option value="OWNER_ADMIN">Admin (Tenants verwalten)</option>
+                  <option value="OWNER_SUPPORT">Support (Read-only with consent)</option>
+                  <option value="OWNER_ADMIN">Admin (Manage tenants)</option>
                   <option value="OWNER_ROOT">Root (Full access)</option>
                 </select>
               </div>
@@ -180,7 +179,7 @@ export function CreateOwnerButton() {
           <div className="w-full max-w-md rounded-xl border border-habb-line bg-white shadow-xl">
             <header className="border-b border-habb-line px-5 py-4">
               <h2 className="text-sm font-semibold text-habb-ink">
-                Initial-Passwort
+                Initial password
               </h2>
             </header>
             <div className="space-y-4 px-5 py-5">

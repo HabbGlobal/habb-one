@@ -2,12 +2,12 @@
 
 // Auto-Scheduler Server Actions.
 //
-// Pattern wie bei den anderen ERP-Aktionen:
-//   1) Auth + Permission ("schedule.write")
-//   2) DB-Daten laden, in pure Inputs Ã¼berfÃ¼hren
-//   3) `runScheduler` aufrufen
-//   4) VorschlÃ¤ge in OrderScheduleEntry persistieren
-//   5) Konflikte als ScheduleConflict speichern
+// Pattern like other ERP actions:
+//   1) Auth + permission ("schedule.write")
+//   2) Load DB data → convert into pure inputs
+//   3) Call `runScheduler`
+//   4) Persist proposals into OrderScheduleEntry
+//   5) Store conflicts in ScheduleConflict
 //   6) AuditLog
 //   7) revalidatePath
 
@@ -32,9 +32,9 @@ import type { MachineRow, Booking } from "@/lib/scheduler/resource-graph";
 
 const TX_OPTS = { maxWait: 10_000, timeout: 30_000 } as const;
 
-// â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// ───────────────────────────────
 // Auth helper
-// â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// ───────────────────────────────
 
 async function requireWriter() {
   const session = await auth();
@@ -45,9 +45,9 @@ async function requireWriter() {
   return session.user;
 }
 
-// â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
-// Loader: DB â†’ Pure-Scheduler-Inputs
-// â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// ───────────────────────────────
+// Loader: DB → Pure Scheduler Inputs
+// ───────────────────────────────
 
 interface LoadResult {
   orders: SchedulableOrder[];
@@ -60,7 +60,7 @@ async function loadSchedulerInputs(
   companyId: string,
   orderFilter: { id?: string; statuses?: string[] },
 ): Promise<LoadResult> {
-  // Maschinen + Wartung
+  // Machines + maintenance
   const machineRows = await prisma.machine.findMany({
     where: {
       companyId,
@@ -87,10 +87,10 @@ async function loadSchedulerInputs(
       start: w.startsAt,
       end: w.endsAt,
     }));
-    // Bookings: existierende Schedule-Entries â€” locked werden 1:1 Ã¼bernommen,
-    // unlocked werden spÃ¤ter (beim Re-Plan) gelÃ¶scht und durch neue VorschlÃ¤ge
-    // ersetzt. Wir schlieÃŸen unlocked aus damit die Slot-Suche nicht denkt
-    // sie wÃ¤ren besetzt.
+
+    // Bookings: existing schedule entries
+    // locked → treated as fixed bookings
+    // unlocked → ignored for capacity calculation (will be regenerated)
     const bookings: Booking[] = m.scheduleEntries
       .filter((e) => e.isLocked)
       .map((e) => ({
@@ -99,6 +99,7 @@ async function loadSchedulerInputs(
         end: e.plannedEnd,
         isLocked: true,
       }));
+
     return {
       id: m.id,
       name: m.name,
@@ -109,8 +110,7 @@ async function loadSchedulerInputs(
     };
   });
 
-  // AuftrÃ¤ge â€” Customer ebenfalls filtern, damit AuftrÃ¤ge gelÃ¶schter
-  // Kunden nicht im Werkstatt-Plan auftauchen (Lifecycle-Konsistenz).
+  // Orders
   const orderWhere: Prisma.OrderWhereInput = {
     companyId,
     archivedAt: null,
@@ -134,15 +134,17 @@ async function loadSchedulerInputs(
 
   const orders: SchedulableOrder[] = orderRows.map((o) => {
     const steps: SchedulableStep[] = [];
+
     for (const item of o.items) {
       const sortedSteps = [...item.processSteps].sort(
         (a, b) => a.sequence - b.sequence,
       );
+
       for (const s of sortedSteps) {
         steps.push({
           id: s.id,
           orderItemId: item.id,
-          globalSequence: item.position * 1_000 + s.sequence,
+          globalSequence: item.position * 1000 + s.sequence,
           estimatedMinutes: s.estimatedMinutes,
           waitMinutesAfter: s.waitMinutesAfter,
           machineTypeRequired: s.machineTypeRequired,
@@ -150,7 +152,9 @@ async function loadSchedulerInputs(
         });
       }
     }
+
     steps.sort((a, b) => a.globalSequence - b.globalSequence);
+
     return {
       id: o.id,
       orderNumber: o.orderNumber,
@@ -161,20 +165,17 @@ async function loadSchedulerInputs(
     };
   });
 
-  // Feiertage als YYYY-MM-DD
+  // Holidays
   const holidayRows = await prisma.holiday.findMany({
     where: { companyId },
     select: { date: true },
   });
+
   const holidays = new Set<string>(
     holidayRows.map((h) => h.date.toISOString().slice(0, 10)),
   );
 
-  // Skill-Inventar: alle Skill-Codes, die im aktiven Personalbestand
-  // mindestens einmal vorhanden sind. Quellen:
-  //   - EmployeeSkill direkt am Employee (neue Quelle aus PR 6)
-  //   - UserSkill via User der mit einem Employee verknÃ¼pft ist (Legacy)
-  // Aktiv heisst: Employee.isActive + nicht archiviert/gelÃ¶scht.
+  // Skill inventory
   const [employeeSkills, userSkills] = await Promise.all([
     prisma.employeeSkill.findMany({
       where: {
@@ -200,6 +201,7 @@ async function loadSchedulerInputs(
       select: { skillCode: true },
     }),
   ]);
+
   const qualifiedSkills = new Set<string>([
     ...employeeSkills.map((s) => s.skillCode),
     ...userSkills.map((s) => s.skillCode),
@@ -208,9 +210,9 @@ async function loadSchedulerInputs(
   return { orders, machines, holidays, qualifiedSkills };
 }
 
-// â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
-// Persist: VorschlÃ¤ge â†’ DB
-// â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// ───────────────────────────────
+// Persist: proposals → DB
+// ───────────────────────────────
 
 async function persistProposals(
   companyId: string,
@@ -219,17 +221,17 @@ async function persistProposals(
   options: { onlyOrderId?: string; statuses?: string[] },
 ): Promise<void> {
   await prisma.$transaction(async (tx) => {
-    // 1) Bestehende NICHT-locked Schedule-Entries aller betroffenen AuftrÃ¤ge lÃ¶schen
-    const orderIdsTouched = new Set(result.proposed.map((p) => p.stepId));
-    if (orderIdsTouched.size === 0) return;
+    const stepIds = new Set(result.proposed.map((p) => p.stepId));
+    if (stepIds.size === 0) return;
 
-    // Map stepId â†’ orderId via DB
     const steps = await tx.processStep.findMany({
-      where: { id: { in: [...orderIdsTouched] } },
+      where: { id: { in: [...stepIds] } },
       select: { id: true, orderItem: { select: { orderId: true } } },
     });
+
     const orderIds = [...new Set(steps.map((s) => s.orderItem.orderId))];
 
+    // delete non-locked schedules
     await tx.orderScheduleEntry.deleteMany({
       where: {
         orderId: { in: orderIds },
@@ -237,15 +239,16 @@ async function persistProposals(
       },
     });
 
-    // 2) VorschlÃ¤ge eintragen
+    // insert proposals
     for (const p of result.proposed) {
       const step = steps.find((s) => s.id === p.stepId);
       if (!step) continue;
-      // Skip falls Step bereits einen locked Eintrag hat
+
       const existing = await tx.orderScheduleEntry.findFirst({
         where: { processStepId: p.stepId, isLocked: true },
         select: { id: true },
       });
+
       if (existing) continue;
 
       await tx.orderScheduleEntry.create({
@@ -261,21 +264,22 @@ async function persistProposals(
       });
     }
 
-    // 3) Konflikte schreiben â€” alte Konflikte fÃ¼r betroffene AuftrÃ¤ge erst lÃ¶schen
+    // conflicts
     await tx.scheduleConflict.deleteMany({
       where: {
         entry: { orderId: { in: orderIds } },
         resolvedAt: null,
       },
     });
+
     for (const c of result.conflicts) {
-      // Konflikt braucht eine OrderScheduleEntry-ID â€” wir hÃ¤ngen ihn an den
-      // ersten Eintrag des betroffenen Auftrags.
       const firstEntry = await tx.orderScheduleEntry.findFirst({
         where: { orderId: c.orderId },
         select: { id: true },
       });
+
       if (!firstEntry) continue;
+
       await tx.scheduleConflict.create({
         data: {
           scheduleEntryId: firstEntry.id,
@@ -299,14 +303,13 @@ async function persistProposals(
   });
 }
 
-// â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// ───────────────────────────────
 // Public Actions
-// â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// ───────────────────────────────
 
 /**
- * Plant einen einzelnen Auftrag neu. Locked-EintrÃ¤ge bleiben unverÃ¤ndert,
- * alle anderen EintrÃ¤ge werden gelÃ¶scht und aus dem aktuellen Vorschlag
- * neu erzeugt.
+ * Re-schedule a single order.
+ * Locked entries remain unchanged; all others are regenerated.
  */
 export async function scheduleOrder(orderId: string): Promise<{
   proposedCount: number;
@@ -318,17 +321,16 @@ export async function scheduleOrder(orderId: string): Promise<{
     where: { id: orderId, companyId: user.companyId },
     select: { id: true, status: true },
   });
-  if (!order) throw new Error("Auftrag nicht gefunden.");
+
+  if (!order) throw new Error("Order not found.");
+
   if (!["CONFIRMED", "IN_PROGRESS", "ON_HOLD"].includes(order.status)) {
     throw new Error(
-      `Auftrag im Status ${order.status} kann nicht geplant werden â€” nur CONFIRMED/IN_PROGRESS/ON_HOLD.`,
+      `Order status ${order.status} cannot be scheduled — only CONFIRMED/IN_PROGRESS/ON_HOLD allowed.`,
     );
   }
 
   const inputs = await loadSchedulerInputs(user.companyId, { id: orderId });
-  // Bei Single-Order-Plan brauchen wir auch die Buchungen aller anderen
-  // AuftrÃ¤ge auf den Maschinen (unlocked) â€” sonst denkt der Scheduler
-  // die Maschinen wÃ¤ren leer und Ã¼berbucht.
   await mergeInOtherBookings(user.companyId, inputs);
 
   const result = runScheduler(inputs, {
@@ -337,17 +339,22 @@ export async function scheduleOrder(orderId: string): Promise<{
     ignoreExistingAutoSchedule: false,
   });
 
-  await persistProposals(user.companyId, user.id, result, { onlyOrderId: orderId });
+  await persistProposals(user.companyId, user.id, result, {
+    onlyOrderId: orderId,
+  });
 
   revalidatePath("/admin/scheduler");
   revalidatePath(`/admin/orders/${orderId}`);
   revalidatePath("/admin/orders");
-  return { proposedCount: result.proposed.length, conflictCount: result.conflicts.length };
+
+  return {
+    proposedCount: result.proposed.length,
+    conflictCount: result.conflicts.length,
+  };
 }
 
 /**
- * Plant alle aktiven AuftrÃ¤ge (CONFIRMED/IN_PROGRESS/ON_HOLD) der Firma
- * komplett neu. Locked-EintrÃ¤ge bleiben.
+ * Re-schedule all active orders.
  */
 export async function scheduleAll(): Promise<{
   proposedCount: number;
@@ -372,6 +379,7 @@ export async function scheduleAll(): Promise<{
 
   revalidatePath("/admin/scheduler");
   revalidatePath("/admin/orders");
+
   return {
     proposedCount: result.proposed.length,
     conflictCount: result.conflicts.length,
@@ -380,8 +388,8 @@ export async function scheduleAll(): Promise<{
 }
 
 /**
- * Bei Single-Order-Planung: lade die Buchungen aller anderen aktiven
- * AuftrÃ¤ge dazu, damit unsere Slot-Suche sie als belegt erkennt.
+ * Merge bookings from other active orders
+ * so slot search respects real capacity usage.
  */
 async function mergeInOtherBookings(companyId: string, inputs: LoadResult) {
   const otherEntries = await prisma.orderScheduleEntry.findMany({
@@ -391,7 +399,6 @@ async function mergeInOtherBookings(companyId: string, inputs: LoadResult) {
         archivedAt: null,
         deletedAt: null,
         status: { in: ["CONFIRMED", "IN_PROGRESS", "ON_HOLD"] },
-        // Alle ausser denen die wir gerade neu planen
         id: { notIn: inputs.orders.map((o) => o.id) },
       },
     },
@@ -403,13 +410,16 @@ async function mergeInOtherBookings(companyId: string, inputs: LoadResult) {
       isLocked: true,
     },
   });
+
   const byMachine = new Map<string, typeof otherEntries>();
+
   for (const e of otherEntries) {
     if (!e.machineId) continue;
     const arr = byMachine.get(e.machineId) ?? [];
     arr.push(e);
     byMachine.set(e.machineId, arr);
   }
+
   for (const m of inputs.machines) {
     const adds = byMachine.get(m.id) ?? [];
     for (const e of adds) {
@@ -423,23 +433,27 @@ async function mergeInOtherBookings(companyId: string, inputs: LoadResult) {
   }
 }
 
-// â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// ───────────────────────────────
 // Lock / Unlock
-// â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// ───────────────────────────────
 
 export async function lockScheduleEntry(entryId: string) {
   const user = await requireWriter();
+
   const entry = await prisma.orderScheduleEntry.findUnique({
     where: { id: entryId },
     include: { order: { select: { companyId: true, id: true } } },
   });
+
   if (!entry || entry.order.companyId !== user.companyId) {
-    throw new Error("Eintrag nicht gefunden.");
+    throw new Error("Entry not found.");
   }
+
   await prisma.orderScheduleEntry.update({
     where: { id: entryId },
     data: { isLocked: true },
   });
+
   await recordAudit({
     companyId: user.companyId,
     userId: user.id,
@@ -448,23 +462,28 @@ export async function lockScheduleEntry(entryId: string) {
     entityId: entryId,
     reason: "Lock",
   });
+
   revalidatePath("/admin/scheduler");
   revalidatePath(`/admin/orders/${entry.order.id}`);
 }
 
 export async function unlockScheduleEntry(entryId: string) {
   const user = await requireWriter();
+
   const entry = await prisma.orderScheduleEntry.findUnique({
     where: { id: entryId },
     include: { order: { select: { companyId: true, id: true } } },
   });
+
   if (!entry || entry.order.companyId !== user.companyId) {
-    throw new Error("Eintrag nicht gefunden.");
+    throw new Error("Entry not found.");
   }
+
   await prisma.orderScheduleEntry.update({
     where: { id: entryId },
     data: { isLocked: false },
   });
+
   await recordAudit({
     companyId: user.companyId,
     userId: user.id,
@@ -473,22 +492,26 @@ export async function unlockScheduleEntry(entryId: string) {
     entityId: entryId,
     reason: "Unlock",
   });
+
   revalidatePath("/admin/scheduler");
   revalidatePath(`/admin/orders/${entry.order.id}`);
 }
 
-/** Komplette Planung eines Auftrags lÃ¶schen (auch locked). */
+/** Delete full schedule for an order (including locked entries). */
 export async function clearOrderSchedule(orderId: string) {
   const user = await requireWriter();
+
   const order = await prisma.order.findFirst({
     where: { id: orderId, companyId: user.companyId },
     select: { id: true },
   });
-  if (!order) throw new Error("Auftrag nicht gefunden.");
+
+  if (!order) throw new Error("Order not found.");
 
   await prisma.orderScheduleEntry.deleteMany({
     where: { orderId },
   });
+
   await recordAudit({
     companyId: user.companyId,
     userId: user.id,
@@ -497,6 +520,7 @@ export async function clearOrderSchedule(orderId: string) {
     entityId: orderId,
     reason: "Schedule cleared",
   });
+
   revalidatePath("/admin/scheduler");
   revalidatePath(`/admin/orders/${orderId}`);
 }

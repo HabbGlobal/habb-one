@@ -1,6 +1,6 @@
 /**
- * POST /api/owner/team/[id]/disable — Owner deaktivieren. Login wird
- * sofort verhindert, laufende Sessions zusätzlich revoked.
+ * POST /api/owner/team/[id]/disable: deactivate owner. Login is blocked
+ * immediately and running sessions are additionally revoked.
  */
 
 import { NextResponse } from "next/server";

@@ -1,7 +1,7 @@
 "use client";
 
-// Tenant-SUPERADMIN-Wrapper um den geteilten Editor. Bindet die
-// Tenant-Server-Actions (CompanyId aus der Session).
+// Tenant SUPERADMIN wrapper around the shared editor.
+// Binds tenant server actions (CompanyId from session).
 
 import { RoleMatrixEditor as Shared, type RoleMatrixEditorProps } from "@/components/permissions/RoleMatrixEditor";
 import { saveRoleMatrix, resetRoleToDefaults } from "./actions";

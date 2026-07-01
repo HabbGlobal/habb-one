@@ -1,10 +1,9 @@
 /**
- * Step-up "Sudo"-Modus für destruktive Owner-Aktionen.
+ * Step-up "sudo" mode for destructive owner actions.
  *
- * Auch nach einem frischen 2FA-Login wird vor jeder gefährlichen Mutation
- * eine erneute Passwort-Eingabe gefordert. Bei Erfolg setzt
- * `grantSudo(sessionId)` ein 5-Minuten-Fenster im `OwnerSession`-Record;
- * Routen prüfen das via `requireOwner({ sudo: true })`.
+ * Even after a fresh 2FA login, dangerous mutations require another password
+ * entry. On success, `grantSudo(sessionId)` sets a 5-minute window in the
+ * `OwnerSession` record; routes check that with `requireOwner({ sudo: true })`.
  */
 
 import bcrypt from "bcryptjs";

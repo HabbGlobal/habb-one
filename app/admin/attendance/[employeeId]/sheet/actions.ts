@@ -1,22 +1,21 @@
 "use server";
 
-// Server-Actions für das SAP-Style Stundenblatt.
+// Server actions for the SAP-style timesheet.
 //
-// Zwei Operationen für CEO/Sekretariat:
-//   1. `forceClockOut`         — Admin-Override-Ausstempel mit Pflicht-Grund.
-//                                Wenn der Mitarbeiter LIVE eingestempelt ist
-//                                und kein PIN zur Hand ist, kann der Admin
-//                                ihn ausstempeln. Audit: ADMIN_CORRECTION
-//                                + correctedById + reason auf TimePunch.
-//   2. `replaceTimeEntryDay`   — Voll-Bearbeitung eines Tages: wipe + recreate
-//                                aller TimePunches/BreakEntries aus
-//                                den Edit-Formular-Blöcken.
-//                                ▶︎ BLOCKIERT wenn der Tag aktuell OPEN/ON_BREAK
-//                                   ist — Live-Lock-Garantie.
+// Two operations for CEO/Secretary:
+//   1. `forceClockOut` — Admin override clock-out with mandatory reason.
+//      If an employee is currently clocked in and no PIN is available,
+//      the admin can clock them out.
+//      Audit: ADMIN_CORRECTION + correctedById + reason on TimePunch.
 //
-// Berechtigung: `timeEntries.correct` (Default nun: ADMIN + PLANNER).
-// Tenant-Isolation: Employee MUSS in der Firma der Session sein.
-// Audit: jede Mutation landet in `AuditLog` mit Before/After + Pflicht-Grund.
+//   2. `replaceTimeEntryDay` — Full editing of a day:
+//      wipe + recreate all TimePunches/BreakEntries from the editor blocks.
+//      BLOCKED if the day is currently OPEN/ON_BREAK
+//      — live-lock guarantee.
+//
+// Permission: `timeEntries.correct` (default: ADMIN + PLANNER).
+// Tenant isolation: Employee MUST belong to the company of the session.
+// Audit: every mutation is written to AuditLog with before/after + reason.
 
 import { z } from "zod";
 import { revalidatePath } from "next/cache";
@@ -53,16 +52,15 @@ async function resolveCompanyZone(companyId: string): Promise<string> {
 }
 
 /**
- * Strukturiertes Action-Ergebnis. WICHTIG: Server-Actions, die einen
- * Fehler WERFEN, bekommen in Production eine generische, maskierte
- * Next.js-Meldung ("An error occurred in the Server Components render…").
- * Damit der User die ECHTE, hilfreiche Meldung sieht, geben erwartete
- * Fehler (Validierung, Berechtigung, Live-Lock) ein `{ ok:false, error }`
- * zurück statt zu werfen. Nur wirklich unerwartete Fehler dürfen werfen.
+ * Structured action result.
+ * IMPORTANT: Server actions that THROW errors receive a generic
+ * masked Next.js message in production.
+ * Expected errors return `{ ok:false, error }`
+ * instead of throwing.
  */
 export type SheetActionResult = { ok: true } | { ok: false; error: string };
 
-/** Erwarteter (fachlicher) Fehler — wird zu `{ ok:false }` konvertiert. */
+/** Expected business error — converted to `{ ok:false }`. */
 class SheetError extends Error {}
 
 // ─────────────────────────────────────────
@@ -122,7 +120,7 @@ export async function forceClockOut(
 
     // End pause (if active), then clock out. Both marked as
     // ADMIN_CORRECTION with correctedById + reason.
-    const reasonPrefix = `Admin-Override durch ${user.name || user.email}: `;
+    const reasonPrefix = `Admin Override by ${user.name || user.email}: `;
     const reason = reasonPrefix + data.reason;
     try {
       if (state.status === "ON_BREAK") {
@@ -141,7 +139,7 @@ export async function forceClockOut(
       });
     } catch (e) {
       if (e instanceof PunchError) {
-        throw new SheetError(`Stempel-Fehler: ${e.code}`);
+        throw new SheetError(`Punch Error: ${e.code}`);
       }
       throw e;
     }
@@ -404,13 +402,11 @@ async function replaceTimeEntryDayImpl(
     });
   });
 
-  // ── Manage single-day absence ──────────────────────────────
-  // The sheet editor manages EXCLUSIVELY single-day absences
-  // (startDate == endDate == workDate). Multi-day absences remain
-  // untouched — those are managed via /admin/absences.
-  // `data.absence === undefined` → don't touch absences (backward compat).
-  // `data.absence === null`      → remove single-day absence for this day.
-  // `data.absence === {…}`       → set/update single-day absence.
+  // Manage single-day absence
+// The sheet editor manages ONLY single-day absences
+// (startDate == endDate == workDate).
+// Multi-day absences remain untouched and are managed
+// via /admin/absences.
   if (data.absence !== undefined) {
     const existingSingleDay = await prisma.absence.findFirst({
       where: {

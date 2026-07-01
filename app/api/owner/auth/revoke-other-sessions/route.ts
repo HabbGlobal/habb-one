@@ -1,12 +1,12 @@
 /**
  * POST /api/owner/auth/revoke-other-sessions
  *
- * Beendet alle Owner-Sessions des eingeloggten Accounts, AUSSER der
- * aktuell verwendeten. Owner muss aktuelles Passwort bestätigen, damit
- * ein liegen gebliebener Tab niemanden ausloggen kann.
+ * Ends all owner sessions of the logged-in account EXCEPT the currently used
+ * one. Owner must confirm the current password so an abandoned tab cannot log
+ * anyone out.
  *
- * Revoke = setze revokedAt — die Sessions bleiben in der DB, damit der
- * Audit-Trail nachvollzieht, wann sie geschlossen wurden.
+ * Revoke means setting revokedAt. Sessions remain in the DB so the audit trail
+ * can show when they were closed.
  */
 
 import { NextResponse } from "next/server";

@@ -1,14 +1,13 @@
 /**
- * TOTP (RFC 6238) für den Owner-Notfall-Zugang.
+ * TOTP (RFC 6238) for owner emergency access.
  *
- * Bewusst NUR Recovery: der Passkey bleibt Pflicht. Ein gültiger
- * TOTP-Code gewährt KEINEN Portalzugang — er schaltet lediglich den
- * Passkey-Enroll-Schritt frei (siehe /api/owner/auth/totp/recover).
+ * Recovery only by design: passkey remains mandatory. A valid TOTP code grants
+ * NO portal access; it only unlocks the passkey enrollment step
+ * (see /api/owner/auth/totp/recover).
  *
- * Kein externes Lib: HMAC-SHA1-TOTP + Base32 + AES-256-GCM mit Node
- * `crypto`. Das Shared Secret wird verschlüsselt at rest abgelegt;
- * der Schlüssel wird aus OWNER_AUTH_SECRET abgeleitet (strikt getrennt
- * vom Tenant-Secret).
+ * No external library: HMAC-SHA1-TOTP + Base32 + AES-256-GCM with Node
+ * `crypto`. The shared secret is stored encrypted at rest; the key is derived
+ * from OWNER_AUTH_SECRET, strictly separated from the tenant secret.
  */
 
 import {
@@ -24,7 +23,7 @@ const STEP_SECONDS = 30;
 const DIGITS = 6;
 const ISSUER = "HABB One Owner Console";
 
-// ─── Base32 (RFC 4648, ohne Padding) ──────────────────────────────────
+// Base32 (RFC 4648, without padding).
 const B32 = "ABCDEFGHIJKLMNOPQRSTUVWXYZ234567";
 
 export function base32Encode(buf: Buffer): string {
@@ -59,9 +58,9 @@ function base32Decode(input: string): Buffer {
   return Buffer.from(out);
 }
 
-// ─── Secret-Erzeugung + otpauth-URI ───────────────────────────────────
+// Secret generation + otpauth URI.
 
-/** Neues, zufälliges Base32-Secret (160 Bit). */
+/** New random Base32 secret (160 bit). */
 export function generateTotpSecret(): string {
   return base32Encode(randomBytes(20));
 }
@@ -78,11 +77,11 @@ export function buildOtpauthUri(secretBase32: string, accountEmail: string): str
   return `otpauth://totp/${label}?${params.toString()}`;
 }
 
-// ─── TOTP-Berechnung + Verifikation ───────────────────────────────────
+// TOTP calculation + verification.
 
 function hotp(secret: Buffer, counter: number): string {
   const buf = Buffer.alloc(8);
-  // 64-bit counter, big-endian (oberste 32 Bit i.d.R. 0).
+  // 64-bit counter, big-endian (top 32 bits are usually 0).
   buf.writeUInt32BE(Math.floor(counter / 2 ** 32), 0);
   buf.writeUInt32BE(counter >>> 0, 4);
   const hmac = createHmac("sha1", secret).update(buf).digest();
@@ -96,8 +95,8 @@ function hotp(secret: Buffer, counter: number): string {
 }
 
 /**
- * Prüft einen 6-stelligen Code gegen das Base32-Secret mit ±1 Zeitfenster
- * (Uhren-Drift). Konstantzeit-Vergleich gegen Timing-Leaks.
+ * Checks a 6-digit code against the Base32 secret with +/-1 time window
+ * (clock drift). Constant-time comparison against timing leaks.
  */
 export function verifyTotp(
   secretBase32: string,
@@ -117,12 +116,12 @@ export function verifyTotp(
   return false;
 }
 
-// ─── Secret-Verschlüsselung at rest (AES-256-GCM) ─────────────────────
+// Secret encryption at rest (AES-256-GCM).
 
 function key(): Buffer {
   const sec = process.env.OWNER_AUTH_SECRET;
   if (!sec || sec.length < 16) {
-    throw new Error("OWNER_AUTH_SECRET fehlt/zu kurz — TOTP nicht nutzbar.");
+    throw new Error("OWNER_AUTH_SECRET is missing or too short; TOTP is unavailable.");
   }
   return createHash("sha256").update(sec).digest();
 }
@@ -141,7 +140,7 @@ export function encryptSecret(secretBase32: string): string {
 
 export function decryptSecret(stored: string): string {
   const [v, ivB64, tagB64, dataB64] = stored.split(":");
-  if (v !== "v1") throw new Error("Unbekanntes TOTP-Secret-Format.");
+  if (v !== "v1") throw new Error("Unknown TOTP secret format.");
   const decipher = createDecipheriv(
     "aes-256-gcm",
     key(),
