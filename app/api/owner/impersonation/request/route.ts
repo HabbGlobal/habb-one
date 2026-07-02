@@ -1,15 +1,14 @@
 /**
  * POST /api/owner/impersonation/request
  *
- * Schritt 1 der Impersonation: Owner möchte sich als targetUserId anmelden.
- * Wir generieren einen 6-stelligen OTP, schreiben den bcrypt-Hash in
- * `ImpersonationConsentToken` und senden den Klartext per E-Mail an den
- * Tenant-User. Der Owner sieht den Code NIE — er muss ihn vom Kunden
- * persönlich erfragen.
+ * Step 1 of impersonation: the owner wants to sign in as targetUserId.
+ * We generate a 6-digit OTP, write the bcrypt hash to
+ * `ImpersonationConsentToken`, and send the plaintext code by email to the
+ * tenant user. The owner NEVER sees the code; they must ask the customer for it
+ * directly.
  *
- * Pflicht: Sudo + Begründung + Mindest-/Maximaldauer. SUPERADMINs eines
- * Tenants dürfen impersoniert werden, aber wir verbieten Impersonation
- * gelöschter/gesperrter User.
+ * Required: sudo + reason + minimum/maximum duration. Tenant SUPERADMINs may be
+ * impersonated, but impersonation of deleted/locked users is forbidden.
  */
 
 import { NextResponse } from "next/server";
@@ -33,7 +32,7 @@ import { sendMail } from "@/lib/mail/send";
 
 const schema = z.object({
   targetUserId: z.string().min(1),
-  reason: z.string().trim().min(10, "Begründung muss mindestens 10 Zeichen lang sein.").max(500),
+  reason: z.string().trim().min(10, "Reason must be at least 10 characters long.").max(500),
   ticketRef: z.string().trim().max(120).optional().nullable(),
   scope: z.enum(["READONLY", "FULL"]),
   durationMinutes: z
@@ -86,7 +85,7 @@ export async function POST(req: Request) {
     return NextResponse.json({ error: "COMPANY_SUSPENDED" }, { status: 400 });
   }
 
-  // OTP erzeugen + Token persistieren
+  // Generate OTP and persist token.
   const otp = generateOtp();
   const codeHash = await hashOtp(otp);
   const now = new Date();
@@ -107,8 +106,8 @@ export async function POST(req: Request) {
     select: { id: true },
   });
 
-  // Mail bauen + senden — best-effort, aber wir markieren den Status auf
-  // dem Token, damit der Owner Bescheid weiss falls Mail fehlschlägt.
+  // Build and send mail on a best-effort basis, but mark the status on the
+  // token so the owner knows if delivery failed.
   const mail = buildImpersonationConsentMail({
     recipientName: target.name,
     ownerName: guard.ctx.name,

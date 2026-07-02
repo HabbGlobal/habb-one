@@ -1,13 +1,13 @@
 /**
  * POST /api/owner/impersonation/verify
  *
- * Schritt 2 der Impersonation: Owner tippt den vom Kunden erfragten OTP
- * ein. Bei Erfolg legen wir die `ImpersonationSession` an und setzen den
- * `habb-impersonation`-Cookie, womit der Tenant-`auth()`-Wrapper den
- * Owner als targetUser durchreicht.
+ * Step 2 of impersonation: owner enters the OTP requested from the customer.
+ * On success, we create the `ImpersonationSession` and set the
+ * `habb-impersonation` cookie, which lets the tenant `auth()` wrapper pass the
+ * owner through as targetUser.
  *
- * Brute-Force-Schutz: max. 5 falsche Versuche, dann ist der Token
- * gesperrt (consumedAt-Markierung mit Fail-Flag).
+ * Brute-force protection: max. 5 wrong attempts, then the token is locked
+ * (consumedAt marker with fail flag).
  */
 
 import { NextResponse } from "next/server";
@@ -28,7 +28,7 @@ import {
 
 const schema = z.object({
   consentTokenId: z.string().min(1),
-  otp: z.string().trim().regex(/^\d{6}$/, "OTP muss 6-stellig sein."),
+  otp: z.string().trim().regex(/^\d{6}$/, "OTP must be 6 digits."),
 });
 
 export async function POST(req: Request) {
@@ -60,8 +60,8 @@ export async function POST(req: Request) {
     return NextResponse.json({ error: "TOKEN_NOT_FOUND" }, { status: 404 });
   }
 
-  // Owner-Wechsel verhindern: derselbe Owner, der den Token angelegt hat,
-  // muss ihn auch einlösen. Schutz gegen "anderer Owner stiehlt offenen Token".
+  // Prevent owner switching: the same owner who created the token must redeem
+  // it. Protects against "another owner steals an open token".
   if (token.ownerAccountId !== guard.ctx.ownerAccountId) {
     return NextResponse.json({ error: "TOKEN_OWNER_MISMATCH" }, { status: 403 });
   }
@@ -108,8 +108,8 @@ export async function POST(req: Request) {
     );
   }
 
-  // Defensive Re-checks bevor die Session steht (User könnte zwischen
-  // Request und Verify gelöscht/gesperrt worden sein).
+  // Defensive re-checks before the session exists; the user may have been
+  // deleted/locked between request and verify.
   if (token.targetCompany.suspendedAt) {
     return NextResponse.json({ error: "COMPANY_SUSPENDED" }, { status: 400 });
   }
@@ -117,7 +117,7 @@ export async function POST(req: Request) {
   const now = new Date();
   const expiresAt = new Date(now.getTime() + token.requestedDurationMinutes * 60 * 1000);
 
-  // Token konsumieren + Session anlegen atomar.
+  // Consume token and create session atomically.
   const session = await prisma.$transaction(async (tx) => {
     await tx.impersonationConsentToken.update({
       where: { id: token.id },

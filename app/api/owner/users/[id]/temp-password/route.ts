@@ -1,12 +1,12 @@
 /**
  * POST /api/owner/users/[id]/temp-password
  *
- * Setzt für den User ein temporäres Passwort. Owner muss es dem User
- * persönlich (Telefon, Chat) übermitteln; der User wird beim nächsten
- * Login zwingend zur Passwort-Änderung gebracht (`mustChangePassword=true`).
+ * Sets a temporary password for the user. The owner must pass it to the user
+ * personally (phone, chat); the user is forced to change it on next login
+ * (`mustChangePassword=true`).
  *
- * Klartext-Passwort wird EINMAL in der Response zurückgegeben und danach
- * nirgendwo mehr geloggt oder gespeichert. Bei Browser-Refresh ist es weg.
+ * The plaintext password is returned ONCE in the response and is never logged
+ * or stored afterwards. It is gone after a browser refresh.
  */
 
 import { NextResponse } from "next/server";
@@ -19,7 +19,7 @@ import { ownerAudit } from "@/lib/owner/audit";
 import { generateTempPassword } from "@/lib/owner/users";
 
 const schema = z.object({
-  reason: z.string().trim().min(10, "Begründung muss mindestens 10 Zeichen lang sein."),
+  reason: z.string().trim().min(10, "Reason must be at least 10 characters long."),
 });
 
 export async function POST(req: Request, { params }: { params: Promise<{ id: string }> }) {
@@ -59,7 +59,7 @@ export async function POST(req: Request, { params }: { params: Promise<{ id: str
     data: {
       passwordHash,
       mustChangePassword: true,
-      // Bestehende Sessions invalidieren, sonst bleibt der alte Login aktiv.
+      // Invalidate existing sessions, otherwise the old login remains active.
       sessionEpoch: user.sessionEpoch + 1,
     },
   });

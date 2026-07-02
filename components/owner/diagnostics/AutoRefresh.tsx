@@ -3,7 +3,7 @@
 import { useEffect } from "react";
 import { useRouter } from "next/navigation";
 
-/** Pollt die Server-Component periodisch neu (Live-Dashboard). */
+/** Periodically refreshes the server component for the live dashboard. */
 export function AutoRefresh({ seconds = 45 }: { seconds?: number }) {
   const router = useRouter();
   useEffect(() => {

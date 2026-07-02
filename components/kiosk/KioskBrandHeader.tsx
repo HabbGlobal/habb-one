@@ -1,10 +1,9 @@
-// Brand-Header für alle Kiosk-Bildschirme (Landing, PIN, Actions).
-// Logo + Firmen-Name links, optional Right-Slot für Buttons,
-// Habb-Wordmark am rechten Rand — konsistent über alle Screens.
+// Brand header for all kiosk screens: landing, PIN, and actions.
+// Displays the logo and company name on the left, an optional slot for
+// controls, and the Habb wordmark on the right.
 //
-// Logo wird vom bestehenden `/api/company/logo`-Endpoint geladen.
-// Wenn der Mandant kein Logo hat, zeigen wir einen großen Initial-Avatar
-// als Fallback, damit der Header nie "leer" wirkt.
+// The logo is loaded from the public kiosk logo endpoint. If the tenant has no
+// logo, the default Habb logo is used so the header never appears empty.
 
 import { HabbWordmark } from "./HabbWordmark";
 
@@ -12,14 +11,14 @@ interface Props {
   companyName: string;
   companyId: string;
   hasLogo: boolean;
-  /** Optional kleiner Untertitel unter dem Firmen-Namen (z. B. "Werkstatt-Kiosk"). */
+  /** Optional subtitle below the company name, such as "Workshop kiosk". */
   subtitle?: string;
-  /** Cache-Buster für das Logo, damit Änderungen sofort sichtbar sind. */
+  /** Logo cache buster so changes become visible immediately. */
   logoVersion?: string;
-  /** Rechte Slot-Position für Logout-Button, Sprache, Admin-Link. */
+  /** Right-side slot for logout, language, and admin controls. */
   rightSlot?: React.ReactNode;
-  /** Wordmark im Header anzeigen. Default true; auf engen Seiten (PIN)
-   *  abschalten — der Footer macht das Branding eh. */
+  /** Show the wordmark in the header. Disable it on narrow screens such as
+   *  the PIN page, where the footer already provides branding. */
   showWordmark?: boolean;
   className?: string;
 }
@@ -34,9 +33,9 @@ export function KioskBrandHeader({
   showWordmark = true,
   className = "",
 }: Props) {
-  // Kiosk-spezifischer, public-Logo-Endpoint — der `/api/company/logo`
-  // verlangt eine Session und liefert nur das Logo des Auth-Users,
-  // was hier nicht funktioniert (Kiosk = anonym, fest auf eine Firma).
+  // Use the public kiosk-specific logo endpoint. `/api/company/logo` requires
+  // a session and only returns the authenticated user's company logo, which
+  // does not work for an anonymous kiosk assigned to a company.
   const logoSrc = hasLogo
     ? `/api/kiosk/company/${encodeURIComponent(companyId)}/logo?v=${encodeURIComponent(logoVersion ?? companyId)}`
     : "/brand/habb-logo.png";
@@ -73,10 +72,9 @@ export function KioskBrandHeader({
 
       <div className="flex items-center gap-3">
         {rightSlot}
-        {/* Wordmark nur auf Desktop sichtbar — auf Tablets/Mobile kommt
-            das Branding via Footer rüber, sonst wird der Header zu eng.
-            `showWordmark=false` (z. B. PIN-Seite mit schmalem Container)
-            unterdrückt es ganz. */}
+        {/* Show the wordmark only on desktop. Tablets and mobile screens use
+            the footer branding to keep the header from becoming crowded.
+            `showWordmark=false` hides it completely on narrow layouts. */}
         {showWordmark && (
           <div className="hidden lg:block">
             <HabbWordmark size="md" />

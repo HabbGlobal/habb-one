@@ -1,8 +1,8 @@
 /**
  * POST /api/owner/users/[id]/reset-password-mail
  *
- * Erzeugt einen Single-Use Magic-Link und sendet ihn per Resend an den User.
- * Der Owner sieht den Klartext-Token NIE — nur der Mail-Empfänger.
+ * Creates a single-use magic link and sends it to the user via Resend.
+ * The owner NEVER sees the plaintext token; only the email recipient does.
  */
 
 import { NextResponse } from "next/server";
@@ -16,7 +16,7 @@ import { sendMail } from "@/lib/mail/send";
 import { buildPasswordResetMail } from "@/lib/mail/templates/password-reset";
 
 const schema = z.object({
-  reason: z.string().trim().min(10, "Begründung muss mindestens 10 Zeichen lang sein."),
+  reason: z.string().trim().min(10, "Reason must be at least 10 characters long."),
 });
 
 export async function POST(req: Request, { params }: { params: Promise<{ id: string }> }) {
@@ -77,8 +77,8 @@ export async function POST(req: Request, { params }: { params: Promise<{ id: str
     });
     delivered = result.delivered;
   } catch {
-    // Wir loggen das Audit trotzdem, damit der Owner sieht, dass der Versand
-    // fehlgeschlagen ist, und einen zweiten Versuch starten kann.
+    // Still write the audit entry so the owner can see that delivery failed
+    // and start a second attempt.
     delivered = false;
   }
 

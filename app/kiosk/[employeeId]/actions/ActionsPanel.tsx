@@ -52,7 +52,7 @@ export function ActionsPanel({ status, labels }: { status: Status; labels: Label
           | { ok: boolean; action: Action; at: string }
           | null;
         const at = body?.at ? new Date(body.at) : new Date();
-        const time = at.toLocaleTimeString("de-CH", { hour: "2-digit", minute: "2-digit" });
+        const time = at.toLocaleTimeString("en-GB", { hour: "2-digit", minute: "2-digit" });
         const tmpl =
           action === "CLOCK_IN"
             ? labels.doneClockIn
@@ -76,8 +76,8 @@ export function ActionsPanel({ status, labels }: { status: Status; labels: Label
   };
 
   // Show only the actions that make sense for the current state.
-  // Farbtokens: habb-success=Einstempeln, habb-warning=Pause-Start,
-  // habb-red=Ausstempeln, habb-black=Pause-Ende (Neutralton).
+  // Color tokens: habb-success=clock in, habb-warning=start break,
+  // habb-red=clock out, habb-black=end break (neutral tone).
   const buttons: { action: Action; label: string; icon: React.ReactNode; color: string }[] = [];
   if (status === "OUT") {
     buttons.push({
@@ -148,16 +148,16 @@ export function ActionsPanel({ status, labels }: { status: Status; labels: Label
 function translateError(code: string): string {
   switch (code) {
     case "ALREADY_CLOCKED_IN":
-      return "Du bist bereits eingestempelt.";
+      return "You are already clocked in.";
     case "NOT_CLOCKED_IN":
-      return "Du bist nicht eingestempelt.";
+      return "You are not clocked in.";
     case "ALREADY_ON_BREAK":
-      return "Pause läuft bereits.";
+      return "A break is already in progress.";
     case "NOT_ON_BREAK":
-      return "Es läuft keine Pause.";
+      return "No break is currently in progress.";
     case "UNAUTH":
-      return "Sitzung abgelaufen. Bitte erneut PIN eingeben.";
+      return "Session expired. Please enter your PIN again.";
     default:
-      return "Aktion fehlgeschlagen. Bitte erneut versuchen.";
+      return "Action failed. Please try again.";
   }
 }

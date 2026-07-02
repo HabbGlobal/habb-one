@@ -14,9 +14,9 @@ interface Props {
 }
 
 /**
- * Klappbare Detail-Ansicht für einen Audit-Eintrag. Zeigt Payload-Diff,
- * IP/User-Agent, ggf. Consent-Token-Referenz bei Impersonation. Wird unter
- * jedem Audit-Listeintrag gerendert wenn relevante Daten vorhanden sind.
+ * Collapsible detail view for an audit entry. Shows payload diff, IP/user
+ * agent, and optional consent-token reference for impersonation. Rendered under
+ * each audit list item when relevant data exists.
  */
 export function AuditPayload({
   payloadBefore,
@@ -36,14 +36,14 @@ export function AuditPayload({
         className="inline-flex items-center gap-1 text-[11px] text-habb-muted hover:text-habb-ink"
       >
         {open ? <ChevronDown className="h-3 w-3" /> : <ChevronRight className="h-3 w-3" />}
-        {open ? "Weniger" : "Details"}
+        {open ? "Less" : "Details"}
       </button>
       {open && (
         <div className="mt-2 grid grid-cols-1 gap-3 rounded-md border border-habb-line bg-habb-paper p-3 text-xs sm:grid-cols-2">
           {payloadBefore !== null && payloadBefore !== undefined && (
             <div>
               <p className="mb-1 font-medium uppercase tracking-wide text-habb-muted text-[10px]">
-                Vorher
+                Before
               </p>
               <pre className="overflow-x-auto whitespace-pre-wrap break-words bg-white p-2 border border-habb-line rounded text-[11px] leading-snug">
                 {JSON.stringify(payloadBefore, null, 2)}
@@ -53,7 +53,7 @@ export function AuditPayload({
           {payloadAfter !== null && payloadAfter !== undefined && (
             <div>
               <p className="mb-1 font-medium uppercase tracking-wide text-habb-muted text-[10px]">
-                Nachher
+                After
               </p>
               <pre className="overflow-x-auto whitespace-pre-wrap break-words bg-white p-2 border border-habb-line rounded text-[11px] leading-snug">
                 {JSON.stringify(payloadAfter, null, 2)}

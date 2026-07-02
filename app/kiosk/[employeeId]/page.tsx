@@ -17,8 +17,8 @@ export default async function KioskPinPage({
   const tKiosk = await getTranslations("kiosk");
   const { employeeId } = await params;
 
-  // Wenn das Tablet für eine spezifische Firma freigeschaltet ist,
-  // sind nur deren Mitarbeitende erreichbar (Tenant-Isolation).
+  // When the tablet is unlocked for a specific company, only employees from
+  // that company may be accessed.
   const lockedCompanyId = await readKioskLock();
 
   const employee = await prisma.employee.findUnique({

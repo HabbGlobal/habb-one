@@ -6,7 +6,7 @@ import { requireOwner } from "@/lib/owner/auth";
 import { ownerAudit } from "@/lib/owner/audit";
 
 const schema = z.object({
-  /** Markdown / plain text. Max 8 KB ist great-than-enough für interne Notizen. */
+  /** Markdown / plain text. Max 8 KB is more than enough for internal notes. */
   notes: z.string().max(8000),
 });
 

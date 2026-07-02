@@ -4,8 +4,8 @@ beforeAll(() => {
   process.env.OWNER_AUTH_SECRET = "test-owner-secret-please-change-1234567890";
 });
 
-// Import nach dem ENV-Setzen (key() liest OWNER_AUTH_SECRET lazy, daher
-// unkritisch — aber sauberer Stil).
+// Import after setting ENV. key() reads OWNER_AUTH_SECRET lazily, so it is not
+// critical, but this is cleaner.
 import {
   base32Encode,
   generateTotpSecret,
@@ -16,20 +16,20 @@ import {
 } from "./totp";
 
 describe("base32 + secret", () => {
-  it("erzeugt ein nicht-leeres Base32-Secret nur aus dem Alphabet", () => {
+  it("generates a non-empty Base32 secret using only the alphabet", () => {
     const s = generateTotpSecret();
     expect(s.length).toBeGreaterThan(0);
     expect(s).toMatch(/^[A-Z2-7]+$/);
   });
 
-  it("base32Encode ist deterministisch", () => {
+  it("base32Encode is deterministic", () => {
     const buf = Buffer.from([0, 1, 2, 3, 4, 5, 6, 7, 8, 9]);
     expect(base32Encode(buf)).toBe(base32Encode(buf));
   });
 });
 
 describe("otpauth URI", () => {
-  it("enthält Secret, Issuer und SHA1/6/30", () => {
+  it("contains secret, issuer and SHA1/6/30", () => {
     const uri = buildOtpauthUri("JBSWY3DPEHPK3PXP", "admin@HABB Global (PVT) LTD");
     expect(uri).toContain("otpauth://totp/");
     expect(uri).toContain("secret=JBSWY3DPEHPK3PXP");
@@ -40,28 +40,28 @@ describe("otpauth URI", () => {
 });
 
 describe("verifyTotp", () => {
-  it("akzeptiert RFC-6238-Referenzvektor (SHA1, secret '12345678901234567890')", () => {
-    // Base32 von ASCII "12345678901234567890"
+  it("accepts RFC 6238 reference vector (SHA1, secret '12345678901234567890')", () => {
+    // Base32 of ASCII "12345678901234567890"
     const secret = base32Encode(Buffer.from("12345678901234567890"));
-    // RFC 6238 Testvektor: T=59s → Code 287082
+    // RFC 6238 test vector: T=59s -> code 287082
     expect(verifyTotp(secret, "287082", 59_000)).toBe(true);
   });
 
-  it("lehnt falschen Code ab", () => {
+  it("rejects wrong code", () => {
     const secret = base32Encode(Buffer.from("12345678901234567890"));
     expect(verifyTotp(secret, "000000", 59_000)).toBe(false);
   });
 
-  it("toleriert ±1 Zeitfenster (Drift)", () => {
+  it("tolerates +/-1 time window drift", () => {
     const secret = generateTotpSecret();
     const now = 1_700_000_000_000;
-    // Code für den vorherigen Schritt muss innerhalb +30s noch gelten.
-    // (indirekt: aktueller Code gilt jetzt UND 30s später)
+    // Code for the previous step must still be valid within +30s.
+    // Indirectly: current code is valid now AND 30s later.
     expect(verifyTotp(secret, codeAt(secret, now), now)).toBe(true);
     expect(verifyTotp(secret, codeAt(secret, now), now + 30_000)).toBe(true);
   });
 
-  it("weist nicht-6-stellige Eingaben ab", () => {
+  it("rejects non-6-digit inputs", () => {
     const secret = generateTotpSecret();
     expect(verifyTotp(secret, "12345")).toBe(false);
     expect(verifyTotp(secret, "abcdef")).toBe(false);
@@ -69,7 +69,7 @@ describe("verifyTotp", () => {
 });
 
 describe("encrypt/decrypt secret (AES-256-GCM)", () => {
-  it("round-trip ergibt das Original", () => {
+  it("round-trip returns the original", () => {
     const s = generateTotpSecret();
     const enc = encryptSecret(s);
     expect(enc).toMatch(/^v1:/);
@@ -77,7 +77,7 @@ describe("encrypt/decrypt secret (AES-256-GCM)", () => {
     expect(decryptSecret(enc)).toBe(s);
   });
 
-  it("manipuliertes Ciphertext schlägt fehl (Auth-Tag)", () => {
+  it("tampered ciphertext fails (auth tag)", () => {
     const enc = encryptSecret(generateTotpSecret());
     const parts = enc.split(":");
     parts[3] = Buffer.from("tampered").toString("base64");
@@ -85,11 +85,10 @@ describe("encrypt/decrypt secret (AES-256-GCM)", () => {
   });
 });
 
-// Hilfsfunktion: den aktuell gültigen Code zu einem Zeitpunkt erzeugen,
-// indem wir verifyTotp gegen alle 10^6 Codes NICHT brute-forcen, sondern
-// die interne Logik spiegeln wäre Overkill — wir nutzen stattdessen die
-// Eigenschaft, dass der RFC-Vektor stabil ist. Für den Drift-Test
-// brauchen wir aber einen echten Code: kleine lokale HOTP-Replik.
+// Helper: generate the currently valid code for a given point in time.
+// Brute-forcing verifyTotp against all 10^6 codes would be wrong, and mirroring
+// all internals would be overkill. We rely on the stable RFC vector above, but
+// the drift test needs a real code, so this is a tiny local HOTP replica.
 import { createHmac } from "crypto";
 function codeAt(secretB32: string, atMs: number): string {
   const alphabet = "ABCDEFGHIJKLMNOPQRSTUVWXYZ234567";

@@ -6,9 +6,9 @@ import { useRouter } from "next/navigation";
 import { LifeBuoy, Loader2, ShieldCheck, Trash2 } from "lucide-react";
 
 /**
- * TOTP-Notfall-Zugang (reiner Recovery-Faktor). Passkey bleibt Pflicht;
- * ein TOTP-Code schaltet im Notfall nur die Passkey-Neuregistrierung
- * frei. Hier: einrichten (QR + Code-Bestätigung) bzw. entfernen.
+ * TOTP emergency access as a pure recovery factor. Passkey remains mandatory;
+ * in an emergency, a TOTP code only unlocks passkey re-registration. This card
+ * handles setup (QR + code confirmation) and removal.
  */
 export function TotpRecoveryCard({ enrolled }: { enrolled: boolean }) {
   const router = useRouter();
@@ -24,7 +24,7 @@ export function TotpRecoveryCard({ enrolled }: { enrolled: boolean }) {
       setError(null);
       const res = await fetch("/api/owner/auth/totp/setup", { method: "POST" });
       if (!res.ok) {
-        setError("Einrichtung fehlgeschlagen.");
+        setError("Setup failed.");
         return;
       }
       const body = (await res.json()) as { secret: string; qrDataUrl: string };
@@ -53,7 +53,7 @@ export function TotpRecoveryCard({ enrolled }: { enrolled: boolean }) {
       setError(null);
       const res = await fetch("/api/owner/auth/totp/disable", { method: "POST" });
       if (!res.ok) {
-        setError("Entfernen fehlgeschlagen.");
+        setError("Removal failed.");
         return;
       }
       router.refresh();
@@ -149,7 +149,7 @@ export function TotpRecoveryCard({ enrolled }: { enrolled: boolean }) {
                   className="inline-flex flex-1 items-center justify-center gap-2 rounded-md bg-habb-black px-4 py-2 text-xs font-medium text-white hover:bg-habb-ink disabled:opacity-60"
                 >
                   {pending ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : null}
-                  Confirm & aktivieren
+                  Confirm & activate
                 </button>
                 <button
                   type="button"

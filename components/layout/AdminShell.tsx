@@ -9,7 +9,7 @@ import {
   loadPermissionMatrix,
   effectivePermissionsForRole,
 } from "@/lib/permissions";
-import { roleLabelDe, isSuperAdmin, effectiveRole } from "@/lib/roles";
+import { roleLabel, isSuperAdmin, effectiveRole } from "@/lib/roles";
 import { getEnabledModules } from "@/lib/entitlements/modules";
 
 export async function AdminShell({ children }: { children: ReactNode }) {
@@ -25,7 +25,7 @@ export async function AdminShell({ children }: { children: ReactNode }) {
   let enabledModules: string[] = [];
 
   if (session?.user) {
-    userRoleLabel = roleLabelDe(session.user.role);
+    userRoleLabel = roleLabel(session.user.role);
 
     try {
       enabledModules = Array.from(await getEnabledModules(session.user.companyId));

@@ -1,9 +1,9 @@
 /**
  * POST /api/owner/sudo/verify
  *
- * Step-up Auth: erneut Passwort eingeben, um Sudo-Modus für 5 Minuten zu
- * gewähren. Wird vor destruktiven Aktionen (Modul-Toggle, Suspend, Notizen,
- * Daten-Export, Impersonations-Anfrage) im Client erzwungen.
+ * Step-up auth: re-enter password to grant sudo mode for 5 minutes. Enforced
+ * in the client before destructive actions (module toggle, suspend, notes, data
+ * export, impersonation request).
  */
 
 import { NextResponse } from "next/server";

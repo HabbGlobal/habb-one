@@ -1,6 +1,6 @@
 "use client";
 
-// Owner-Wrapper um den geteilten User-Editor.
+// Owner wrapper around the shared user editor.
 
 import {
   UserPermissionsEditor,

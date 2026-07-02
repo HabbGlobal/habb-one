@@ -173,8 +173,8 @@ export function CreateTenantButton() {
                       onChange={(e) => setPreferredLanguage(e.target.value)}
                       className={inputCls}
                     >
-                      <option value="de">Deutsch</option>
-                      <option value="fr">Français</option>
+                      <option value="de">German</option>
+                      <option value="fr">French</option>
                       <option value="it">Italiano</option>
                       <option value="en">English</option>
                     </select>
@@ -239,7 +239,7 @@ export function CreateTenantButton() {
                   value={reason}
                   onChange={(e) => setReason(e.target.value)}
                   rows={2}
-                  placeholder="e.g. Contract signed — onboarding Müller AG"
+                  placeholder="e.g. Contract signed — onboarding Mueller AG"
                   className={inputCls}
                 />
               </Field>

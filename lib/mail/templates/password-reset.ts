@@ -1,19 +1,19 @@
 /**
- * Plain-Templates für die Passwort-Reset-Mail. Bewusst KEIN react-email —
- * eine einzige Mail rechtfertigt das Setup nicht. Beim zweiten oder dritten
- * Template wechseln wir.
+ * Plain templates for the password reset email. We intentionally avoid
+ * react-email because one template does not justify the setup. Reconsider when
+ * a second or third template is added.
  *
- * Wichtig: Klartext-Token ist Bestandteil der URL — wir verbrauchen ihn
- * sofort wenn der Empfänger den Link klickt.
+ * The plaintext token is part of the URL and is consumed immediately when the
+ * recipient opens the link.
  */
 
 export interface PasswordResetMailInput {
   recipientName: string;
   resetUrl: string;
   expiresAt: Date;
-  /** Vor- und Nachname des Owners, der den Reset ausgelöst hat. */
+  /** Full name of the owner who initiated the reset. */
   initiatedByName: string;
-  /** "HABB Global (PVT) LTD Support" o.ä. */
+  /** For example, "HABB Global (PVT) LTD Support". */
   initiatedByLabel: string;
 }
 

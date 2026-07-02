@@ -1,23 +1,22 @@
 /**
- * Plattform-weite Checks — laufen 1× pro Cron-Lauf VOR der pro-Tenant-
- * Iteration. Erkennen Probleme, die nicht an einen Mandanten gebunden
- * sind (z. B. RLS-Coverage auf DB-Ebene, Supabase-Konfig-Drift).
+ * Platform-wide checks run once per cron execution before iterating over
+ * tenants. They detect issues that are not tied to a specific tenant, such as
+ * database-level RLS coverage or Supabase configuration drift.
  *
- * Befunde landen als `SecurityEvent` mit `companyId = null` — die
- * Owner-Diagnose-UI zeigt sie als plattform-übergreifende Events.
+ * Findings are stored as `SecurityEvent` rows with `companyId = null`. The
+ * Owner diagnostics UI displays them as platform-wide events.
  */
 
 import { prisma } from "@/lib/prisma";
 
 /**
  * Detect tables in the `public` schema whose Row-Level-Security is
- * deaktiviert. Supabase exponiert jede public-Tabelle automatisch
- * über PostgREST — ohne RLS kann jeder mit `anon`-Key sie lesen.
+ * disabled. Supabase automatically exposes every public table through
+ * PostgREST. Without RLS, anyone with the `anon` key can read it.
  *
- * Phase 1 (Migration `20260526140000_enable_rls_on_public`) hat alle
- * existierenden Tabellen RLS-enabled. Dieser Check schlägt nur dann
- * Alarm, wenn jemand künftig eine NEUE Tabelle ohne RLS hinzufügt
- * (Prisma macht das per Default — nicht vergessen!).
+ * Phase 1 migration `20260526140000_enable_rls_on_public` enabled RLS on all
+ * existing tables. This check raises an alert only if a new table is later
+ * added without RLS. Prisma creates tables without RLS by default.
  */
 export async function findRlsDisabledTables(): Promise<string[]> {
   type Row = { tablename: string };
@@ -33,10 +32,9 @@ export async function findRlsDisabledTables(): Promise<string[]> {
 }
 
 /**
- * Run all platform-level diagnostic checks once per cron-Lauf. Schreibt
- * gefundene Probleme als `SecurityEvent` (companyId=null). Dedupliziert
- * sich selbst: ein bereits offenes Event mit demselben dedupeKey wird
- * nur in `lastSeenAt` aktualisiert.
+ * Runs all platform-level diagnostic checks once per cron execution. Issues
+ * are written as `SecurityEvent` rows with `companyId = null`. An existing open
+ * event with the same dedupe key is updated only in `lastSeenAt`.
  */
 export async function runPlatformChecks(): Promise<{
   checks: number;
@@ -45,21 +43,21 @@ export async function runPlatformChecks(): Promise<{
   let warnings = 0;
   const ranAt = new Date();
 
-  // RLS-Coverage-Check
+  // RLS coverage check
   const rlsMissing = await findRlsDisabledTables();
   if (rlsMissing.length > 0) {
     warnings++;
     await prisma.securityEvent.create({
       data: {
-        // Plattform-Event: companyId bleibt NULL.
+        // Platform event: companyId remains null.
         companyId: null,
         eventType: "platform.rls_disabled",
         severity: "critical",
         source: "database",
         riskScore: 90,
         message:
-          `${rlsMissing.length} public-Tabelle(n) ohne RLS — anon-Key ` +
-          `kann via PostgREST lesen/schreiben: ${rlsMissing.join(", ")}`,
+          `${rlsMissing.length} public table(s) do not have RLS enabled. The anon key ` +
+          `can read or write them through PostgREST: ${rlsMissing.join(", ")}`,
         evidence: { tables: rlsMissing, schema: "public" },
         detectedAt: ranAt,
       },

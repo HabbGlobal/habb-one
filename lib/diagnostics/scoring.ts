@@ -1,6 +1,6 @@
 /**
- * Health-Scoring — rein, deterministisch, ohne externe KI.
- * Werte exakt nach Spec; Score immer in [0, 100].
+ * Health scoring is pure, deterministic, and uses no external AI.
+ * Values follow the specification exactly, and the score is always in [0, 100].
  */
 
 import type { Severity, HealthStatus } from "./types";
@@ -22,13 +22,13 @@ const SECURITY_PENALTY: Record<Severity, number> = {
 };
 
 export interface ScoreInput {
-  /** Severities offener (nicht resolved/ignored) Findings. */
+  /** Severities of open findings that are not resolved or ignored. */
   findingSeverities: Severity[];
-  /** Severities relevanter Security-Events (z. B. letzte 24 h). */
+  /** Severities of relevant security events, such as those from the last 24 hours. */
   securitySeverities: Severity[];
-  /** Diagnose-Lauf selbst fehlgeschlagen. */
+  /** Whether the diagnostics run itself failed. */
   diagnosticsFailed: boolean;
-  /** Stunden seit letzter erfolgreicher Prüfung (null = nie geprüft). */
+  /** Hours since the last successful check, or null if never checked. */
   hoursSinceLastCheck: number | null;
 }
 
@@ -38,7 +38,7 @@ export interface ScoreResult {
 }
 
 export function computeHealth(input: ScoreInput): ScoreResult {
-  // Keine Prüfung > 24 h ODER nie geprüft → unknown.
+  // No check for more than 24 hours, or never checked, means unknown.
   if (input.hoursSinceLastCheck === null || input.hoursSinceLastCheck > 24) {
     return { score: 0, status: "unknown" };
   }

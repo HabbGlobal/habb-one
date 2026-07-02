@@ -14,7 +14,7 @@ export function TestEmailButton() {
         method: "POST",
       });
       if (res.ok) {
-        setMsg("Test-Email gesendet.");
+        setMsg("Test email sent.");
         return;
       }
       const j = await res.json().catch(() => ({}));
@@ -23,7 +23,7 @@ export function TestEmailButton() {
           ? "No recipient configured (DIAGNOSTICS_EMAIL_TO/OWNER_NOTIFY_EMAIL)."
           : j?.error === "RATE_LIMITED"
             ? "Too fast — please wait 60 s."
-            : "Versand fehlgeschlagen.",
+            : "Sending failed.",
       );
     });
 
@@ -40,7 +40,7 @@ export function TestEmailButton() {
         ) : (
           <Mail className="h-4 w-4" />
         )}
-        Test-Email
+        Test email
       </button>
       {msg && <span className="text-xs text-habb-muted">{msg}</span>}
     </div>

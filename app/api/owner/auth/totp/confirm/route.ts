@@ -1,9 +1,8 @@
 /**
  * POST /api/owner/auth/totp/confirm  { code }
  *
- * Bestätigt das in /setup erzeugte Secret durch einen ersten gültigen
- * Code aus der Authenticator-App und aktiviert TOTP als Recovery
- * (totpEnrolledAt = now).
+ * Confirms the secret generated in /setup with a first valid code from the
+ * authenticator app and activates TOTP as recovery (totpEnrolledAt = now).
  */
 
 import { NextResponse } from "next/server";

@@ -1,7 +1,7 @@
 /**
  * PATCH /api/owner/diagnostics/findings/[id]  { status, reason? }
- * Finding bestätigen / lösen / ignorieren. OWNER_ADMIN. Auditiert.
- * 'ignored' verlangt eine Begründung (≥ 5 Zeichen).
+ * Acknowledge, resolve, or ignore a finding. OWNER_ADMIN. Audited.
+ * 'ignored' requires a reason (at least 5 characters).
  */
 import { NextResponse } from "next/server";
 import { z } from "zod";
@@ -16,7 +16,7 @@ const schema = z
     reason: z.string().trim().max(500).optional(),
   })
   .refine((v) => v.status !== "ignored" || (v.reason && v.reason.length >= 5), {
-    message: "Begründung für 'ignoriert' erforderlich (≥ 5 Zeichen).",
+    message: "A reason is required when ignoring a finding (at least 5 characters).",
   });
 
 export async function PATCH(

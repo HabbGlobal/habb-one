@@ -6,7 +6,7 @@ import { requireOwner } from "@/lib/owner/auth";
 import { ownerAudit } from "@/lib/owner/audit";
 
 const schema = z.object({
-  reason: z.string().trim().min(10, "Begründung muss mindestens 10 Zeichen lang sein."),
+  reason: z.string().trim().min(10, "Reason must be at least 10 characters long."),
 });
 
 export async function POST(req: Request, { params }: { params: Promise<{ id: string }> }) {
