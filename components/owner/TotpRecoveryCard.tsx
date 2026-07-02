@@ -1,6 +1,5 @@
 "use client";
 
-import Image from "next/image";
 import { useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import { LifeBuoy, Loader2, ShieldCheck, Trash2 } from "lucide-react";
@@ -118,12 +117,12 @@ export function TotpRecoveryCard({ enrolled }: { enrolled: boolean }) {
                 Authenticator, 1Password, Authy …) or enter the key
                 manually.
               </p>
-              <Image
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img
                 src={setup.qrDataUrl}
                 alt="TOTP QR-Code"
                 width={180}
                 height={180}
-                unoptimized
                 className="rounded-md border border-habb-line bg-white p-2"
               />
               <p className="break-all rounded-md border border-habb-line bg-white px-3 py-2 font-mono text-xs text-habb-ink">

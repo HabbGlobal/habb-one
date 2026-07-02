@@ -1,16 +1,19 @@
 /**
  * POST /api/owner/auth/password
  *
- * Owner login: verify email + password. On success, create a session
- * directly (passkey step skipped for now).
+ * Owner login step 1: verify email + password. On success, issue a short-lived
+ * ceremony cookie and return `{ next: "enroll" | "signin" }` so the client
+ * routes to the appropriate passkey page. The real OwnerSession is only created
+ * after successful passkey verification (enroll-verify or signin-verify).
  */
 
 import { NextResponse } from "next/server";
 import { z } from "zod";
 import bcrypt from "bcryptjs";
+import { randomBytes } from "crypto";
 import { prisma } from "@/lib/prisma";
 import { isOwnerPortalEnabled, ownerPortalDisabledResponse } from "@/lib/owner/feature-flag";
-import { createOwnerSession, setSessionCookie, readRequestContext } from "@/lib/owner/auth";
+import { signCeremonyToken, setCeremonyCookie, readRequestContext } from "@/lib/owner/auth";
 
 const schema = z.object({
   email: z.string().trim().email(),
@@ -51,15 +54,17 @@ export async function POST(req: Request) {
     return NextResponse.json({ error: "INVALID" }, { status: 401 });
   }
 
-  // Create session directly (passkey skipped)
-  const { ip, ua } = await readRequestContext();
-  const token = await createOwnerSession({
-    ownerAccountId: account.id,
-    role: account.role,
-    ipAddress: ip,
-    userAgent: ua,
-  });
-  await setSessionCookie(token);
+  // Determine whether the owner needs to enroll a passkey or sign in with one.
+  const needsEnroll = !account.webauthnEnrolledAt;
+  const stage = needsEnroll ? "ENROLL" : "SIGNIN";
 
-  return NextResponse.json({ next: "done", redirect: "/owner" });
+  // Issue a short-lived ceremony cookie; no session is created yet.
+  const ceremonyToken = await signCeremonyToken({
+    ownerAccountId: account.id,
+    stage,
+    challenge: randomBytes(16).toString("base64url"),
+  });
+  await setCeremonyCookie(ceremonyToken);
+
+  return NextResponse.json({ next: needsEnroll ? "enroll" : "signin" });
 }
