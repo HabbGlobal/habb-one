@@ -104,7 +104,7 @@ export function ParameterTable({
           <Input
             value={query}
             onChange={(e) => setQuery(e.target.value)}
-            placeholder="Suche nach Label, Key oder Beschreibung …"
+            placeholder="Search by label, key, or description …"
             className="pl-8"
           />
         </div>

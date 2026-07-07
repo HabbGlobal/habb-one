@@ -79,7 +79,7 @@ export function InvoiceList({ rows }: { rows: InvoiceListItemDTO[] }) {
                     <AlertTriangle className="h-3 w-3" />overdue</span>
                 )}
                 {i.orderId && (
-                  <span className="text-[10px] text-muted-foreground">aus Auftrag</span>
+                  <span className="text-[10px] text-muted-foreground">from order</span>
                 )}
               </div>
             </TableCell>

@@ -46,9 +46,9 @@ function fmtCHF(n: number): string {
 function fmtMin(n: number): string {
   const h = Math.floor(n / 60);
   const m = n % 60;
-  if (h === 0) return `${m} Min`;
+  if (h === 0) return `${m} min`;
   if (m === 0) return `${h} h`;
-  return `${h} h ${m} Min`;
+  return `${h} h ${m} min`;
 }
 
 export default async function QuoteDetailPage({
@@ -193,7 +193,7 @@ export default async function QuoteDetailPage({
         <div className="flex flex-wrap items-center gap-2">
           <Button asChild variant="outline" size="sm">
             <a href={`/api/admin/quotes/${dto.id}/offer.pdf`} target="_blank">
-              <FileText className="h-4 w-4 mr-1" /> Offerte (PDF)
+              <FileText className="h-4 w-4 mr-1" /> Quote (PDF)
             </a>
           </Button>
         </div>
@@ -336,7 +336,7 @@ export default async function QuoteDetailPage({
                 <div className="font-medium tabular-nums">{fmtCHF(dto.totalNetCHF)}</div>
               </div>
               <div>
-                <div className="text-xs text-muted-foreground">+ MwSt {dto.vatRate}%</div>
+                <div className="text-xs text-muted-foreground">+ VAT {dto.vatRate}%</div>
                 <div className="text-lg font-semibold tabular-nums text-emerald-700">
                   {fmtCHF(
                     Math.round(dto.totalNetCHF * (1 + dto.vatRate / 100) * 100) / 100,

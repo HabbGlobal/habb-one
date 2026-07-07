@@ -159,7 +159,7 @@ export default async function AreaSchedulePage({
           className="px-3 py-1 rounded border hover:bg-accent"
           href="/admin/schedule/areas"
         >
-          Aktueller Monat
+          Current month
         </a>
         <a
           className="px-3 py-1 rounded border hover:bg-accent"

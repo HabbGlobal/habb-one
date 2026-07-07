@@ -99,7 +99,7 @@ export function SettingsForm({ initial }: { initial: CompanyFormData }) {
         </Field>
         <Field label={t("rounding")}>
           <Select value={data.roundingMinutes} onChange={(e) => update("roundingMinutes", Number(e.target.value))}>
-            <option value={0}>0 (keine)</option>
+            <option value={0}>0 (none)</option>
             <option value={5}>5</option>
             <option value={15}>15</option>
           </Select>

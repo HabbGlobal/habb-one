@@ -35,18 +35,18 @@ export function AreaList({ rows, view }: { rows: AreaRow[]; view: LifecycleView 
       ),
     },
     {
-      header: "Beschreibung",
+      header: "Description",
       cell: (a) => (
         <span className="text-muted-foreground text-sm">{a.description ?? "—"}</span>
       ),
     },
     {
-      header: "Mitarbeitende",
+      header: "Members",
       cell: (a) => <span className="tabular-nums">{a.memberCount}</span>,
       className: "text-right",
     },
     {
-      header: "Min/Tag",
+      header: "Min/Day",
       cell: (a) => (
         <span className="tabular-nums text-muted-foreground">
           {a.minEmployeesPerDay ?? "—"}
@@ -55,7 +55,7 @@ export function AreaList({ rows, view }: { rows: AreaRow[]; view: LifecycleView 
       className: "text-right",
     },
     {
-      header: "Max/Tag",
+      header: "Max/Day",
       cell: (a) => (
         <span className="tabular-nums text-muted-foreground">
           {a.maxEmployeesPerDay ?? "∞"}

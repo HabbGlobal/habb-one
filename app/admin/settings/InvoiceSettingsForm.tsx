@@ -80,7 +80,7 @@ export function InvoiceSettingsForm({ initial }: { initial: Initial }) {
           {ibanNormalized && (
             <div className="text-xs flex items-center gap-3">
               <span className="text-muted-foreground">
-                Anzeige: <span className="font-mono">{formatIbanDisplay(ibanNormalized)}</span>
+                Display: <span className="font-mono">{formatIbanDisplay(ibanNormalized)}</span>
               </span>
               {ibanValid ? (
                 isQr ? (
@@ -107,7 +107,7 @@ export function InvoiceSettingsForm({ initial }: { initial: Initial }) {
           <Input
             value={creditorName}
             onChange={(e) => setCreditorName(e.target.value)}
-            placeholder="z. B. habb global Spritzwerk AG"
+            placeholder="e.g. habb global Spritzwerk AG"
           />
           <div className="text-xs text-muted-foreground">
             Leave empty for company name from master data.
@@ -115,7 +115,7 @@ export function InvoiceSettingsForm({ initial }: { initial: Initial }) {
         </div>
 
         <div className="space-y-1">
-          <Label>MwSt-Nr. (UID)</Label>
+          <Label>VAT no. (UID)</Label>
           <Input
             value={vatNumber}
             onChange={(e) => setVatNumber(e.target.value)}

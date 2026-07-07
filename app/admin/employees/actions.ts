@@ -34,7 +34,7 @@ function parseOrThrow<T extends z.ZodTypeAny>(schema: T, input: unknown): z.infe
 function explainPrismaError(err: unknown): string | null {
   if (err instanceof Prisma.PrismaClientKnownRequestError) {
     if (err.code === "P2002") {
-      const target = (err.meta?.target as string[] | undefined)?.join(", ") ?? "Feld";
+      const target = (err.meta?.target as string[] | undefined)?.join(", ") ?? "field";
       if (target.includes("employeeNumber")) {
         return "This employee number is already taken.";
       }

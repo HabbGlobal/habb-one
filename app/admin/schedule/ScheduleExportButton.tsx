@@ -67,7 +67,7 @@ export function ScheduleExportButton({
               <div>
                 <CardTitle className="text-base">Export plan</CardTitle>
                 <p className="text-sm text-muted-foreground">
-                  PDF (druckfertig) oder Excel (zur Weiterverarbeitung)
+                  PDF (print-ready) or Excel (for further processing)
                 </p>
               </div>
               <button

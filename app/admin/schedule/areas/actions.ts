@@ -60,10 +60,10 @@ export async function assignEmployeeToAreaOnDate(input: unknown) {
     prisma.workArea.findUnique({ where: { id: data.areaId } }),
   ]);
   if (!employee || employee.companyId !== user.companyId) {
-    throw new Error("Mitarbeiter nicht gefunden.");
+    throw new Error("Employee not found.");
   }
   if (!area || area.companyId !== user.companyId || area.deletedAt) {
-    throw new Error("Bereich nicht gefunden.");
+    throw new Error("Area not found.");
   }
 
   const [y, m] = data.date.split("-").map(Number);

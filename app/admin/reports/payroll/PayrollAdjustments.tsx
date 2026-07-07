@@ -150,7 +150,7 @@ export function PayrollAdjustments({
                 min="0"
                 value={hours}
                 onChange={(e) => setHours(e.target.value)}
-                placeholder="z. B. 2.5"
+                placeholder="e.g. 2.5"
                 required
               />
             </div>

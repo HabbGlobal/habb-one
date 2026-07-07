@@ -44,7 +44,7 @@ export function AreaForm({
             router.push("/admin/areas");
             router.refresh();
           } catch (err) {
-            setError(err instanceof Error ? err.message : "Fehler");
+            setError(err instanceof Error ? err.message : "Error");
           }
         });
       }}
@@ -53,7 +53,7 @@ export function AreaForm({
       <Field label="Name">
         <Input value={data.name} onChange={(e) => update("name", e.target.value)} required />
       </Field>
-      <Field label="Beschreibung (optional)">
+      <Field label="Description (optional)">
         <Textarea
           rows={2}
           value={data.description}
@@ -88,7 +88,7 @@ export function AreaForm({
         </Field>
       </div>
       <div className="grid grid-cols-2 gap-3">
-        <Field label="Min. Mitarbeitende pro Tag (leer = keine Vorgabe)">
+        <Field label="Min. employees per day (blank = no requirement)">
           <Input
             type="number"
             min={1}
@@ -97,10 +97,10 @@ export function AreaForm({
             onChange={(e) =>
               update("minEmployeesPerDay", e.target.value ? Number(e.target.value) : null)
             }
-            placeholder="leer = keine"
+            placeholder="blank = none"
           />
         </Field>
-        <Field label="Max. Mitarbeitende pro Tag (leer = unbegrenzt)">
+        <Field label="Max. employees per day (blank = unlimited)">
           <Input
             type="number"
             min={1}
@@ -109,7 +109,7 @@ export function AreaForm({
             onChange={(e) =>
               update("maxEmployeesPerDay", e.target.value ? Number(e.target.value) : null)
             }
-            placeholder="leer = ∞"
+            placeholder="blank = ∞"
           />
         </Field>
       </div>

@@ -1,7 +1,7 @@
 "use client";
 
-// Period-Filter für ERP-Reports. Sync mit URL-Search-Params, damit
-// Server-Komponenten die Daten frisch laden.
+// Period filter for ERP reports. Synced with URL search params so
+// server components load fresh data.
 
 import { useRouter, useSearchParams } from "next/navigation";
 import { Input } from "@/components/ui/input";
@@ -14,11 +14,11 @@ type Preset =
   | { label: string; current: "month" | "quarter" | "year" };
 
 const PRESETS: Preset[] = [
-  { label: "Letzte 7 Tage", days: 7 },
-  { label: "Letzte 30 Tage", days: 30 },
-  { label: "Aktueller Monat", current: "month" },
-  { label: "Aktuelles Quartal", current: "quarter" },
-  { label: "Aktuelles Jahr", current: "year" },
+  { label: "Last 7 days", days: 7 },
+  { label: "Last 30 days", days: 30 },
+  { label: "Current month", current: "month" },
+  { label: "Current quarter", current: "quarter" },
+  { label: "Current year", current: "year" },
 ];
 
 function isoDate(d: Date): string {
@@ -73,7 +73,7 @@ export function PeriodFilter({
   return (
     <div className="flex flex-wrap items-end gap-2 bg-muted/30 rounded-lg p-3 border">
       <div className="space-y-1">
-        <Label className="text-xs">Von</Label>
+        <Label className="text-xs">From</Label>
         <Input
           type="date"
           value={from}
@@ -82,7 +82,7 @@ export function PeriodFilter({
         />
       </div>
       <div className="space-y-1">
-        <Label className="text-xs">Bis</Label>
+        <Label className="text-xs">To</Label>
         <Input
           type="date"
           value={to}

@@ -70,7 +70,7 @@ export function ParameterEditDialog({
         router.refresh();
         onClose();
       } catch (err) {
-        setError(err instanceof Error ? err.message : "Fehler");
+        setError(err instanceof Error ? err.message : "Error");
       }
     });
   };
@@ -90,7 +90,7 @@ export function ParameterEditDialog({
         router.refresh();
         onClose();
       } catch (err) {
-        setError(err instanceof Error ? err.message : "Fehler");
+        setError(err instanceof Error ? err.message : "Error");
       }
     });
   };
@@ -162,7 +162,7 @@ export function ParameterEditDialog({
             </div>
             {(param.minValue || param.maxValue) && (
               <p className="text-xs text-muted-foreground">
-                Bereich: {param.minValue ?? "—"} – {param.maxValue ?? "—"}
+                Range: {param.minValue ?? "—"} – {param.maxValue ?? "—"}
               </p>
             )}
           </div>
@@ -182,7 +182,7 @@ export function ParameterEditDialog({
               rows={2}
               value={reason}
               onChange={(e) => setReason(e.target.value)}
-              placeholder="z. B. Neuer Pulverlieferant XY-Polyester, schneller Brennvorgang lt. Datenblatt"
+              placeholder="e.g. New powder supplier XY-Polyester, faster curing per datasheet"
             />
             <p className="text-xs text-muted-foreground">
               Changes are recorded in the audit log.
