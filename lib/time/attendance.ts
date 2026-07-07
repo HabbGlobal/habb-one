@@ -115,10 +115,18 @@ export async function getCompanyAttendanceSnapshot(
         select: { employeeId: true, type: true, occurredAt: true },
         orderBy: { occurredAt: "desc" },
       }),
-      // Aktuell offene Pausen
+      // Aktuell offene Pausen — auf HEUTE begrenzt. Ohne diese Grenze
+      // würde ein nie sauber geschlossener BreakEntry aus einem
+      // vergangenen Tag (z. B. durch eine manuelle Korrektur, die nur
+      // TimePunch statt auch BreakEntry angepasst hat) den Mitarbeiter
+      // dauerhaft als "On Break" markieren, unabhängig vom heutigen
+      // Stempel-Stand. "Work past midnight" wird ohnehin nicht
+      // unterstützt, Pausen beginnen also immer am selben Tag wie sie
+      // enden.
       prisma.breakEntry.findMany({
         where: {
           endedAt: null,
+          startedAt: { gte: startOfDay, lt: endOfDay },
           timeEntry: { employeeId: { in: employeeIds } },
         },
         select: {
@@ -195,9 +203,13 @@ export async function getCompanyAttendanceSnapshot(
       status = "ABSENT";
       // Abwesenheit ist datums-basiert; "seit" entspricht startDate.
       statusSinceIso = absence.startDate.toISOString();
-    } else if (openBreak) {
+    } else if (today?.isOnBreak) {
+      // `today.isOnBreak` (aus getEmployeeKioskSummary) ist die
+      // Single Source of Truth — frisch aus den heutigen Punches
+      // berechnet, siehe Kommentar oben. `openBreak` liefert hier nur
+      // noch den "seit"-Zeitstempel für die Anzeige.
       status = "BREAK";
-      statusSinceIso = openBreak.toISOString();
+      statusSinceIso = openBreak?.toISOString() ?? null;
     } else if (today?.isOpen) {
       status = "IN";
       statusSinceIso = latestClockIn?.toISOString() ?? null;

@@ -19,6 +19,11 @@ const mocks = vi.hoisted(() => ({
   employeeFindUniqueOrThrow: vi.fn(),
   holidayFindMany: vi.fn().mockResolvedValue([]),
   absenceFindManyForService: vi.fn().mockResolvedValue([]),
+  // service.ts (getDayStatsForRange) lädt heutige TimeEntries — das ist die
+  // Single Source of Truth für `today.isOnBreak`/`today.isOpen`. Muss zu
+  // `timePunchFindMany`/`breakEntryFindMany` konsistent gesetzt werden,
+  // sonst testet man nicht den echten Code-Pfad (siehe Issue #12).
+  timeEntryFindMany: vi.fn().mockResolvedValue([]),
 }));
 
 vi.mock("@/lib/prisma", () => ({
@@ -37,8 +42,7 @@ vi.mock("@/lib/prisma", () => ({
       findMany: mocks.absenceFindMany,
     },
     holiday: { findMany: mocks.holidayFindMany },
-    // service.ts (getDayStatsForRange) lädt heutige TimeEntries
-    timeEntry: { findMany: vi.fn().mockResolvedValue([]) },
+    timeEntry: { findMany: mocks.timeEntryFindMany },
   },
 }));
 
@@ -50,6 +54,7 @@ beforeEach(() => {
     if (typeof m === "function" && "mockReset" in m) m.mockReset();
   }
   mocks.holidayFindMany.mockResolvedValue([]);
+  mocks.timeEntryFindMany.mockResolvedValue([]);
 });
 
 function defaultEmployeeRecord(id: string) {
@@ -148,6 +153,25 @@ describe("getCompanyAttendanceSnapshot — Status-Logik", () => {
       },
     ]);
     mocks.absenceFindMany.mockResolvedValue([]);
+    // Muss zu `timePunchFindMany` oben passen: heute eingestempelt und in
+    // Pause, damit `today.isOnBreak` (die Single Source of Truth) ebenfalls
+    // BREAK ergibt — nicht nur die rohe BreakEntry-Query.
+    mocks.timeEntryFindMany.mockImplementation(async (args: unknown) => {
+      const a = args as { where: { employeeId: string } };
+      if (a.where.employeeId !== "e2") return [];
+      return [
+        {
+          workDate: new Date("2025-05-14T00:00:00.000Z"),
+          punches: [
+            { type: "CLOCK_IN", occurredAt: new Date("2025-05-14T07:00:00Z") },
+            { type: "BREAK_START", occurredAt: new Date("2025-05-14T12:00:00Z") },
+          ],
+          breaks: [
+            { startedAt: new Date("2025-05-14T12:00:00Z"), endedAt: null },
+          ],
+        },
+      ];
+    });
     mocks.employeeFindUniqueOrThrow.mockImplementation(async (args: unknown) => {
       const a = args as { select?: { weeklyTargetHours?: boolean } };
       if (a.select?.weeklyTargetHours) return defaultEmployeeRecord("e2");
@@ -164,6 +188,69 @@ describe("getCompanyAttendanceSnapshot — Status-Logik", () => {
       new Date("2025-05-14T12:00:00Z").toISOString(),
     );
     expect(snap.kpis.countBreak).toBe(1);
+  });
+
+  it("Regression #12: veraltete offene BreakEntry aus einem früheren Tag überschreibt nicht den heutigen Status", async () => {
+    mocks.employeeFindMany.mockResolvedValue([
+      {
+        id: "e4",
+        firstName: "Vijay",
+        lastName: "Ajith",
+        employeeNumber: "4",
+      },
+    ]);
+    // Heute sauber ausgestempelt — keine Pause mehr offen.
+    mocks.timePunchFindMany.mockResolvedValue([
+      {
+        employeeId: "e4",
+        type: "CLOCK_OUT",
+        occurredAt: new Date("2025-05-14T17:00:00Z"),
+      },
+      {
+        employeeId: "e4",
+        type: "CLOCK_IN",
+        occurredAt: new Date("2025-05-14T07:00:00Z"),
+      },
+    ]);
+    // Simuliert eine nie sauber geschlossene BreakEntry aus einem früheren
+    // Tag (z. B. Alt-Daten oder eine Korrektur, die nur TimePunch statt
+    // auch BreakEntry angepasst hat). Darf den heutigen Status nicht
+    // überschreiben — das war genau der gemeldete Bug (Issue #12: Admin
+    // Attendance zeigt stale "On Break", obwohl heute sauber ausgestempelt
+    // wurde).
+    mocks.breakEntryFindMany.mockResolvedValue([
+      {
+        startedAt: new Date("2025-05-10T12:00:00Z"),
+        timeEntry: { employeeId: "e4" },
+      },
+    ]);
+    mocks.absenceFindMany.mockResolvedValue([]);
+    mocks.timeEntryFindMany.mockImplementation(async (args: unknown) => {
+      const a = args as { where: { employeeId: string } };
+      if (a.where.employeeId !== "e4") return [];
+      return [
+        {
+          workDate: new Date("2025-05-14T00:00:00.000Z"),
+          punches: [
+            { type: "CLOCK_IN", occurredAt: new Date("2025-05-14T07:00:00Z") },
+            { type: "CLOCK_OUT", occurredAt: new Date("2025-05-14T17:00:00Z") },
+          ],
+          breaks: [],
+        },
+      ];
+    });
+    mocks.employeeFindUniqueOrThrow.mockImplementation(async (args: unknown) => {
+      const a = args as { select?: { weeklyTargetHours?: boolean } };
+      if (a.select?.weeklyTargetHours) return defaultEmployeeRecord("e4");
+      return { companyId: "c1" };
+    });
+
+    const snap = await getCompanyAttendanceSnapshot(
+      "c1",
+      new Date("2025-05-14T18:00:00Z"),
+    );
+
+    expect(snap.employees[0].status).toBe("OUT");
   });
 
   it("OUT wenn keiner der oberen Fälle zutrifft; statusSince = letzter Punch heute", async () => {
@@ -233,6 +320,23 @@ describe("getCompanyAttendanceSnapshot — Status-Logik", () => {
         },
       },
     ]);
+    // "a" konsistent als heute-in-Pause modellieren (siehe Kommentar oben).
+    mocks.timeEntryFindMany.mockImplementation(async (args: unknown) => {
+      const a = args as { where: { employeeId: string } };
+      if (a.where.employeeId !== "a") return [];
+      return [
+        {
+          workDate: new Date("2025-05-14T00:00:00.000Z"),
+          punches: [
+            { type: "CLOCK_IN", occurredAt: new Date("2025-05-14T07:00:00Z") },
+            { type: "BREAK_START", occurredAt: new Date("2025-05-14T12:00:00Z") },
+          ],
+          breaks: [
+            { startedAt: new Date("2025-05-14T12:00:00Z"), endedAt: null },
+          ],
+        },
+      ];
+    });
     mocks.employeeFindUniqueOrThrow.mockImplementation(async () => ({
       id: "x",
       weeklyTargetHours: 0,
