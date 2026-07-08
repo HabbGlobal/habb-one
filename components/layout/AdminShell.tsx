@@ -67,7 +67,12 @@ export async function AdminShell({ children }: { children: ReactNode }) {
   }
 
   return (
-    <div className="min-h-screen bg-habb-paper text-habb-ink flex">
+    // Not `flex`: the sidebar is `position: fixed` (out of normal flow), so
+    // a flex context here would size `main` to the full container width via
+    // flex-grow and then shift it right with margin-left on top of that,
+    // overflowing past the viewport instead of shrinking to fit. Plain block
+    // layout lets `main`'s auto width correctly subtract the margin.
+    <div className="min-h-screen bg-habb-paper text-habb-ink">
       <AdminSidebar
         companyLabel={companyName ?? tApp("company")}
         appName={tApp("name")}
@@ -79,7 +84,7 @@ export async function AdminShell({ children }: { children: ReactNode }) {
         enabledModules={enabledModules}
       />
       {/* Main: 256px sidebar on left (md+), above or below mobile header (16px higher) */}
-      <main className="flex-1 md:ml-64 pt-14 md:pt-0">
+      <main className="md:ml-64 pt-14 md:pt-0">
         {/* Banner is no-op when no impersonation is active */}
         <ImpersonationBanner />
         <div className="max-w-7xl mx-auto px-4 md:px-6 py-6">{children}</div>
