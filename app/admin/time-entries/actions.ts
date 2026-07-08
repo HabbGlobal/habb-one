@@ -8,6 +8,7 @@ import { hasPermission } from "@/lib/permissions";
 import { recordAudit } from "@/lib/audit";
 import { combineDateAndTime, localDateString, localMidnightUtc } from "@/lib/time/zone";
 import { computeWorkedTime } from "@/lib/time/calc";
+import { validatePunchInsertion } from "@/lib/time/punch";
 
 async function requireCorrector() {
   const session = await auth();
@@ -50,10 +51,15 @@ const addSchema = z.object({
 export async function addCorrectionPunch(input: z.infer<typeof addSchema>) {
   const user = await requireCorrector();
   const data = addSchema.parse(input);
-  const entry = await prisma.timeEntry.findUniqueOrThrow({ where: { id: data.timeEntryId }, include: { employee: true } });
+  const entry = await prisma.timeEntry.findUniqueOrThrow({
+    where: { id: data.timeEntryId },
+    include: { employee: true, punches: true },
+  });
   if (entry.employee.companyId !== user.companyId) throw new Error("FORBIDDEN");
 
   const occurredAt = combineDateAndTime(data.workDate, data.time);
+
+  validatePunchInsertion(entry.punches, data.type, occurredAt);
 
   const punch = await prisma.timePunch.create({
     data: {
