@@ -21,25 +21,26 @@ import { PLAN_KEYS } from "@/lib/pricing/plans";
 import { issueEmailVerificationToken } from "@/lib/auth/email-verification";
 import { sendMail } from "@/lib/mail/send";
 import { buildEmailVerificationMail } from "@/lib/mail/templates/tenant-lifecycle";
+import { originFromRequest } from "@/lib/owner/webauthn";
 
 const PHONE_REGEX = /^[+0-9 ()\-./]{6,32}$/;
 
 const schema = z.object({
-  companyName: z.string().trim().min(2, "Firmenname muss mindestens 2 Zeichen lang sein.").max(200),
+  companyName: z.string().trim().min(2, "Company name must be at least 2 characters long.").max(200),
   phone: z
     .string()
     .trim()
-    .min(6, "Telefonnummer ist Pflicht.")
+    .min(6, "Phone number is required.")
     .max(32)
-    .regex(PHONE_REGEX, "Telefonnummer enthält ungültige Zeichen."),
+    .regex(PHONE_REGEX, "Phone number contains invalid characters."),
   address: z.string().trim().max(200).optional(),
   city: z.string().trim().max(120).optional(),
   country: z.string().trim().min(2).max(3).toUpperCase().default("CH"),
-  adminEmail: z.string().trim().toLowerCase().email("Bitte gültige E-Mail-Adresse."),
-  adminName: z.string().trim().min(2, "Name muss mindestens 2 Zeichen lang sein.").max(120),
+  adminEmail: z.string().trim().toLowerCase().email("Please enter a valid email address."),
+  adminName: z.string().trim().min(2, "Name must be at least 2 characters long.").max(120),
   password: z
     .string()
-    .min(8, "Passwort muss mindestens 8 Zeichen lang sein.")
+    .min(8, "Password must be at least 8 characters long.")
     .max(120),
   preferredLanguage: z.enum(["de", "fr", "it", "en"]).default("de"),
   // Auf der Preisseite gewählter Plan (?plan=…). Streng gegen die
@@ -70,7 +71,7 @@ export async function POST(req: Request) {
     return NextResponse.json(
       {
         error: "EMAIL_TAKEN",
-        message: "Mit dieser E-Mail-Adresse existiert bereits ein Konto. Bitte anmelden oder Passwort zurücksetzen.",
+        message: "An account already exists with this email address. Please sign in or reset your password.",
       },
       { status: 409 },
     );
@@ -99,7 +100,7 @@ export async function POST(req: Request) {
   });
 
   const { token, expiresAt } = await issueEmailVerificationToken({ userId });
-  const origin = new URL(req.url).origin;
+  const origin = originFromRequest(req);
   const verifyUrl = `${origin}/verify-email/${token}`;
 
   let mailDelivered = false;

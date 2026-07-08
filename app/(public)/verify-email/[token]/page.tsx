@@ -9,7 +9,7 @@ import {
 } from "@/lib/mail/templates/tenant-lifecycle";
 
 export const metadata: Metadata = {
-  title: "E-Mail bestätigen — HABB One",
+  title: "Confirm email — HABB One",
   robots: { index: false, follow: false },
 };
 
@@ -26,8 +26,8 @@ export default async function VerifyEmailPage({
   if (!verified) {
     return (
       <Shell
-        title="Link nicht (mehr) gültig"
-        body="Der Bestätigungs-Link ist abgelaufen oder wurde bereits verwendet. Bitte registrieren Sie sich erneut oder wenden Sie sich an den Support."
+        title="Link no longer valid"
+        body="This confirmation link has expired or was already used. Please register again or contact support."
       />
     );
   }
@@ -101,8 +101,8 @@ export default async function VerifyEmailPage({
   } catch {
     return (
       <Shell
-        title="Link nicht (mehr) gültig"
-        body="Der Bestätigungs-Link ist abgelaufen oder wurde bereits verwendet."
+        title="Link no longer valid"
+        body="This confirmation link has expired or was already used."
       />
     );
   }
@@ -135,7 +135,7 @@ export default async function VerifyEmailPage({
       const origin = new URL(
         // request-origin nicht verfügbar in der Page → aus NEXTAUTH_URL
         // bzw. Fallback ableiten. Reicht für den Deep-Link in der Mail.
-        process.env.NEXTAUTH_URL || "https://one.HABB Global (PVT) LTD",
+        process.env.NEXTAUTH_URL || "https://one.habbgate.com",
       ).origin;
       const ownerMail = buildOwnerNewRegistrationMail({
         companyName: result.companyName,
@@ -160,9 +160,9 @@ export default async function VerifyEmailPage({
 
   return (
     <Shell
-      title="E-Mail bestätigt"
-      body={`Vielen Dank! Ihre E-Mail-Adresse für „${result.companyName}" ist bestätigt. Das HABB Global (PVT) LTD Team prüft jetzt Ihre Anfrage. Sie erhalten eine weitere E-Mail, sobald Ihr Zugang freigegeben ist.`}
-      cta={{ label: "Zur Anmeldung", href: "/login" }}
+      title="Email confirmed"
+      body={`Thank you! Your email address for "${result.companyName}" has been confirmed. The HABB Global (PVT) LTD team is now reviewing your request. You will receive another email once your access is activated.`}
+      cta={{ label: "Go to sign in", href: "/login" }}
     />
   );
 }
