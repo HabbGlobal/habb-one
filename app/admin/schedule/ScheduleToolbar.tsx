@@ -185,7 +185,7 @@ export function ScheduleToolbar({
         }
         view={view}
         rangeLabel={
-          view === "week" ? `Woche ab ${weekStart ?? ""}` : `${month}/${year}`
+          view === "week" ? `Week starting ${weekStart ?? ""}` : `${month}/${year}`
         }
       />
       <ScheduleExportButton
@@ -227,7 +227,7 @@ export function ScheduleToolbar({
         }
         rangeLabel={
           view === "week"
-            ? `Woche ab ${weekStart ?? ""}`
+            ? `Week starting ${weekStart ?? ""}`
             : `${month}/${year}`
         }
       />

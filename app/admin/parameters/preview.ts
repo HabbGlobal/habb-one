@@ -82,7 +82,7 @@ export function computePreview(args: {
       "BLAST_SA25",
       before,
       after,
-      `Beispiel: 10 m² ${matFactor[1]}, Sa 2.5, Komplexität NORMAL`,
+      `Example: 10 m² ${matFactor[1]}, Sa 2.5, Complexity NORMAL`,
       matFactor[1] as Material,
     );
   }
@@ -94,7 +94,7 @@ export function computePreview(args: {
       "MASKING",
       before,
       after,
-      `Beispiel: 10 m² Stahl S235, Maskieren, Komplexität ${cplxFactor[1]}`,
+      `Example: 10 m² steel S235, masking, complexity ${cplxFactor[1]}`,
       "STEEL_S235",
       cplxFactor[1] as Complexity,
     );
@@ -116,7 +116,7 @@ export function computePreview(args: {
         params: after,
       });
       return diffMinutes(
-        `Beispiel: ${sub}, ${SAMPLE_THICKNESS_MM} mm Materialdicke`,
+        `Example: ${sub}, ${SAMPLE_THICKNESS_MM} mm material thickness`,
         a.totalMinutes,
         b.totalMinutes,
         "Total curing",
@@ -144,7 +144,7 @@ export function computePreview(args: {
       params: after,
       isExpress: false,
     });
-    return diffCHF(`Beispiel: 60 Min Maschinenzeit auf ${type}`, a.netCHF, b.netCHF);
+    return diffCHF(`Example: 60 min machine time on ${type}`, a.netCHF, b.netCHF);
   }
   if (paramKey === "pricing.rate.labor.standard") {
     const a = calcOrderItemPrice({
@@ -157,10 +157,10 @@ export function computePreview(args: {
       params: after,
       isExpress: false,
     });
-    return diffCHF("Beispiel: 60 Min Mitarbeiter-Stundensatz", a.netCHF, b.netCHF);
+    return diffCHF("Example: 60 min employee hourly rate", a.netCHF, b.netCHF);
   }
   if (paramKey === "pricing.surcharge.express.percent") {
-    // 100 CHF Auftrag → Express-Zuschlag
+    // 100 CHF order → express surcharge
     const a = calcOrderItemPrice({
       steps: [{ processCode: "MOUNTING", estimatedMinutes: 60 }],
       params: before,
@@ -172,7 +172,7 @@ export function computePreview(args: {
       isExpress: true,
     });
     return diffCHF(
-      "Beispiel: 1-Stunden-Auftrag Express",
+      "Example: 1-hour order express",
       a.totalNetCHF,
       b.totalNetCHF,
     );
@@ -185,7 +185,7 @@ function previewProcessStep(
   code: ProcessCode,
   before: SystemParameterMap,
   after: SystemParameterMap,
-  sample = `Beispiel: 10 m² Stahl S235, ${code}, Komplexität NORMAL`,
+  sample = `Example: 10 m² steel S235, ${code}, complexity NORMAL`,
   material: Material = SAMPLE_MATERIAL,
   complexity: Complexity = SAMPLE_COMPLEXITY,
 ): PreviewResult | null {
@@ -210,13 +210,13 @@ function previewProcessStep(
   }
 }
 
-function diffMinutes(sample: string, before: number, after: number, label = "Schritt-Dauer"): PreviewResult {
+function diffMinutes(sample: string, before: number, after: number, label = "Step duration"): PreviewResult {
   const delta = after - before;
   const pct = before === 0 ? 0 : (delta / before) * 100;
   const sign = delta > 0 ? "+" : delta < 0 ? "" : "±";
   return {
-    summary: `${label}: ${before} → ${after} Min (${sign}${delta} Min, ${formatPct(pct)})`,
-    deltaText: `${sign}${delta} Min`,
+    summary: `${label}: ${before} → ${after} min (${sign}${delta} min, ${formatPct(pct)})`,
+    deltaText: `${sign}${delta} min`,
     sample,
   };
 }

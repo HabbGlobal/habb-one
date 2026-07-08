@@ -2,7 +2,7 @@
 
 // Customer + Address + Contact server actions. All mutations:
 //   1. require permission via `lib/permissions.ts`,
-//   2. validate input via Zod (errors mapped to German messages),
+//   2. validate input via Zod (errors mapped to English messages),
 //   3. run inside a Prisma transaction when multiple rows change,
 //   4. write an `AuditLog` entry.
 
@@ -60,16 +60,16 @@ function parseOrThrow<T extends z.ZodTypeAny>(schema: T, input: unknown): z.infe
 function explainPrismaError(err: unknown): string | null {
   if (err instanceof Prisma.PrismaClientKnownRequestError) {
     if (err.code === "P2002") {
-      const target = (err.meta?.target as string[] | undefined)?.join(", ") ?? "Feld";
+      const target = (err.meta?.target as string[] | undefined)?.join(", ") ?? "field";
       if (target.includes("customerNumber")) {
-        return "Diese Kundennummer existiert bereits â€” bitte erneut versuchen.";
+        return "This customer number already exists — please try again.";
       }
       if (target.includes("vatNumber")) {
-        return "Diese MwSt-Nummer ist bereits einem anderen Kunden zugeordnet.";
+        return "This VAT number is already assigned to another customer.";
       }
-      return `Eindeutigkeits-Konflikt: ${target}`;
+      return `Uniqueness conflict: ${target}`;
     }
-    if (err.code === "P2025") return "Datensatz nicht gefunden.";
+    if (err.code === "P2025") return "Record not found.";
   }
   return null;
 }

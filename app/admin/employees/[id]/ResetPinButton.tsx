@@ -25,7 +25,7 @@ export function ResetPinButton({ employeeId }: { employeeId: string }) {
         setError(
           e instanceof Error && e.message
             ? e.message
-            : "PIN-Reset fehlgeschlagen. Bitte erneut versuchen.",
+            : "PIN reset failed. Please try again.",
         );
       }
     });

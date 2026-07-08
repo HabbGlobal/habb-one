@@ -28,7 +28,7 @@ export default async function EmployeeDetailPage({
     where: { id, companyId: session.user.companyId },
     include: {
       scheduleDays: true,
-      workAreas: true,
+      workAreas: { include: { workArea: { select: { deletedAt: true, archivedAt: true } } } },
       skills: true,
       company: { select: { defaultWeeklyHours: true, id: true } },
     },
@@ -72,7 +72,9 @@ export default async function EmployeeDetailPage({
     initialVacationDays: e.initialVacationDays,
     notes: e.notes ?? "",
     scheduleDays: sched,
-    workAreaIds: e.workAreas.map((wa) => wa.workAreaId),
+    workAreaIds: e.workAreas
+      .filter((wa) => wa.workArea.archivedAt === null && wa.workArea.deletedAt === null)
+      .map((wa) => wa.workAreaId),
     skills: e.skills.map((s) => ({
       skillCode: s.skillCode,
       level: s.level,

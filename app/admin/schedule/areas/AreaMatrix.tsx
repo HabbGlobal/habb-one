@@ -42,7 +42,7 @@ export interface AreaRow {
   cells: AreaCell[];
 }
 
-const WEEKDAY_SHORT_DE = ["Mo", "Di", "Mi", "Do", "Fr", "Sa", "So"];
+const WEEKDAY_SHORT = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
 
 interface Props {
   year: number;
@@ -67,7 +67,7 @@ export function AreaMatrix({ year, month, days, rows, employeeOptions }: Props) 
         <thead className="sticky top-0 z-10 bg-card">
           <tr>
             <th className="text-left p-2 border-b min-w-[180px] sticky left-0 bg-card z-20">
-              Bereich
+              Area
             </th>
             {days.map((d) => (
               <th
@@ -78,7 +78,7 @@ export function AreaMatrix({ year, month, days, rows, employeeOptions }: Props) 
                 )}
               >
                 <div className="text-[10px] text-muted-foreground">
-                  {WEEKDAY_SHORT_DE[d.weekday]}
+                  {WEEKDAY_SHORT[d.weekday]}
                 </div>
                 <div className="tabular-nums">{d.dayNumber}</div>
               </th>
@@ -131,7 +131,7 @@ export function AreaMatrix({ year, month, days, rows, employeeOptions }: Props) 
                     cell.isHoliday && "bg-amber-50",
                     belowMin && "bg-red-50 ring-1 ring-inset ring-red-300"
                   )}
-                  title={belowMin ? `Mindestbesetzung ${min} nicht erreicht` : undefined}
+                  title={belowMin ? `Minimum staffing of ${min} not reached` : undefined}
                 >
                   {cell.employees.length === 0 ? (
                     <div className={cn("py-2", belowMin ? "text-red-600 font-semibold" : "text-muted-foreground/40")}>

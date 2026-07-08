@@ -72,7 +72,11 @@ export default async function EditTemplatePage({
       {canWrite ? (
         <Card>
           <CardHeader>
+<<<<<<< HEAD
             <CardTitle className="text-base">Edit Template</CardTitle>
+=======
+            <CardTitle className="text-base">Edit template</CardTitle>
+>>>>>>> f0bfc268c2f2ece681b2305c28e6da1a442e79c6
           </CardHeader>
           <CardContent>
             <TemplateForm mode="edit" initial={initial} />
@@ -89,7 +93,7 @@ export default async function EditTemplatePage({
                 <li key={s.id}>
                   {s.sequence}. {s.processCode} · {s.skillRequired}
                   {s.machineTypeRequired ? ` · ${s.machineTypeRequired}` : ""}
-                  {s.defaultWaitMinutes > 0 && ` · ${s.defaultWaitMinutes} Min Wartezeit`}
+                  {s.defaultWaitMinutes > 0 && ` · ${s.defaultWaitMinutes} min wait time`}
                 </li>
               ))}
             </ul>

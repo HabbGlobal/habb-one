@@ -116,6 +116,59 @@ async function assertEmployeeInCompany(
   }
 }
 
+/**
+ * Validates that inserting `newType` at `newOccurredAt` keeps the punch
+ * timeline for a time entry consistent. Unlike `addPunch`'s inline checks
+ * (which only ever append at "now"), this replays the full sorted timeline
+ * because admin corrections can backdate a punch to any point in it. Throws
+ * PunchError on an exact-duplicate punch or a state-machine violation (e.g.
+ * a CLOCK_OUT with no preceding CLOCK_IN).
+ */
+export function validatePunchInsertion(
+  existingPunches: { type: PunchType; occurredAt: Date }[],
+  newType: PunchType,
+  newOccurredAt: Date
+) {
+  const isDuplicate = existingPunches.some(
+    (p) => p.type === newType && p.occurredAt.getTime() === newOccurredAt.getTime()
+  );
+  if (isDuplicate) {
+    throw new PunchError(
+      "DUPLICATE_PUNCH",
+      `A ${newType} punch already exists at this exact time.`
+    );
+  }
+
+  const timeline = [...existingPunches, { type: newType, occurredAt: newOccurredAt }].sort(
+    (a, b) => a.occurredAt.getTime() - b.occurredAt.getTime()
+  );
+
+  let isClockedIn = false;
+  let isOnBreak = false;
+  for (const p of timeline) {
+    switch (p.type) {
+      case "CLOCK_IN":
+        if (isClockedIn) throw new PunchError("ALREADY_CLOCKED_IN", "Already clocked in at this time.");
+        isClockedIn = true;
+        break;
+      case "CLOCK_OUT":
+        if (!isClockedIn) throw new PunchError("NOT_CLOCKED_IN", "Cannot clock out before clocking in.");
+        isClockedIn = false;
+        isOnBreak = false;
+        break;
+      case "BREAK_START":
+        if (!isClockedIn) throw new PunchError("NOT_CLOCKED_IN", "Cannot start a break before clocking in.");
+        if (isOnBreak) throw new PunchError("ALREADY_ON_BREAK", "Already on break at this time.");
+        isOnBreak = true;
+        break;
+      case "BREAK_END":
+        if (!isOnBreak) throw new PunchError("NOT_ON_BREAK", "No break in progress at this time.");
+        isOnBreak = false;
+        break;
+    }
+  }
+}
+
 async function addPunch(
   employeeId: string,
   type: PunchType,

@@ -82,7 +82,7 @@ export function InvoiceActions({
         await changeInvoiceStatus(invoiceId, { toStatus: s });
         router.refresh();
       } catch (err) {
-        setError(err instanceof Error ? err.message : "Fehler.");
+        setError(err instanceof Error ? err.message : "Error.");
       }
     });
   };
@@ -98,7 +98,7 @@ export function InvoiceActions({
         setShowPaid(false);
         router.refresh();
       } catch (err) {
-        setError(err instanceof Error ? err.message : "Fehler.");
+        setError(err instanceof Error ? err.message : "Error.");
       }
     });
   };
@@ -106,7 +106,7 @@ export function InvoiceActions({
   const onReminder = () => {
     if (
       !confirm(
-        'Record reminder level ${Math.min(3, reminderLevel + 1)}? (The sending of the PDF reminder is done manually.)',
+        `Record reminder level ${Math.min(3, reminderLevel + 1)}? (The sending of the PDF reminder is done manually.)`,
       )
     )
       return;
@@ -116,7 +116,7 @@ export function InvoiceActions({
         await sendInvoiceReminder(invoiceId);
         router.refresh();
       } catch (err) {
-        setError(err instanceof Error ? err.message : "Fehler.");
+        setError(err instanceof Error ? err.message : "Error.");
       }
     });
   };
@@ -143,7 +143,7 @@ export function InvoiceActions({
         {canSendReminder && (
           <Button variant="outline" size="sm" disabled={pending} onClick={onReminder}>
             <Bell className="h-4 w-4 mr-1" />
-            Mahnung Stufe {Math.min(3, reminderLevel + 1)}
+            Reminder level {Math.min(3, reminderLevel + 1)}
           </Button>
         )}
       </div>

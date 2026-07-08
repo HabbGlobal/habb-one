@@ -56,7 +56,7 @@ export function EmployeeList({
         e.employmentType === "MONTHLY_SALARY" ? labels.monthly : labels.hourly,
     },
     {
-      header: "Pensum",
+      header: "Workload",
       cell: (e) => (e.workloadPercent ? `${e.workloadPercent}%` : "—"),
     },
     {

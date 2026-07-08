@@ -69,7 +69,7 @@ export default async function EmployeeProductivityPage({
           <a
             href={`/api/admin/reports/erp/employee-productivity.xlsx?from=${fromIso}&to=${toIso}`}
           >
-            <Download className="h-4 w-4 mr-1" /> Excel-Export
+            <Download className="h-4 w-4 mr-1" /> Excel export
           </a>
         </Button>
       </div>
@@ -96,7 +96,7 @@ export default async function EmployeeProductivityPage({
         </Card>
         <Card>
           <CardContent className="p-4">
-            <div className="text-xs text-muted-foreground">Billable-Quote</div>
+            <div className="text-xs text-muted-foreground">Billable Quota</div>
             <div className={`text-2xl font-semibold tabular-nums mt-1 ${quotaColor(report.totals.billableQuotaPct)}`}>
               {report.totals.billableQuotaPct.toFixed(1)} %
             </div>
@@ -118,10 +118,10 @@ export default async function EmployeeProductivityPage({
                 <tr>
                   <th className="text-left px-3 py-2 w-12">Nr.</th>
                   <th className="text-left px-3 py-2">Name</th>
-                  <th className="text-right px-3 py-2 w-20">Schritte</th>
+                  <th className="text-right px-3 py-2 w-20">Steps</th>
                   <th className="text-right px-3 py-2 w-24">Total</th>
                   <th className="text-right px-3 py-2 w-24">Billable</th>
-                  <th className="text-right px-3 py-2 w-24">Quote</th>
+                  <th className="text-right px-3 py-2 w-24">Quota</th>
                 </tr>
               </thead>
               <tbody>

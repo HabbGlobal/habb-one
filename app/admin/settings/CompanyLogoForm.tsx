@@ -37,7 +37,7 @@ export function CompanyLogoForm({ hasLogo, logoVersion }: Props) {
     setError(null);
     setSuccess(null);
     if (!["image/png", "image/jpeg", "image/jpg"].includes(file.type)) {
-      setError("Nur PNG oder JPG erlaubt.");
+      setError("Only PNG or JPG allowed.");
       return;
     }
     if (file.size > 1_000_000) {
@@ -54,7 +54,7 @@ export function CompanyLogoForm({ hasLogo, logoVersion }: Props) {
         sizeBytes: file.size,
       });
     };
-    reader.onerror = () => setError("Datei konnte nicht gelesen werden.");
+    reader.onerror = () => setError("File could not be read.");
     reader.readAsDataURL(file);
   };
 
@@ -67,27 +67,27 @@ export function CompanyLogoForm({ hasLogo, logoVersion }: Props) {
           mimeType: stagedFile.mimeType,
           dataBase64: stagedFile.base64,
         });
-        setSuccess("Logo gespeichert.");
+        setSuccess("Logo saved.");
         setStagedFile(null);
         setPreviewUrl(null);
         router.refresh();
         setTimeout(() => setSuccess(null), 4000);
       } catch (err) {
-        setError(err instanceof Error ? err.message : "Fehler.");
+        setError(err instanceof Error ? err.message : "Error.");
       }
     });
   };
 
   const remove = () => {
-    if (!confirm("Firmenlogo entfernen?")) return;
+    if (!confirm("Remove company logo?")) return;
     start(async () => {
       try {
         await clearCompanyLogo();
-        setSuccess("Logo entfernt.");
+        setSuccess("Logo removed.");
         router.refresh();
         setTimeout(() => setSuccess(null), 4000);
       } catch (err) {
-        setError(err instanceof Error ? err.message : "Fehler.");
+        setError(err instanceof Error ? err.message : "Error.");
       }
     });
   };
@@ -96,29 +96,38 @@ export function CompanyLogoForm({ hasLogo, logoVersion }: Props) {
     <Card>
       <CardHeader>
         <CardTitle className="flex items-center gap-2 text-base">
-          <ImageIcon className="h-4 w-4" /> Firmenlogo
+          <ImageIcon className="h-4 w-4" /> Company logo
         </CardTitle>
       </CardHeader>
       <CardContent className="space-y-4">
         <p className="text-sm text-muted-foreground">
+<<<<<<< HEAD
           Will be embedded at the top right of all generated documents (quotes, invoices, delivery notes, reports) and displayed in the sidebar next to the company name.
         </p>
 
         {/* Current or preview logo */}
+=======
+          Embedded top-right on all generated documents (quotes, invoices,
+          delivery notes, reports) and shown in the sidebar next to the
+          company name.
+        </p>
+
+        {/* Current logo or preview */}
+>>>>>>> f0bfc268c2f2ece681b2305c28e6da1a442e79c6
         <div className="flex items-center gap-4 flex-wrap">
           <div className="rounded-lg border-2 border-dashed border-habb-line bg-habb-paper w-44 h-28 flex items-center justify-center overflow-hidden">
             {previewUrl ? (
               // eslint-disable-next-line @next/next/no-img-element
               <img
                 src={previewUrl}
-                alt="Vorschau"
+                alt="Preview"
                 className="max-w-full max-h-full object-contain"
               />
             ) : hasLogo ? (
               // eslint-disable-next-line @next/next/no-img-element
               <img
                 src={`/api/company/logo?v=${logoVersion}`}
-                alt="Aktuelles Logo"
+                alt="Current logo"
                 className="max-w-full max-h-full object-contain"
               />
             ) : (
@@ -143,7 +152,11 @@ export function CompanyLogoForm({ hasLogo, logoVersion }: Props) {
                 onChange={(e) => {
                   const f = e.target.files?.[0];
                   if (f) onPick(f);
+<<<<<<< HEAD
                   // Reset so the same file can be selected again
+=======
+                  // Reset so the same file can be picked again
+>>>>>>> f0bfc268c2f2ece681b2305c28e6da1a442e79c6
                   e.target.value = "";
                 }}
                 disabled={pending}
@@ -200,7 +213,7 @@ export function CompanyLogoForm({ hasLogo, logoVersion }: Props) {
             onClick={upload}
             disabled={pending || !stagedFile}
           >
-            {pending ? "Speichere …" : "Logo speichern"}
+            {pending ? "Saving …" : "Save logo"}
           </Button>
         </div>
       </CardContent>
