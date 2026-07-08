@@ -67,7 +67,7 @@ export function CustomerList({
       header: "Orders",
       cell: (c) =>
         c.openOrdersCount > 0 ? (
-          <Badge variant="warning">{c.openOrdersCount} offen</Badge>
+          <Badge variant="warning">{c.openOrdersCount} open</Badge>
         ) : (
           <span className="text-muted-foreground text-xs tabular-nums">
             {c.totalOrdersCount} total

@@ -44,9 +44,9 @@ function fmtMin(n: number | null): string {
   if (n == null) return "—";
   const h = Math.floor(n / 60);
   const m = n % 60;
-  if (h === 0) return `${m} Min`;
+  if (h === 0) return `${m} min`;
   if (m === 0) return `${h} h`;
-  return `${h} h ${m} Min`;
+  return `${h} h ${m} min`;
 }
 
 export function StepBillingRow({

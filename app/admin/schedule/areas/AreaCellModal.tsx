@@ -59,7 +59,7 @@ export function AreaCellModal({
         setPickEmployee("");
         router.refresh();
       } catch (err) {
-        setError(err instanceof Error ? err.message : "Fehler");
+        setError(err instanceof Error ? err.message : "Error");
       }
     });
   };
@@ -71,7 +71,7 @@ export function AreaCellModal({
         await unassignEmployeeFromAreaOnDate({ employeeId, date });
         router.refresh();
       } catch (err) {
-        setError(err instanceof Error ? err.message : "Fehler");
+        setError(err instanceof Error ? err.message : "Error");
       }
     });
   };
@@ -108,7 +108,7 @@ export function AreaCellModal({
         <CardContent className="space-y-4">
           <div>
             <h3 className="text-sm font-semibold mb-2">
-              Eingeplant ({employees.length})
+              Scheduled ({employees.length})
             </h3>
             {employees.length === 0 ? (
               <p className="text-sm text-muted-foreground italic">
@@ -128,10 +128,10 @@ export function AreaCellModal({
                           ? `${emp.plannedStart}–${emp.plannedEnd}`
                           : "—"}
                         {emp.plannedBreakMinutes != null && (
-                          <span> · Pause {emp.plannedBreakMinutes} Min.</span>
+                          <span> · Break {emp.plannedBreakMinutes} min.</span>
                         )}
                         {emp.note && (
-                          <span className="ml-2 italic">„{emp.note}&ldquo;</span>
+                          <span className="ml-2 italic">&ldquo;{emp.note}&rdquo;</span>
                         )}
                       </div>
                     </div>
@@ -140,7 +140,7 @@ export function AreaCellModal({
                       disabled={pending}
                       onClick={() => onRemove(emp.id)}
                       className="p-1.5 rounded text-muted-foreground hover:text-destructive hover:bg-destructive/10"
-                      title="Aus diesem Bereich entfernen"
+                      title="Remove from this area"
                     >
                       <UserMinus className="h-4 w-4" />
                     </button>

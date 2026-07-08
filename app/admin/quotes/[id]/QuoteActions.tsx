@@ -72,9 +72,9 @@ export function QuoteActions({
       s === "SENT"
         ? "Send quote? This will freeze the current calculation parameters — the price remains fixed until the validity date."
         : s === "ACCEPTED"
-        ? "Offerte als angenommen markieren? Du kannst sie danach in einen Auftrag umwandeln."
+        ? "Mark quote as accepted? You can convert it into an order afterwards."
         : s === "REJECTED"
-        ? "Offerte als abgelehnt markieren?"
+        ? "Mark quote as rejected?"
         : null;
     if (confirmMsg && !confirm(confirmMsg)) return;
 
@@ -83,7 +83,7 @@ export function QuoteActions({
         await changeQuoteStatus(quoteId, { toStatus: s });
         router.refresh();
       } catch (err) {
-        setError(err instanceof Error ? err.message : "Fehler.");
+        setError(err instanceof Error ? err.message : "Error.");
       }
     });
   };
@@ -91,7 +91,7 @@ export function QuoteActions({
   const onConvert = () => {
     setError(null);
     if (!promisedAt) {
-      setError("Liefertermin angeben.");
+      setError("Please provide a delivery date.");
       return;
     }
     start(async () => {
@@ -102,7 +102,7 @@ export function QuoteActions({
         });
         router.push(`/admin/orders/${r.orderId}`);
       } catch (err) {
-        setError(err instanceof Error ? err.message : "Fehler.");
+        setError(err instanceof Error ? err.message : "Error.");
       }
     });
   };

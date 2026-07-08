@@ -33,7 +33,7 @@ export function ScheduleAllButton() {
         router.refresh();
         setTimeout(() => setFeedback(null), 6_000);
       } catch (err) {
-        setError(err instanceof Error ? err.message : "Fehler.");
+        setError(err instanceof Error ? err.message : "Error.");
       }
     });
   };
@@ -42,7 +42,7 @@ export function ScheduleAllButton() {
     <div className="flex flex-col items-end">
       <Button onClick={click} disabled={pending} size="sm">
         <Wand2 className="h-4 w-4 mr-1" />
-        {pending ? "Plane …" : "Alle planen"}
+        {pending ? "Planning …" : "Schedule all"}
       </Button>
       {feedback && (
         <span className="text-xs text-emerald-700 mt-1">{feedback}</span>
