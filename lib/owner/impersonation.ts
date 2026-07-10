@@ -12,9 +12,8 @@
  *     `endedAt`/`expiresAt`; a cookie without an active row is worthless.
  *   - Banner in the admin app and audit entry for each lifecycle step.
  *
- * Mutation counter and scope enforcement (READONLY blocks write operations)
- * will be wired into server actions in a later iteration. The schema is
- * already prepared for this (`mutationsCount`, `scope`).
+ * Scope enforcement (READONLY blocks write operations) is applied by admin
+ * server actions calling `assertNotReadOnlyImpersonation()` below.
  */
 
 import { SignJWT, jwtVerify } from "jose";
@@ -205,4 +204,24 @@ export async function getActiveImpersonation(): Promise<ActiveImpersonation | nu
   } catch {
     return null;
   }
+}
+
+/**
+ * Throws if the current request is running inside a READONLY owner
+ * impersonation session. Call this from any admin server action that
+ * mutates data, alongside the normal role/permission check — a READONLY
+ * impersonation must never be able to write, regardless of the
+ * impersonated user's own role.
+ */
+export async function assertNotReadOnlyImpersonation(): Promise<void> {
+  const imp = await getActiveImpersonation();
+  if (imp?.scope === "READONLY") {
+    throw new Error("Read-only session: write actions are disabled.");
+  }
+}
+
+/** For UI gating: true when the current request is inside a READONLY impersonation. */
+export async function isReadOnlyImpersonation(): Promise<boolean> {
+  const imp = await getActiveImpersonation();
+  return imp?.scope === "READONLY";
 }
