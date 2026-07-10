@@ -46,6 +46,8 @@ interface Props {
   customers: CustomerOption[];
   defaults: { vatRate: number; paymentTerms: number };
   initial?: InvoiceFormInitial;
+  currency: string;
+  locale: string;
 }
 
 function makeEmptyItem(position: number): ItemDraft {
@@ -69,17 +71,17 @@ function plusDaysIso(days: number): string {
   return d.toISOString().slice(0, 10);
 }
 
-function fmtCHF(n: number): string {
-  return new Intl.NumberFormat("de-CH", {
-    style: "currency",
-    currency: "CHF",
-  }).format(n);
-}
-
-export function InvoiceForm({ mode, customers, defaults, initial }: Props) {
+export function InvoiceForm({ mode, customers, defaults, initial, currency, locale }: Props) {
   const router = useRouter();
   const [pending, start] = useTransition();
   const [error, setError] = useState<string | null>(null);
+
+  const formatAmount = (n: number) => {
+    return new Intl.NumberFormat(locale, {
+      style: "currency",
+      currency,
+    }).format(n);
+  };
 
   const [customerId, setCustomerId] = useState(initial?.core.customerId ?? "");
   const [issuedAt, setIssuedAt] = useState(initial?.core.issuedAtIso ?? todayIso());
@@ -303,7 +305,7 @@ export function InvoiceForm({ mode, customers, defaults, initial }: Props) {
               <div className="col-span-12 text-xs text-right text-muted-foreground tabular-nums">
                 Line total:{" "}
                 <span className="font-medium">
-                  {fmtCHF(it.quantity * it.unitPriceCHF * (1 - it.discountPct / 100))}
+                  {formatAmount(it.quantity * it.unitPriceCHF * (1 - it.discountPct / 100))}
                 </span>
               </div>
             </div>
@@ -318,17 +320,17 @@ export function InvoiceForm({ mode, customers, defaults, initial }: Props) {
             <div>
               <div className="text-xs text-muted-foreground">Total net</div>
               <div className="text-lg font-semibold tabular-nums">
-                {fmtCHF(totals.totalNet)}
+                {formatAmount(totals.totalNet)}
               </div>
             </div>
             <div>
               <div className="text-xs text-muted-foreground">+ VAT {vatRate}%</div>
-              <div className="text-lg tabular-nums">{fmtCHF(totals.vatCHF)}</div>
+              <div className="text-lg tabular-nums">{formatAmount(totals.vatCHF)}</div>
             </div>
             <div>
               <div className="text-xs text-muted-foreground">Total gross</div>
               <div className="text-xl font-semibold tabular-nums text-emerald-700">
-                {fmtCHF(totals.totalGross)}
+                {formatAmount(totals.totalGross)}
               </div>
             </div>
           </div>

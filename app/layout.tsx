@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { NextIntlClientProvider } from "next-intl";
 import { getMessages } from "next-intl/server";
+import { NavigationProgress } from "@/components/layout/NavigationProgress";
 import "./globals.css";
 
 export const metadata: Metadata = {
@@ -17,8 +18,9 @@ export default async function RootLayout({
   const messages = await getMessages();
   return (
     <html lang="en" suppressHydrationWarning>
-      <body className="min-h-screen antialiased">
+      <body className="min-h-screen antialiased" suppressHydrationWarning>
         <NextIntlClientProvider locale="en" messages={messages}>
+          <NavigationProgress />
           {children}
         </NextIntlClientProvider>
       </body>

@@ -97,7 +97,7 @@ export function OrderStatusActions({
         setComment("");
         router.refresh();
       } catch (err) {
-        setError(err instanceof Error ? err.message : "Fehler.");
+        setError(err instanceof Error ? err.message : "Error.");
       }
     });
   };

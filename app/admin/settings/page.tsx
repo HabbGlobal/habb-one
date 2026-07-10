@@ -56,11 +56,12 @@ export default async function SettingsPage() {
       <Card>
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
-            <Receipt className="h-5 w-5" /> Banking & Rechnungs-Defaults
+            <Receipt className="h-5 w-5" /> Banking & Invoice Defaults
           </CardTitle>
         </CardHeader>
         <CardContent>
           <InvoiceSettingsForm
+            country={company.country}
             initial={{
               qrIban: company.qrIban ?? "",
               invoiceCreditorName: company.invoiceCreditorName ?? "",

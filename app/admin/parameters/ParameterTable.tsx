@@ -51,9 +51,13 @@ const ORDER = [
 export function ParameterTable({
   rows,
   canWrite,
+  currency,
+  locale,
 }: {
   rows: ParameterRowData[];
   canWrite: boolean;
+  currency: string;
+  locale: string;
 }) {
   const [query, setQuery] = useState("");
   const [activeCategory, setActiveCategory] = useState<string>("ALL");
@@ -104,7 +108,7 @@ export function ParameterTable({
           <Input
             value={query}
             onChange={(e) => setQuery(e.target.value)}
-            placeholder="Suche nach Label, Key oder Beschreibung …"
+            placeholder="Search by label, key, or description …"
             className="pl-8"
           />
         </div>
@@ -162,6 +166,8 @@ export function ParameterTable({
                           key={r.key}
                           param={r}
                           canWrite={canWrite}
+                          currency={currency}
+                          locale={locale}
                           onShowHistory={() =>
                             setHistory({
                               paramKey: r.key,

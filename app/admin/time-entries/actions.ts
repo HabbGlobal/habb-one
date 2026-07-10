@@ -8,6 +8,7 @@ import { hasPermission } from "@/lib/permissions";
 import { recordAudit } from "@/lib/audit";
 import { combineDateAndTime, localDateString, localMidnightUtc } from "@/lib/time/zone";
 import { computeWorkedTime } from "@/lib/time/calc";
+import { validatePunchInsertion } from "@/lib/time/punch";
 
 async function requireCorrector() {
   const session = await auth();
@@ -50,10 +51,15 @@ const addSchema = z.object({
 export async function addCorrectionPunch(input: z.infer<typeof addSchema>) {
   const user = await requireCorrector();
   const data = addSchema.parse(input);
-  const entry = await prisma.timeEntry.findUniqueOrThrow({ where: { id: data.timeEntryId }, include: { employee: true } });
+  const entry = await prisma.timeEntry.findUniqueOrThrow({
+    where: { id: data.timeEntryId },
+    include: { employee: true, punches: true },
+  });
   if (entry.employee.companyId !== user.companyId) throw new Error("FORBIDDEN");
 
   const occurredAt = combineDateAndTime(data.workDate, data.time);
+
+  validatePunchInsertion(entry.punches, data.type, occurredAt);
 
   const punch = await prisma.timePunch.create({
     data: {
@@ -118,6 +124,22 @@ export async function deletePunch(input: z.infer<typeof deleteSchema>) {
   if (punch.timeEntry.employee.companyId !== user.companyId) throw new Error("FORBIDDEN");
 
   await prisma.timePunch.delete({ where: { id: data.punchId } });
+
+  // Keep BreakEntry (the Attendance sheet's data source for break
+  // intervals/live-break state) in sync — addCorrectionPunch/addPunch both
+  // mirror BREAK_START/BREAK_END into BreakEntry, so deletion must undo the
+  // same mirroring or the Attendance sheet keeps showing the deleted break.
+  if (punch.type === "BREAK_START") {
+    await prisma.breakEntry.deleteMany({
+      where: { timeEntryId: data.timeEntryId, startedAt: punch.occurredAt },
+    });
+  }
+  if (punch.type === "BREAK_END") {
+    await prisma.breakEntry.updateMany({
+      where: { timeEntryId: data.timeEntryId, endedAt: punch.occurredAt },
+      data: { endedAt: null, minutes: null },
+    });
+  }
 
   await recordAudit({
     companyId: user.companyId,

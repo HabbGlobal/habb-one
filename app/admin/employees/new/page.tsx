@@ -12,7 +12,7 @@ export default async function NewEmployeePage() {
   const [company, areas] = await Promise.all([
     prisma.company.findUniqueOrThrow({
       where: { id: session.user.companyId },
-      select: { defaultWeeklyHours: true, defaultVacationDaysYear: true, defaultBreakMinutes: true },
+      select: { defaultWeeklyHours: true, defaultVacationDaysYear: true, defaultBreakMinutes: true, country: true },
     }),
     prisma.workArea.findMany({
       where: { companyId: session.user.companyId, archivedAt: null, deletedAt: null },
@@ -66,6 +66,7 @@ export default async function NewEmployeePage() {
         submitLabel={t("saveAndReturn")}
         companyWeeklyHours={weekly}
         availableAreas={areas}
+        country={company.country}
       />
     </div>
   );

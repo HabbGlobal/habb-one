@@ -79,7 +79,7 @@ function AddressRow({
         await deleteAddress(address.id);
         router.refresh();
       } catch (err) {
-        alert(err instanceof Error ? err.message : "Fehler");
+        alert(err instanceof Error ? err.message : "Error");
       }
     });
   };
@@ -97,7 +97,7 @@ function AddressRow({
           </span>
           {address.isDefault && (
             <span className="inline-flex items-center gap-1 rounded bg-amber-100 text-amber-800 px-1.5 py-0.5 text-[10px] font-semibold">
-              <Star className="h-3 w-3" /> Standard
+              <Star className="h-3 w-3" /> Default
             </span>
           )}
         </div>
@@ -177,7 +177,7 @@ function AddressDialog({
         router.refresh();
         onClose();
       } catch (err) {
-        setError(err instanceof Error ? err.message : "Fehler");
+        setError(err instanceof Error ? err.message : "Error");
       }
     });
   };

@@ -102,6 +102,8 @@ interface Props {
   templates: TemplateOption[];
   processResources: Record<ProcessCode, ProcessResource>;
   initial?: QuoteWizardInitial;
+  currency: string;
+  locale: string;
 }
 
 function makeEmptyItem(position: number): ItemDraft {
@@ -132,17 +134,17 @@ function todayPlus(days: number): string {
   return d.toISOString().slice(0, 10);
 }
 
-function fmtCHF(n: number): string {
-  return new Intl.NumberFormat("de-CH", {
-    style: "currency",
-    currency: "CHF",
-  }).format(n);
-}
-
-export function QuoteWizard({ mode, customers, templates, processResources, initial }: Props) {
+export function QuoteWizard({ mode, customers, templates, processResources, initial, currency, locale }: Props) {
   const router = useRouter();
   const [pending, start] = useTransition();
   const [error, setError] = useState<string | null>(null);
+
+  const formatAmount = (n: number) => {
+    return new Intl.NumberFormat(locale, {
+      style: "currency",
+      currency,
+    }).format(n);
+  };
 
   const [customerId, setCustomerId] = useState(initial?.core.customerId ?? "");
   const [validUntil, setValidUntil] = useState(initial?.core.validUntilIso ?? todayPlus(30));
@@ -506,7 +508,7 @@ export function QuoteWizard({ mode, customers, templates, processResources, init
                   </span>
                 )}
                 <span className="ml-2 text-muted-foreground text-xs">
-                  ({fmtCHF(it.unitPriceCHF * it.quantity)})
+                  ({formatAmount(it.unitPriceCHF * it.quantity)})
                 </span>
               </CardTitle>
               <button
@@ -918,16 +920,16 @@ export function QuoteWizard({ mode, customers, templates, processResources, init
           <div className="flex items-baseline justify-between">
             <div>
               <div className="text-xs text-muted-foreground">Total net</div>
-              <div className="text-lg font-semibold tabular-nums">{fmtCHF(totalNet)}</div>
+              <div className="text-lg font-semibold tabular-nums">{formatAmount(totalNet)}</div>
             </div>
             <div>
               <div className="text-xs text-muted-foreground">+ VAT {vatRate}%</div>
-              <div className="text-lg tabular-nums">{fmtCHF(vatCHF)}</div>
+              <div className="text-lg tabular-nums">{formatAmount(vatCHF)}</div>
             </div>
             <div>
               <div className="text-xs text-muted-foreground">Total gross</div>
               <div className="text-xl font-semibold tabular-nums text-emerald-700">
-                {fmtCHF(totalGross)}
+                {formatAmount(totalGross)}
               </div>
             </div>
           </div>

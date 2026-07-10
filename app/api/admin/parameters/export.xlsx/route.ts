@@ -7,6 +7,7 @@ import ExcelJS from "exceljs";
 import { auth } from "@/lib/auth";
 import { hasPermission } from "@/lib/permissions";
 import { prisma } from "@/lib/prisma";
+import { getCompanyLocale } from "@/lib/company-context";
 
 export async function GET() {
   const session = await auth();
@@ -50,6 +51,8 @@ export async function GET() {
   ws.getRow(1).alignment = { vertical: "middle" };
   ws.getRow(1).height = 22;
 
+  const companyLocale = await getCompanyLocale(session.user.companyId);
+
   for (const p of params) {
     ws.addRow({
       key: p.key,
@@ -61,7 +64,7 @@ export async function GET() {
       unit: p.unit ?? "",
       minValue: p.minValue?.toString() ?? "",
       maxValue: p.maxValue?.toString() ?? "",
-      updatedAt: p.updatedAt.toLocaleString("de-CH", { timeZone: "Europe/Zurich" }),
+      updatedAt: p.updatedAt.toLocaleString("de-CH", { timeZone: companyLocale.timezone }),
       updatedBy: p.updatedBy.name,
     });
   }

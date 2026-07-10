@@ -33,7 +33,7 @@ async function requireCorrector() {
 
 const createSchema = z.object({
   employeeId: z.string().min(1),
-  date: z.string().regex(/^\d{4}-\d{2}-\d{2}$/, "Datum fehlt."),
+  date: z.string().regex(/^\d{4}-\d{2}-\d{2}$/, "Date is missing."),
   // Direction + hours are separated to avoid sign confusion.
   direction: z.enum(["ADD", "SUBTRACT"]),
   hours: z.coerce
@@ -42,7 +42,7 @@ const createSchema = z.object({
     .max(2000, "Value too large."),
   reason: z
     .string()
-    .min(3, "Bitte einen Grund (mind. 3 Zeichen) angeben.")
+    .min(3, "Please provide a reason (min. 3 characters).")
     .max(500),
 });
 

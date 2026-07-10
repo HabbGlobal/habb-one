@@ -62,11 +62,11 @@ function fmtDate(d: Date | null): string {
   }).format(d);
 }
 
-function fmtCHF(n: number | null): string {
+function fmtCHF(n: number | null, currency: string = "CHF", locale: string = "de-CH"): string {
   if (n == null) return "—";
-  return new Intl.NumberFormat("de-CH", {
+  return new Intl.NumberFormat(locale, {
     style: "currency",
-    currency: "CHF",
+    currency,
   }).format(n);
 }
 

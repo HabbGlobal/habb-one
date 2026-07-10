@@ -10,6 +10,7 @@ import {
 } from "@/lib/reports/schedule";
 import { schedulePdf } from "@/lib/reports/schedule-pdf";
 import { scheduleXlsx } from "@/lib/reports/schedule-xlsx";
+import { getCompanyLocale } from "@/lib/company-context";
 
 const schema = z.object({
   format: z.enum(["pdf", "xlsx"]),
@@ -62,6 +63,7 @@ export async function GET(req: Request) {
     mode,
   });
   const exportedBy = session.user.name ?? session.user.email ?? "Admin";
+  const companyLocale = await getCompanyLocale(session.user.companyId);
 
   const baseName =
     mode === "month"
@@ -70,7 +72,7 @@ export async function GET(req: Request) {
   const suffix = areaId ? `_${areaId.slice(0, 6)}` : "";
 
   if (format === "xlsx") {
-    const buf = await scheduleXlsx(report, exportedBy);
+    const buf = await scheduleXlsx(report, exportedBy, companyLocale.timezone);
     return new NextResponse(buf as unknown as BodyInit, {
       headers: {
         "Content-Type":
@@ -79,7 +81,7 @@ export async function GET(req: Request) {
       },
     });
   }
-  const pdf = await schedulePdf(report, exportedBy);
+  const pdf = await schedulePdf(report, exportedBy, companyLocale.timezone);
   return new NextResponse(pdf as unknown as BodyInit, {
     headers: {
       "Content-Type": "application/pdf",

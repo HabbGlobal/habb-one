@@ -24,23 +24,30 @@ const STATUS_VARIANT: Record<
   CANCELLED: "secondary",
 };
 
-function fmtDate(d: Date): string {
-  return new Intl.DateTimeFormat("de-CH", {
+function fmtDate(d: Date, timezone: string, locale?: string): string {
+  return new Intl.DateTimeFormat(locale ?? "de-CH", {
     day: "2-digit",
     month: "2-digit",
     year: "numeric",
-    timeZone: "Europe/Zurich",
+    timeZone: timezone,
   }).format(typeof d === "string" ? new Date(d) : d);
 }
 
-function fmtCHF(n: number): string {
-  return new Intl.NumberFormat("de-CH", {
+function fmtAmount(n: number, currency: string, locale?: string): string {
+  return new Intl.NumberFormat(locale ?? "de-CH", {
     style: "currency",
-    currency: "CHF",
+    currency,
   }).format(n);
 }
 
-export function InvoiceList({ rows }: { rows: InvoiceListItemDTO[] }) {
+interface InvoiceListProps {
+  rows: InvoiceListItemDTO[];
+  currency: string;
+  locale: string;
+  timezone: string;
+}
+
+export function InvoiceList({ rows, currency, locale, timezone }: InvoiceListProps) {
   if (rows.length === 0) {
     return (
       <div className="text-center text-muted-foreground py-10 text-sm">
@@ -79,12 +86,12 @@ export function InvoiceList({ rows }: { rows: InvoiceListItemDTO[] }) {
                     <AlertTriangle className="h-3 w-3" />overdue</span>
                 )}
                 {i.orderId && (
-                  <span className="text-[10px] text-muted-foreground">aus Auftrag</span>
+                  <span className="text-[10px] text-muted-foreground">from order</span>
                 )}
               </div>
             </TableCell>
-            <TableCell className="text-xs tabular-nums">{fmtDate(i.issuedAt)}</TableCell>
-            <TableCell className="text-xs tabular-nums">{fmtDate(i.dueAt)}</TableCell>
+            <TableCell className="text-xs tabular-nums">{fmtDate(i.issuedAt, timezone, locale)}</TableCell>
+            <TableCell className="text-xs tabular-nums">{fmtDate(i.dueAt, timezone, locale)}</TableCell>
             <TableCell className="text-center">
               {i.reminderLevel > 0 ? (
                 <Badge variant="warning" className="text-[10px]">
@@ -94,7 +101,7 @@ export function InvoiceList({ rows }: { rows: InvoiceListItemDTO[] }) {
                 <span className="text-xs text-muted-foreground">—</span>
               )}
             </TableCell>
-            <TableCell className="text-right tabular-nums">{fmtCHF(i.totalGrossCHF)}</TableCell>
+            <TableCell className="text-right tabular-nums">{fmtAmount(i.totalGrossCHF, currency, locale)}</TableCell>
             <TableCell>
               <Link
                 href={`/admin/invoices/${i.id}`}

@@ -80,7 +80,7 @@ export function KioskPasswordForm({ hasKioskPassword }: Props) {
     <Card>
       <CardHeader>
         <CardTitle className="flex items-center gap-2 text-base">
-          <Lock className="h-4 w-4" /> Kiosk-Passwort
+          <Lock className="h-4 w-4" /> Kiosk password
         </CardTitle>
       </CardHeader>
       <CardContent className="space-y-4">

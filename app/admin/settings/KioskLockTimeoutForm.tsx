@@ -99,7 +99,7 @@ export function KioskLockTimeoutForm({ currentMinutes }: Props) {
 
         <form onSubmit={submit} className="space-y-4">
           <fieldset className="space-y-2">
-            <legend className="sr-only">Auto-Logout-Modus</legend>
+            <legend className="sr-only">Auto-logout mode</legend>
 
             <label className="flex items-start gap-3 rounded-md border p-3 cursor-pointer hover:bg-muted/30">
               <input

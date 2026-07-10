@@ -7,7 +7,6 @@
 // the break counter ticks instead.
 
 import { useEffect, useState } from "react";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 
 export interface LiveStatsProps {
   serverNowIso: string;
@@ -58,13 +57,13 @@ export function LiveStats(props: LiveStatsProps) {
 
   return (
     <>
-      <Card>
-        <CardHeader>
-          <CardTitle>
+      <div className="rounded-3xl border border-white/10 bg-white/5 backdrop-blur-xl p-8 shadow-2xl">
+        <div className="mb-6">
+          <h3 className="text-xl font-bold text-white">
             {props.labels.today} — {props.todayDate}
-          </CardTitle>
-        </CardHeader>
-        <CardContent className="grid grid-cols-2 md:grid-cols-4 gap-4">
+          </h3>
+        </div>
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
           <Stat label={props.labels.target} value={fmt(todayTargetSec, false)} />
           <Stat
             label={props.labels.worked}
@@ -77,24 +76,24 @@ export function LiveStats(props: LiveStatsProps) {
             tone={todayBalanceSec < 0 ? "negative" : "positive"}
           />
           <Stat label={props.labels.remaining} value={fmt(todayRemainingSec, false)} />
-        </CardContent>
+        </div>
         {props.isOnBreak && (
-          <CardContent className="pt-0">
-            <div className="rounded-lg bg-amber-50 border border-amber-200 px-4 py-3 flex items-center gap-2">
-              <span className="inline-block w-2 h-2 rounded-full bg-amber-500 animate-pulse" />
-              <span className="text-sm">
-                {props.labels.breakLabel}: <span className="font-mono font-semibold">{fmt(todayBreakSec, true)}</span>
+          <div className="mt-6">
+            <div className="rounded-2xl bg-amber-500/10 border border-amber-500/20 px-5 py-4 flex items-center gap-3">
+              <span className="inline-block w-3 h-3 rounded-full bg-amber-400 animate-pulse shadow-[0_0_10px_rgba(245,158,11,0.5)]" />
+              <span className="text-base font-bold text-amber-400">
+                {props.labels.breakLabel}: <span className="font-mono font-black text-xl ml-1">{fmt(todayBreakSec, true)}</span>
               </span>
             </div>
-          </CardContent>
+          </div>
         )}
-      </Card>
+      </div>
 
-      <Card>
-        <CardHeader>
-          <CardTitle>{props.labels.thisWeek}</CardTitle>
-        </CardHeader>
-        <CardContent className="grid grid-cols-2 md:grid-cols-4 gap-4">
+      <div className="rounded-3xl border border-white/10 bg-white/5 backdrop-blur-xl p-8 shadow-2xl">
+        <div className="mb-6">
+          <h3 className="text-xl font-bold text-white">{props.labels.thisWeek}</h3>
+        </div>
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
           <Stat label={props.labels.target} value={fmt(weekTargetSec, false)} />
           <Stat
             label={props.labels.worked}
@@ -107,8 +106,8 @@ export function LiveStats(props: LiveStatsProps) {
             tone={weekBalanceSec < 0 ? "negative" : "positive"}
           />
           <Stat label={props.labels.remaining} value={fmt(weekRemainingSec, false)} />
-        </CardContent>
-      </Card>
+        </div>
+      </div>
     </>
   );
 }
@@ -137,14 +136,14 @@ function Stat({
   live?: boolean;
 }) {
   const color =
-    tone === "negative" ? "text-red-600" : tone === "positive" ? "text-green-700" : "";
+    tone === "negative" ? "text-habb-red" : tone === "positive" ? "text-emerald-400" : "text-white";
   return (
     <div>
-      <div className="text-xs uppercase text-muted-foreground flex items-center gap-1">
+      <div className="text-sm font-bold uppercase tracking-widest text-neutral-400 flex items-center gap-2 mb-1">
         {label}
-        {live && <span className="inline-block w-2 h-2 rounded-full bg-green-500 animate-pulse" />}
+        {live && <span className="inline-block w-2.5 h-2.5 rounded-full bg-emerald-400 animate-pulse shadow-[0_0_10px_rgba(16,185,129,0.5)]" />}
       </div>
-      <div className={`text-2xl font-semibold tabular-nums ${color}`}>{value}</div>
+      <div className={`text-4xl font-black tabular-nums ${color}`}>{value}</div>
     </div>
   );
 }

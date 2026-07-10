@@ -24,6 +24,7 @@ const ACCENT = rgb(0.855, 0.055, 0.082);
 export async function payrollPdf(
   report: PayrollDataPoint,
   exportedBy: string,
+  timezone?: string,
 ): Promise<Uint8Array> {
   const doc = await PDFDocument.create();
   const font = await doc.embedFont(StandardFonts.Helvetica);
@@ -67,7 +68,7 @@ export async function payrollPdf(
 
   yLeft = drawSection(page, col1X, yLeft, "Master Data", bold);
   yLeft = drawKV(page, col1X, colWidth, yLeft, "Date of Birth", fmt(report.employee.dateOfBirth), font, bold);
-  yLeft = drawKV(page, col1X, colWidth, yLeft, "SSN", report.employee.ahvNumber ?? "—", font, bold);
+  yLeft = drawKV(page, col1X, colWidth, yLeft, "NIC", report.employee.ahvNumber ?? "—", font, bold);
   yLeft = drawKV(page, col1X, colWidth, yLeft, "Address", report.employee.address ?? "—", font, bold);
   yLeft = drawKV(page, col1X, colWidth, yLeft, "Email", report.employee.email ?? "—", font, bold);
   yLeft = drawKV(page, col1X, colWidth, yLeft, "Phone", report.employee.phone ?? "—", font, bold);
@@ -306,7 +307,7 @@ export async function payrollPdf(
   drawHRule(page, y, RULE);
   y -= 12;
   page.drawText(
-    `Created: ${new Date().toLocaleString("en-GB", { timeZone: "Europe/Zurich" })} — Exported by ${exportedBy}`,
+    `Created: ${new Date().toLocaleString("en-GB", { timeZone: timezone ?? "Europe/Zurich" })} — Exported by ${exportedBy}`,
     { x: MARGIN, y, size: 8, font, color: MUTED },
   );
 

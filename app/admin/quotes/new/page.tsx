@@ -7,6 +7,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { QuoteWizard } from "../QuoteWizard";
 import { loadActiveTemplates } from "@/lib/templates/load";
 import { PROCESS_RESOURCES } from "@/lib/order/process-templates";
+import { getCompanyLocale } from "@/lib/company-context";
 
 export const dynamic = "force-dynamic";
 
@@ -14,6 +15,8 @@ export default async function NewQuotePage() {
   const session = await auth();
   if (!session?.user) redirect("/login");
   if (!hasPermission(session.user.role, "quotes.write")) redirect("/admin/quotes");
+
+  const companyLocale = await getCompanyLocale(session.user.companyId);
 
   const customers = await prisma.customer.findMany({
     where: {
@@ -58,6 +61,8 @@ export default async function NewQuotePage() {
             customers={customerOptions}
             templates={templates}
             processResources={PROCESS_RESOURCES}
+            currency={companyLocale.currency}
+            locale={companyLocale.locale}
           />
         </CardContent>
       </Card>

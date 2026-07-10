@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Download } from "lucide-react";
 import { ParameterTable, type ParameterRowData } from "./ParameterTable";
+import { getCompanyLocale } from "@/lib/company-context";
 
 export const dynamic = "force-dynamic";
 
@@ -14,6 +15,7 @@ export default async function ParametersPage() {
   if (!session?.user) redirect("/login");
   if (!hasPermission(session.user.role, "parameters.read")) redirect("/admin");
 
+  const companyLocale = await getCompanyLocale(session.user.companyId);
   const canWrite = hasPermission(session.user.role, "parameters.write");
 
   const params = await prisma.systemParameter.findMany({
@@ -102,7 +104,7 @@ for CONFIRMED and later statuses via snapshot.
         </Card>
       )}
 
-      <ParameterTable rows={rows} canWrite={canWrite} />
+      <ParameterTable rows={rows} canWrite={canWrite} currency={companyLocale.currency} locale={companyLocale.locale} />
 
       <Card>
         <CardHeader>
@@ -124,6 +126,7 @@ for CONFIRMED and later statuses via snapshot.
                       year: "numeric",
                       hour: "2-digit",
                       minute: "2-digit",
+                      timeZone: companyLocale.timezone,
                     }).format(c.effectiveAt)}
                   </span>
                   <span className="font-medium">{c.parameter.label}</span>

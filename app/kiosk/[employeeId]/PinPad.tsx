@@ -52,24 +52,32 @@ export function PinPad({ employeeId, wrongPinMessage, lockedMessage }: Props) {
 
   return (
     <div className="space-y-6">
-      <div className="flex justify-center gap-3" aria-label="PIN">
-        {[0, 1, 2, 3].map((i) => (
-          <div
-            key={i}
-            className="w-12 h-14 rounded-lg border-2 flex items-center justify-center text-3xl font-semibold bg-white"
-          >
-            {pin[i] ? "•" : ""}
+      <div className="flex justify-center gap-6 min-h-[24px]" aria-label="PIN">
+        {isPending ? (
+          <div className="flex w-full items-center justify-center">
+            <div className="h-6 w-6 animate-spin rounded-full border-2 border-habb-red border-t-transparent shadow-[0_0_20px_rgba(218,14,21,0.5)]" />
           </div>
-        ))}
+        ) : (
+          [0, 1, 2, 3].map((i) => (
+            <div
+              key={i}
+              className={`w-6 h-6 rounded-full transition-all duration-300 ${
+                pin[i]
+                  ? "bg-habb-red shadow-[0_0_20px_rgba(218,14,21,0.8)] scale-110"
+                  : "bg-white/10"
+              }`}
+            />
+          ))
+        )}
       </div>
       {error && <p className="text-center text-sm text-destructive">{error}</p>}
       <div className="grid grid-cols-3 gap-3">
         {["1", "2", "3", "4", "5", "6", "7", "8", "9"].map((d) => (
           <Button
             key={d}
-            variant="outline"
+            variant="ghost"
             size="lg"
-            className="h-16 text-2xl"
+            className="h-16 text-2xl rounded-full bg-white/5 hover:bg-white/10 hover:text-white transition-all text-white border border-white/5"
             onClick={() => append(d)}
             disabled={isPending}
           >
@@ -79,16 +87,16 @@ export function PinPad({ employeeId, wrongPinMessage, lockedMessage }: Props) {
         <Button
           variant="ghost"
           size="lg"
-          className="h-16 text-base"
+          className="h-16 text-lg rounded-full text-neutral-400 hover:bg-white/10 hover:text-white transition-all"
           onClick={clear}
           disabled={isPending}
         >
           C
         </Button>
         <Button
-          variant="outline"
+          variant="ghost"
           size="lg"
-          className="h-16 text-2xl"
+          className="h-16 text-2xl rounded-full bg-white/5 hover:bg-white/10 hover:text-white transition-all text-white border border-white/5"
           onClick={() => append("0")}
           disabled={isPending}
         >
@@ -97,7 +105,7 @@ export function PinPad({ employeeId, wrongPinMessage, lockedMessage }: Props) {
         <Button
           variant="ghost"
           size="lg"
-          className="h-16 text-base"
+          className="h-16 text-lg rounded-full text-neutral-400 hover:bg-white/10 hover:text-white transition-all"
           onClick={() => setPin((p) => p.slice(0, -1))}
           disabled={isPending}
         >

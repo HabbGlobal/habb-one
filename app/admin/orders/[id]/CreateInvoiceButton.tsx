@@ -29,7 +29,7 @@ export function CreateInvoiceButton({
         const r = await createInvoiceFromOrder({ orderId });
         router.push(`/admin/invoices/${r.id}`);
       } catch (err) {
-        setError(err instanceof Error ? err.message : "Fehler.");
+        setError(err instanceof Error ? err.message : "Error.");
       }
     });
   };

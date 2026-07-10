@@ -39,18 +39,19 @@ const PRIORITY_VARIANT: Record<
   EXPRESS: "destructive",
 };
 
-function formatDate(d: Date): string {
-  return new Intl.DateTimeFormat("de-CH", {
+function formatDate(d: Date, timezone?: string, locale?: string): string {
+  return new Intl.DateTimeFormat(locale ?? "de-CH", {
     day: "2-digit",
     month: "2-digit",
     year: "numeric",
+    timeZone: timezone ?? "Europe/Zurich",
   }).format(d);
 }
 
-function formatCHF(n: number): string {
-  return new Intl.NumberFormat("de-CH", {
+function formatAmount(n: number, currency: string, locale: string): string {
+  return new Intl.NumberFormat(locale, {
     style: "currency",
-    currency: "CHF",
+    currency,
   }).format(n);
 }
 
@@ -62,9 +63,15 @@ function formatHours(min: number): string {
 export function OrderList({
   rows,
   view,
+  currency,
+  locale,
+  timezone,
 }: {
   rows: OrderListItemDTO[];
   view: LifecycleView;
+  currency: string;
+  locale: string;
+  timezone: string;
 }) {
   const columns: ColumnDef<OrderListItemDTO>[] = [
     {
@@ -81,7 +88,7 @@ export function OrderList({
     {
       header: "Received",
       cell: (o) => (
-        <span className="text-xs tabular-nums">{formatDate(o.receivedAt)}</span>
+        <span className="text-xs tabular-nums">{formatDate(o.receivedAt, timezone, locale)}</span>
       ),
       className: "w-24",
     },
@@ -95,7 +102,7 @@ export function OrderList({
               : "tabular-nums text-sm"
           }
         >
-          {formatDate(o.promisedAt)}
+          {formatDate(o.promisedAt, timezone, locale)}
           {o.isLate && (
             <span className="ml-1 inline-flex h-2 w-2 rounded-full bg-destructive" />
           )}
@@ -113,13 +120,13 @@ export function OrderList({
     {
       header: "Prio",
       cell: (o) =>
-        o.priority === "NORMAL" ? (
-          <span className="text-xs text-muted-foreground">—</span>
-        ) : (
-          <Badge variant={PRIORITY_VARIANT[o.priority]}>
-            {priorityLabel(o.priority)}
-          </Badge>
-        ),
+          o.priority === "NORMAL" ? (
+            <span className="text-xs text-muted-foreground">—</span>
+          ) : (
+            <Badge variant={PRIORITY_VARIANT[o.priority]}>
+              {priorityLabel(o.priority)}
+            </Badge>
+          ),
       className: "w-20",
     },
     {
@@ -165,7 +172,7 @@ export function OrderList({
       header: "Amount",
       cell: (o) =>
         o.totalNetCHF != null ? (
-          <span className="tabular-nums text-sm">{formatCHF(o.totalNetCHF)}</span>
+          <span className="tabular-nums text-sm">{formatAmount(o.totalNetCHF, currency, locale)}</span>
         ) : (
           <span className="text-xs text-muted-foreground">—</span>
         ),

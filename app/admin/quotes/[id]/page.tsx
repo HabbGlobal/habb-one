@@ -26,29 +26,16 @@ import { loadActiveTemplates } from "@/lib/templates/load";
 import { PROCESS_RESOURCES } from "@/lib/order/process-templates";
 import { QuoteActions } from "./QuoteActions";
 import { QuoteWizard } from "../QuoteWizard";
+import { getCompanyLocale } from "@/lib/company-context";
 
 export const dynamic = "force-dynamic";
 
-function fmtDate(d: Date): string {
-  return new Intl.DateTimeFormat("de-CH", {
-    day: "2-digit",
-    month: "2-digit",
-    year: "numeric",
-    timeZone: "Europe/Zurich",
-  }).format(d);
-}
-function fmtCHF(n: number): string {
-  return new Intl.NumberFormat("de-CH", {
-    style: "currency",
-    currency: "CHF",
-  }).format(n);
-}
 function fmtMin(n: number): string {
   const h = Math.floor(n / 60);
   const m = n % 60;
-  if (h === 0) return `${m} Min`;
+  if (h === 0) return `${m} min`;
   if (m === 0) return `${h} h`;
-  return `${h} h ${m} Min`;
+  return `${h} h ${m} min`;
 }
 
 export default async function QuoteDetailPage({
@@ -59,6 +46,24 @@ export default async function QuoteDetailPage({
   const session = await auth();
   if (!session?.user) redirect("/login");
   if (!hasPermission(session.user.role, "quotes.read")) redirect("/admin");
+
+  const companyLocale = await getCompanyLocale(session.user.companyId);
+
+  const fmtDate = (d: Date) => {
+    return new Intl.DateTimeFormat(companyLocale.locale, {
+      day: "2-digit",
+      month: "2-digit",
+      year: "numeric",
+      timeZone: companyLocale.timezone,
+    }).format(d);
+  };
+
+  const fmtCHF = (n: number) => {
+    return new Intl.NumberFormat(companyLocale.locale, {
+      style: "currency",
+      currency: companyLocale.currency,
+    }).format(n);
+  };
 
   const { id } = await params;
   const quote = await prisma.quote.findFirst({
@@ -193,7 +198,7 @@ export default async function QuoteDetailPage({
         <div className="flex flex-wrap items-center gap-2">
           <Button asChild variant="outline" size="sm">
             <a href={`/api/admin/quotes/${dto.id}/offer.pdf`} target="_blank">
-              <FileText className="h-4 w-4 mr-1" /> Offerte (PDF)
+              <FileText className="h-4 w-4 mr-1" /> Quote (PDF)
             </a>
           </Button>
         </div>
@@ -247,6 +252,8 @@ export default async function QuoteDetailPage({
               templates={editorTemplates}
               processResources={PROCESS_RESOURCES}
               initial={editorInitial}
+              currency={companyLocale.currency}
+              locale={companyLocale.locale}
             />
           </CardContent>
         </Card>
@@ -336,7 +343,7 @@ export default async function QuoteDetailPage({
                 <div className="font-medium tabular-nums">{fmtCHF(dto.totalNetCHF)}</div>
               </div>
               <div>
-                <div className="text-xs text-muted-foreground">+ MwSt {dto.vatRate}%</div>
+                <div className="text-xs text-muted-foreground">+ VAT {dto.vatRate}%</div>
                 <div className="text-lg font-semibold tabular-nums text-emerald-700">
                   {fmtCHF(
                     Math.round(dto.totalNetCHF * (1 + dto.vatRate / 100) * 100) / 100,

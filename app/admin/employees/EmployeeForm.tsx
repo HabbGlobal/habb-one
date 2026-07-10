@@ -96,6 +96,7 @@ interface Props {
   companyWeeklyHours?: number;
   /** All currently-active work areas (so the form can show a checkbox list). */
   availableAreas?: AvailableArea[];
+  country?: string;
 }
 
 // The form imports the server actions directly. Importing actions from a
@@ -108,6 +109,7 @@ export function EmployeeForm({
   submitLabel,
   companyWeeklyHours = 42,
   availableAreas = [],
+  country = "CH",
 }: Props) {
   const t = useTranslations("employees");
   const tCommon = useTranslations("common");
@@ -329,12 +331,13 @@ export function EmployeeForm({
               onChange={(e) => update("dateOfBirth", e.target.value)}
             />
           </Field>
-          <Field label="SSN">
+          <Field label={country === "LK" ? "NIC" : "SSN / AHV"}>
             <Input
               value={data.ahvNumber}
               onChange={(e) => update("ahvNumber", e.target.value)}
-              placeholder="756.XXXX.XXXX.XX"
-              maxLength={16}
+              placeholder={country === "LK" ? "NIC (8-12 letters or numbers)" : "756.XXXX.XXXX.XX"}
+              maxLength={country === "LK" ? 12 : 16}
+              pattern={country === "LK" ? "[A-Za-z0-9]{8,12}" : "7[0-9]{2}[.]?[0-9]{4}[.]?[0-9]{4}[.]?[0-9]{2}"}
             />
           </Field>
           <Field label="Address">

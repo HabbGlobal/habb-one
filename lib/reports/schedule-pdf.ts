@@ -19,7 +19,8 @@ const ROW_HEIGHT = 26;
 
 export async function schedulePdf(
   report: ScheduleReportData,
-  exportedBy: string
+  exportedBy: string,
+  timezone?: string,
 ): Promise<Uint8Array> {
   const doc = await PDFDocument.create();
   const font = await doc.embedFont(StandardFonts.Helvetica);
@@ -35,7 +36,7 @@ export async function schedulePdf(
     logoMimeType: report.company.logoMimeType ?? null,
   });
 
-  drawPage(doc, report, font, fontBold, exportedBy, dayColWidth, logo);
+  drawPage(doc, report, font, fontBold, exportedBy, dayColWidth, logo, timezone);
 
   return doc.save();
 }
@@ -48,6 +49,7 @@ function drawPage(
   exportedBy: string,
   dayColWidth: number,
   logo: EmbeddedLogo | null,
+  timezone?: string,
 ) {
   const page = doc.addPage(A4_LANDSCAPE);
   if (logo) drawCompanyLogoTopRight(page, logo, { maxWidthMm: 30, maxHeightMm: 14, marginMm: 8 });
@@ -67,7 +69,7 @@ function drawPage(
     font,
   });
   page.drawText(
-    `Status: ${report.status}  ·  Created: ${formatNow()}  ·  By: ${exportedBy}`,
+    `Status: ${report.status}  ·  Created: ${formatNow(timezone)}  ·  By: ${exportedBy}`,
     {
       x: MARGIN,
       y: height - MARGIN - 38,
@@ -301,9 +303,9 @@ function lightenHex(hex: string, mix: number) {
   };
 }
 
-function formatNow(): string {
+function formatNow(timezone?: string): string {
   return new Date().toLocaleString("en-GB", {
-    timeZone: "Europe/Zurich",
+    timeZone: timezone ?? "Europe/Zurich",
     day: "2-digit",
     month: "2-digit",
     year: "numeric",

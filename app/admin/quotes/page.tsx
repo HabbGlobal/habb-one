@@ -10,6 +10,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { hasPermission } from "@/lib/permissions";
 import { toQuoteListItemDTO } from "@/lib/dto/quote";
 import { QuoteList } from "./QuoteList";
+import { getCompanyLocale } from "@/lib/company-context";
 
 export const dynamic = "force-dynamic";
 
@@ -69,6 +70,8 @@ export default async function QuotesPage({
 
   const rows = quotes.map(toQuoteListItemDTO);
 
+  const companyLocale = await getCompanyLocale(session.user.companyId);
+
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
@@ -109,7 +112,7 @@ export default async function QuotesPage({
 
       <Card>
         <CardContent className="p-3">
-          <QuoteList rows={rows} />
+          <QuoteList rows={rows} currency={companyLocale.currency} locale={companyLocale.locale} timezone={companyLocale.timezone} />
         </CardContent>
       </Card>
     </div>

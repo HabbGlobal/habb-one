@@ -78,7 +78,7 @@ function ContactRow({
         await deleteContact(contact.id);
         router.refresh();
       } catch (err) {
-        alert(err instanceof Error ? err.message : "Fehler");
+        alert(err instanceof Error ? err.message : "Error");
       }
     });
   };
@@ -122,7 +122,7 @@ function ContactRow({
               href={`tel:${contact.mobile}`}
               className="inline-flex items-center gap-1 hover:underline"
             >
-              <Phone className="h-3 w-3" /> {contact.mobile} (mobil)
+              <Phone className="h-3 w-3" /> {contact.mobile} (mobile)
             </a>
           )}
         </div>
@@ -196,7 +196,7 @@ function ContactDialog({
         router.refresh();
         onClose();
       } catch (err) {
-        setError(err instanceof Error ? err.message : "Fehler");
+        setError(err instanceof Error ? err.message : "Error");
       }
     });
   };
@@ -231,7 +231,7 @@ function ContactDialog({
               <Input
                 value={data.position}
                 onChange={(e) => setData({ ...data, position: e.target.value })}
-                placeholder="z. B. Einkauf"
+                placeholder="e.g. Purchasing"
               />
             </Field>
             <Field label="First Name">
