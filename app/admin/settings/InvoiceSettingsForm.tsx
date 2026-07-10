@@ -24,7 +24,7 @@ interface Initial {
   invoiceDefaultVatRate: number;
 }
 
-export function InvoiceSettingsForm({ initial }: { initial: Initial }) {
+export function InvoiceSettingsForm({ initial, country }: { initial: Initial; country: string }) {
   const router = useRouter();
   const [pending, start] = useTransition();
   const [error, setError] = useState<string | null>(null);
@@ -36,6 +36,7 @@ export function InvoiceSettingsForm({ initial }: { initial: Initial }) {
   const [paymentTerms, setPaymentTerms] = useState(initial.invoicePaymentTerms);
   const [vatRate, setVatRate] = useState(initial.invoiceDefaultVatRate);
 
+  const isSwiss = country === "CH" || country === "FL";
   const ibanNormalized = qrIban ? normalizeIban(qrIban) : "";
   const ibanValid = ibanNormalized ? isValidIban(ibanNormalized) : true;
   const isQr = ibanNormalized ? isQrIban(ibanNormalized) : false;
@@ -46,7 +47,7 @@ export function InvoiceSettingsForm({ initial }: { initial: Initial }) {
     start(async () => {
       try {
         await updateInvoiceSettings({
-          qrIban: ibanNormalized,
+          qrIban: isSwiss ? ibanNormalized : qrIban, // Keep original input if not validating Swiss QR format
           invoiceCreditorName: creditorName || undefined,
           vatNumber: vatNumber || undefined,
           invoicePaymentTerms: paymentTerms,
@@ -66,18 +67,20 @@ export function InvoiceSettingsForm({ initial }: { initial: Initial }) {
       <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
         <div className="space-y-1 md:col-span-2">
           <Label>
-            QR-IBAN *{" "}
+            {isSwiss ? "QR-IBAN *" : "Bank Account / IBAN"}{" "}
             <span className="text-xs text-muted-foreground font-normal">
-              (Swiss account, IID 30000-31999 for QR invoice)
+              {isSwiss
+                ? "(Swiss account, IID 30000-31999 for QR invoice)"
+                : "(Standard bank account number or international IBAN)"}
             </span>
           </Label>
           <Input
             value={qrIban}
             onChange={(e) => setQrIban(e.target.value.toUpperCase())}
-            placeholder="CH44 3199 9123 0008 8901 2"
+            placeholder={isSwiss ? "CH44 3199 9123 0008 8901 2" : "e.g. Bank/Account number or IBAN"}
             className="font-mono"
           />
-          {ibanNormalized && (
+          {isSwiss && ibanNormalized && (
             <div className="text-xs flex items-center gap-3">
               <span className="text-muted-foreground">
                 Display: <span className="font-mono">{formatIbanDisplay(ibanNormalized)}</span>
@@ -103,11 +106,11 @@ export function InvoiceSettingsForm({ initial }: { initial: Initial }) {
         </div>
 
         <div className="space-y-1">
-          <Label>Account holder (display on QR invoice)</Label>
+          <Label>Account holder {isSwiss && "(display on QR invoice)"}</Label>
           <Input
             value={creditorName}
             onChange={(e) => setCreditorName(e.target.value)}
-            placeholder="e.g. habb global Spritzwerk AG"
+            placeholder={isSwiss ? "e.g. habb global Spritzwerk AG" : "e.g. HABB Global (PVT) LTD"}
           />
           <div className="text-xs text-muted-foreground">
             Leave empty for company name from master data.
@@ -115,11 +118,23 @@ export function InvoiceSettingsForm({ initial }: { initial: Initial }) {
         </div>
 
         <div className="space-y-1">
-          <Label>VAT no. (UID)</Label>
+          <Label>
+            {country === "LK"
+              ? "VAT / TIN No."
+              : isSwiss
+              ? "VAT no. (UID)"
+              : "VAT Number (USt-IdNr.)"}
+          </Label>
           <Input
             value={vatNumber}
             onChange={(e) => setVatNumber(e.target.value)}
-            placeholder="CHE-123.456.789 MWST"
+            placeholder={
+              country === "LK"
+                ? "e.g. Sri Lankan Tax Identification Number / VAT"
+                : isSwiss
+                ? "CHE-123.456.789 MWST"
+                : "e.g. DE123456789"
+            }
             className="font-mono"
           />
         </div>
@@ -160,7 +175,7 @@ export function InvoiceSettingsForm({ initial }: { initial: Initial }) {
       )}
 
       <div className="flex justify-end pt-2 border-t">
-        <Button onClick={submit} disabled={pending || (qrIban !== "" && !ibanValid)}>
+        <Button onClick={submit} disabled={pending || (isSwiss && qrIban !== "" && !ibanValid)}>
           <Save className="h-4 w-4 mr-1" />
           {pending ? "Saving..." : "Save banking"}
         </Button>

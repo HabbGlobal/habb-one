@@ -329,12 +329,13 @@ export function EmployeeForm({
               onChange={(e) => update("dateOfBirth", e.target.value)}
             />
           </Field>
-          <Field label="SSN">
+          <Field label="NIC">
             <Input
               value={data.ahvNumber}
               onChange={(e) => update("ahvNumber", e.target.value)}
-              placeholder="756.XXXX.XXXX.XX"
-              maxLength={16}
+              placeholder="NIC (8-12 letters or numbers)"
+              maxLength={12}
+              pattern="[A-Za-z0-9]{8,12}"
             />
           </Field>
           <Field label="Address">

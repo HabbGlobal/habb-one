@@ -68,7 +68,7 @@ export async function payrollPdf(
 
   yLeft = drawSection(page, col1X, yLeft, "Master Data", bold);
   yLeft = drawKV(page, col1X, colWidth, yLeft, "Date of Birth", fmt(report.employee.dateOfBirth), font, bold);
-  yLeft = drawKV(page, col1X, colWidth, yLeft, "SSN", report.employee.ahvNumber ?? "—", font, bold);
+  yLeft = drawKV(page, col1X, colWidth, yLeft, "NIC", report.employee.ahvNumber ?? "—", font, bold);
   yLeft = drawKV(page, col1X, colWidth, yLeft, "Address", report.employee.address ?? "—", font, bold);
   yLeft = drawKV(page, col1X, colWidth, yLeft, "Email", report.employee.email ?? "—", font, bold);
   yLeft = drawKV(page, col1X, colWidth, yLeft, "Phone", report.employee.phone ?? "—", font, bold);

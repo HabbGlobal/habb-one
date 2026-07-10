@@ -23,7 +23,7 @@ export function payrollXlsx(report: PayrollDataPoint, exportedBy: string, timezo
     [],
     ["Master data"],
     ["Date of birth", fmt(report.employee.dateOfBirth)],
-    ["SSN", report.employee.ahvNumber ?? ""],
+    ["NIC", report.employee.ahvNumber ?? ""],
     ["Address", report.employee.address ?? ""],
     ["Email", report.employee.email ?? ""],
     ["Phone", report.employee.phone ?? ""],

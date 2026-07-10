@@ -20,8 +20,8 @@ const requiredNumber = (min: number, max: number) =>
     z.number().min(min).max(max)
   );
 
-/** Relaxed AHV check: allows "756.XXXX.XXXX.XX" as well as "756XXXXXXXXXXX". */
-const AHV_REGEX = /^7[0-9]{2}[.]?[0-9]{4}[.]?[0-9]{4}[.]?[0-9]{2}$/;
+/** NIC check: accepts 8-12 alphanumeric characters. */
+const NIC_REGEX = /^[A-Za-z0-9]{8,12}$/;
 
 export const SKILL_CODES = [
   "PREP",
@@ -54,8 +54,8 @@ export const employeeFormSchema = z.object({
     .optional()
     .or(z.literal(""))
     .refine(
-      (v) => !v || AHV_REGEX.test(v),
-      "AHV number expected in format 756.XXXX.XXXX.XX",
+      (v) => !v || NIC_REGEX.test(v),
+      "NIC must be 8-12 letters or numbers",
     ),
   // ── Employment ────────────────────────────────────────────────
   employmentType: z.enum(["MONTHLY_SALARY", "HOURLY_WAGE"]),

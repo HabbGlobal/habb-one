@@ -23,6 +23,7 @@ import {
   AlertTriangle,
   ClipboardList,
 } from "lucide-react";
+import { OrderStatusActions } from "../OrderStatusActions";
 import { OrderWizard } from "../OrderWizard";
 import { getCompanyLocale } from "@/lib/company-context";
 import { PROCESS_RESOURCES } from "@/lib/order/process-templates";

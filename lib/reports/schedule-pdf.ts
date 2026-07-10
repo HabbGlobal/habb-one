@@ -36,7 +36,7 @@ export async function schedulePdf(
     logoMimeType: report.company.logoMimeType ?? null,
   });
 
-  drawPage(doc, report, font, fontBold, exportedBy, dayColWidth, logo);
+  drawPage(doc, report, font, fontBold, exportedBy, dayColWidth, logo, timezone);
 
   return doc.save();
 }
@@ -49,6 +49,7 @@ function drawPage(
   exportedBy: string,
   dayColWidth: number,
   logo: EmbeddedLogo | null,
+  timezone?: string,
 ) {
   const page = doc.addPage(A4_LANDSCAPE);
   if (logo) drawCompanyLogoTopRight(page, logo, { maxWidthMm: 30, maxHeightMm: 14, marginMm: 8 });

@@ -61,6 +61,7 @@ export default async function SettingsPage() {
         </CardHeader>
         <CardContent>
           <InvoiceSettingsForm
+            country={company.country}
             initial={{
               qrIban: company.qrIban ?? "",
               invoiceCreditorName: company.invoiceCreditorName ?? "",

@@ -157,7 +157,7 @@ export default async function PayrollDashboardPage({ searchParams }: PageProps) 
                 <Row label="Name" value={`${report.employee.lastName} ${report.employee.firstName}`} />
                 <Row label="Employee No." value={report.employee.employeeNumber} />
                 <Row label="Date of birth" value={fmtDate(report.employee.dateOfBirth)} />
-                <Row label="SSN" value={report.employee.ahvNumber || "—"} />
+                <Row label="NIC" value={report.employee.ahvNumber || "—"} />
                 <Row label="Address" value={report.employee.address || "—"} />
                 <Row label="Email" value={report.employee.email || "—"} />
                 <Row label="Phone" value={report.employee.phone || "—"} />

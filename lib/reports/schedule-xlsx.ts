@@ -25,7 +25,7 @@ export async function scheduleXlsx(
   wb.title = `Plan ${report.range.label}`;
   wb.company = report.company.name;
 
-  buildPlanSheet(wb, report, exportedBy);
+  buildPlanSheet(wb, report, exportedBy, timezone);
   if (report.areas.length > 0) {
     buildAreaSheet(wb, report);
   }
@@ -40,7 +40,8 @@ export async function scheduleXlsx(
 function buildPlanSheet(
   wb: ExcelJS.Workbook,
   report: ScheduleReportData,
-  exportedBy: string
+  exportedBy: string,
+  timezone?: string,
 ) {
   const ws = wb.addWorksheet("Plan", {
     pageSetup: {
