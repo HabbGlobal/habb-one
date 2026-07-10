@@ -22,6 +22,8 @@ const requiredNumber = (min: number, max: number) =>
 
 /** NIC check: accepts 8-12 alphanumeric characters. */
 const NIC_REGEX = /^[A-Za-z0-9]{8,12}$/;
+/** Swiss AHV-Nr. check: accepts 756.XXXX.XXXX.XX. */
+const AHV_REGEX = /^7[0-9]{2}[.]?[0-9]{4}[.]?[0-9]{4}[.]?[0-9]{2}$/;
 
 export const SKILL_CODES = [
   "PREP",
@@ -54,8 +56,8 @@ export const employeeFormSchema = z.object({
     .optional()
     .or(z.literal(""))
     .refine(
-      (v) => !v || NIC_REGEX.test(v),
-      "NIC must be 8-12 letters or numbers",
+      (v) => !v || NIC_REGEX.test(v) || AHV_REGEX.test(v),
+      "Must be a valid Sri Lankan NIC (8-12 alphanumeric characters) or Swiss AHV-Nr. (756.XXXX.XXXX.XX)",
     ),
   // ── Employment ────────────────────────────────────────────────
   employmentType: z.enum(["MONTHLY_SALARY", "HOURLY_WAGE"]),

@@ -30,7 +30,7 @@ export default async function EmployeeDetailPage({
       scheduleDays: true,
       workAreas: { include: { workArea: { select: { deletedAt: true, archivedAt: true } } } },
       skills: true,
-      company: { select: { defaultWeeklyHours: true, id: true } },
+      company: { select: { defaultWeeklyHours: true, id: true, country: true } },
     },
   });
   if (!e) notFound();
@@ -98,6 +98,7 @@ export default async function EmployeeDetailPage({
         submitLabel={t("saveAndReturn")}
         companyWeeklyHours={e.company.defaultWeeklyHours}
         availableAreas={areas}
+        country={e.company.country}
       />
     </div>
   );
