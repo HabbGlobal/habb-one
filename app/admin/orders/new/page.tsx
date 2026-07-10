@@ -7,6 +7,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { OrderWizard } from "../OrderWizard";
 import { PROCESS_RESOURCES } from "@/lib/order/process-templates";
 import { loadActiveTemplates } from "@/lib/templates/load";
+import { getCompanyLocale } from "@/lib/company-context";
 
 export const dynamic = "force-dynamic";
 
@@ -14,6 +15,8 @@ export default async function NewOrderPage() {
   const session = await auth();
   if (!session?.user) redirect("/login");
   if (!hasPermission(session.user.role, "orders.write")) redirect("/admin/orders");
+
+  const companyLocale = await getCompanyLocale(session.user.companyId);
 
   const customers = await prisma.customer.findMany({
     where: {
@@ -69,6 +72,7 @@ export default async function NewOrderPage() {
               description: t.description ?? "",
             }))}
             processResources={PROCESS_RESOURCES}
+            currency={companyLocale.currency}
           />
         </CardContent>
       </Card>

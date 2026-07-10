@@ -11,6 +11,7 @@ import { hasPermission } from "@/lib/permissions";
 import { toInvoiceListItemDTO } from "@/lib/dto/invoice";
 import { refreshOverdueInvoices } from "./actions";
 import { InvoiceList } from "./InvoiceList";
+import { getCompanyLocale } from "@/lib/company-context";
 
 export const dynamic = "force-dynamic";
 
@@ -78,12 +79,14 @@ export default async function InvoicesPage({
 
   const rows = invoices.map(toInvoiceListItemDTO);
 
+  const companyLocale = await getCompanyLocale(session.user.companyId);
+
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-2xl font-semibold">Invoices</h1>
-          <p className="text-sm text-muted-foreground">Create and send Swiss QR invoices, and record payments.</p>
+          <p className="text-sm text-muted-foreground">Manage and track customer invoices.</p>
         </div>
         {hasPermission(session.user.role, "invoices.write") && (
           <Button asChild>
@@ -118,7 +121,7 @@ export default async function InvoicesPage({
 
       <Card>
         <CardContent className="p-3">
-          <InvoiceList rows={rows} />
+          <InvoiceList rows={rows} currency={companyLocale.currency} locale={companyLocale.locale} timezone={companyLocale.timezone} />
         </CardContent>
       </Card>
     </div>

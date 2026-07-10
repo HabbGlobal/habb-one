@@ -24,23 +24,30 @@ const STATUS_VARIANT: Record<
   EXPIRED: "secondary",
 };
 
-function fmtDate(d: Date): string {
+function fmtDate(d: Date, timezone: string): string {
   return new Intl.DateTimeFormat("de-CH", {
     day: "2-digit",
     month: "2-digit",
     year: "numeric",
-    timeZone: "Europe/Zurich",
+    timeZone: timezone,
   }).format(typeof d === "string" ? new Date(d) : d);
 }
 
-function fmtCHF(n: number): string {
-  return new Intl.NumberFormat("de-CH", {
+function fmtAmount(n: number, currency: string, locale: string): string {
+  return new Intl.NumberFormat(locale, {
     style: "currency",
-    currency: "CHF",
+    currency,
   }).format(n);
 }
 
-export function QuoteList({ rows }: { rows: QuoteListItemDTO[] }) {
+interface QuoteListProps {
+  rows: QuoteListItemDTO[];
+  currency: string;
+  locale: string;
+  timezone: string;
+}
+
+export function QuoteList({ rows, currency, locale, timezone }: QuoteListProps) {
   if (rows.length === 0) {
     return (
       <div className="text-center text-muted-foreground py-10 text-sm">
@@ -82,12 +89,12 @@ export function QuoteList({ rows }: { rows: QuoteListItemDTO[] }) {
                 )}
               </div>
             </TableCell>
-            <TableCell className="text-xs tabular-nums">{fmtDate(q.createdAt)}</TableCell>
-            <TableCell className="text-xs tabular-nums">{fmtDate(q.validUntil)}</TableCell>
+            <TableCell className="text-xs tabular-nums">{fmtDate(q.createdAt, timezone)}</TableCell>
+            <TableCell className="text-xs tabular-nums">{fmtDate(q.validUntil, timezone)}</TableCell>
             <TableCell className="text-right tabular-nums text-sm">
               {q.itemCount}
             </TableCell>
-            <TableCell className="text-right tabular-nums">{fmtCHF(q.totalNetCHF)}</TableCell>
+            <TableCell className="text-right tabular-nums">{fmtAmount(q.totalNetCHF, currency, locale)}</TableCell>
             <TableCell>
               <Link
                 href={`/admin/quotes/${q.id}`}

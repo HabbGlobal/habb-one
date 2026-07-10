@@ -15,9 +15,11 @@ interface Props {
   };
   canWrite: boolean;
   onShowHistory: () => void;
+  currency: string;
+  locale: string;
 }
 
-export function ParameterRow({ param, canWrite, onShowHistory }: Props) {
+export function ParameterRow({ param, canWrite, onShowHistory, currency, locale }: Props) {
   const [editing, setEditing] = useState(false);
   const isCustom = param.currentValue !== param.defaultValue;
 
@@ -40,25 +42,29 @@ export function ParameterRow({ param, canWrite, onShowHistory }: Props) {
           {param.defaultValue}
         </td>
         <td className="p-2 align-top text-xs text-muted-foreground whitespace-nowrap">
-          {param.lastChangedBy ?? "—"}
-          <br />
-          <span className="text-[10px]">
-            {new Intl.DateTimeFormat("de-CH", {
-              day: "2-digit",
-              month: "2-digit",
-              year: "numeric",
-            }).format(param.lastChangedAt)}
-          </span>
+          {param.lastChangedAt ? (
+            <div className="flex flex-col">
+              <span className="tabular-nums">
+                {new Intl.DateTimeFormat("de-CH", {
+                  day: "2-digit",
+                  month: "2-digit",
+                  year: "numeric",
+                }).format(new Date(param.lastChangedAt))}
+              </span>
+              {param.lastChangedBy && <span>by {param.lastChangedBy}</span>}
+            </div>
+          ) : (
+            "—"
+          )}
         </td>
-        <td className="p-2 align-top text-right">
-          <div className="inline-flex gap-1">
+        <td className="p-2 align-top">
+          <div className="flex items-center gap-1">
             {param.historyCount > 0 && (
               <button
                 type="button"
                 onClick={onShowHistory}
-                className="p-1.5 rounded hover:bg-accent"
-                title={`View ${param.historyCount} changes`}
-                aria-label="History"
+                className="p-1.5 rounded hover:bg-accent text-muted-foreground"
+                title="History"
               >
                 <History className="h-3.5 w-3.5" />
               </button>
@@ -78,7 +84,7 @@ export function ParameterRow({ param, canWrite, onShowHistory }: Props) {
         </td>
       </tr>
       {editing && (
-        <ParameterEditDialog param={param} onClose={() => setEditing(false)} />
+        <ParameterEditDialog param={param} onClose={() => setEditing(false)} currency={currency} locale={locale} />
       )}
     </>
   );

@@ -15,6 +15,7 @@ import { hasPermission } from "@/lib/permissions";
 import { toOrderListItemDTO } from "@/lib/dto/order";
 import { OrderList } from "./OrderList";
 import { OrderListFilters } from "./OrderListFilters";
+import { getCompanyLocale } from "@/lib/company-context";
 
 export const dynamic = "force-dynamic";
 
@@ -99,6 +100,8 @@ export default async function OrdersPage({
 
   const rows = orders.map(toOrderListItemDTO);
 
+  const companyLocale = await getCompanyLocale(session.user.companyId);
+
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
@@ -118,7 +121,7 @@ export default async function OrdersPage({
       <Card>
         <CardContent className="p-3 space-y-3">
           <OrderListFilters />
-          <OrderList view={view} rows={rows} />
+          <OrderList view={view} rows={rows} currency={companyLocale.currency} locale={companyLocale.locale} timezone={companyLocale.timezone} />
         </CardContent>
       </Card>
     </div>

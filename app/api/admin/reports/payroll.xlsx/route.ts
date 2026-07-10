@@ -4,6 +4,7 @@ import { auth } from "@/lib/auth";
 import { hasPermission } from "@/lib/permissions";
 import { buildPayrollReport } from "@/lib/reports/payroll";
 import { payrollXlsx } from "@/lib/reports/payroll-xlsx";
+import { getCompanyLocale } from "@/lib/company-context";
 
 const schema = z.object({
   employeeId: z.string().cuid(),
@@ -29,7 +30,8 @@ export async function GET(req: Request) {
     month: parsed.data.month,
   });
 
-  const buf = payrollXlsx(report, session.user.email ?? session.user.name ?? "");
+  const companyLocale = await getCompanyLocale(session.user.companyId);
+  const buf = payrollXlsx(report, session.user.email ?? session.user.name ?? "", companyLocale.timezone);
   const fileName = `Personalabrechnung_${report.employee.employeeNumber}_${parsed.data.year}-${String(parsed.data.month).padStart(2, "0")}.xlsx`;
   // Encode-Helper für Content-Disposition mit Umlauten.
   const encoded = encodeURIComponent(fileName).replace(/'/g, "%27");

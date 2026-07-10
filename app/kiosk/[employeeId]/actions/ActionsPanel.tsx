@@ -83,46 +83,46 @@ export function ActionsPanel({ status, labels }: { status: Status; labels: Label
     buttons.push({
       action: "CLOCK_IN",
       label: labels.clockIn,
-      icon: <LogIn className="w-7 h-7" />,
-      color: "bg-habb-success text-white hover:bg-habb-success/90",
+      icon: <LogIn className="w-12 h-12 mb-3" />,
+      color: "bg-white text-habb-black hover:bg-neutral-200 shadow-[0_0_40px_rgba(255,255,255,0.1)]",
     });
   } else if (status === "IN") {
     buttons.push({
       action: "CLOCK_OUT",
       label: labels.clockOut,
-      icon: <LogOut className="w-7 h-7" />,
-      color: "bg-habb-red text-white hover:bg-habb-red-dark",
+      icon: <LogOut className="w-12 h-12 mb-3" />,
+      color: "bg-habb-red text-white hover:bg-habb-red-dark shadow-[0_0_40px_rgba(218,14,21,0.2)]",
     });
     buttons.push({
       action: "BREAK_START",
       label: labels.breakStart,
-      icon: <Coffee className="w-7 h-7" />,
-      color: "bg-habb-warning text-white hover:bg-habb-warning/90",
+      icon: <Coffee className="w-12 h-12 mb-3" />,
+      color: "bg-white/5 backdrop-blur-md text-white border border-white/10 hover:bg-white/10",
     });
   } else if (status === "BREAK") {
     buttons.push({
       action: "BREAK_END",
       label: labels.breakEnd,
-      icon: <Play className="w-7 h-7" />,
-      color: "bg-habb-black text-white hover:bg-habb-ink",
+      icon: <Play className="w-12 h-12 mb-3" />,
+      color: "bg-white text-habb-black hover:bg-neutral-200 shadow-[0_0_40px_rgba(255,255,255,0.1)]",
     });
     buttons.push({
       action: "CLOCK_OUT",
       label: labels.clockOut,
-      icon: <LogOut className="w-7 h-7" />,
-      color: "bg-habb-red text-white hover:bg-habb-red-dark",
+      icon: <LogOut className="w-12 h-12 mb-3" />,
+      color: "bg-habb-red text-white hover:bg-habb-red-dark shadow-[0_0_40px_rgba(218,14,21,0.2)]",
     });
   }
 
   return (
-    <div className="space-y-3">
-      <div className={`grid gap-3 ${buttons.length === 1 ? "grid-cols-1" : "grid-cols-2"}`}>
+    <div className="space-y-6">
+      <div className={`grid gap-6 ${buttons.length === 1 ? "grid-cols-1" : "grid-cols-2"}`}>
         {buttons.map((b) => (
           <button
             key={b.action}
             onClick={() => submit(b.action)}
             disabled={isPending}
-            className={`kiosk-button gap-3 ${b.color}`}
+            className={`flex flex-col items-center justify-center rounded-3xl min-h-[14rem] text-3xl font-black transition-all duration-300 hover:-translate-y-1 active:scale-95 disabled:opacity-50 disabled:pointer-events-none p-6 ${b.color}`}
           >
             {b.icon}
             <span>{b.label}</span>
@@ -130,9 +130,9 @@ export function ActionsPanel({ status, labels }: { status: Status; labels: Label
         ))}
       </div>
       {confirmation && (
-        <div className="rounded-lg bg-habb-success/10 border border-habb-success/30 px-4 py-3 flex items-center gap-2 animate-in fade-in slide-in-from-top-2">
-          <CheckCircle2 className="w-5 h-5 text-habb-success" />
-          <span className="text-habb-success">{confirmation}</span>
+        <div className="rounded-lg bg-white border border-neutral-200 px-4 py-3 flex items-center gap-2 animate-in fade-in slide-in-from-top-2">
+          <CheckCircle2 className="w-5 h-5 text-habb-black" />
+          <span className="text-habb-black font-medium">{confirmation}</span>
         </div>
       )}
       {error && (

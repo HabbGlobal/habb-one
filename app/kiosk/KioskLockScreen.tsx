@@ -114,11 +114,10 @@ export function KioskLockScreen({ appName, companyLabel, companies }: Props) {
           <button
             type="button"
             onClick={() => setTheme("light")}
-            className={`rounded-md px-3 py-1.5 text-xs font-semibold ${
-              theme === "light"
+            className={`rounded-md px-3 py-1.5 text-xs font-semibold ${theme === "light"
                 ? "bg-habb-ink text-white"
                 : "text-habb-muted hover:text-habb-ink dark:hover:text-white"
-            }`}
+              }`}
           >
             Light
           </button>
@@ -126,11 +125,10 @@ export function KioskLockScreen({ appName, companyLabel, companies }: Props) {
           <button
             type="button"
             onClick={() => setTheme("dark")}
-            className={`rounded-md px-3 py-1.5 text-xs font-semibold ${
-              theme === "dark"
+            className={`rounded-md px-3 py-1.5 text-xs font-semibold ${theme === "dark"
                 ? "bg-white text-neutral-950"
                 : "text-habb-muted hover:text-habb-ink dark:hover:text-white"
-            }`}
+              }`}
           >
             Dark
           </button>
@@ -140,13 +138,11 @@ export function KioskLockScreen({ appName, companyLabel, companies }: Props) {
           onSubmit={submit}
           className="w-full max-w-[340px] rounded-xl border border-habb-line bg-white px-7 py-8 text-center shadow-sm dark:border-neutral-800 dark:bg-neutral-900"
         >
-          <div className="mx-auto flex h-9 w-9 items-center justify-center rounded-lg bg-habb-red text-sm font-bold text-white">
-            H
-          </div>
-
-          <p className="mt-4 text-[11px] font-semibold uppercase tracking-[0.16em] text-habb-muted">
-            {appName}
-          </p>
+          <img
+            src="/brand/habb-logo.png"
+            alt="Habb Logo"
+            className="mx-auto h-12 w-auto object-contain rounded-lg"
+          />
 
           <h1 className="mt-2 text-xl font-bold tracking-tight text-habb-ink dark:text-white">
             Workshop Kiosk
@@ -157,12 +153,7 @@ export function KioskLockScreen({ appName, companyLabel, companies }: Props) {
           </p>
 
           <div className="mt-6 text-left">
-            <label
-              htmlFor="company"
-              className="mb-2 block text-[11px] font-semibold uppercase tracking-wide text-habb-muted"
-            >
-              {companyLabel}
-            </label>
+
 
             <select
               id="company"
@@ -186,11 +177,10 @@ export function KioskLockScreen({ appName, companyLabel, companies }: Props) {
             {Array.from({ length: PIN_DOT_COUNT }).map((_, index) => (
               <span
                 key={index}
-                className={`h-2.5 w-2.5 rounded-full border transition-colors ${
-                  password.length > index
+                className={`h-2.5 w-2.5 rounded-full border transition-colors ${password.length > index
                     ? "border-habb-red bg-habb-red"
                     : "border-neutral-300 bg-transparent dark:border-neutral-700"
-                }`}
+                  }`}
               />
             ))}
           </div>
@@ -229,9 +219,8 @@ export function KioskLockScreen({ appName, companyLabel, companies }: Props) {
           </p>
 
           <div
-            className={`mt-4 inline-flex items-center justify-center gap-1.5 text-xs font-medium ${
-              online ? "text-emerald-700" : "text-red-600"
-            }`}
+            className={`mt-4 inline-flex items-center justify-center gap-1.5 text-xs font-medium ${online ? "text-emerald-700" : "text-red-600"
+              }`}
           >
             {online ? (
               <>

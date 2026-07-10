@@ -3,6 +3,7 @@ import { Badge } from "@/components/ui/badge";
 import { formatDateCH } from "@/lib/utils";
 import type { RecentInvoice, RecentOrder } from "@/lib/dashboard/kpi";
 import { ArrowUpRight } from "lucide-react";
+import { formatCurrencyLarge } from "@/lib/format-currency";
 
 const ORDER_STATUS_LABEL: Record<string, string> = {
   DRAFT: "Draft",
@@ -50,13 +51,9 @@ const INVOICE_STATUS_VARIANT: Record<string, BadgeVariant> = {
   CANCELLED: "secondary",
 };
 
-const CHF = (n: number) =>
-  new Intl.NumberFormat("de-CH", {
-    style: "currency",
-    currency: "CHF",
-    minimumFractionDigits: 0,
-    maximumFractionDigits: 0,
-  }).format(n);
+function fmtAmount(n: number | null | undefined, currency: string, locale?: string): string {
+  return formatCurrencyLarge(n ?? 0, currency, locale);
+}
 
 function EmptyState({ label }: { label: string }) {
   return (
@@ -66,7 +63,7 @@ function EmptyState({ label }: { label: string }) {
   );
 }
 
-export function RecentOrdersCard({ rows }: { rows: RecentOrder[] }) {
+export function RecentOrdersCard({ rows, currency, locale }: { rows: RecentOrder[]; currency: string; locale?: string }) {
   return (
     <section className="rounded-xl border border-habb-line bg-white p-4 shadow-sm dark:border-neutral-800 dark:bg-neutral-950">
       <div className="mb-4 flex items-center justify-between gap-3">
@@ -109,7 +106,7 @@ export function RecentOrdersCard({ rows }: { rows: RecentOrder[] }) {
                 </div>
 
                 <div className="text-right text-sm font-semibold tabular-nums text-habb-ink dark:text-white">
-                  {r.totalNetCHF != null ? CHF(r.totalNetCHF) : "—"}
+                  {r.totalNetCHF != null ? fmtAmount(r.totalNetCHF, currency, locale) : "—"}
                 </div>
               </Link>
             </li>
@@ -120,7 +117,7 @@ export function RecentOrdersCard({ rows }: { rows: RecentOrder[] }) {
   );
 }
 
-export function RecentInvoicesCard({ rows }: { rows: RecentInvoice[] }) {
+export function RecentInvoicesCard({ rows, currency, locale }: { rows: RecentInvoice[]; currency: string; locale?: string }) {
   return (
     <section className="rounded-xl border border-habb-line bg-white p-4 shadow-sm dark:border-neutral-800 dark:bg-neutral-950">
       <div className="mb-4 flex items-center justify-between gap-3">
@@ -165,7 +162,7 @@ export function RecentInvoicesCard({ rows }: { rows: RecentInvoice[] }) {
                 </div>
 
                 <div className="text-right text-sm font-semibold tabular-nums text-habb-ink dark:text-white">
-                  {CHF(r.totalGrossCHF)}
+                  {fmtAmount(r.totalGrossCHF, currency, locale)}
                 </div>
               </Link>
             </li>

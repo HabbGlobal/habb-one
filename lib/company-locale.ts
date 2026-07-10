@@ -39,3 +39,35 @@ export function isKnownTimezone(zone: string): boolean {
 export function countryLabel(code: string): string {
   return COUNTRY_OPTIONS.find((c) => c.code === code)?.label ?? code;
 }
+
+// ─────────────────────────────────────────
+// Country → Currency / Locale mapping
+// ─────────────────────────────────────────
+
+/** ISO-4217 currency code for the given country. Defaults to CHF. */
+const COUNTRY_CURRENCY: Record<string, string> = {
+  CH: "CHF",
+  FL: "CHF",
+  DE: "EUR",
+  AT: "EUR",
+  LK: "LKR",
+};
+
+/** Intl locale string for the given country. Defaults to de-CH. */
+const COUNTRY_LOCALE: Record<string, string> = {
+  CH: "de-CH",
+  FL: "de-CH",
+  DE: "de-DE",
+  AT: "de-AT",
+  LK: "en-LK",
+};
+
+/** Returns the ISO-4217 currency code for a given country code. */
+export function currencyForCountry(code: string): string {
+  return COUNTRY_CURRENCY[code] ?? "CHF";
+}
+
+/** Returns the Intl locale string for a given country code. */
+export function localeForCountry(code: string): string {
+  return COUNTRY_LOCALE[code] ?? "de-CH";
+}

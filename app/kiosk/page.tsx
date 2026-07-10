@@ -61,9 +61,9 @@ export default async function KioskHomePage() {
 
   if (!companyId) {
     return (
-      <main className="flex min-h-screen items-center justify-center bg-habb-paper p-6">
-        <div className="rounded-xl border border-habb-line bg-white px-6 py-5 text-center shadow-sm">
-          <p className="text-sm text-habb-muted">No company configured.</p>
+      <main className="flex min-h-screen items-center justify-center bg-habb-black p-6">
+        <div className="rounded-xl border border-neutral-800 bg-habb-ink px-6 py-5 text-center shadow-sm">
+          <p className="text-sm text-neutral-400">No company configured.</p>
         </div>
       </main>
     );
@@ -237,7 +237,7 @@ export default async function KioskHomePage() {
   }
 
   return (
-    <main className="min-h-screen bg-habb-paper p-4 md:p-8">
+    <main className="min-h-screen bg-habb-black bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-habb-red/20 via-habb-black to-habb-black text-white p-4 md:p-8">
       <AutoRefresh intervalMs={30_000} />
 
       <div className="mx-auto max-w-6xl">
@@ -247,39 +247,41 @@ export default async function KioskHomePage() {
           hasLogo={!!company?.logoMimeType}
           subtitle={tKiosk("title")}
           logoVersion={company?.updatedAt?.getTime().toString()}
+          showWordmark={false}
+          theme="dark"
           rightSlot={
-            <>
+            <div className="flex items-center gap-4">
               <LanguageSwitcher />
 
               {lockedCompanyId && (
-                <KioskLogoutButton mode={accountCompanyId ? "account" : "lock"} />
+                <KioskLogoutButton mode={accountCompanyId ? "account" : "lock"} theme="dark" />
               )}
 
               {!accountCompanyId && (
                 <Link
                   href="/login"
-                  className="rounded-lg border border-habb-line bg-white px-3 py-2 text-sm font-medium text-habb-muted transition-colors hover:border-neutral-300 hover:text-habb-ink"
+                  className="rounded-xl border border-white/10 bg-white/5 backdrop-blur-md px-4 py-2 text-sm font-semibold text-neutral-300 transition-all hover:bg-white/10 hover:text-white"
                 >
                   Admin
                 </Link>
               )}
-            </>
+            </div>
           }
         />
 
-        <section className="mt-6 rounded-xl border border-habb-line bg-white p-5 shadow-sm">
-          <div className="flex flex-col justify-between gap-4 md:flex-row md:items-end">
+        <section className="mt-12 mb-8">
+          <div className="flex flex-col justify-between gap-6 md:flex-row md:items-end">
             <div>
-              <p className="text-xs font-semibold uppercase tracking-wide text-habb-muted">
-                Workshop kiosk
+              <p className="text-sm font-bold uppercase tracking-widest text-habb-red mb-2">
+                Workshop Kiosk
               </p>
 
-              <h1 className="mt-1 text-2xl font-bold tracking-tight text-habb-ink">
+              <h1 className="text-5xl md:text-6xl font-black tracking-tight text-white mb-2 drop-shadow-lg">
                 {tKiosk("selectEmployee")}
               </h1>
 
-              <p className="mt-2 text-sm text-habb-muted">
-                Tap your name to clock in, start break, end break, or clock out.
+              <p className="text-xl text-neutral-300 font-medium">
+                Tap your name to continue.
               </p>
             </div>
 
@@ -292,7 +294,7 @@ export default async function KioskHomePage() {
           </div>
         </section>
 
-        <section className="mt-4 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
+        <div className="mt-8 grid grid-cols-1 gap-4 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
           {tiles.map((tile) => (
             <KioskEmployeeTile
               key={tile.employeeId}
@@ -300,9 +302,9 @@ export default async function KioskHomePage() {
               serverNowIso={serverNow.toISOString()}
             />
           ))}
-        </section>
+        </div>
 
-        <KioskBrandFooter />
+        <KioskBrandFooter theme="dark" />
       </div>
     </main>
   );
@@ -318,16 +320,16 @@ function StatusCount({
   tone: "success" | "warning" | "danger" | "neutral";
 }) {
   const toneClass = {
-    success: "bg-emerald-50 text-emerald-700",
-    warning: "bg-amber-50 text-amber-700",
-    danger: "bg-red-50 text-habb-red",
-    neutral: "bg-habb-paper text-habb-muted",
+    success: "bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 shadow-[0_0_15px_rgba(16,185,129,0.1)]",
+    warning: "bg-amber-500/10 text-amber-400 border border-amber-500/20 shadow-[0_0_15px_rgba(245,158,11,0.1)]",
+    danger: "bg-habb-red/10 text-habb-red border border-habb-red/20 shadow-[0_0_15px_rgba(218,14,21,0.1)]",
+    neutral: "bg-white/5 text-neutral-400 border border-white/10",
   }[tone];
 
   return (
-    <div className={`min-w-16 rounded-lg px-3 py-2 ${toneClass}`}>
-      <p className="text-lg font-bold leading-none tabular-nums">{value}</p>
-      <p className="mt-1 text-[11px] font-semibold uppercase tracking-wide">
+    <div className={`min-w-[4rem] rounded-2xl px-4 py-3 backdrop-blur-md ${toneClass} text-center`}>
+      <p className="text-3xl font-black leading-none tabular-nums">{value}</p>
+      <p className="mt-1 text-xs font-bold uppercase tracking-widest opacity-80">
         {label}
       </p>
     </div>

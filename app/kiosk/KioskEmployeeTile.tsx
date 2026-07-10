@@ -1,7 +1,8 @@
 "use client";
 
 import Link from "next/link";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState, useTransition } from "react";
+import { useRouter } from "next/navigation";
 import { Coffee, LogIn, LogOut, Plane } from "lucide-react";
 
 export type KioskStatus = "IN" | "BREAK" | "OUT" | "ABSENT";
@@ -29,26 +30,26 @@ const STATUS_STYLES: Record<
   }
 > = {
   IN: {
-    card: "hover:border-emerald-300",
-    pill: "bg-emerald-50 text-emerald-700",
-    dot: "bg-emerald-600",
-    text: "text-emerald-700",
+    card: "hover:border-emerald-500 hover:shadow-[0_0_20px_rgba(16,185,129,0.2)] hover:bg-white/10",
+    pill: "bg-emerald-500/10 text-emerald-400 border border-emerald-500/20",
+    dot: "bg-emerald-400",
+    text: "text-emerald-400",
   },
   BREAK: {
-    card: "hover:border-amber-300",
-    pill: "bg-amber-50 text-amber-700",
-    dot: "bg-amber-600",
-    text: "text-amber-700",
+    card: "hover:border-amber-500 hover:shadow-[0_0_20px_rgba(245,158,11,0.2)] hover:bg-white/10",
+    pill: "bg-amber-500/10 text-amber-400 border border-amber-500/20",
+    dot: "bg-amber-400",
+    text: "text-amber-400",
   },
   OUT: {
-    card: "hover:border-neutral-300",
-    pill: "bg-habb-paper text-habb-muted",
+    card: "hover:border-neutral-400 hover:shadow-[0_0_20px_rgba(255,255,255,0.05)] hover:bg-white/10",
+    pill: "bg-white/5 text-neutral-400 border border-white/10",
     dot: "bg-neutral-400",
-    text: "text-habb-muted",
+    text: "text-neutral-400",
   },
   ABSENT: {
-    card: "hover:border-red-200",
-    pill: "bg-red-50 text-habb-red",
+    card: "hover:border-habb-red hover:shadow-[0_0_20px_rgba(218,14,21,0.2)] hover:bg-white/10",
+    pill: "bg-habb-red/10 text-habb-red border border-habb-red/20",
     dot: "bg-habb-red",
     text: "text-habb-red",
   },
@@ -68,6 +69,18 @@ export function KioskEmployeeTile({
 }: Props) {
   const mountedAtMs = useRef(Date.now());
   const [clientNowMs, setClientNowMs] = useState(Date.now());
+  const [isPending, startTransition] = useTransition();
+  const router = useRouter();
+
+  const handleNavigate = (e: React.MouseEvent) => {
+    // Intercept default left clicks without modifier keys
+    if (e.button === 0 && !e.ctrlKey && !e.metaKey && !e.shiftKey && !e.altKey) {
+      e.preventDefault();
+      startTransition(() => {
+        router.push(`/kiosk/${employeeId}`);
+      });
+    }
+  };
 
   useEffect(() => {
     if (status !== "IN" && status !== "BREAK") return;
@@ -96,133 +109,37 @@ export function KioskEmployeeTile({
   return (
     <Link
       href={`/kiosk/${employeeId}`}
-      className={`group block rounded-xl border border-habb-line bg-white p-5 shadow-sm transition-all hover:-translate-y-0.5 hover:shadow-md ${styles.card}`}
+      onClick={handleNavigate}
+      className={`group flex items-center justify-between rounded-full border border-white/10 bg-white/5 backdrop-blur-md p-3 pr-6 shadow-lg transition-all duration-300 hover:-translate-y-1 hover:bg-white/10 ${styles.card} ${isPending ? 'opacity-70 pointer-events-none' : ''}`}
     >
-      <div className="flex min-h-40 flex-col justify-between gap-5">
-        <div>
-          <div className="flex items-start justify-between gap-3">
-            <div className="min-w-0">
-              <h2 className="truncate text-2xl font-bold leading-tight tracking-tight text-habb-ink">
-                {firstName}
-              </h2>
-
-              <p className="mt-1 truncate text-base text-habb-muted">
-                {lastName}
-              </p>
-            </div>
-
-            <span className="shrink-0 rounded-md bg-habb-paper px-2 py-1 text-[11px] font-semibold text-habb-muted">
-              #{employeeNumber}
-            </span>
-          </div>
+      <div className="flex items-center gap-4 min-w-0">
+        <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-black/50 border border-white/10 text-lg font-bold text-neutral-300 group-hover:text-white transition-colors">
+          {isPending ? (
+            <div className="h-5 w-5 animate-spin rounded-full border-2 border-white border-t-transparent" />
+          ) : (
+            <>{firstName.charAt(0)}{lastName.charAt(0)}</>
+          )}
         </div>
-
-        <div>
-          <StatusPill status={status} absenceLabel={absenceLabel} />
-
-          {status === "IN" && (
-            <div className="mt-3">
-              {sinceLabel && (
-                <p className="text-xs text-habb-muted">since {sinceLabel}</p>
-              )}
-
-              {liveCounter && (
-                <p className="mt-1 font-mono text-2xl font-bold tabular-nums text-emerald-700">
-                  {liveCounter}
-                </p>
-              )}
-            </div>
-          )}
-
-          {status === "BREAK" && (
-            <div className="mt-3">
-              {sinceLabel && (
-                <p className="text-xs text-habb-muted">since {sinceLabel}</p>
-              )}
-
-              {liveCounter && (
-                <p className="mt-1 font-mono text-2xl font-bold tabular-nums text-amber-700">
-                  {liveCounter}
-                </p>
-              )}
-            </div>
-          )}
-
-          {status === "OUT" && (
-            <div className="mt-3">
-              {todayWorkedLabel ? (
-                <p className="text-xs text-habb-muted">
-                  Today: {todayWorkedLabel}
-                </p>
-              ) : (
-                <p className="inline-flex items-center gap-1.5 text-xs font-medium text-habb-muted">
-                  <LogIn className="h-3.5 w-3.5" />
-                  Tap to clock in
-                </p>
-              )}
-            </div>
-          )}
-
-          {status === "ABSENT" && (
-            <p className="mt-3 text-xs text-habb-muted">
-              Not available today
-            </p>
-          )}
+        
+        <div className="flex flex-col min-w-0">
+          <h2 className="truncate text-xl font-bold leading-tight text-white transition-colors">
+            {firstName} {lastName}
+          </h2>
+          <p className="text-xs font-semibold tracking-widest text-neutral-500 mt-0.5">
+             #{employeeNumber}
+          </p>
         </div>
       </div>
+
+      <div className="flex shrink-0 items-center gap-3 pl-4">
+        {liveCounter && (
+           <span className={`font-mono text-sm font-bold tabular-nums opacity-80 ${styles.text}`}>
+             {liveCounter}
+           </span>
+        )}
+        <div className={`h-3 w-3 rounded-full ${styles.dot} ${status === "IN" || status === "BREAK" ? "animate-pulse shadow-[0_0_10px_currentColor]" : "opacity-50"}`} style={{ color: styles.dot.replace('bg-', '') }} />
+      </div>
     </Link>
-  );
-}
-
-function StatusPill({
-  status,
-  absenceLabel,
-}: {
-  status: KioskStatus;
-  absenceLabel: string | null;
-}) {
-  const styles = STATUS_STYLES[status];
-
-  if (status === "IN") {
-    return (
-      <span
-        className={`inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-xs font-semibold uppercase tracking-wide ${styles.pill}`}
-      >
-        <span className={`h-1.5 w-1.5 rounded-full ${styles.dot} animate-pulse`} />
-        Clocked in
-      </span>
-    );
-  }
-
-  if (status === "BREAK") {
-    return (
-      <span
-        className={`inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-xs font-semibold uppercase tracking-wide ${styles.pill}`}
-      >
-        <Coffee className="h-3.5 w-3.5" />
-        On break
-      </span>
-    );
-  }
-
-  if (status === "ABSENT") {
-    return (
-      <span
-        className={`inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-xs font-semibold uppercase tracking-wide ${styles.pill}`}
-      >
-        <Plane className="h-3.5 w-3.5" />
-        {absenceLabel ?? "Absent"}
-      </span>
-    );
-  }
-
-  return (
-    <span
-      className={`inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-xs font-semibold uppercase tracking-wide ${styles.pill}`}
-    >
-      <LogOut className="h-3.5 w-3.5" />
-      Clocked out
-    </span>
   );
 }
 

@@ -23,8 +23,8 @@ import {
   AlertTriangle,
   ClipboardList,
 } from "lucide-react";
-import { OrderStatusActions } from "../OrderStatusActions";
 import { OrderWizard } from "../OrderWizard";
+import { getCompanyLocale } from "@/lib/company-context";
 import { PROCESS_RESOURCES } from "@/lib/order/process-templates";
 import { loadActiveTemplates } from "@/lib/templates/load";
 import {
@@ -40,30 +40,6 @@ import { CreateInvoiceButton } from "./CreateInvoiceButton";
 
 export const dynamic = "force-dynamic";
 
-function fmtDate(d: Date | null): string {
-  if (!d) return "—";
-  return new Intl.DateTimeFormat("de-CH", {
-    day: "2-digit",
-    month: "2-digit",
-    year: "numeric",
-  }).format(d);
-}
-function fmtDateTime(d: Date): string {
-  return new Intl.DateTimeFormat("de-CH", {
-    day: "2-digit",
-    month: "2-digit",
-    year: "numeric",
-    hour: "2-digit",
-    minute: "2-digit",
-  }).format(d);
-}
-function fmtCHF(n: number | null): string {
-  if (n == null) return "—";
-  return new Intl.NumberFormat("de-CH", {
-    style: "currency",
-    currency: "CHF",
-  }).format(n);
-}
 function fmtMin(n: number): string {
   const h = Math.floor(n / 60);
   const m = n % 60;
@@ -80,6 +56,37 @@ export default async function OrderDetailPage({
   const session = await auth();
   if (!session?.user) redirect("/login");
   if (!hasPermission(session.user.role, "orders.read")) redirect("/admin");
+
+  const companyLocale = await getCompanyLocale(session.user.companyId);
+
+  const fmtDate = (d: Date | null): string => {
+    if (!d) return "—";
+    return new Intl.DateTimeFormat(companyLocale.locale, {
+      day: "2-digit",
+      month: "2-digit",
+      year: "numeric",
+      timeZone: companyLocale.timezone,
+    }).format(d);
+  };
+
+  const fmtDateTime = (d: Date): string => {
+    return new Intl.DateTimeFormat(companyLocale.locale, {
+      day: "2-digit",
+      month: "2-digit",
+      year: "numeric",
+      hour: "2-digit",
+      minute: "2-digit",
+      timeZone: companyLocale.timezone,
+    }).format(d);
+  };
+
+  const fmtCHF = (n: number | null): string => {
+    if (n == null) return "—";
+    return new Intl.NumberFormat(companyLocale.locale, {
+      style: "currency",
+      currency: companyLocale.currency,
+    }).format(n);
+  };
 
   const { id } = await params;
   const order = await prisma.order.findFirst({
@@ -372,6 +379,7 @@ export default async function OrderDetailPage({
               orderId={dto.id}
               steps={scheduledSteps}
               canWrite={canScheduleWrite}
+              timezone={companyLocale.timezone}
             />
           </CardContent>
         </Card>
@@ -392,6 +400,7 @@ export default async function OrderDetailPage({
               templates={editorTemplates}
               processResources={PROCESS_RESOURCES}
               initial={editorInitial}
+              currency={companyLocale.currency}
             />
           </CardContent>
         </Card>

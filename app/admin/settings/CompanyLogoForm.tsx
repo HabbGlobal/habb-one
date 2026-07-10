@@ -101,19 +101,12 @@ export function CompanyLogoForm({ hasLogo, logoVersion }: Props) {
       </CardHeader>
       <CardContent className="space-y-4">
         <p className="text-sm text-muted-foreground">
-<<<<<<< HEAD
-          Will be embedded at the top right of all generated documents (quotes, invoices, delivery notes, reports) and displayed in the sidebar next to the company name.
-        </p>
-
-        {/* Current or preview logo */}
-=======
           Embedded top-right on all generated documents (quotes, invoices,
           delivery notes, reports) and shown in the sidebar next to the
           company name.
         </p>
 
         {/* Current logo or preview */}
->>>>>>> f0bfc268c2f2ece681b2305c28e6da1a442e79c6
         <div className="flex items-center gap-4 flex-wrap">
           <div className="rounded-lg border-2 border-dashed border-habb-line bg-habb-paper w-44 h-28 flex items-center justify-center overflow-hidden">
             {previewUrl ? (
@@ -152,11 +145,7 @@ export function CompanyLogoForm({ hasLogo, logoVersion }: Props) {
                 onChange={(e) => {
                   const f = e.target.files?.[0];
                   if (f) onPick(f);
-<<<<<<< HEAD
-                  // Reset so the same file can be selected again
-=======
                   // Reset so the same file can be picked again
->>>>>>> f0bfc268c2f2ece681b2305c28e6da1a442e79c6
                   e.target.value = "";
                 }}
                 disabled={pending}

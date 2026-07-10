@@ -16,24 +16,11 @@ import { FileText, Pencil, Lock, AlertTriangle } from "lucide-react";
 import { formatQrReferenceDisplay } from "@/lib/invoice/qr-reference";
 import { InvoiceActions } from "./InvoiceActions";
 import { InvoiceForm } from "../InvoiceForm";
+import { getCompanyLocale } from "@/lib/company-context";
 
 export const dynamic = "force-dynamic";
 
-function fmtDate(d: Date | null): string {
-  if (!d) return "—";
-  return new Intl.DateTimeFormat("de-CH", {
-    day: "2-digit",
-    month: "2-digit",
-    year: "numeric",
-  }).format(d);
-}
-function fmtCHF(n: number | null): string {
-  if (n == null) return "—";
-  return new Intl.NumberFormat("de-CH", {
-    style: "currency",
-    currency: "CHF",
-  }).format(n);
-}
+
 
 export default async function InvoiceDetailPage({
   params,
@@ -43,6 +30,26 @@ export default async function InvoiceDetailPage({
   const session = await auth();
   if (!session?.user) redirect("/login");
   if (!hasPermission(session.user.role, "invoices.read")) redirect("/admin");
+
+  const companyLocale = await getCompanyLocale(session.user.companyId);
+
+  const fmtDate = (d: Date | null): string => {
+    if (!d) return "—";
+    return new Intl.DateTimeFormat(companyLocale.locale, {
+      day: "2-digit",
+      month: "2-digit",
+      year: "numeric",
+      timeZone: companyLocale.timezone,
+    }).format(d);
+  };
+
+  const fmtCHF = (n: number | null): string => {
+    if (n == null) return "—";
+    return new Intl.NumberFormat(companyLocale.locale, {
+      style: "currency",
+      currency: companyLocale.currency,
+    }).format(n);
+  };
 
   const { id } = await params;
   const invoice = await prisma.invoice.findFirst({
@@ -229,6 +236,8 @@ export default async function InvoiceDetailPage({
                 paymentTerms: company.invoicePaymentTerms,
               }}
               initial={editorInitial}
+              currency={companyLocale.currency}
+              locale={companyLocale.locale}
             />
           </CardContent>
         </Card>

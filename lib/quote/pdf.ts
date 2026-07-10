@@ -56,10 +56,10 @@ function fmtDate(d: Date | null): string {
   }).format(d);
 }
 
-function fmtCHF(n: number): string {
-  return new Intl.NumberFormat("de-CH", {
+function fmtCHF(n: number, currency: string = "CHF", locale: string = "de-CH"): string {
+  return new Intl.NumberFormat(locale, {
     style: "currency",
-    currency: "CHF",
+    currency,
   }).format(n);
 }
 

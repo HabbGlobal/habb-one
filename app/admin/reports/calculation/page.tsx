@@ -10,6 +10,7 @@ import { ArrowLeft, Download } from "lucide-react";
 import { loadAllParams } from "@/lib/domain/parameters/store";
 import { loadCalculationAccuracy } from "@/lib/reports/erp/calculation";
 import { PeriodFilter } from "../PeriodFilter";
+import { getCompanyLocale } from "@/lib/company-context";
 
 export const dynamic = "force-dynamic";
 
@@ -28,15 +29,7 @@ function fmtMin(min: number | null): string {
   if (h < 10) return `${h.toFixed(1)} h`;
   return `${Math.round(h)} h`;
 }
-function fmtCHF(n: number): string {
-  return new Intl.NumberFormat("de-CH", {
-    style: "currency",
-    currency: "CHF",
-  }).format(n);
-}
-function fmtDate(d: Date): string {
-  return new Intl.DateTimeFormat("de-CH", { dateStyle: "short" }).format(d);
-}
+
 function fmtPct(p: number | null): string {
   if (p == null) return "—";
   const sign = p > 0 ? "+" : "";
@@ -58,6 +51,22 @@ export default async function CalculationReportPage({
   const session = await auth();
   if (!session?.user) redirect("/login");
   if (!hasPermission(session.user.role, "reports.export")) redirect("/admin");
+
+  const companyLocale = await getCompanyLocale(session.user.companyId);
+
+  const fmtDate = (d: Date): string => {
+    return new Intl.DateTimeFormat(companyLocale.locale, {
+      dateStyle: "short",
+      timeZone: companyLocale.timezone,
+    }).format(d);
+  };
+
+  const fmtCHF = (n: number): string => {
+    return new Intl.NumberFormat(companyLocale.locale, {
+      style: "currency",
+      currency: companyLocale.currency,
+    }).format(n);
+  };
 
   const sp = await searchParams;
   const fromIso = sp.from ?? thirtyDaysAgoIso();

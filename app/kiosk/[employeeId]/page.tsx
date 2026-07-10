@@ -40,7 +40,7 @@ export default async function KioskPinPage({
   }
 
   return (
-    <main className="min-h-screen bg-habb-paper p-6 md:p-10">
+    <main className="min-h-screen bg-habb-black bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-habb-red/20 via-habb-black to-habb-black text-white p-6 md:p-10">
       <div className="max-w-md mx-auto">
         <KioskBrandHeader
           companyName={employee.company.name}
@@ -49,33 +49,38 @@ export default async function KioskPinPage({
           subtitle={tKiosk("title")}
           logoVersion={employee.company.updatedAt.getTime().toString()}
           showWordmark={false}
+          theme="dark"
         />
 
-        <Card className="mt-6 border-habb-line shadow-sm">
-          <CardContent className="p-8 space-y-6">
-            <div className="text-center">
-              <p className="text-sm text-habb-muted">{employee.firstName}</p>
-              <h2 className="text-3xl font-semibold tracking-tight text-habb-ink">
-                {employee.lastName}
-              </h2>
-            </div>
-            <p className="text-center text-lg text-habb-ink">{tKiosk("enterPin")}</p>
+        <div className="mt-8 mb-4">
+          <div className="text-center space-y-1">
+            <p className="text-lg font-bold tracking-widest text-habb-red uppercase">{employee.firstName}</p>
+            <h2 className="text-4xl md:text-5xl font-black tracking-tight text-white drop-shadow-2xl">
+              {employee.lastName}
+            </h2>
+          </div>
+          
+          <div className="mt-8 max-w-sm mx-auto p-6 rounded-3xl border border-white/10 bg-white/5 backdrop-blur-xl shadow-2xl">
+            <p className="text-center text-lg text-neutral-300 font-medium mb-6">{tKiosk("enterPin")}</p>
             <PinPad
               employeeId={employee.id}
               wrongPinMessage={tKiosk("wrongPin")}
               lockedMessage={tKiosk("locked")}
             />
+          </div>
+
+          <div className="mt-6 max-w-sm mx-auto">
             <Link
               href="/kiosk"
-              className="inline-flex items-center justify-center gap-1.5 w-full rounded-md border border-habb-line bg-white px-4 py-2 text-sm font-medium text-habb-ink shadow-sm transition hover:bg-habb-paper"
+              className="inline-flex items-center justify-center gap-2 w-full rounded-2xl border border-white/10 bg-white/5 backdrop-blur-md px-6 py-3 text-base font-bold text-neutral-300 transition-all hover:bg-white/10 hover:text-white"
             >
-              <ArrowLeft className="h-4 w-4" />
+              <ArrowLeft className="h-6 w-6" />
               {tKiosk("back")}
             </Link>
-          </CardContent>
-        </Card>
+          </div>
+        </div>
 
-        <KioskBrandFooter />
+        <KioskBrandFooter theme="dark" />
       </div>
     </main>
   );

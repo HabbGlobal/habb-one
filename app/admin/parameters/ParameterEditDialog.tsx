@@ -29,9 +29,13 @@ export interface ParameterDialogData {
 export function ParameterEditDialog({
   param,
   onClose,
+  currency,
+  locale,
 }: {
   param: ParameterDialogData;
   onClose: () => void;
+  currency: string;
+  locale: string;
 }) {
   const router = useRouter();
   const [pending, start] = useTransition();
@@ -48,11 +52,13 @@ export function ParameterEditDialog({
         paramKey: param.key,
         rows: param.allRows,
         newValue,
+        currency,
+        locale,
       });
     } catch {
       return null;
     }
-  }, [newValue, param.key, param.currentValue, param.allRows]);
+  }, [newValue, param.key, param.currentValue, param.allRows, currency, locale]);
 
   // Lock background scroll while open.
   useEffect(() => {

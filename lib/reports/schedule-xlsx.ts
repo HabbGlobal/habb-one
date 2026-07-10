@@ -16,7 +16,8 @@ const TINT_AMOUNT = 0.85; // 85% white mix → soft pastel area tint
 
 export async function scheduleXlsx(
   report: ScheduleReportData,
-  exportedBy: string
+  exportedBy: string,
+  timezone?: string,
 ): Promise<Buffer> {
   const wb = new ExcelJS.Workbook();
   wb.creator = exportedBy;
@@ -63,7 +64,7 @@ function buildPlanSheet(
     3,
     totalCols,
     [
-      `Status: ${report.status}    Created: ${formatNow()}    Exported by: ${exportedBy}`,
+      `Status: ${report.status}    Created: ${formatNow(timezone)}    Exported by: ${exportedBy}`,
     ],
     { italic: true, size: 9, color: "FF6B7280" }
   );
@@ -310,9 +311,9 @@ function typeColorArgb(type: string): string {
   );
 }
 
-function formatNow(): string {
+function formatNow(timezone?: string): string {
   return new Date().toLocaleString("en-GB", {
-    timeZone: "Europe/Zurich",
+    timeZone: timezone ?? "Europe/Zurich",
     day: "2-digit",
     month: "2-digit",
     year: "numeric",

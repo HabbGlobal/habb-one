@@ -56,8 +56,10 @@ export function computePreview(args: {
   paramKey: string;
   rows: { key: string; currentValue: string }[];
   newValue: string;
+  currency?: string;
+  locale?: string;
 }): PreviewResult | null {
-  const { paramKey, rows, newValue } = args;
+  const { paramKey, rows, newValue, currency = "CHF", locale = "de-CH" } = args;
   const before = mapWithOverride(rows);
   const after = mapWithOverride(rows, { key: paramKey, value: newValue });
 
@@ -144,7 +146,7 @@ export function computePreview(args: {
       params: after,
       isExpress: false,
     });
-    return diffCHF(`Example: 60 min machine time on ${type}`, a.netCHF, b.netCHF);
+    return diffCHF(`Example: 60 min machine time on ${type}`, a.netCHF, b.netCHF, currency, locale);
   }
   if (paramKey === "pricing.rate.labor.standard") {
     const a = calcOrderItemPrice({
@@ -157,7 +159,7 @@ export function computePreview(args: {
       params: after,
       isExpress: false,
     });
-    return diffCHF("Example: 60 min employee hourly rate", a.netCHF, b.netCHF);
+    return diffCHF("Example: 60 min employee hourly rate", a.netCHF, b.netCHF, currency, locale);
   }
   if (paramKey === "pricing.surcharge.express.percent") {
     // 100 CHF order → express surcharge
@@ -175,6 +177,8 @@ export function computePreview(args: {
       "Example: 1-hour order express",
       a.totalNetCHF,
       b.totalNetCHF,
+      currency,
+      locale,
     );
   }
 
@@ -221,13 +225,13 @@ function diffMinutes(sample: string, before: number, after: number, label = "Ste
   };
 }
 
-function diffCHF(sample: string, before: number, after: number): PreviewResult {
+function diffCHF(sample: string, before: number, after: number, currency: string, locale: string): PreviewResult {
   const delta = after - before;
   const pct = before === 0 ? 0 : (delta / before) * 100;
   const sign = delta > 0 ? "+" : delta < 0 ? "" : "±";
   return {
-    summary: `${formatCHF(before)} → ${formatCHF(after)} (${sign}${formatCHF(delta)}, ${formatPct(pct)})`,
-    deltaText: `${sign}${formatCHF(delta)}`,
+    summary: `${formatCHF(before, currency, locale)} → ${formatCHF(after, currency, locale)} (${sign}${formatCHF(delta, currency, locale)}, ${formatPct(pct)})`,
+    deltaText: `${sign}${formatCHF(delta, currency, locale)}`,
     sample,
   };
 }
@@ -237,10 +241,10 @@ function formatPct(p: number): string {
   return `${sign}${p.toFixed(1)} %`;
 }
 
-function formatCHF(n: number): string {
-  return new Intl.NumberFormat("de-CH", {
+function formatCHF(n: number, currency: string, locale: string): string {
+  return new Intl.NumberFormat(locale, {
     style: "currency",
-    currency: "CHF",
+    currency,
   }).format(n);
 }
 

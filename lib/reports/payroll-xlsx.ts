@@ -6,7 +6,8 @@ const MONTHS = [
   "July", "August", "September", "October", "November", "December",
 ];
 
-export function payrollXlsx(report: PayrollDataPoint, exportedBy: string): Buffer {
+export function payrollXlsx(report: PayrollDataPoint, exportedBy: string, timezone?: string): Buffer {
+  const tz = timezone ?? "Europe/Zurich";
   const wb = XLSX.utils.book_new();
   const fullName = `${report.employee.lastName} ${report.employee.firstName}`;
 
@@ -16,7 +17,7 @@ export function payrollXlsx(report: PayrollDataPoint, exportedBy: string): Buffe
     [],
     ["Employee", `${fullName} (#${report.employee.employeeNumber})`],
     ["Period", `${MONTHS[report.period.month - 1]} ${report.period.year}`],
-    ["Created at", new Date().toLocaleString("en-GB", { timeZone: "Europe/Zurich" })],
+    ["Created at", new Date().toLocaleString("en-GB", { timeZone: tz })],
     ["Exported by", exportedBy],
     ["Company", report.company.name],
     [],

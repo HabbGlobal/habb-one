@@ -10,6 +10,7 @@ interface Props {
   rightSlot?: ReactNode;
   showWordmark?: boolean;
   className?: string;
+  theme?: "light" | "dark";
 }
 
 export function KioskBrandHeader({
@@ -21,6 +22,7 @@ export function KioskBrandHeader({
   rightSlot,
   showWordmark = true,
   className = "",
+  theme = "light",
 }: Props) {
   const logoSrc = hasLogo
     ? `/api/kiosk/company/${encodeURIComponent(
@@ -28,9 +30,13 @@ export function KioskBrandHeader({
       )}/logo?v=${encodeURIComponent(logoVersion ?? companyId)}`
     : null;
 
+  const themeClass = theme === "dark" 
+    ? "border-white/10 bg-white/5 backdrop-blur-xl shadow-2xl text-white" 
+    : "border-habb-line bg-white shadow-sm text-habb-ink";
+
   return (
     <header
-      className={`rounded-xl border border-habb-line bg-white p-5 shadow-sm ${className}`}
+      className={`rounded-2xl border p-5 ${themeClass} ${className}`}
     >
       <div className="flex flex-col justify-between gap-4 md:flex-row md:items-center">
         <div className="flex min-w-0 items-center gap-4">
@@ -39,21 +45,23 @@ export function KioskBrandHeader({
             <img
               src={logoSrc}
               alt={`${companyName} logo`}
-              className="h-12 w-auto max-w-[180px] object-contain"
+              className="h-12 w-auto max-w-[180px] object-contain rounded-lg"
             />
           ) : (
-            <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-lg bg-habb-red text-base font-bold text-white">
-              H
-            </div>
+            <img
+              src="/brand/habb-logo.png"
+              alt="Habb Logo"
+              className="h-12 w-auto object-contain rounded-lg"
+            />
           )}
 
           <div className="min-w-0">
-            <h1 className="truncate text-xl font-bold tracking-tight text-habb-ink md:text-2xl">
+            <h1 className={`truncate text-2xl font-black tracking-tight ${theme === "dark" ? "text-white" : "text-habb-ink"} md:text-3xl`}>
               {companyName}
             </h1>
 
             {subtitle && (
-              <p className="mt-1 text-sm text-habb-muted">{subtitle}</p>
+              <p className={`mt-1 text-sm ${theme === "dark" ? "text-neutral-400" : "text-habb-muted"}`}>{subtitle}</p>
             )}
           </div>
         </div>

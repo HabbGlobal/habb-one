@@ -14,9 +14,11 @@ import {
   detectMissingClockOut,
 } from "@/lib/time/calc";
 import { getEmployeeKioskSummary } from "@/lib/time/service";
-import { formatTimeLocal, localDateString, ZONE } from "@/lib/time/zone";
+import { formatTimeLocal, localDateString } from "@/lib/time/zone";
 import { formatHours } from "@/lib/utils";
 import { AutoRefresh } from "@/components/AutoRefresh";
+import { getCompanyLocale } from "@/lib/company-context";
+import { formatCurrencyLarge } from "@/lib/format-currency";
 import { KpiCard } from "@/components/dashboard/KpiCard";
 import {
   RecentInvoicesCard,
@@ -36,13 +38,7 @@ import {
 export const dynamic = "force-dynamic";
 export const revalidate = 0;
 
-const CHF_LARGE = (n: number) =>
-  new Intl.NumberFormat("de-CH", {
-    style: "currency",
-    currency: "CHF",
-    minimumFractionDigits: 0,
-    maximumFractionDigits: 0,
-  }).format(n);
+// Currency formatter is now dynamic — see `companyLocale` below.
 
 interface EmployeeRow {
   id: string;
@@ -62,6 +58,8 @@ export default async function AdminDashboardPage() {
 
   const role = session.user.role;
   const companyId = session.user.companyId;
+  const companyLocale = await getCompanyLocale(companyId);
+  const fmtLarge = (n: number) => formatCurrencyLarge(n, companyLocale.currency, companyLocale.locale);
 
   const canSeeFinance = hasPermission(role, "invoices.read");
   const canSeeOrders = hasPermission(role, "orders.read");
@@ -103,7 +101,7 @@ export default async function AdminDashboardPage() {
       orderBy: [{ firstName: "asc" }],
     });
 
-    const todayDateStr = localDateString(new Date());
+    const todayDateStr = localDateString(new Date(), companyLocale.timezone);
 
     employeeRows = await Promise.all(
       employees.map(async (e) => {
@@ -135,9 +133,9 @@ export default async function AdminDashboardPage() {
         let sinceLabel: string | null = null;
 
         if (todayEntry?.firstIn && (status === "IN" || status === "BREAK")) {
-          sinceLabel = formatTimeLocal(todayEntry.firstIn);
+          sinceLabel = formatTimeLocal(todayEntry.firstIn, companyLocale.timezone);
         } else if (todayEntry?.lastOut && status === "OUT") {
-          sinceLabel = `until ${formatTimeLocal(todayEntry.lastOut)}`;
+          sinceLabel = `until ${formatTimeLocal(todayEntry.lastOut, companyLocale.timezone)}`;
         }
 
         const warnings: string[] = [];
@@ -222,7 +220,7 @@ export default async function AdminDashboardPage() {
     );
   }
 
-  const refreshedAt = formatTimeLocal(new Date());
+  const refreshedAt = formatTimeLocal(new Date(), companyLocale.timezone);
 
   return (
     <div className="space-y-7">
@@ -237,7 +235,7 @@ export default async function AdminDashboardPage() {
           <div className="mt-2 flex items-center gap-2 text-xs text-habb-muted">
             <span className="h-1.5 w-1.5 rounded-full bg-emerald-600" />
             <span>
-              Live · As of {refreshedAt} ({ZONE}) · Auto-refresh 15s
+              Live · As of {refreshedAt} ({companyLocale.timezone}) · Auto-refresh 15s
             </span>
           </div>
         </div>
@@ -385,13 +383,13 @@ export default async function AdminDashboardPage() {
             {canSeeFinance && (
               <KpiCard
                 label="Revenue this month"
-                value={CHF_LARGE(kpis.revenueThisMonthNet)}
+                value={fmtLarge(kpis.revenueThisMonthNet)}
                 icon={Banknote}
                 tone="emerald"
                 trendPct={kpis.revenueTrendPct}
                 subline={
                   kpis.revenueTrendPct != null
-                    ? `vs. ${CHF_LARGE(kpis.revenuePrevMonthNet)} last month`
+                    ? `vs. ${fmtLarge(kpis.revenuePrevMonthNet)} last month`
                     : "No previous month comparison"
                 }
               />
@@ -400,7 +398,7 @@ export default async function AdminDashboardPage() {
             {canSeeFinance && (
               <KpiCard
                 label="Open receivables"
-                value={CHF_LARGE(kpis.outstandingGrossCHF)}
+                value={fmtLarge(kpis.outstandingGrossCHF)}
                 icon={Receipt}
                 tone={kpis.overdueCount > 0 ? "rose" : "blue"}
                 badgeLabel={
@@ -458,7 +456,7 @@ export default async function AdminDashboardPage() {
                 subline={
                   kpis.openQuotesCount === 0
                     ? "No open quotes"
-                    : `Total value ${CHF_LARGE(kpis.openQuotesNetCHF)}`
+                    : `Total value ${fmtLarge(kpis.openQuotesNetCHF)}`
                 }
               />
             )}
@@ -473,9 +471,9 @@ export default async function AdminDashboardPage() {
           </h2>
 
           <div className="grid grid-cols-1 gap-3 lg:grid-cols-2">
-            {canSeeOrders && <RecentOrdersCard rows={recentOrders} />}
+            {canSeeOrders && <RecentOrdersCard rows={recentOrders} currency={companyLocale.currency} locale={companyLocale.locale} />}
 
-            {canSeeFinance && <RecentInvoicesCard rows={recentInvoices} />}
+            {canSeeFinance && <RecentInvoicesCard rows={recentInvoices} currency={companyLocale.currency} locale={companyLocale.locale} />}
           </div>
         </section>
       )}

@@ -5,6 +5,7 @@ import { hasPermission } from "@/lib/permissions";
 import { customerDisplayName } from "@/lib/dto/customer";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { InvoiceForm } from "../InvoiceForm";
+import { getCompanyLocale } from "@/lib/company-context";
 
 export const dynamic = "force-dynamic";
 
@@ -13,7 +14,8 @@ export default async function NewInvoicePage() {
   if (!session?.user) redirect("/login");
   if (!hasPermission(session.user.role, "invoices.write")) redirect("/admin/invoices");
 
-  const [customers, company] = await Promise.all([
+  const [companyLocale, customers, company] = await Promise.all([
+    getCompanyLocale(session.user.companyId),
     prisma.customer.findMany({
       where: {
         companyId: session.user.companyId,
@@ -56,6 +58,8 @@ export default async function NewInvoicePage() {
               vatRate: Number(company.invoiceDefaultVatRate),
               paymentTerms: company.invoicePaymentTerms,
             }}
+            currency={companyLocale.currency}
+            locale={companyLocale.locale}
           />
         </CardContent>
       </Card>

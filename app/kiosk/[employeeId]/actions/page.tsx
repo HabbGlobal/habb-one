@@ -85,7 +85,7 @@ export default async function KioskActionsPage({
       : tKiosk("statusOut");
 
   return (
-    <main className="min-h-screen bg-habb-paper p-4 md:p-8">
+    <main className="min-h-screen bg-habb-black bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-habb-red/20 via-habb-black to-habb-black text-white p-4 md:p-8">
       {/* Prevent bfcache replay by forcing a full reload after back/forward restore. */}
       <BackGuard />
       <div className="max-w-3xl mx-auto space-y-4">
@@ -95,6 +95,8 @@ export default async function KioskActionsPage({
           hasLogo={!!employee.company.logoMimeType}
           subtitle={tKiosk("title")}
           logoVersion={employee.company.updatedAt.getTime().toString()}
+          showWordmark={false}
+          theme="dark"
           rightSlot={
             // This must not be a simple link. Clicking Back must immediately
             // clear the kiosk PIN session so the next tablet user cannot
@@ -102,7 +104,7 @@ export default async function KioskActionsPage({
             <form action={endKioskSessionAction}>
               <button
                 type="submit"
-                className="inline-flex items-center gap-2 rounded-lg border border-habb-line bg-white px-4 py-2 text-sm font-medium text-habb-ink shadow-sm transition hover:bg-habb-paper hover:text-habb-black"
+                className="inline-flex items-center gap-3 rounded-2xl border border-white/10 bg-white/5 backdrop-blur-md px-5 py-3 text-sm font-bold text-neutral-300 transition-all hover:bg-white/10 hover:text-white"
               >
                 <ArrowLeft className="h-4 w-4" />
                 {tKiosk("back")}
@@ -111,24 +113,22 @@ export default async function KioskActionsPage({
           }
         />
 
-        <Card className="border-habb-line shadow-sm">
-          <CardContent className="p-6">
-            <div className="flex items-baseline justify-between gap-4">
-              <div>
-                <p className="text-xs uppercase tracking-[0.18em] text-habb-muted">
-                  {tKiosk("welcome", { name: "" })}
-                </p>
-                <h2 className="mt-1 text-3xl font-semibold tracking-tight text-habb-ink">
-                  {employee.firstName} {employee.lastName}
-                </h2>
-              </div>
+        <div className="rounded-3xl border border-white/10 bg-white/5 backdrop-blur-xl p-8 shadow-2xl">
+          <div className="flex items-baseline justify-between gap-4">
+            <div>
+              <p className="text-sm font-bold uppercase tracking-[0.2em] text-habb-red mb-2">
+                {tKiosk("welcome", { name: "" })}
+              </p>
+              <h2 className="text-4xl md:text-5xl font-black tracking-tight text-white drop-shadow-md">
+                {employee.firstName} {employee.lastName}
+              </h2>
             </div>
-            <div className="mt-4 flex items-center gap-3">
-              <span className="text-sm text-habb-muted">{tKiosk("currentStatus")}:</span>
-              <StatusPill status={status} label={statusLabel} />
-            </div>
-          </CardContent>
-        </Card>
+          </div>
+          <div className="mt-6 flex items-center gap-4">
+            <span className="text-lg font-medium text-neutral-400">{tKiosk("currentStatus")}:</span>
+            <StatusPill status={status} label={statusLabel} />
+          </div>
+        </div>
 
         <ActionsPanel
           status={status}
@@ -165,21 +165,17 @@ export default async function KioskActionsPage({
           }}
         />
 
-        <Card className="border-habb-line shadow-sm">
-          <CardHeader>
-            <CardTitle className="text-habb-ink">{tKiosk("vacationRemaining")}</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <p className="text-3xl font-semibold tabular-nums text-habb-ink">
-              {vacation.remainingDays.toFixed(1)}{" "}
-              <span className="text-lg font-normal text-habb-muted">
-                / {vacation.totalDays.toFixed(1)} days
-              </span>
-            </p>
-          </CardContent>
-        </Card>
+        <div className="rounded-3xl border border-white/10 bg-white/5 backdrop-blur-xl p-8 shadow-2xl flex flex-col justify-center">
+          <h3 className="text-xl font-bold text-neutral-300 mb-2">{tKiosk("vacationRemaining")}</h3>
+          <p className="text-4xl font-black tabular-nums text-white">
+            {vacation.remainingDays.toFixed(1)}{" "}
+            <span className="text-2xl font-normal text-neutral-500">
+              / {vacation.totalDays.toFixed(1)} days
+            </span>
+          </p>
+        </div>
 
-        <KioskBrandFooter />
+        <KioskBrandFooter theme="dark" />
       </div>
     </main>
   );
@@ -202,16 +198,16 @@ function countAbsenceDays(a: {
 function StatusPill({ status, label }: { status: "IN" | "OUT" | "BREAK"; label: string }) {
   const tone =
     status === "IN"
-      ? "bg-habb-success/10 text-habb-success"
+      ? "bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 shadow-[0_0_15px_rgba(16,185,129,0.1)]"
       : status === "BREAK"
-      ? "bg-habb-warning/10 text-habb-warning"
-      : "bg-habb-paper text-habb-muted ring-1 ring-habb-line";
+      ? "bg-amber-500/10 text-amber-400 border border-amber-500/20 shadow-[0_0_15px_rgba(245,158,11,0.1)]"
+      : "bg-white/5 text-neutral-400 border border-white/10";
   return (
     <span
-      className={`inline-flex items-center gap-2 rounded-full px-3 py-1 text-sm font-semibold ${tone}`}
+      className={`inline-flex items-center gap-3 rounded-full px-4 py-2 text-sm font-bold tracking-wider uppercase ${tone}`}
     >
-      {status === "IN" && <span className="inline-block w-2 h-2 rounded-full bg-habb-success animate-pulse" />}
-      {status === "BREAK" && <span className="inline-block w-2 h-2 rounded-full bg-habb-warning animate-pulse" />}
+      {status === "IN" && <span className="inline-block w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />}
+      {status === "BREAK" && <span className="inline-block w-2 h-2 rounded-full bg-amber-400 animate-pulse" />}
       {label}
     </span>
   );

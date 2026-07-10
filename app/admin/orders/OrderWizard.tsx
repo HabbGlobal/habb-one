@@ -1,4 +1,4 @@
-﻿"use client";
+"use client";
 
 // Multi-section order editor (used both for "new" and "edit" of DRAFT
 // orders). Layout:
@@ -116,6 +116,7 @@ interface Props {
     defaultWaitMinutes: number;
   }>;
   initial?: OrderWizardInitial;
+  currency: string;
 }
 
 // ─────────────────────────────────────────
@@ -164,6 +165,7 @@ export function OrderWizard({
   templates,
   processResources,
   initial,
+  currency,
 }: Props) {
   const router = useRouter();
   const [pending, start] = useTransition();
@@ -820,7 +822,7 @@ export function OrderWizard({
                   </Select>
                 </div>
                 <div className="space-y-1">
-                  <Label>Unit price (CHF)</Label>
+                  <Label>Unit price ({currency})</Label>
                   <Input
                     type="number"
                     step={0.01}

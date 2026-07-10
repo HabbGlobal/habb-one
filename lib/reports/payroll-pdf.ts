@@ -24,6 +24,7 @@ const ACCENT = rgb(0.855, 0.055, 0.082);
 export async function payrollPdf(
   report: PayrollDataPoint,
   exportedBy: string,
+  timezone?: string,
 ): Promise<Uint8Array> {
   const doc = await PDFDocument.create();
   const font = await doc.embedFont(StandardFonts.Helvetica);
@@ -306,7 +307,7 @@ export async function payrollPdf(
   drawHRule(page, y, RULE);
   y -= 12;
   page.drawText(
-    `Created: ${new Date().toLocaleString("en-GB", { timeZone: "Europe/Zurich" })} — Exported by ${exportedBy}`,
+    `Created: ${new Date().toLocaleString("en-GB", { timeZone: timezone ?? "Europe/Zurich" })} — Exported by ${exportedBy}`,
     { x: MARGIN, y, size: 8, font, color: MUTED },
   );
 

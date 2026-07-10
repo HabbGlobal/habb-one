@@ -19,7 +19,8 @@ const ROW_HEIGHT = 26;
 
 export async function schedulePdf(
   report: ScheduleReportData,
-  exportedBy: string
+  exportedBy: string,
+  timezone?: string,
 ): Promise<Uint8Array> {
   const doc = await PDFDocument.create();
   const font = await doc.embedFont(StandardFonts.Helvetica);
@@ -67,7 +68,7 @@ function drawPage(
     font,
   });
   page.drawText(
-    `Status: ${report.status}  ·  Created: ${formatNow()}  ·  By: ${exportedBy}`,
+    `Status: ${report.status}  ·  Created: ${formatNow(timezone)}  ·  By: ${exportedBy}`,
     {
       x: MARGIN,
       y: height - MARGIN - 38,
@@ -301,9 +302,9 @@ function lightenHex(hex: string, mix: number) {
   };
 }
 
-function formatNow(): string {
+function formatNow(timezone?: string): string {
   return new Date().toLocaleString("en-GB", {
-    timeZone: "Europe/Zurich",
+    timeZone: timezone ?? "Europe/Zurich",
     day: "2-digit",
     month: "2-digit",
     year: "numeric",

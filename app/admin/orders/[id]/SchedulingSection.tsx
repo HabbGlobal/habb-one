@@ -33,7 +33,7 @@ export interface ScheduledStepDTO {
   conflicts: Array<{ type: string; severity: string; message: string }>;
 }
 
-function fmtDateTime(d: Date | string): string {
+function fmtDateTime(d: Date | string, timezone: string): string {
   const date = typeof d === "string" ? new Date(d) : d;
   return new Intl.DateTimeFormat("de-CH", {
     weekday: "short",
@@ -41,16 +41,16 @@ function fmtDateTime(d: Date | string): string {
     month: "2-digit",
     hour: "2-digit",
     minute: "2-digit",
-    timeZone: "Europe/Zurich",
+    timeZone: timezone,
   }).format(date);
 }
 
-function fmtTime(d: Date | string): string {
+function fmtTime(d: Date | string, timezone: string): string {
   const date = typeof d === "string" ? new Date(d) : d;
   return new Intl.DateTimeFormat("de-CH", {
     hour: "2-digit",
     minute: "2-digit",
-    timeZone: "Europe/Zurich",
+    timeZone: timezone,
   }).format(date);
 }
 
@@ -64,10 +64,12 @@ export function SchedulingSection({
   orderId,
   steps,
   canWrite,
+  timezone,
 }: {
   orderId: string;
   steps: ScheduledStepDTO[];
   canWrite: boolean;
+  timezone: string;
 }) {
   const router = useRouter();
   const [pending, start] = useTransition();
@@ -215,10 +217,10 @@ export function SchedulingSection({
                     )}
                   </td>
                   <td className="px-2 py-1.5 tabular-nums">
-                    {fmtDateTime(s.plannedStart).split(",")[0]}
+                    {fmtDateTime(s.plannedStart, timezone).split(",")[0]}
                   </td>
                   <td className="px-2 py-1.5 tabular-nums">
-                    {fmtTime(s.plannedStart)}–{fmtTime(s.plannedEnd)}
+                    {fmtTime(s.plannedStart, timezone)}–{fmtTime(s.plannedEnd, timezone)}
                   </td>
                   <td className="px-2 py-1.5 text-right">
                     {canWrite && (
