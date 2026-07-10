@@ -12,6 +12,7 @@ import {
   type LifecycleView,
 } from "@/lib/lifecycle";
 import { hasPermission } from "@/lib/permissions";
+import { isReadOnlyImpersonation } from "@/lib/owner/impersonation";
 import { toCustomerListItemDTO } from "@/lib/dto/customer";
 import { CustomerList } from "./CustomerList";
 import { CustomerListFilters } from "./CustomerListFilters";
@@ -32,6 +33,9 @@ export default async function CustomersPage({
   const session = await auth();
   if (!session?.user) redirect("/login");
   if (!hasPermission(session.user.role, "customers.read")) redirect("/admin");
+  const canWrite =
+    hasPermission(session.user.role, "customers.write") &&
+    !(await isReadOnlyImpersonation());
 
   const sp = await searchParams;
   const view: LifecycleView = parseView(sp.view);
@@ -95,7 +99,7 @@ export default async function CustomersPage({
           <h1 className="text-2xl font-semibold">Customers</h1>
           <p className="text-sm text-muted-foreground">CRM — Master data, addresses, contacts</p>
         </div>
-        {hasPermission(session.user.role, "customers.write") && (
+        {canWrite && (
           <Button asChild>
             <Link href="/admin/customers/new">New Customer</Link>
           </Button>

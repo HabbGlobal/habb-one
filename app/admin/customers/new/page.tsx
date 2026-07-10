@@ -2,12 +2,16 @@ import Link from "next/link";
 import { auth } from "@/lib/auth";
 import { redirect } from "next/navigation";
 import { hasPermission } from "@/lib/permissions";
+import { isReadOnlyImpersonation } from "@/lib/owner/impersonation";
 import { CustomerForm, DEFAULT_CUSTOMER_FORM } from "../CustomerForm";
 
 export default async function NewCustomerPage() {
   const session = await auth();
   if (!session?.user) redirect("/login");
-  if (!hasPermission(session.user.role, "customers.write")) {
+  if (
+    !hasPermission(session.user.role, "customers.write") ||
+    (await isReadOnlyImpersonation())
+  ) {
     redirect("/admin/customers");
   }
 

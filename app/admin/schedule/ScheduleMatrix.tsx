@@ -99,7 +99,7 @@ export function ScheduleMatrix({
       <table className="w-full text-xs border-separate border-spacing-0">
         <thead className="sticky top-0 z-10 bg-card">
           <tr>
-            <th className="text-left p-2 border-b min-w-[180px] sticky left-0 bg-card">Employee</th>
+            <th className="text-left p-2 border-b min-w-[180px] sticky left-0 bg-card z-20">Employee</th>
             {days.map((d) => {
               const day = Number(d.date.slice(8, 10));
               const holidayName = holidayMap[d.date];
@@ -135,7 +135,7 @@ export function ScheduleMatrix({
           )}
           {employees.map((row) => (
             <tr key={row.employee.id} className="hover:bg-accent/30">
-              <td className="text-sm p-2 border-b sticky left-0 bg-card whitespace-nowrap">
+              <td className="text-sm p-2 border-b sticky left-0 bg-card z-10 whitespace-nowrap">
                 <div className="flex items-center gap-2">
                   <button
                     type="button"
