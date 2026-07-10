@@ -72,7 +72,11 @@ export default async function EditTemplatePage({
       {canWrite ? (
         <Card>
           <CardHeader>
+<<<<<<< HEAD
+            <CardTitle className="text-base">Edit Template</CardTitle>
+=======
             <CardTitle className="text-base">Edit template</CardTitle>
+>>>>>>> f0bfc268c2f2ece681b2305c28e6da1a442e79c6
           </CardHeader>
           <CardContent>
             <TemplateForm mode="edit" initial={initial} />

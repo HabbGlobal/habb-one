@@ -1,6 +1,6 @@
 "use server";
 
-// Process-Vorlagen Server Actions. Nur ADMIN.
+// Process Template Server Actions. ADMIN only.
 
 import { z } from "zod";
 import { revalidatePath } from "next/cache";
@@ -79,7 +79,7 @@ export async function createTemplate(input: unknown) {
 }
 
 // ─────────────────────────────────────────
-// Update — Steps werden komplett neu aufgebaut
+// Update — steps are completely rebuilt
 // ─────────────────────────────────────────
 
 export async function updateTemplate(templateId: string, input: unknown) {

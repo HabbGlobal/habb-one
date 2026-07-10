@@ -1,20 +1,7 @@
 "use client";
 
-// Employee tile on the public kiosk overview.
-//
-// Shows a live counter from the CLOCK_IN time so everyone in the workshop
-// can see that time is running, even when nobody is signed in on the actions
-// page. The server provides the latest CLOCK_IN time and current status;
-// the client updates the counter every second.
-//
-// Privacy: show public information only:
-//   - Name
-//   - Status (clocked in / on break / absent)
-//   - "since HH:MM" and counter (no balance or target hours)
-
 import Link from "next/link";
-import { useEffect, useState } from "react";
-import { Card, CardContent } from "@/components/ui/card";
+import { useEffect, useRef, useState } from "react";
 import { Coffee, LogIn, LogOut, Plane } from "lucide-react";
 
 export type KioskStatus = "IN" | "BREAK" | "OUT" | "ABSENT";
@@ -25,16 +12,47 @@ interface Props {
   lastName: string;
   employeeNumber: string;
   status: KioskStatus;
-  /** ISO timestamp of the latest CLOCK_IN or BREAK_START event. */
   sinceIso: string | null;
-  /** Display value for the start time, such as "07:30". */
   sinceLabel: string | null;
-  /** Short label when absent, such as "Vacation". */
   absenceLabel: string | null;
-  /** Today's worked time when clocked out; this is not the balance. */
   todayWorkedLabel: string | null;
   serverNowIso: string;
 }
+
+const STATUS_STYLES: Record<
+  KioskStatus,
+  {
+    card: string;
+    pill: string;
+    dot: string;
+    text: string;
+  }
+> = {
+  IN: {
+    card: "hover:border-emerald-300",
+    pill: "bg-emerald-50 text-emerald-700",
+    dot: "bg-emerald-600",
+    text: "text-emerald-700",
+  },
+  BREAK: {
+    card: "hover:border-amber-300",
+    pill: "bg-amber-50 text-amber-700",
+    dot: "bg-amber-600",
+    text: "text-amber-700",
+  },
+  OUT: {
+    card: "hover:border-neutral-300",
+    pill: "bg-habb-paper text-habb-muted",
+    dot: "bg-neutral-400",
+    text: "text-habb-muted",
+  },
+  ABSENT: {
+    card: "hover:border-red-200",
+    pill: "bg-red-50 text-habb-red",
+    dot: "bg-habb-red",
+    text: "text-habb-red",
+  },
+};
 
 export function KioskEmployeeTile({
   employeeId,
@@ -48,126 +66,173 @@ export function KioskEmployeeTile({
   todayWorkedLabel,
   serverNowIso,
 }: Props) {
-  const [clientNow, setClientNow] = useState(Date.now());
+  const mountedAtMs = useRef(Date.now());
+  const [clientNowMs, setClientNowMs] = useState(Date.now());
+
   useEffect(() => {
     if (status !== "IN" && status !== "BREAK") return;
-    const id = setInterval(() => setClientNow(Date.now()), 1000);
-    return () => clearInterval(id);
+
+    const intervalId = window.setInterval(() => {
+      setClientNowMs(Date.now());
+    }, 1000);
+
+    return () => window.clearInterval(intervalId);
   }, [status]);
 
-  // Calculate the live duration using the server time as the reference,
-  // preventing client/server clock differences from affecting the result.
   let liveCounter: string | null = null;
+
   if (sinceIso && (status === "IN" || status === "BREAK")) {
     const sinceMs = new Date(sinceIso).getTime();
     const serverNowMs = new Date(serverNowIso).getTime();
-    const drift = clientNow - serverNowMs;
-    const elapsedMs = Math.max(0, Date.now() - sinceMs - drift);
+    const elapsedSinceHydration = clientNowMs - mountedAtMs.current;
+    const estimatedNowMs = serverNowMs + elapsedSinceHydration;
+    const elapsedMs = Math.max(0, estimatedNowMs - sinceMs);
+
     liveCounter = formatHMS(elapsedMs);
   }
 
-  const accent =
-    status === "IN"
-      ? "border-habb-success"
-      : status === "BREAK"
-        ? "border-habb-warning"
-        : status === "ABSENT"
-          ? "border-habb-red"
-          : "border-habb-line";
+  const styles = STATUS_STYLES[status];
 
   return (
-    <Link href={`/kiosk/${employeeId}`} className="block">
-      <Card
-        className={`hover:shadow-md transition cursor-pointer h-full border-l-4 ${accent} border-habb-line shadow-sm`}
-      >
-        <CardContent className="p-5 space-y-3">
-          {/* Name */}
-          <div>
-            <div className="text-2xl font-semibold leading-tight text-habb-ink">
-              {firstName}
-            </div>
-            <div className="text-base text-habb-muted">
-              {lastName}{" "}
-              <span className="text-xs">#{employeeNumber}</span>
-            </div>
-          </div>
+    <Link
+      href={`/kiosk/${employeeId}`}
+      className={`group block rounded-xl border border-habb-line bg-white p-5 shadow-sm transition-all hover:-translate-y-0.5 hover:shadow-md ${styles.card}`}
+    >
+      <div className="flex min-h-40 flex-col justify-between gap-5">
+        <div>
+          <div className="flex items-start justify-between gap-3">
+            <div className="min-w-0">
+              <h2 className="truncate text-2xl font-bold leading-tight tracking-tight text-habb-ink">
+                {firstName}
+              </h2>
 
-          {/* Status */}
-          <div>
-            {status === "IN" && (
-              <div className="space-y-0.5">
-                <div className="inline-flex items-center gap-1.5 text-xs font-semibold text-habb-success uppercase tracking-wider">
-                  <span className="inline-block w-2 h-2 rounded-full bg-habb-success animate-pulse" />
-                  Clocked in
-                </div>
-                {sinceLabel && (
-                  <div className="text-xs text-habb-muted">
-                    since {sinceLabel}
-                  </div>
-                )}
-                {liveCounter && (
-                  <div className="text-2xl font-mono tabular-nums text-habb-success font-semibold">
-                    {liveCounter}
-                  </div>
-                )}
-              </div>
-            )}
-            {status === "BREAK" && (
-              <div className="space-y-0.5">
-                <div className="inline-flex items-center gap-1.5 text-xs font-semibold text-habb-warning uppercase tracking-wider">
-                  <Coffee className="h-3 w-3" />
-                  On break
-                </div>
-                {sinceLabel && (
-                  <div className="text-xs text-habb-muted">
-                    since {sinceLabel}
-                  </div>
-                )}
-                {liveCounter && (
-                  <div className="text-2xl font-mono tabular-nums text-habb-warning font-semibold">
-                    {liveCounter}
-                  </div>
-                )}
-              </div>
-            )}
-            {status === "OUT" && (
-              <div className="space-y-0.5">
-                <div className="inline-flex items-center gap-1.5 text-xs font-medium text-habb-muted uppercase tracking-wider">
-                  <LogOut className="h-3 w-3" />
-                  Clocked out
-                </div>
-                {todayWorkedLabel && (
-                  <div className="text-xs text-habb-muted">
-                    Today: {todayWorkedLabel}
-                  </div>
-                )}
-                {!todayWorkedLabel && (
-                  <div className="inline-flex items-center gap-1 text-xs text-habb-muted">
-                    <LogIn className="h-3 w-3" />
-                    Tap to clock in
-                  </div>
-                )}
-              </div>
-            )}
-            {status === "ABSENT" && (
-              <div className="space-y-0.5">
-                <div className="inline-flex items-center gap-1.5 text-xs font-semibold text-habb-red uppercase tracking-wider">
-                  <Plane className="h-3 w-3" />
-                  {absenceLabel ?? "Absent"}
-                </div>
-              </div>
-            )}
+              <p className="mt-1 truncate text-base text-habb-muted">
+                {lastName}
+              </p>
+            </div>
+
+            <span className="shrink-0 rounded-md bg-habb-paper px-2 py-1 text-[11px] font-semibold text-habb-muted">
+              #{employeeNumber}
+            </span>
           </div>
-        </CardContent>
-      </Card>
+        </div>
+
+        <div>
+          <StatusPill status={status} absenceLabel={absenceLabel} />
+
+          {status === "IN" && (
+            <div className="mt-3">
+              {sinceLabel && (
+                <p className="text-xs text-habb-muted">since {sinceLabel}</p>
+              )}
+
+              {liveCounter && (
+                <p className="mt-1 font-mono text-2xl font-bold tabular-nums text-emerald-700">
+                  {liveCounter}
+                </p>
+              )}
+            </div>
+          )}
+
+          {status === "BREAK" && (
+            <div className="mt-3">
+              {sinceLabel && (
+                <p className="text-xs text-habb-muted">since {sinceLabel}</p>
+              )}
+
+              {liveCounter && (
+                <p className="mt-1 font-mono text-2xl font-bold tabular-nums text-amber-700">
+                  {liveCounter}
+                </p>
+              )}
+            </div>
+          )}
+
+          {status === "OUT" && (
+            <div className="mt-3">
+              {todayWorkedLabel ? (
+                <p className="text-xs text-habb-muted">
+                  Today: {todayWorkedLabel}
+                </p>
+              ) : (
+                <p className="inline-flex items-center gap-1.5 text-xs font-medium text-habb-muted">
+                  <LogIn className="h-3.5 w-3.5" />
+                  Tap to clock in
+                </p>
+              )}
+            </div>
+          )}
+
+          {status === "ABSENT" && (
+            <p className="mt-3 text-xs text-habb-muted">
+              Not available today
+            </p>
+          )}
+        </div>
+      </div>
     </Link>
   );
 }
 
+function StatusPill({
+  status,
+  absenceLabel,
+}: {
+  status: KioskStatus;
+  absenceLabel: string | null;
+}) {
+  const styles = STATUS_STYLES[status];
+
+  if (status === "IN") {
+    return (
+      <span
+        className={`inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-xs font-semibold uppercase tracking-wide ${styles.pill}`}
+      >
+        <span className={`h-1.5 w-1.5 rounded-full ${styles.dot} animate-pulse`} />
+        Clocked in
+      </span>
+    );
+  }
+
+  if (status === "BREAK") {
+    return (
+      <span
+        className={`inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-xs font-semibold uppercase tracking-wide ${styles.pill}`}
+      >
+        <Coffee className="h-3.5 w-3.5" />
+        On break
+      </span>
+    );
+  }
+
+  if (status === "ABSENT") {
+    return (
+      <span
+        className={`inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-xs font-semibold uppercase tracking-wide ${styles.pill}`}
+      >
+        <Plane className="h-3.5 w-3.5" />
+        {absenceLabel ?? "Absent"}
+      </span>
+    );
+  }
+
+  return (
+    <span
+      className={`inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-xs font-semibold uppercase tracking-wide ${styles.pill}`}
+    >
+      <LogOut className="h-3.5 w-3.5" />
+      Clocked out
+    </span>
+  );
+}
+
 function formatHMS(ms: number): string {
-  const totalSec = Math.floor(ms / 1000);
-  const h = Math.floor(totalSec / 3600);
-  const m = Math.floor((totalSec % 3600) / 60);
-  const s = totalSec % 60;
-  return `${h}:${m.toString().padStart(2, "0")}:${s.toString().padStart(2, "0")}`;
+  const totalSeconds = Math.floor(ms / 1000);
+  const hours = Math.floor(totalSeconds / 3600);
+  const minutes = Math.floor((totalSeconds % 3600) / 60);
+  const seconds = totalSeconds % 60;
+
+  return `${hours}:${minutes.toString().padStart(2, "0")}:${seconds
+    .toString()
+    .padStart(2, "0")}`;
 }

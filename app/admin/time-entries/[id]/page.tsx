@@ -63,7 +63,7 @@ export default async function TimeEntryDetail({
 
       <Card>
         <CardHeader>
-          <CardTitle>Stempelungen</CardTitle>
+          <CardTitle>Time Entries</CardTitle>
         </CardHeader>
         <CardContent className="p-0">
           <Table>
@@ -71,7 +71,7 @@ export default async function TimeEntryDetail({
               <TableRow>
                 <TableHead>{t("punchType")}</TableHead>
                 <TableHead>{t("occurredAt")}</TableHead>
-                <TableHead>Quelle</TableHead>
+                <TableHead>Source</TableHead>
                 <TableHead></TableHead>
               </TableRow>
             </TableHeader>
