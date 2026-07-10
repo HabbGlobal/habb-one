@@ -7,6 +7,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { createWorkArea, updateWorkArea } from "./actions";
+import { AREA_CAPACITY_RANGE_ERROR, isValidAreaCapacityRange } from "@/lib/areas/validation";
 
 export interface AreaFormData {
   name: string;
@@ -37,6 +38,10 @@ export function AreaForm({
       onSubmit={(e) => {
         e.preventDefault();
         setError(null);
+        if (!isValidAreaCapacityRange(data.minEmployeesPerDay, data.maxEmployeesPerDay)) {
+          setError(AREA_CAPACITY_RANGE_ERROR);
+          return;
+        }
         start(async () => {
           try {
             if (mode.kind === "create") await createWorkArea(data);

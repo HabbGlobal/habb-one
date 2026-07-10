@@ -7,6 +7,7 @@ import { prisma } from "@/lib/prisma";
 import { auth } from "@/lib/auth";
 import { hasPermission } from "@/lib/permissions";
 import { recordAudit } from "@/lib/audit";
+import { AREA_CAPACITY_RANGE_ERROR, isValidAreaCapacityRange } from "@/lib/areas/validation";
 
 async function requireAdmin() {
   const session = await auth();
@@ -50,7 +51,13 @@ const areaSchema = z.object({
     },
     z.number().int().min(1).max(99).nullable()
   ),
-});
+}).refine(
+  (data) => isValidAreaCapacityRange(data.minEmployeesPerDay, data.maxEmployeesPerDay),
+  {
+    message: AREA_CAPACITY_RANGE_ERROR,
+    path: ["maxEmployeesPerDay"],
+  }
+);
 
 export async function createWorkArea(input: unknown) {
   const user = await requireAdmin();
