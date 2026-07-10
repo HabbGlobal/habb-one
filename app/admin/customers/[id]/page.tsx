@@ -3,6 +3,7 @@ import { notFound, redirect } from "next/navigation";
 import { prisma } from "@/lib/prisma";
 import { auth } from "@/lib/auth";
 import { hasPermission } from "@/lib/permissions";
+import { isReadOnlyImpersonation } from "@/lib/owner/impersonation";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
 import {
@@ -77,7 +78,9 @@ export default async function CustomerDetailPage({
 
   if (!customer || customer.companyId !== session.user.companyId) notFound();
 
-  const canWrite = hasPermission(session.user.role, "customers.write");
+  const canWrite =
+    hasPermission(session.user.role, "customers.write") &&
+    !(await isReadOnlyImpersonation());
   const dto = toCustomerDetailDTO(customer);
 
   // Statistics — basic aggregates. Order/invoice queries are bounded to

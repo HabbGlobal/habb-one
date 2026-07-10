@@ -12,6 +12,7 @@ import { Prisma } from "@prisma/client";
 import { prisma } from "@/lib/prisma";
 import { auth } from "@/lib/auth";
 import { hasPermission } from "@/lib/permissions";
+import { assertNotReadOnlyImpersonation } from "@/lib/owner/impersonation";
 import { recordAudit } from "@/lib/audit";
 import {
   addressSchema,
@@ -35,6 +36,7 @@ async function requireWriter() {
   if (!hasPermission(session.user.role, "customers.write")) {
     throw new Error("No permission.");
   }
+  await assertNotReadOnlyImpersonation();
   return session.user;
 }
 
