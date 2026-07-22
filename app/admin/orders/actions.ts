@@ -133,6 +133,7 @@ function computeOrderTotals(
       params,
       customerDiscountPct,
       isExpress,
+      fixedUnitPriceCHF: it.unitPriceCHF,
     });
     // Sum per quantity (each piece is calculated identically).
     totalNetCHF += price.totalNetCHF * it.quantity;
