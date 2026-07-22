@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { CheckCircle2 } from "lucide-react";
 import { HabbWordmark } from "@/components/kiosk/HabbWordmark";
+import { KioskThemeToggle } from "@/components/kiosk/KioskThemeToggle";
 
 interface CompanyOption {
   id: string;
@@ -16,13 +17,11 @@ interface Props {
   companies: CompanyOption[];
 }
 
-const PIN_DOT_COUNT = 4;
-const MAX_PIN_LENGTH = 8;
+const PIN_LENGTH = 4;
 
 export function KioskLockScreen({ appName, companyLabel, companies }: Props) {
   const router = useRouter();
 
-  const [theme, setTheme] = useState<"light" | "dark">("light");
   const [companyId, setCompanyId] = useState(
     companies.length === 1 ? companies[0].id : "",
   );
@@ -47,33 +46,31 @@ export function KioskLockScreen({ appName, companyLabel, companies }: Props) {
   }, []);
 
   const appendDigit = (digit: string) => {
+    if (pending || password.length >= PIN_LENGTH) return;
     setError(null);
-    setPassword((current) =>
-      current.length >= MAX_PIN_LENGTH ? current : `${current}${digit}`,
-    );
+    const next = `${password}${digit}`;
+    setPassword(next);
+    if (next.length === PIN_LENGTH) submit(next);
   };
 
   const clearPin = () => {
+    if (pending) return;
     setError(null);
     setPassword("");
   };
 
   const removeLastDigit = () => {
+    if (pending) return;
     setError(null);
     setPassword((current) => current.slice(0, -1));
   };
 
-  const submit = async (event: React.FormEvent) => {
-    event.preventDefault();
+  const submit = async (value: string) => {
     setError(null);
 
     if (companies.length > 1 && !companyId) {
       setError("Select a company.");
-      return;
-    }
-
-    if (!password) {
-      setError("PIN missing.");
+      setPassword("");
       return;
     }
 
@@ -88,7 +85,7 @@ export function KioskLockScreen({ appName, companyLabel, companies }: Props) {
         },
         body: JSON.stringify({
           companyId,
-          password,
+          password: value,
         }),
       });
 
@@ -115,55 +112,29 @@ export function KioskLockScreen({ appName, companyLabel, companies }: Props) {
 
   if (unlocking) {
     return (
-      <div className={theme === "dark" ? "dark" : ""}>
-        <main className="flex min-h-screen items-center justify-center bg-habb-paper text-habb-ink dark:bg-neutral-950 dark:text-white p-6">
-          <div className="flex flex-col items-center justify-center gap-6">
-            <div className="relative h-24 w-24">
-              <div className="absolute inset-0 rounded-full border-4 border-neutral-200 dark:border-neutral-800"></div>
-              <div className="absolute inset-0 animate-spin rounded-full border-4 border-habb-red border-t-transparent"></div>
-              <div className="absolute inset-2 animate-[spin_1.5s_linear_infinite_reverse] rounded-full border-4 border-neutral-400 dark:border-neutral-500 border-t-transparent opacity-50"></div>
-              <div className="absolute inset-0 flex items-center justify-center">
-                <div className="h-3 w-3 animate-pulse rounded-full bg-habb-red"></div>
-              </div>
+      <main className="flex min-h-screen items-center justify-center bg-habb-paper text-habb-ink dark:bg-neutral-950 dark:text-white p-6">
+        <div className="flex flex-col items-center justify-center gap-6">
+          <div className="relative h-24 w-24">
+            <div className="absolute inset-0 rounded-full border-4 border-neutral-200 dark:border-neutral-800"></div>
+            <div className="absolute inset-0 animate-spin rounded-full border-4 border-habb-red border-t-transparent"></div>
+            <div className="absolute inset-2 animate-[spin_1.5s_linear_infinite_reverse] rounded-full border-4 border-neutral-400 dark:border-neutral-500 border-t-transparent opacity-50"></div>
+            <div className="absolute inset-0 flex items-center justify-center">
+              <div className="h-3 w-3 animate-pulse rounded-full bg-habb-red"></div>
             </div>
-            <p className="animate-pulse text-lg font-semibold tracking-widest uppercase">
-              Unlocking Kiosk
-            </p>
           </div>
-        </main>
-      </div>
+          <p className="animate-pulse text-lg font-semibold tracking-widest uppercase">
+            Unlocking Kiosk
+          </p>
+        </div>
+      </main>
     );
   }
 
   return (
-    <div className={theme === "dark" ? "dark" : ""}>
-      <main className="flex min-h-screen items-center justify-center bg-habb-paper p-6 text-habb-ink transition-colors dark:bg-neutral-950 dark:text-white">
-        <div className="fixed right-5 top-5 z-10 flex rounded-lg border border-habb-line bg-white p-1 shadow-sm dark:border-neutral-800 dark:bg-neutral-900">
-          <button
-            type="button"
-            onClick={() => setTheme("light")}
-            className={`rounded-md px-3 py-1.5 text-xs font-semibold ${theme === "light"
-                ? "bg-habb-ink text-white"
-                : "text-habb-muted hover:text-habb-ink dark:hover:text-white"
-              }`}
-          >
-            Light
-          </button>
+    <main className="flex min-h-screen items-center justify-center bg-habb-paper p-6 text-habb-ink transition-colors dark:bg-neutral-950 dark:text-white">
+      <KioskThemeToggle className="fixed right-5 top-5 z-10" />
 
-          <button
-            type="button"
-            onClick={() => setTheme("dark")}
-            className={`rounded-md px-3 py-1.5 text-xs font-semibold ${theme === "dark"
-                ? "bg-white text-neutral-950"
-                : "text-habb-muted hover:text-habb-ink dark:hover:text-white"
-              }`}
-          >
-            Dark
-          </button>
-        </div>
-
-        <form
-          onSubmit={submit}
+      <div
           className="w-full max-w-[340px] rounded-xl border border-habb-line bg-white px-7 py-8 text-center shadow-sm dark:border-neutral-800 dark:bg-neutral-900"
         >
           <img
@@ -176,7 +147,7 @@ export function KioskLockScreen({ appName, companyLabel, companies }: Props) {
             Workshop Kiosk
           </h1>
 
-          <p className="mt-2 text-sm leading-relaxed text-habb-muted">
+          <p className="mt-2 text-sm leading-relaxed text-habb-muted dark:text-neutral-400">
             Enter the kiosk PIN to unlock this tablet.
           </p>
 
@@ -201,17 +172,23 @@ export function KioskLockScreen({ appName, companyLabel, companies }: Props) {
             </select>
           </div>
 
-          <div className="mt-5 flex justify-center gap-3">
-            {Array.from({ length: PIN_DOT_COUNT }).map((_, index) => (
-              <span
-                key={index}
-                className={`h-2.5 w-2.5 rounded-full border transition-colors ${password.length > index
-                    ? "border-habb-red bg-habb-red"
-                    : "border-neutral-300 bg-transparent dark:border-neutral-700"
-                  }`}
-              />
-            ))}
-          </div>
+          {pending ? (
+            <div className="mt-5 flex justify-center">
+              <div className="h-6 w-6 animate-spin rounded-full border-2 border-habb-red border-t-transparent" />
+            </div>
+          ) : (
+            <div className="mt-5 flex justify-center gap-3">
+              {Array.from({ length: PIN_LENGTH }).map((_, index) => (
+                <span
+                  key={index}
+                  className={`h-2.5 w-2.5 rounded-full border transition-colors ${password.length > index
+                      ? "border-habb-red bg-habb-red"
+                      : "border-neutral-300 bg-transparent dark:border-neutral-700"
+                    }`}
+                />
+              ))}
+            </div>
+          )}
 
           {error && (
             <div className="mt-4 rounded-lg border border-red-200 bg-red-50 px-3 py-2 text-sm text-habb-red dark:border-red-900/50 dark:bg-red-950/30">
@@ -234,42 +211,33 @@ export function KioskLockScreen({ appName, companyLabel, companies }: Props) {
             <PinKey label="⌫" action disabled={pending} onClick={removeLastDigit} />
           </div>
 
-          <button
-            type="submit"
-            disabled={pending}
-            className="mt-4 w-full rounded-lg bg-habb-red px-4 py-3 text-sm font-semibold text-white transition-colors hover:bg-habb-red-dark disabled:cursor-not-allowed disabled:opacity-60"
-          >
-            {pending ? "Checking…" : "Unlock tablet"}
-          </button>
-
-          <p className="mt-4 text-xs leading-relaxed text-habb-muted">
+          <p className="mt-4 text-xs leading-relaxed text-habb-muted dark:text-neutral-400">
             Tablet stays unlocked until logged out at end of shift.
           </p>
 
           <div
-            className={`mt-4 inline-flex items-center justify-center gap-1.5 text-xs font-medium ${online ? "text-emerald-700" : "text-red-600"
+            className={`mt-4 inline-flex items-center justify-center gap-1.5 text-xs font-medium ${online ? "text-emerald-700 dark:text-emerald-400" : "text-red-600 dark:text-red-400"
               }`}
           >
             {online ? (
               <>
-                <span className="h-1.5 w-1.5 rounded-full bg-emerald-600" />
+                <span className="h-1.5 w-1.5 rounded-full bg-emerald-600 dark:bg-emerald-400" />
                 Network connected
               </>
             ) : (
               <>
-                <span className="h-1.5 w-1.5 rounded-full bg-red-600" />
+                <span className="h-1.5 w-1.5 rounded-full bg-red-600 dark:bg-red-400" />
                 Network offline
               </>
             )}
           </div>
 
-          <div className="mt-5 flex items-center justify-center gap-1.5 text-xs text-habb-muted">
+          <div className="mt-5 flex items-center justify-center gap-1.5 text-xs text-habb-muted dark:text-neutral-400">
             <span>Powered by</span>
             <HabbWordmark size="sm" />
           </div>
-        </form>
+        </div>
       </main>
-    </div>
   );
 }
 
