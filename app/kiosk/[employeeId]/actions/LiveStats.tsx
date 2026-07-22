@@ -57,9 +57,9 @@ export function LiveStats(props: LiveStatsProps) {
 
   return (
     <>
-      <div className="rounded-3xl border border-white/10 bg-white/5 backdrop-blur-xl p-8 shadow-2xl">
+      <div className="rounded-3xl border border-habb-line bg-white shadow-sm p-8 dark:border-white/10 dark:bg-white/5 dark:backdrop-blur-xl dark:shadow-2xl">
         <div className="mb-6">
-          <h3 className="text-xl font-bold text-white">
+          <h3 className="text-xl font-bold text-habb-ink dark:text-white">
             {props.labels.today} — {props.todayDate}
           </h3>
         </div>
@@ -80,8 +80,8 @@ export function LiveStats(props: LiveStatsProps) {
         {props.isOnBreak && (
           <div className="mt-6">
             <div className="rounded-2xl bg-amber-500/10 border border-amber-500/20 px-5 py-4 flex items-center gap-3">
-              <span className="inline-block w-3 h-3 rounded-full bg-amber-400 animate-pulse shadow-[0_0_10px_rgba(245,158,11,0.5)]" />
-              <span className="text-base font-bold text-amber-400">
+              <span className="inline-block w-3 h-3 rounded-full bg-amber-500 dark:bg-amber-400 animate-pulse shadow-[0_0_10px_rgba(245,158,11,0.5)]" />
+              <span className="text-base font-bold text-amber-600 dark:text-amber-400">
                 {props.labels.breakLabel}: <span className="font-mono font-black text-xl ml-1">{fmt(todayBreakSec, true)}</span>
               </span>
             </div>
@@ -89,9 +89,9 @@ export function LiveStats(props: LiveStatsProps) {
         )}
       </div>
 
-      <div className="rounded-3xl border border-white/10 bg-white/5 backdrop-blur-xl p-8 shadow-2xl">
+      <div className="rounded-3xl border border-habb-line bg-white shadow-sm p-8 dark:border-white/10 dark:bg-white/5 dark:backdrop-blur-xl dark:shadow-2xl">
         <div className="mb-6">
-          <h3 className="text-xl font-bold text-white">{props.labels.thisWeek}</h3>
+          <h3 className="text-xl font-bold text-habb-ink dark:text-white">{props.labels.thisWeek}</h3>
         </div>
         <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
           <Stat label={props.labels.target} value={fmt(weekTargetSec, false)} />
@@ -136,12 +136,16 @@ function Stat({
   live?: boolean;
 }) {
   const color =
-    tone === "negative" ? "text-habb-red" : tone === "positive" ? "text-emerald-400" : "text-white";
+    tone === "negative"
+      ? "text-habb-red"
+      : tone === "positive"
+      ? "text-emerald-600 dark:text-emerald-400"
+      : "text-habb-ink dark:text-white";
   return (
     <div>
-      <div className="text-sm font-bold uppercase tracking-widest text-neutral-400 flex items-center gap-2 mb-1">
+      <div className="text-sm font-bold uppercase tracking-widest text-habb-muted dark:text-neutral-400 flex items-center gap-2 mb-1">
         {label}
-        {live && <span className="inline-block w-2.5 h-2.5 rounded-full bg-emerald-400 animate-pulse shadow-[0_0_10px_rgba(16,185,129,0.5)]" />}
+        {live && <span className="inline-block w-2.5 h-2.5 rounded-full bg-emerald-500 dark:bg-emerald-400 animate-pulse shadow-[0_0_10px_rgba(16,185,129,0.5)]" />}
       </div>
       <div className={`text-4xl font-black tabular-nums ${color}`}>{value}</div>
     </div>

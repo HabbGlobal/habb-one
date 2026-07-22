@@ -6,6 +6,7 @@ import {
   calcCuringProfile,
   calcOrderItemPrice,
   calcProcessStepMinutes,
+  type PriceInput,
 } from "./index";
 import { buildParameterMap } from "../parameters/store";
 import { PARAMETER_SEEDS } from "../parameters/seeds";
@@ -233,5 +234,34 @@ describe("calcOrderItemPrice", () => {
       isExpress: false,
     });
     expect(r.netCHF).toBe(150);
+  });
+
+  it("uses fixedUnitPriceCHF and ignores step effort when set", () => {
+    // Regression test for issue #34: unitPriceCHF was silently dropped.
+    const r = calcOrderItemPrice({
+      steps: [{ processCode: "MOUNTING", estimatedMinutes: 60 }], // would be 95 CHF effort-based
+      params,
+      isExpress: true,
+      customerDiscountPct: 10,
+      fixedUnitPriceCHF: 100,
+    });
+    expect(r.netCHF).toBe(100);
+    expect(r.expressSurchargeCHF).toBe(0);
+    expect(r.discountCHF).toBe(0);
+    expect(r.totalNetCHF).toBe(100);
+  });
+
+  it("falls back to effort-based pricing when fixedUnitPriceCHF is null or 0", () => {
+    const base: PriceInput = {
+      steps: [{ processCode: "MOUNTING", estimatedMinutes: 60 }],
+      params,
+      isExpress: false,
+    };
+    const withNull = calcOrderItemPrice({ ...base, fixedUnitPriceCHF: null });
+    const withZero = calcOrderItemPrice({ ...base, fixedUnitPriceCHF: 0 });
+    const withoutField = calcOrderItemPrice(base);
+    expect(withNull.totalNetCHF).toBe(95);
+    expect(withZero.totalNetCHF).toBe(95);
+    expect(withoutField.totalNetCHF).toBe(95);
   });
 });

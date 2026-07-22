@@ -84,33 +84,33 @@ export function ActionsPanel({ status, labels }: { status: Status; labels: Label
       action: "CLOCK_IN",
       label: labels.clockIn,
       icon: <LogIn className="w-12 h-12 mb-3" />,
-      color: "bg-white text-habb-black hover:bg-neutral-200 shadow-[0_0_40px_rgba(255,255,255,0.1)]",
+      color: "bg-habb-ink text-white hover:bg-neutral-800 dark:bg-white dark:text-habb-black dark:hover:bg-neutral-200 dark:shadow-[0_0_40px_rgba(255,255,255,0.1)]",
     });
   } else if (status === "IN") {
     buttons.push({
       action: "CLOCK_OUT",
       label: labels.clockOut,
       icon: <LogOut className="w-12 h-12 mb-3" />,
-      color: "bg-habb-red text-white hover:bg-habb-red-dark shadow-[0_0_40px_rgba(218,14,21,0.2)]",
+      color: "bg-habb-red text-white hover:bg-habb-red-dark shadow-[0_0_40px_rgba(218,14,21,0.15)] dark:shadow-[0_0_40px_rgba(218,14,21,0.2)]",
     });
     buttons.push({
       action: "BREAK_START",
       label: labels.breakStart,
       icon: <Coffee className="w-12 h-12 mb-3" />,
-      color: "bg-white/5 backdrop-blur-md text-white border border-white/10 hover:bg-white/10",
+      color: "bg-habb-paper text-habb-ink border border-habb-line hover:bg-habb-line/60 dark:bg-white/5 dark:backdrop-blur-md dark:text-white dark:border-white/10 dark:hover:bg-white/10",
     });
   } else if (status === "BREAK") {
     buttons.push({
       action: "BREAK_END",
       label: labels.breakEnd,
       icon: <Play className="w-12 h-12 mb-3" />,
-      color: "bg-white text-habb-black hover:bg-neutral-200 shadow-[0_0_40px_rgba(255,255,255,0.1)]",
+      color: "bg-habb-ink text-white hover:bg-neutral-800 dark:bg-white dark:text-habb-black dark:hover:bg-neutral-200 dark:shadow-[0_0_40px_rgba(255,255,255,0.1)]",
     });
     buttons.push({
       action: "CLOCK_OUT",
       label: labels.clockOut,
       icon: <LogOut className="w-12 h-12 mb-3" />,
-      color: "bg-habb-red text-white hover:bg-habb-red-dark shadow-[0_0_40px_rgba(218,14,21,0.2)]",
+      color: "bg-habb-red text-white hover:bg-habb-red-dark shadow-[0_0_40px_rgba(218,14,21,0.15)] dark:shadow-[0_0_40px_rgba(218,14,21,0.2)]",
     });
   }
 
@@ -130,9 +130,9 @@ export function ActionsPanel({ status, labels }: { status: Status; labels: Label
         ))}
       </div>
       {confirmation && (
-        <div className="rounded-lg bg-white border border-neutral-200 px-4 py-3 flex items-center gap-2 animate-in fade-in slide-in-from-top-2">
-          <CheckCircle2 className="w-5 h-5 text-habb-black" />
-          <span className="text-habb-black font-medium">{confirmation}</span>
+        <div className="rounded-lg bg-white border border-habb-line px-4 py-3 flex items-center gap-2 animate-in fade-in slide-in-from-top-2 dark:bg-white/5 dark:border-white/10">
+          <CheckCircle2 className="w-5 h-5 text-habb-ink dark:text-white" />
+          <span className="text-habb-ink dark:text-white font-medium">{confirmation}</span>
         </div>
       )}
       {error && (

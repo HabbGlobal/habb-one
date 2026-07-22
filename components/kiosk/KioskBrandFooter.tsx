@@ -2,17 +2,14 @@ import { HabbWordmark } from "./HabbWordmark";
 
 interface Props {
   className?: string;
-  theme?: "light" | "dark";
 }
 
-export function KioskBrandFooter({ className = "", theme = "light" }: Props) {
-  const isDark = theme === "dark";
-
+export function KioskBrandFooter({ className = "" }: Props) {
   return (
     <footer
-      className={`mt-8 border-t ${isDark ? "border-white/10" : "border-habb-line"} pt-5 text-center ${className}`}
+      className={`mt-8 border-t border-habb-line pt-5 text-center dark:border-white/10 ${className}`}
     >
-      <p className={`inline-flex flex-wrap items-center justify-center gap-1.5 text-xs ${isDark ? "text-neutral-400" : "text-habb-muted"}`}>
+      <p className="inline-flex flex-wrap items-center justify-center gap-1.5 text-xs text-habb-muted dark:text-neutral-400">
         <span>Powered by</span>
 
         <a
@@ -21,7 +18,7 @@ export function KioskBrandFooter({ className = "", theme = "light" }: Props) {
           rel="noopener noreferrer"
           className="transition-colors hover:text-habb-red"
         >
-          <HabbWordmark size="sm" theme={theme} />
+          <HabbWordmark size="sm" />
         </a>
       </p>
     </footer>
