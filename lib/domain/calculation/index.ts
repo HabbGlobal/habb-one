@@ -141,6 +141,12 @@ export interface PriceInput {
   customerDiscountPct?: number;
   /** True when Priority=EXPRESS — adds the express surcharge. */
   isExpress: boolean;
+  /**
+   * When set (> 0), this fixed price per unit is used instead of the
+   * effort-based step calculation (e.g. "10 railings @ 125.50"). Mirrors
+   * the billing logic used for invoice generation — see docs/parameters.md.
+   */
+  fixedUnitPriceCHF?: number | null;
 }
 
 export interface PriceResult {
@@ -164,7 +170,16 @@ export interface PriceResult {
  *   total    = net + express − discount
  */
 export function calcOrderItemPrice(input: PriceInput): PriceResult {
-  const { steps, params, customerDiscountPct = 0, isExpress } = input;
+  const { steps, params, customerDiscountPct = 0, isExpress, fixedUnitPriceCHF } = input;
+
+  if (fixedUnitPriceCHF != null && fixedUnitPriceCHF > 0) {
+    return {
+      netCHF: fixedUnitPriceCHF,
+      expressSurchargeCHF: 0,
+      discountCHF: 0,
+      totalNetCHF: fixedUnitPriceCHF,
+    };
+  }
 
   const laborRate = params.getCurrency("pricing.rate.labor.standard");
 
