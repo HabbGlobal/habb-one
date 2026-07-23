@@ -83,46 +83,46 @@ export function ActionsPanel({ status, labels }: { status: Status; labels: Label
     buttons.push({
       action: "CLOCK_IN",
       label: labels.clockIn,
-      icon: <LogIn className="w-12 h-12 mb-3" />,
+      icon: <LogIn className="w-6 h-6 mb-2" />,
       color: "bg-habb-ink text-white hover:bg-neutral-800 dark:bg-white dark:text-habb-black dark:hover:bg-neutral-200 dark:shadow-[0_0_40px_rgba(255,255,255,0.1)]",
     });
   } else if (status === "IN") {
     buttons.push({
       action: "CLOCK_OUT",
       label: labels.clockOut,
-      icon: <LogOut className="w-12 h-12 mb-3" />,
+      icon: <LogOut className="w-6 h-6 mb-2" />,
       color: "bg-habb-red text-white hover:bg-habb-red-dark shadow-[0_0_40px_rgba(218,14,21,0.15)] dark:shadow-[0_0_40px_rgba(218,14,21,0.2)]",
     });
     buttons.push({
       action: "BREAK_START",
       label: labels.breakStart,
-      icon: <Coffee className="w-12 h-12 mb-3" />,
+      icon: <Coffee className="w-6 h-6 mb-2" />,
       color: "bg-habb-paper text-habb-ink border border-habb-line hover:bg-habb-line/60 dark:bg-white/5 dark:backdrop-blur-md dark:text-white dark:border-white/10 dark:hover:bg-white/10",
     });
   } else if (status === "BREAK") {
     buttons.push({
       action: "BREAK_END",
       label: labels.breakEnd,
-      icon: <Play className="w-12 h-12 mb-3" />,
+      icon: <Play className="w-6 h-6 mb-2" />,
       color: "bg-habb-ink text-white hover:bg-neutral-800 dark:bg-white dark:text-habb-black dark:hover:bg-neutral-200 dark:shadow-[0_0_40px_rgba(255,255,255,0.1)]",
     });
     buttons.push({
       action: "CLOCK_OUT",
       label: labels.clockOut,
-      icon: <LogOut className="w-12 h-12 mb-3" />,
+      icon: <LogOut className="w-6 h-6 mb-2" />,
       color: "bg-habb-red text-white hover:bg-habb-red-dark shadow-[0_0_40px_rgba(218,14,21,0.15)] dark:shadow-[0_0_40px_rgba(218,14,21,0.2)]",
     });
   }
 
   return (
-    <div className="space-y-6">
-      <div className={`grid gap-6 ${buttons.length === 1 ? "grid-cols-1" : "grid-cols-2"}`}>
+    <div className="space-y-4">
+      <div className={`grid gap-4 ${buttons.length === 1 ? "grid-cols-1" : "grid-cols-2"}`}>
         {buttons.map((b) => (
           <button
             key={b.action}
             onClick={() => submit(b.action)}
             disabled={isPending}
-            className={`flex flex-col items-center justify-center rounded-3xl min-h-[14rem] text-3xl font-black transition-all duration-300 hover:-translate-y-1 active:scale-95 disabled:opacity-50 disabled:pointer-events-none p-6 ${b.color}`}
+            className={`flex flex-col items-center justify-center rounded-2xl min-h-[7rem] text-base font-bold transition-all duration-300 hover:-translate-y-1 active:scale-95 disabled:opacity-50 disabled:pointer-events-none p-4 ${b.color}`}
           >
             {b.icon}
             <span>{b.label}</span>
@@ -132,13 +132,13 @@ export function ActionsPanel({ status, labels }: { status: Status; labels: Label
       {confirmation && (
         <div className="rounded-lg bg-white border border-habb-line px-4 py-3 flex items-center gap-2 animate-in fade-in slide-in-from-top-2 dark:bg-white/5 dark:border-white/10">
           <CheckCircle2 className="w-5 h-5 text-habb-ink dark:text-white" />
-          <span className="text-habb-ink dark:text-white font-medium">{confirmation}</span>
+          <span className="text-habb-ink dark:text-white font-medium text-sm">{confirmation}</span>
         </div>
       )}
       {error && (
         <div className="rounded-lg bg-habb-red/10 border border-habb-red/30 px-4 py-3 flex items-center gap-2">
           <AlertTriangle className="w-5 h-5 text-habb-red" />
-          <span className="text-habb-red">{error}</span>
+          <span className="text-habb-red text-sm">{error}</span>
         </div>
       )}
     </div>

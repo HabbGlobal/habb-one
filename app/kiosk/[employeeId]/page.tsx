@@ -59,22 +59,22 @@ export default async function KioskPinPage({
         />
 
         <div className="flex flex-1 flex-col items-center justify-center py-8">
-          <div className="relative mb-5">
+          <div className="relative mb-4">
             <div className="absolute inset-0 scale-125 rounded-full bg-habb-red/25 blur-2xl dark:bg-habb-red/40" />
-            <div className="relative flex h-24 w-24 items-center justify-center rounded-full border-2 border-habb-red/30 bg-white text-3xl font-black text-habb-ink shadow-xl dark:border-habb-red/40 dark:bg-white/5 dark:text-white dark:backdrop-blur-xl">
+            <div className="relative flex h-16 w-16 items-center justify-center rounded-full border-2 border-habb-red/30 bg-white text-lg font-black text-habb-ink shadow-xl dark:border-habb-red/40 dark:bg-white/5 dark:text-white dark:backdrop-blur-xl">
               {initials}
             </div>
           </div>
 
-          <div className="text-center space-y-1">
-            <p className="text-lg font-bold tracking-widest text-habb-red uppercase">{employee.firstName}</p>
-            <h2 className="text-4xl md:text-5xl font-black tracking-tight text-habb-ink dark:text-white dark:drop-shadow-2xl">
+          <div className="text-center space-y-0.5">
+            <p className="text-xs font-bold tracking-widest text-habb-red uppercase">{employee.firstName}</p>
+            <h2 className="text-xl md:text-2xl font-black tracking-tight text-habb-ink dark:text-white dark:drop-shadow-2xl">
               {employee.lastName}
             </h2>
           </div>
 
-          <div className="mt-8 w-full max-w-sm p-6 rounded-3xl border border-habb-line bg-white shadow-xl dark:border-white/10 dark:bg-white/5 dark:backdrop-blur-xl dark:shadow-2xl">
-            <p className="text-center text-lg text-habb-muted dark:text-neutral-300 font-medium mb-6">{tKiosk("enterPin")}</p>
+          <div className="mt-6 w-full max-w-sm p-5 rounded-2xl border border-habb-line bg-white shadow-xl dark:border-white/10 dark:bg-white/5 dark:backdrop-blur-xl dark:shadow-2xl">
+            <p className="text-center text-sm text-habb-muted dark:text-neutral-300 font-medium mb-4">{tKiosk("enterPin")}</p>
             <PinPad
               employeeId={employee.id}
               wrongPinMessage={tKiosk("wrongPin")}
@@ -82,12 +82,12 @@ export default async function KioskPinPage({
             />
           </div>
 
-          <div className="mt-6 w-full max-w-sm">
+          <div className="mt-5 w-full max-w-sm">
             <Link
               href="/kiosk"
-              className="inline-flex items-center justify-center gap-2 w-full rounded-2xl border border-habb-line bg-white px-6 py-3 text-base font-bold text-habb-muted transition-all hover:text-habb-ink dark:border-white/10 dark:bg-white/5 dark:backdrop-blur-md dark:text-neutral-300 dark:hover:bg-white/10 dark:hover:text-white"
+              className="inline-flex items-center justify-center gap-2 w-full rounded-xl border border-habb-line bg-white px-5 py-2.5 text-sm font-bold text-habb-muted transition-all hover:text-habb-ink dark:border-white/10 dark:bg-white/5 dark:backdrop-blur-md dark:text-neutral-300 dark:hover:bg-white/10 dark:hover:text-white"
             >
-              <ArrowLeft className="h-6 w-6" />
+              <ArrowLeft className="h-4 w-4" />
               {tKiosk("back")}
             </Link>
           </div>

@@ -1,6 +1,5 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import Image from "next/image";
 import {
   Check,
   X,
@@ -18,6 +17,8 @@ import {
   type PlanSpec,
 } from "@/lib/pricing/plans";
 import type { TenantModule } from "@prisma/client";
+import { PublicHeader } from "@/components/marketing/PublicHeader";
+import { PublicFooter } from "@/components/marketing/PublicFooter";
 
 export const metadata: Metadata = {
   title: "Pricing — HABB One",
@@ -373,55 +374,6 @@ function Faq({ q, children }: { q: string; children: React.ReactNode }) {
       </summary>
       <div className="mt-3 text-sm text-habb-muted leading-relaxed">{children}</div>
     </details>
-  );
-}
-
-function PublicHeader() {
-  return (
-    <header className="border-b border-habb-line bg-white">
-      <div className="mx-auto flex max-w-6xl items-center justify-between px-6 py-4">
-        <Link href="/" className="flex items-center gap-2">
-          <Image
-            src="/brand/habb-logo.png"
-            alt="HABB One"
-            width={32}
-            height={32}
-            className="h-8 w-auto"
-          />
-          <span className="text-base font-semibold tracking-tight">
-            HABB One
-          </span>
-        </Link>
-        <nav className="flex items-center gap-4 text-sm">
-          <Link href="/pricing" className="font-medium text-habb-ink">
-            Pricing
-          </Link>
-          <Link href="/login" className="text-habb-muted hover:text-habb-ink">
-            Login
-          </Link>
-          <Link
-            href="/register"
-            className="hidden sm:inline-flex items-center gap-1 rounded-md bg-habb-black px-3 py-1.5 text-xs font-medium text-white hover:bg-habb-ink"
-          >
-            Start Trial
-          </Link>
-        </nav>
-      </div>
-    </header>
-  );
-}
-
-function PublicFooter() {
-  return (
-    <footer className="border-t border-habb-line bg-habb-paper">
-      <div className="mx-auto flex max-w-6xl flex-wrap items-center justify-between gap-3 px-6 py-6 text-xs text-habb-muted">
-        <span>© {new Date().getFullYear()} HABB One ERP</span>
-        <span>Product By HABB Global (PVT) LTD</span>
-        <Link href="/login" className="hover:text-habb-ink">
-          Customer Area
-        </Link>
-      </div>
-    </footer>
   );
 }
 
