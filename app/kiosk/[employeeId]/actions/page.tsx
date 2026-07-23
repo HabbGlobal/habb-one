@@ -103,7 +103,7 @@ export default async function KioskActionsPage({
               <form action={endKioskSessionAction}>
                 <button
                   type="submit"
-                  className="inline-flex items-center gap-3 rounded-2xl border border-habb-line bg-white px-5 py-3 text-sm font-bold text-habb-muted transition-all hover:text-habb-ink dark:border-white/10 dark:bg-white/5 dark:backdrop-blur-md dark:text-neutral-300 dark:hover:bg-white/10 dark:hover:text-white"
+                  className="inline-flex items-center gap-2 rounded-xl border border-habb-line bg-white px-4 py-2 text-sm font-bold text-habb-muted transition-all hover:text-habb-ink dark:border-white/10 dark:bg-white/5 dark:backdrop-blur-md dark:text-neutral-300 dark:hover:bg-white/10 dark:hover:text-white"
                 >
                   <ArrowLeft className="h-4 w-4" />
                   {tKiosk("back")}
@@ -113,24 +113,24 @@ export default async function KioskActionsPage({
           }
         />
 
-        <div className="rounded-3xl border border-habb-line bg-white shadow-sm p-8 dark:border-white/10 dark:bg-white/5 dark:backdrop-blur-xl dark:shadow-2xl">
-          <div className="flex items-center gap-6">
+        <div className="rounded-2xl border border-habb-line bg-white shadow-sm p-5 dark:border-white/10 dark:bg-white/5 dark:backdrop-blur-xl dark:shadow-2xl">
+          <div className="flex items-center gap-4">
             <div className="relative shrink-0">
               <div className={`absolute inset-0 scale-125 rounded-full blur-2xl ${avatarGlow}`} />
-              <div className={`relative flex h-20 w-20 items-center justify-center rounded-full border-2 bg-habb-paper text-2xl font-black text-habb-ink shadow-lg dark:bg-black/40 dark:text-white ${avatarRing}`}>
+              <div className={`relative flex h-14 w-14 items-center justify-center rounded-full border-2 bg-habb-paper text-lg font-black text-habb-ink shadow-lg dark:bg-black/40 dark:text-white ${avatarRing}`}>
                 {initials}
               </div>
             </div>
 
             <div>
-              <p className="text-sm font-bold uppercase tracking-[0.2em] text-habb-red mb-2">
+              <p className="text-xs font-bold uppercase tracking-[0.2em] text-habb-red mb-1">
                 {tKiosk("welcome", { name: "" })}
               </p>
-              <h2 className="text-3xl md:text-5xl font-black tracking-tight text-habb-ink dark:text-white dark:drop-shadow-md">
+              <h2 className="text-xl md:text-2xl font-black tracking-tight text-habb-ink dark:text-white dark:drop-shadow-md">
                 {employee.firstName} {employee.lastName}
               </h2>
-              <div className="mt-4 flex items-center gap-3">
-                <span className="text-base font-medium text-habb-muted dark:text-neutral-400">{tKiosk("currentStatus")}:</span>
+              <div className="mt-2 flex items-center gap-2">
+                <span className="text-sm font-medium text-habb-muted dark:text-neutral-400">{tKiosk("currentStatus")}:</span>
                 <StatusPill status={status} label={statusLabel} />
               </div>
             </div>
@@ -172,11 +172,11 @@ export default async function KioskActionsPage({
           }}
         />
 
-        <div className="rounded-3xl border border-habb-line bg-white shadow-sm p-8 flex flex-col justify-center dark:border-white/10 dark:bg-white/5 dark:backdrop-blur-xl dark:shadow-2xl">
-          <h3 className="text-xl font-bold text-habb-muted dark:text-neutral-300 mb-2">{tKiosk("vacationRemaining")}</h3>
-          <p className="text-4xl font-black tabular-nums text-habb-ink dark:text-white">
+        <div className="rounded-2xl border border-habb-line bg-white shadow-sm p-5 flex flex-col justify-center dark:border-white/10 dark:bg-white/5 dark:backdrop-blur-xl dark:shadow-2xl">
+          <h3 className="text-sm font-bold text-habb-muted dark:text-neutral-300 mb-1">{tKiosk("vacationRemaining")}</h3>
+          <p className="text-2xl font-black tabular-nums text-habb-ink dark:text-white">
             {vacation.remainingDays.toFixed(1)}{" "}
-            <span className="text-2xl font-normal text-habb-muted dark:text-neutral-500">
+            <span className="text-sm font-normal text-habb-muted dark:text-neutral-500">
               / {vacation.totalDays.toFixed(1)} days
             </span>
           </p>
@@ -197,10 +197,10 @@ function StatusPill({ status, label }: { status: "IN" | "OUT" | "BREAK"; label: 
       : "bg-habb-paper text-habb-muted border border-habb-line dark:bg-white/5 dark:text-neutral-400 dark:border-white/10";
   return (
     <span
-      className={`inline-flex items-center gap-3 rounded-full px-4 py-2 text-sm font-bold tracking-wider uppercase ${tone}`}
+      className={`inline-flex items-center gap-2 rounded-full px-3 py-1 text-xs font-bold tracking-wider uppercase ${tone}`}
     >
-      {status === "IN" && <span className="inline-block w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />}
-      {status === "BREAK" && <span className="inline-block w-2 h-2 rounded-full bg-amber-400 animate-pulse" />}
+      {status === "IN" && <span className="inline-block w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />}
+      {status === "BREAK" && <span className="inline-block w-1.5 h-1.5 rounded-full bg-amber-400 animate-pulse" />}
       {label}
     </span>
   );
