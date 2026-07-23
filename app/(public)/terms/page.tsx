@@ -173,8 +173,8 @@ export default function TermsPage() {
           <LegalSection title="12. Contact">
             <p>
               Questions about these Terms can be sent to{" "}
-              <a href="mailto:legal@habbglobal.com" className="underline underline-offset-2">
-                legal@habbglobal.com
+              <a href="mailto:support@habbglobal.com" className="underline underline-offset-2">
+                support@habbglobal.com
               </a>
               .
             </p>

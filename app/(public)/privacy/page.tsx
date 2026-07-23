@@ -130,8 +130,8 @@ export default function PrivacyPage() {
               data. Employees should raise such requests with their employer
               (the Customer), who controls the underlying records; employers
               can contact us directly for platform-level requests at{" "}
-              <a href="mailto:privacy@habbglobal.com" className="underline underline-offset-2">
-                privacy@habbglobal.com
+              <a href="mailto:support@habbglobal.com" className="underline underline-offset-2">
+                support@habbglobal.com
               </a>
               .
             </p>
@@ -156,8 +156,8 @@ export default function PrivacyPage() {
           <LegalSection title="11. Contact">
             <p>
               Questions about this policy or a data request can be sent to{" "}
-              <a href="mailto:privacy@habbglobal.com" className="underline underline-offset-2">
-                privacy@habbglobal.com
+              <a href="mailto:support@habbglobal.com" className="underline underline-offset-2">
+                support@habbglobal.com
               </a>
               .
             </p>
